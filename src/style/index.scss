@@ -1,0 +1,37 @@
+.page-info {
+    width: 100%;
+    background-color: blue;
+
+    .search {
+        background: rgb(209, 212, 209);
+        border-radius: 10px 10px 10px 10px;
+        width: 100%;
+        height: 80px;
+    }
+
+    .search-box {
+        width: 100%;
+        height: 80px;
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+
+        .search-box-in {
+            margin: 20px 20px 20px 20px;
+            display: inline-block;
+            width: 100%;
+
+            .ant-input {
+                width: 200px;
+            }
+
+            .ant-select {
+                width: 200px;
+            }
+
+            .ant-picker {
+                width: 200px;
+            }
+        }
+    }
+}

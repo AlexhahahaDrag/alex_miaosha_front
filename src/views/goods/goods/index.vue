@@ -1,7 +1,9 @@
 <template>
-    <div class="content-box">
+<div class="pageinfo">
+<div class="content-box">
         <a-form layout="inline" @keyup.enter.native="searchInfo">
         <a-space>
+          <label>商品名称:</label>
           <a-input
             style="width: 140px; "
             v-model:value="searchInfo.goodsName"
@@ -112,6 +114,8 @@
         </template>
       </a-table>
       </div>
+</div>
+    
 </template>
 <script setup lang="ts"> 
 
