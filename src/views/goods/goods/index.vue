@@ -1,30 +1,39 @@
 <template>
-<div class="pageinfo">
-<div class="content-box">
-        <a-form layout="inline" @keyup.enter.native="searchInfo">
-        <a-space>
-          <label>商品名称:</label>
-          <a-input
-            style="width: 140px; "
-            v-model:value="searchInfo.goodsName"
-            placeholder="商品名称"
-            allow-clear
-          />
-          <a-button type="primary" @click="query">
-            查找</a-button
-            
-          >
-           <a-button type="primary" @click="cancelQuery">清空</a-button>
-          </a-space>
-      </a-form>
-      <a-row>
-        <a-space>
-            <a-button type="primary">新增商品</a-button>
-            <a-button type="de">批量删除</a-button>
+  <div class="page-info">
+    <div class="search">
+      <div class="search-box">
+        <div class="search-box-in">
+          <a-form layout="inline" @keyup.enter.native="searchInfo">
+            <a-space>
+              <a-input
+                v-model:value="searchInfo.activityName"
+                placeholder="活动名称"
+                allow-clear
+              />
+              <a-select
+                ref="select"
+                v-model:value="searchInfo.activityStatus"
+                mode="combobox"
+                placeholder="请输入标签名"
+                :field-names="{ label: 'content', value: 'id' }"
+                :options="activityStatusList"
+                :allowClear="true"
+              ></a-select>
+              <a-range-picker
+                v-model:value="times"
+                style="width: 400px"
+                :ranges="ranges"
+                show-time
+                format="YYYY/MM/DD HH:mm:ss"
+              />
+              <a-button type="primary" @click="query"> 查找</a-button>
+              <a-button type="primary" @click="cancelQuery">清空</a-button>
             </a-space>
-          </a-row>
+          </a-form>
+        </div>
+      </div>
     </div>
-    <div>
+    <div class="content">
       <a-table
         :dataSource="dataSource"
         :columns="columns"
@@ -113,28 +122,24 @@
           </template> -->
         </template>
       </a-table>
-      </div>
-</div>
-    
+    </div>
+  </div>
 </template>
-<script setup lang="ts"> 
+<script setup lang="ts">
+import { ref } from "vue";
+import { SearchInfo, pageInfo, pagination, columns } from "./goods";
+import dayjs, { Dayjs } from "dayjs";
+import { getPlatformList } from "@/api/goods/platformGoods/platformGoods";
+import { notification } from "ant-design-vue";
 
-import { ref } from 'vue';
-import {
-  SearchInfo,
-  pageInfo,
-  pagination,
-  columns,
-} from "./goods";
+type RangeValue = [Dayjs, Dayjs];
 
 let searchInfo = ref<SearchInfo>({});
 function cancelQuery() {
-searchInfo.value = {};
+  searchInfo.value = {};
 }
 
-function query() {
-    
-}
+function query() {}
 
 function handleTableChange(pagination: pageInfo) {
   searchInfo.value.currentPage = pagination.current;
@@ -160,13 +165,37 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 };
 
-</script>
-<style>
-.content-box {
-	box-sizing: border-box;
-	padding: 10px 20px 0 0;
-	.a-form {
-		width: 100%;
-	}
+const activityStatusList = [];
+
+let times = ref<RangeValue>();
+const ranges = {
+  Today: [dayjs(), dayjs()] as RangeValue,
+  "This Month": [dayjs(), dayjs().endOf("month")] as RangeValue,
+};
+
+function getGoodsList(param: SearchInfo) {
+  loading.value = true;
+  getPlatformList(param)
+    .then((res) => {
+      if (res.code == "200") {
+        dataSource.value = res.data;
+        pagination.value.current = res.data.current;
+        pagination.value.pageSize = res.data.size;
+        pagination.value.total = res.data.total;
+      } else {
+        notification.error({
+          message: res.code,
+          description: (res && res.message) || "查询列表失败！",
+        });
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
+getGoodsList(searchInfo.value);
+</script>
+<style lang="scss" scoped>
+@import "@/style/index.scss";
 </style>

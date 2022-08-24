@@ -56,14 +56,18 @@ export const columns = [
     title: "活动名称",
     dataIndex: "activityName",
     key: "activityName",
-    width: "10%",
     ellipsis: true,
   },
   {
     title: "开始时间",
-    dataIndex: "结束时间",
-    width: "12%",
-    key: "title",
+    dataIndex: "startTime",
+    key: "startTime",
+    ellipsis: true,
+  },
+  {
+    title: "结束时间",
+    dataIndex: "endTime",
+    key: "endTime",
     ellipsis: true,
   },
   {
@@ -79,7 +83,6 @@ export const columns = [
   {
     title: "操作",
     key: "operation",
-    fixed: "right",
     width: 200,
   },
 ];

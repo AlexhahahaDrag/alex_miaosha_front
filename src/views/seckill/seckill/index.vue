@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div>
+    <div class="content">
       <a-table
         :dataSource="dataSource"
         :columns="columns"
@@ -170,6 +170,11 @@ const ranges = {
   Today: [dayjs(), dayjs()] as RangeValue,
   "This Month": [dayjs(), dayjs().endOf("month")] as RangeValue,
 };
+
+function getSeckillList() {
+
+}
+
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";
