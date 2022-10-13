@@ -6,6 +6,7 @@ import Goods from '@v/goods/goods/index.vue';
 import Dashboard from '@v/dashboard/index.vue';
 import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
+import FinanceManager from '@v/finance/financeManager/index.vue';
 import NProgress from 'nprogress';
 
 export const routes: MenuDataItem[] = [
@@ -88,7 +89,7 @@ export const routes: MenuDataItem[] = [
     path: "/promotion",
     component: Layout,
     redirect: "/promotion/seckill",
-    name: "促销",
+    name: "促销管理",
     meta: { title: "促销", icon: "promotion", hiedInMenu: false },
     children: [
       {
@@ -96,6 +97,21 @@ export const routes: MenuDataItem[] = [
         name: "秒杀活动",
         component: Seckill,
         meta: { title: "秒杀活动", icon: "seckill", hiedInMenu: false },
+      },
+    ],
+  },
+  {
+    path: "/finance",
+    component: Layout,
+    redirect: "/finance/financeManager",
+    name: "财务管理",
+    meta: { title: "财务管理", icon: "finance", hiedInMenu: false },
+    children: [
+      {
+        path: "/finance/financeManager",
+        name: "财务",
+        component: FinanceManager,
+        meta: { title: "财务", icon: "financeManager", hiedInMenu: false },
       },
     ],
   },

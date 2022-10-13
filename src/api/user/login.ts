@@ -1,11 +1,11 @@
-import request from "@/utils/request";
+import request from "@/utils/request/request";
 import { LoginResultModel } from "./typing";
 
 // 将请求数据转换为form-data格式
 // 这里不用qs，用FormData也可以，不赘述
 enum Api {
-  Login = "/api/alex-uaa/user/doLogin",
-  Logout = "/api/alex-uaa/user/doLogout",
+  Login = "/api/alex-user/user/doLogin",
+  Logout = "/api/alex-user/user/doLogout",
 }
 
 export interface LoginParams {

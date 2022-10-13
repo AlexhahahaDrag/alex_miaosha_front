@@ -1,6 +1,6 @@
 import { getData, postData, deleteData } from "@/api/common/index";
 
-const baseGoods = "/api/alex-mission";
+const baseGoods = "/api/am-mission";
 
 const platformGoodsUrl = {
     list: '/goods/getGoodsList',
