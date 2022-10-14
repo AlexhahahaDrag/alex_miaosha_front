@@ -1,6 +1,6 @@
 import { getDataOne, getData, postData, putData, deleteData } from "@/api/common/index";
 
-const baseGoods = "/api/am-finance";
+const baseFinanceManager = "/api/am-finance";
 
 const financeMangerUrl = {
     page: '/finance-info/page',
@@ -8,21 +8,21 @@ const financeMangerUrl = {
 }
 
 export function getFinanceMangerPage(params: any): Promise<any> {
-  return postData(baseGoods + financeMangerUrl.page, params);
+  return postData(baseFinanceManager + financeMangerUrl.page, params);
 }
 
 export function getFinanceMangerDetail(id: number): Promise<any> {
-  return getDataOne(baseGoods + financeMangerUrl.url + "?id=" + id);
+  return getDataOne(baseFinanceManager + financeMangerUrl.url + "?id=" + id);
 }
 
 export function addFinanceManger(params: any): Promise<any> {
-  return postData(baseGoods + financeMangerUrl.url, params);
+  return postData(baseFinanceManager + financeMangerUrl.url, params);
 }
 
 export function editFinanceManger(params: any): Promise<any> {
-  return putData(baseGoods + financeMangerUrl.url, params);
+  return putData(baseFinanceManager + financeMangerUrl.url, params);
 }
 
 export function deleteFinanceManger(ids: string) {
-  return deleteData(baseGoods + financeMangerUrl.url + "?ids=" + ids);
+  return deleteData(baseFinanceManager + financeMangerUrl.url + "?ids=" + ids);
 }
