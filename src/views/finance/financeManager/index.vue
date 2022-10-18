@@ -5,11 +5,7 @@
         <div class="search-box-in">
           <a-form layout="inline" @keyup.enter.native="searchInfo">
             <a-space>
-              <a-input
-                v-model:value="searchInfo.name"
-                placeholder="名称"
-                allow-clear
-              />
+              <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
               <a-select
                 ref="select"
                 v-model:value="searchInfo.fromSource"
@@ -35,11 +31,10 @@
     </div>
     <div class="button">
       <a-space>
-        <a-button type="primary" @click="query">新增</a-button>
+        <a-button type="primary" @click="editFinance('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <!-- <a-button type="danger" @click="delFinanceManager">删除</a-button> -->
+        <a-button type="danger" @click="batchDelFinanceManager">删除</a-button>
       </a-space>
-      
     </div>
     <div class="content">
       <a-table
@@ -49,46 +44,87 @@
         :row-key="(record) => record.id"
         :pagination="pagination"
         @change="handleTableChange"
-        :scroll="{ x: 1500 }"
+        :scroll="{ x: 1200 }"
         :row-selection="rowSelection"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small">编辑</a-button>
+              <a-button
+                type="primary"
+                size="small"
+                @click="editFinance('update', record.id)"
+                >编辑</a-button
+              >
               <a-popconfirm
                 title="确认删除博客?"
                 ok-text="确认"
                 cancel-text="取消"
-                @confirm="confirm(record.id)"
+                @confirm="delFinance(record.id)"
                 @cancel="cancel"
               >
-                <a-button type="primary" size="small" danger @click="delFinanceManager(record.id)">删除</a-button>
+                <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
           <template v-else-if="column.key === 'isValid'">
-            <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
+            <a-tag
+              :key="record.isValid"
+              :color="record.isValid == 1 ? '#87d068' : 'grey'"
+            >
               {{ record.isValid == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
+          <template v-else-if="column.key === 'fromSource'">
+            <div v-for="fromSource in fromSourceList">
+              <svgIcon
+                v-if="record.fromSource == fromSource.value && fromSource.value != ''"
+                :name="fromSource.label"
+                class="svg"
+                style="width: 1.5em; height: 1.5em; font-size: 18px; cursor: pointer; verticle-align:middle"
+              ></svgIcon>
+            </div>
+          </template>
         </template>
       </a-table>
+      <Detail
+        ref="editInfo"
+        :visible="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      ></Detail>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { SearchInfo, pageInfo, pagination, columns, DataItem } from "./financeManager";
+import {
+  SearchInfo,
+  pageInfo,
+  pagination,
+  columns,
+  DataItem,
+  ModelInfo,
+  fromSourceList,
+} from "./financeManager";
 import dayjs, { Dayjs } from "dayjs";
-import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager/financeManager";
-import { notification } from "ant-design-vue";
+import {
+  getFinanceMangerPage,
+  deleteFinanceManger,
+} from "@/api/finance/financeManager/financeManager";
+import { message } from "ant-design-vue";
+import Detail from "./detail/index.vue";
+import svgIcon from "@v/common/icons/svgIcon.vue";
+
+let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
   onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+    rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
@@ -110,16 +146,29 @@ function query() {
   getFinancePage(searchInfo.value);
 }
 
-function delFinanceManager(ids: string) {
+function delFinance(ids: string) {
   deleteFinanceManger(ids).then((res) => {
-    notification.error({
-          message: res.code,
-          description: (res && res.message) || "删除失败！",
-        });
     if (res.code == "200") {
+      message.success((res && "删除" + res.message) || "删除成功！", 3);
       getFinancePage(searchInfo.value);
+    } else {
+      message.error((res && res.message) || "删除失败！", 3);
     }
-  })
+  });
+}
+
+function batchDelFinanceManager() {
+  let ids = "";
+  if (rowIds && rowIds.length > 0) {
+    rowIds.forEach((item) => {
+      ids += item + ",";
+    });
+    ids = ids.substring(0, ids.length - 1);
+  } else {
+    message.warning("请先选择数据！", 3);
+    return;
+  }
+  delFinance(ids);
 }
 
 function handleTableChange(pagination: pageInfo) {
@@ -127,17 +176,6 @@ function handleTableChange(pagination: pageInfo) {
   searchInfo.value.pageSize = pagination.pageSize;
   // blogList(searchInfo.value);
 }
-
-const confirm = (id: number) => {
-  // deleteBlogById(id).then((res) => {
-  //   if (res.code == "success") {
-  //     message.success(res.message);
-  //     blogList(searchInfo.value);
-  //   } else {
-  //     message.error(res.message);
-  //   }
-  // });
-};
 
 let loading = ref<boolean>(false);
 
@@ -152,7 +190,6 @@ const activityStatusList = [];
 let times = ref<RangeValue>();
 const ranges = {
   Today: [dayjs(), dayjs()] as RangeValue,
-  "This Month": [dayjs(), dayjs().endOf("month")] as RangeValue,
 };
 
 function getFinancePage(param: SearchInfo) {
@@ -165,10 +202,7 @@ function getFinancePage(param: SearchInfo) {
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;
       } else {
-        notification.error({
-          message: res.code,
-          description: (res && res.message) || "查询列表失败！",
-        });
+        message.error((res && res.message) || "查询列表失败！");
       }
     })
     .finally(() => {
@@ -178,6 +212,29 @@ function getFinancePage(param: SearchInfo) {
 
 //获取财务管理页面数据
 getFinancePage(searchInfo.value);
+
+let visible = ref<boolean>(false);
+
+let modelInfo = ref<ModelInfo>({});
+
+//新增和修改弹窗
+function editFinance(type: string, id?: number) {
+  if (type == "add") {
+    modelInfo.value.title = "新增明细";
+  } else if (type == "edit") {
+    modelInfo.value.title = "修改明细";
+    modelInfo.value.id = id;
+  }
+  visible.value = true;
+}
+
+const handleOk = (v) => {
+  visible.value = v;
+};
+
+const handleCancel = (v) => {
+  visible.value = v;
+};
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";

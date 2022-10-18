@@ -48,34 +48,30 @@ export const pagination = ref<pageInfo>({
 });
 
 export const columns = [
-  {
-    title: "id",
-    dataIndex: "id",
-    key: "id",
-    ellipsis: true,
-  },
+  // {
+  //   title: "id",
+  //   dataIndex: "id",
+  //   key: "id",
+  // },
   {
     title: "名称",
     dataIndex: "name",
     key: "name",
-    ellipsis: true,
   },
   {
     title: "类别",
     dataIndex: "typeName",
     key: "typeName",
-    ellipsis: true,
   },
   {
     title: "金额",
     dataIndex: "amount",
     key: "amount",
-    ellipsis: true,
   },
   {
     title: "支付方式",
-    dataIndex: "fromSourceName",
-    key: "fromSourceName",
+    dataIndex: "fromSource",
+    key: "fromSource",
   },
   {
     title: "状态",
@@ -104,3 +100,18 @@ export interface DataItem {
   fromSourceName: string;
   isValid: number;
 }
+
+export interface ModelInfo {
+  title?: string;
+  width?: string;
+  id?: number;
+}
+
+export const fromSourceList = [
+  { value: "xj", label: "cash" },
+  { value: "yhk", label: "card" },
+  { value: "zfb", label: "zhifubao" },
+  { value: "wx", label: "weChat" },
+  { value: "mt", label: "meituan" },
+  { value: "other", label: "" },
+]

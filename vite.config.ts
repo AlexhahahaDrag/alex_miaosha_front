@@ -27,7 +27,7 @@ export default defineConfig({
       ],
     }),
     createSvgIconsPlugin({
-      iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons')],
+      iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons/finance'), pathResolve('src/icons/soft'),pathResolve('src/icons')],
       symbolId: 'icon-[dir]-[name]',
       inject: 'body-last',//body-last|body-first默认body-last
       customDomId: '__svg__icons__dom__', //默认__svg__icons__dom__

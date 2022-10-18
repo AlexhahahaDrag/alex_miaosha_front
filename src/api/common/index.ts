@@ -9,14 +9,14 @@ export function putData(url: string, params: any): Promise<any> {
   return request.put<Params, any>(url, params);
 }
 
-export function getDataOne(url: string): Promise<any> {
-  return request.get<Params, any>(url);
-}
-
 export function getData(url: string, params: any): Promise<any> {
   return request.get<Params, any>(url, params);
 }
 
+export function getDataOne(url: string): Promise<any> {
+  return request.get<Params, any>(url);
+}
+
 export function deleteData(url: string): Promise<any> {
-  return request.delete(url);
+  return request.delete<Params, any>(url);
 }
