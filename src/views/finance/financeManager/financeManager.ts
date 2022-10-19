@@ -1,3 +1,4 @@
+import { Nullable } from "@/types/global";
 import { ref } from "vue";
 
 export interface SearchInfo {
@@ -104,10 +105,11 @@ export interface DataItem {
 export interface ModelInfo {
   title?: string;
   width?: string;
-  id?: number;
+  id?: number | undefined;
+  confirmLoading ?: boolean;
 }
 
-export const fromSourceList = [
+export const fromSourceTransferList = [
   { value: "xj", label: "cash" },
   { value: "yhk", label: "card" },
   { value: "zfb", label: "zhifubao" },
@@ -115,3 +117,8 @@ export const fromSourceList = [
   { value: "mt", label: "meituan" },
   { value: "other", label: "" },
 ]
+
+export interface dictInfo {
+  typeCode: string,
+  typeName: string,
+}

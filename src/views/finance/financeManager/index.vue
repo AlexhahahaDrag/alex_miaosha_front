@@ -11,8 +11,8 @@
                 v-model:value="searchInfo.fromSource"
                 mode="combobox"
                 placeholder="请输入来源"
-                :field-names="{ label: 'content', value: 'id' }"
-                :options="activityStatusList"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="fromSourceList"
                 :allowClear="true"
               ></a-select>
               <a-range-picker
@@ -77,7 +77,7 @@
             </a-tag>
           </template>
           <template v-else-if="column.key === 'fromSource'">
-            <div v-for="fromSource in fromSourceList">
+            <div v-for="fromSource in fromSourceTransferList">
               <svgIcon
                 v-if="record.fromSource == fromSource.value && fromSource.value != ''"
                 :name="fromSource.label"
@@ -107,18 +107,24 @@ import {
   columns,
   DataItem,
   ModelInfo,
-  fromSourceList,
+  fromSourceTransferList,
+  dictInfo,
 } from "./financeManager";
 import dayjs, { Dayjs } from "dayjs";
 import {
   getFinanceMangerPage,
   deleteFinanceManger,
 } from "@/api/finance/financeManager/financeManager";
+import {
+  getDictList,
+} from "@/api/finance/dict/dict";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
 
 let rowIds = [] as any;
+
+const fromSourceList = ref<dictInfo>([]);
 
 const rowSelection = ref({
   checkStrictly: false,
@@ -185,9 +191,8 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 };
 
-const activityStatusList = [];
-
 let times = ref<RangeValue>();
+
 const ranges = {
   Today: [dayjs(), dayjs()] as RangeValue,
 };
@@ -210,8 +215,25 @@ function getFinancePage(param: SearchInfo) {
     });
 }
 
-//获取财务管理页面数据
-getFinancePage(searchInfo.value);
+function getDictInfoList() {
+  loading.value = true;
+  getDictList('pay_way').then((res) => {
+      if (res.code == "200") {
+        fromSourceList.value = res.data.records;
+      } else {
+        message.error((res && res.message) || "查询列表失败！");
+      }
+    });
+}
+
+function init() {
+  //获取财务管理页面数据
+  getFinancePage(searchInfo.value);
+  //获取字典列表
+  getDictInfoList();
+}
+
+init();
 
 let visible = ref<boolean>(false);
 
@@ -221,18 +243,21 @@ let modelInfo = ref<ModelInfo>({});
 function editFinance(type: string, id?: number) {
   if (type == "add") {
     modelInfo.value.title = "新增明细";
-  } else if (type == "edit") {
+    modelInfo.value.id = undefined;
+  } else if (type == "update") {
     modelInfo.value.title = "修改明细";
     modelInfo.value.id = id;
   }
+  modelInfo.value.confirmLoading = true;
   visible.value = true;
 }
 
-const handleOk = (v) => {
+const handleOk = (v: boolean) => {
   visible.value = v;
+  getFinancePage(searchInfo.value);
 };
 
-const handleCancel = (v) => {
+const handleCancel = (v: boolean) => {
   visible.value = v;
 };
 </script>
