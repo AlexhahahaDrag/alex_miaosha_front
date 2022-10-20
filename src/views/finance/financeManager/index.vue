@@ -15,6 +15,15 @@
                 :options="fromSourceList"
                 :allowClear="true"
               ></a-select>
+              <a-select
+                ref="select"
+                v-model:value="searchInfo.incomeAndExpenses"
+                mode="combobox"
+                placeholder="请输入收支类型"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="incomeAndExpensesList"
+                :allowClear="true"
+              ></a-select>
               <a-range-picker
                 v-model:value="times"
                 style="width: 400px"
@@ -126,6 +135,8 @@ let rowIds = [] as any;
 
 const fromSourceList = ref<dictInfo>([]);
 
+const incomeAndExpensesList = ref<dictInfo>([]);
+
 const rowSelection = ref({
   checkStrictly: false,
   onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
@@ -217,9 +228,10 @@ function getFinancePage(param: SearchInfo) {
 
 function getDictInfoList() {
   loading.value = true;
-  getDictList('pay_way').then((res) => {
+  getDictList('pay_way,income_expense_type').then((res) => {
       if (res.code == "200") {
-        fromSourceList.value = res.data.records;
+        fromSourceList.value = res.data.filter(item => item.belongTo == 'pay_way');
+        incomeAndExpensesList.value = res.data.filter(item => item.belongTo == 'income_expense_type');
       } else {
         message.error((res && res.message) || "查询列表失败！");
       }

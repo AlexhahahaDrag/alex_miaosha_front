@@ -1,4 +1,3 @@
-import { Nullable } from "@/types/global";
 import { ref } from "vue";
 
 export interface SearchInfo {
@@ -8,6 +7,7 @@ export interface SearchInfo {
   isValid?: number;
   pageNo?:number;
   pageSize?:number;
+  incomeAndExpenses?: string;
 }
 
 export interface pageInfo {
@@ -61,8 +61,8 @@ export const columns = [
   },
   {
     title: "类别",
-    dataIndex: "typeName",
-    key: "typeName",
+    dataIndex: "typeCode",
+    key: "typeCode",
   },
   {
     title: "金额",
@@ -73,6 +73,11 @@ export const columns = [
     title: "支付方式",
     dataIndex: "fromSource",
     key: "fromSource",
+  },
+  {
+    title: "收支类型",
+    dataIndex: "incomeAndExpenses",
+    key: "incomeAndExpenses",
   },
   {
     title: "状态",
