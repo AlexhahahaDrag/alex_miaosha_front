@@ -85,13 +85,26 @@
               {{ record.isValid == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
+          <template v-else-if="column.key === 'incomeAndExpenses'">
+            <a-tag
+              :key="record.incomeAndExpenses"
+              :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
+            >
+              {{ record.incomeAndExpenses == '' ? "收入" : "支出" }}
+            </a-tag>
+          </template>
           <template v-else-if="column.key === 'fromSource'">
             <div v-for="fromSource in fromSourceTransferList">
               <svgIcon
                 v-if="record.fromSource == fromSource.value && fromSource.value != ''"
                 :name="fromSource.label"
                 class="svg"
-                style="width: 1.5em; height: 1.5em; font-size: 18px; cursor: pointer; verticle-align:middle"
+                style="width: 1.5em;
+                  height: 1.5em;
+                  font-size: 18px;
+                  cursor: pointer;
+                  verticle-align: middle;
+                "
               ></svgIcon>
             </div>
           </template>
@@ -111,7 +124,6 @@
 import { ref } from "vue";
 import {
   SearchInfo,
-  pageInfo,
   pagination,
   columns,
   DataItem,
@@ -123,10 +135,8 @@ import dayjs, { Dayjs } from "dayjs";
 import {
   getFinanceMangerPage,
   deleteFinanceManger,
-} from "@/api/finance/financeManager/financeManager";
-import {
-  getDictList,
-} from "@/api/finance/dict/dict";
+} from "@/api/finance/financeManager";
+import { getDictList } from "@/api/finance/dict/dict";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
@@ -177,7 +187,7 @@ function delFinance(ids: string) {
 function batchDelFinanceManager() {
   let ids = "";
   if (rowIds && rowIds.length > 0) {
-    rowIds.forEach((item) => {
+    rowIds.forEach((item: string) => {
       ids += item + ",";
     });
     ids = ids.substring(0, ids.length - 1);
@@ -186,12 +196,6 @@ function batchDelFinanceManager() {
     return;
   }
   delFinance(ids);
-}
-
-function handleTableChange(pagination: pageInfo) {
-  searchInfo.value.pageNo = pagination.current;
-  searchInfo.value.pageSize = pagination.pageSize;
-  // blogList(searchInfo.value);
 }
 
 let loading = ref<boolean>(false);
@@ -228,21 +232,23 @@ function getFinancePage(param: SearchInfo) {
 
 function getDictInfoList() {
   loading.value = true;
-  getDictList('pay_way,income_expense_type').then((res) => {
-      if (res.code == "200") {
-        fromSourceList.value = res.data.filter(item => item.belongTo == 'pay_way');
-        incomeAndExpensesList.value = res.data.filter(item => item.belongTo == 'income_expense_type');
-      } else {
-        message.error((res && res.message) || "查询列表失败！");
-      }
-    });
+  getDictList("pay_way,income_expense_type").then((res) => {
+    if (res.code == "200") {
+      fromSourceList.value = res.data.filter((item: { belongTo: string; }) => item.belongTo == "pay_way");
+      incomeAndExpensesList.value = res.data.filter(
+        (item: { belongTo: string; }) => item.belongTo == "income_expense_type"
+      );
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
 }
 
 function init() {
-  //获取财务管理页面数据
-  getFinancePage(searchInfo.value);
   //获取字典列表
   getDictInfoList();
+  //获取财务管理页面数据
+  getFinancePage(searchInfo.value);
 }
 
 init();

@@ -7,6 +7,7 @@ import Dashboard from '@v/dashboard/index.vue';
 import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
 import FinanceManager from '@v/finance/financeManager/index.vue';
+import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
 import NProgress from 'nprogress';
 
 export const routes: MenuDataItem[] = [
@@ -109,9 +110,15 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/finance/financeManager",
-        name: "财务",
+        name: "财务信息",
         component: FinanceManager,
-        meta: { title: "财务", icon: "financeManager", hiedInMenu: false },
+        meta: { title: "财务信息", icon: "financeManager", hiedInMenu: false },
+      },
+      {
+        path: "/finance/financeAnalysis",
+        name: "财务分析",
+        component: FinanceAnalysis,
+        meta: { title: "财务分析", icon: "financeAnalysis", hiedInMenu: false },
       },
     ],
   },

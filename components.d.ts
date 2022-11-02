@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     ABreadcrumb: typeof import('ant-design-vue/es')['Breadcrumb']
     ABreadcrumbItem: typeof import('ant-design-vue/es')['BreadcrumbItem']
     AButton: typeof import('ant-design-vue/es')['Button']
+    ACard: typeof import('ant-design-vue/es')['Card']
     ACol: typeof import('ant-design-vue/es')['Col']
     AConfigProvider: typeof import('ant-design-vue/es')['ConfigProvider']
     ADatePicker: typeof import('ant-design-vue/es')['DatePicker']

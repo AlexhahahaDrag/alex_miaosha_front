@@ -6,8 +6,9 @@ import 'virtual:svg-icons-register'
 import { setupStore } from "@/store";
 import Particles from "particles.vue3";
 import 'ant-design-vue/es/message/style/css'; 
+import * as math from 'mathjs'
 
 const app = createApp(App);
 // Configure store
 setupStore(app);
-app.use(router).use(Particles).mount("#app");
+app.use(router).use(Particles).use(math).mount("#app");

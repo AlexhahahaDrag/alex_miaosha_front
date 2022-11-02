@@ -58,17 +58,39 @@
           <a-col :span="12">
             <a-form-item
               name="fromSource"
-              label="来源"
+              label="支付方式"
               :rules="[{ required: true, message: 'input something' }]"
             >
-              <a-input
+              <a-select
+                ref="select"
                 v-model:value="formState.fromSource"
-                placeholder="请填写来源"
-              ></a-input>
+                mode="combobox"
+                placeholder="请输入来源"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="fromSourceList"
+                :allowClear="true"
+              ></a-select>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              name="incomeAndExpenses"
+              label="收支类型"
+              :rules="[{ required: true, message: 'input something' }]"
+            >
+              <a-select
+                ref="select"
+                v-model:value="formState.incomeAndExpenses"
+                mode="combobox"
+                placeholder="请输入收支类型"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="incomeAndExpensesList"
+                :allowClear="true"
+              ></a-select>
+            </a-form-item>
+          </a-col>
           <a-col :span="12">
             <a-form-item
               name="isValid"
@@ -105,17 +127,16 @@ import { FinanceDetail } from "./detail";
 import {
   getFinanceMangerDetail,
   addOrEditFinanceManger,
-} from "@/api/finance/financeManager/financeManager";
+} from "@/api/finance/financeManager";
+import { getDictList } from "@/api/finance/dict/dict";
 import { message } from "ant-design-vue";
 import dayjs from "dayjs";
-import {
-  ModelInfo,
-} from "../financeManager";
+import { ModelInfo, dictInfo } from "../financeManager";
 
 const modelConfig = {
-  "confirmLoading": true,
-  "destroyOnClose": true,
-}
+  confirmLoading: true,
+  destroyOnClose: true,
+};
 
 interface Props {
   visible?: boolean;
@@ -133,7 +154,7 @@ const handleOk = () => {
 
 const handleCancel = () => {
   emit("handleCancel", false);
-}
+};
 
 //保存财务信息
 function saveFinanceManager() {
@@ -165,12 +186,31 @@ const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
 };
 
+let fromSourceList = ref<dictInfo>([]);
+
+let incomeAndExpensesList = ref<dictInfo>([]);
+
+function getDictInfoList() {
+  getDictList("pay_way,income_expense_type").then((res) => {
+    if (res.code == "200") {
+      fromSourceList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "pay_way"
+      );
+      incomeAndExpensesList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "income_expense_type"
+      );
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
 watch(
   () => props.visible,
-  (newVal, oldVal) => {
-    console.log("newVal==>", newVal);
-    console.log("oldVal==>", oldVal);
-    init();
+  (newVal) => {
+    if (newVal) {
+      init();
+    }
   },
   {
     immediate: true,
@@ -181,21 +221,24 @@ watch(
 function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
-      getFinanceMangerDetail(props.modelInfo.id).then((res) => {
-      if (res.code == "200") {
-        formState.value = res.data;
-        modelConfig.confirmLoading = false;
-      } else {
-        message.error((res && res.message) || "查询失败！");
-      }
-    }).catch(() => {
-      message.error("系统问题，请联系管理员！");
-    });
+      getFinanceMangerDetail(props.modelInfo.id)
+        .then((res) => {
+          if (res.code == "200") {
+            formState.value = res.data;
+            modelConfig.confirmLoading = false;
+          } else {
+            message.error((res && res.message) || "查询失败！");
+          }
+        })
+        .catch(() => {
+          message.error("系统问题，请联系管理员！");
+        });
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {};
     }
   }
+  getDictInfoList();
 }
 
 defineExpose({ handleOk, handleCancel });

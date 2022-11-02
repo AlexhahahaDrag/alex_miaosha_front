@@ -124,6 +124,6 @@ export const fromSourceTransferList = [
 ]
 
 export interface dictInfo {
-  typeCode: string,
-  typeName: string,
+  typeCode?: string|undefined,
+  typeName?: string|undefined,
 }

@@ -20,3 +20,7 @@ export function getDataOne(url: string): Promise<any> {
 export function deleteData(url: string): Promise<any> {
   return request.delete<Params, any>(url);
 }
+
+export const baseService = {
+  "finance": "/api/am-finance",
+}
