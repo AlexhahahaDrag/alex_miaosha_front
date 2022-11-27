@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 export interface FinanceDetail {
   id?: number;
   name?: string;
@@ -6,6 +7,6 @@ export interface FinanceDetail {
   fromSource?: string;
   fromSourceName?: string;
   isValid?: string;
-  operateTime?: string;
-  incomeAndExpenses?:string;
+  infoDate?: Dayjs | string;
+  incomeAndExpenses?: string;
 }

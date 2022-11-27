@@ -1,32 +1,39 @@
 <template>
   <div style="background-color: #ececec; padding: 10px">
-    <a-row :gutter="16" >
-      <a-col :span="6">
+    <a-row :gutter="16">
+      <a-col :span="4">
         <a-card title="总金额" :bordered="false">
-          <p style="font-size:20px">{{sum}}</p>
+          <p style="font-size:20px">{{ sum }}</p>
         </a-card>
       </a-col>
-      <a-col :span="6" v-for="item in balanceList.slice(0, 3)">
+      <a-col :span="4" v-for="item in balanceList.slice(0, 5)">
         <a-card :title="item.typeName" :bordered="false">
-          <p style="font-size:20px">{{item.amount}}</p>
+          <p style="font-size:20px">{{ item.amount }}</p>
         </a-card>
       </a-col>
     </a-row>
     <a-row :gutter="16" style="padding-top:10px">
-      <a-col :span="4" v-for="item in balanceList.slice(4, 12)">
+      <a-col :span="4" v-for="item in balanceList.slice(5)">
         <a-card :title="item.typeName" :bordered="false">
-          <p style="font-size:20px">{{item.amount}}</p>
+          <p style="font-size:20px">{{ item.amount }}</p>
         </a-card>
       </a-col>
     </a-row>
-    
+    <a-row :gutter="16" style="padding-top:10px">
+    <a-col :span="4">
+      <div id="main" style="width: 600px; height: 400px"></div>
+    </a-col>
+    <a-col :span="2">
+      <div id="main1" style="width: 600px; height: 400px"></div>
+    </a-col>
     <div style="width: 600px; height: 400px">
-    <div id="mainBar" style="width: 600px; height: 400px"></div>
-    <div id="main" style="width: 600px; height: 400px"></div>
-    <div id="main1" style="width: 600px; height: 400px"></div>
+      <div id="mainBar" style="width: 600px; height: 400px"></div>
+      <div id="main" style="width: 600px; height: 400px"></div>
+      <div id="main1" style="width: 600px; height: 400px"></div>
+    </div>
+    </a-row>
   </div>
-  </div>
-  
+
 </template>
 <script setup lang="ts">
 import * as echarts from "echarts";
@@ -71,8 +78,8 @@ function getBalancePie(data) {
   // 绘制图表
   option = {
     title: {
-      text: "Referer of a Website",
-      subtext: "Fake Data",
+      text: "当月收入分析",
+      // subtext: "Fake Data",
       left: "center",
     },
     tooltip: {
@@ -98,44 +105,6 @@ function getBalancePie(data) {
       },
     ],
   };
-
-  function getBalancePie1(data) {
-  var chartDom = document.getElementById("main1")!;
-  var myChart = echarts.init(chartDom);
-  type EChartsOption = echarts.EChartsOption;
-  var option: EChartsOption;
-  // 绘制图表
-  option = {
-    title: {
-      text: "Referer of a Website",
-      subtext: "Fake Data",
-      left: "center",
-    },
-    tooltip: {
-      trigger: "item",
-    },
-    legend: {
-      orient: "vertical",
-      left: "left",
-    },
-    series: [
-      {
-        name: "Access From",
-        type: "pie",
-        radius: "50%",
-        data: data,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-      },
-    ],
-  };
-}
-
   option && myChart.setOption(option);
   //   根据页面大小自动响应图表大小
   window.addEventListener("resize", function () {
@@ -143,27 +112,73 @@ function getBalancePie(data) {
   });
 }
 
-const balanceList = ref<FinanceDetail|any>([]);
+function getBalancePie1(data) {
+  var chartDom = document.getElementById("main1")!;
+  var myChart = echarts.init(chartDom);
+  type EChartsOption = echarts.EChartsOption;
+  var option: EChartsOption;
+  // 绘制图表
+  option = {
+    title: {
+      text: "当月花费分析",
+      // subtext: "Fake Data",
+      left: "center",
+    },
+    tooltip: {
+      trigger: "item",
+    },
+    legend: {
+      orient: "vertical",
+      left: "left",
+    },
+    series: [
+      {
+        name: "Access From",
+        type: "pie",
+        radius: "50%",
+        data: data,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+          },
+        },
+      },
+    ],
+  };
+  option && myChart.setOption(option);
+  //   根据页面大小自动响应图表大小
+  window.addEventListener("resize", function () {
+    myChart.resize();
+  });
+}
+
+const balanceList = ref<FinanceDetail | any>([]);
 
 let sum = ref<any>(0);
 
+let searchDate = ref<string>();
+
+searchDate.value = "2022-11";
+
 onMounted(() => {
   setTimeout(() => {
-    getIncomeAndExpense(2, "2022-10").then((res: { code: string; data: any[]; message: any }) => {
+    getIncomeAndExpense(null, searchDate.value).then((res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
-        if(res.data) {
+        if (res.data) {
           let dd: ItemInfo[] = [];
-        res.data.filter(item => item.incomeAndExpenses == 'income').forEach((item: { typeCode: any; amount: any }) => {
-          dd.push({ name: item.typeCode, value: item.amount });
-        });
-        getBalancePie(dd);
-        let expense: ItemInfo[] = [];
-        res.data.filter(item => item.incomeAndExpenses == 'expense').forEach((item: { typeCode: any; amount: any }) => {
-          expense.push({ name: item.typeCode, value: item.amount });
-        });
-        getBalancePie1(expense);
+          res.data.filter(item => item.incomeAndExpenses == 'income').forEach((item: { typeCode: any; amount: any }) => {
+            dd.push({ name: item.typeCode, value: item.amount });
+          });
+          getBalancePie(dd);
+          let expense: ItemInfo[] = [];
+          res.data.filter(item => item.incomeAndExpenses == 'expense').forEach((item: { typeCode: any; amount: any }) => {
+            expense.push({ name: item.typeCode, value: item.amount });
+          });
+          getBalancePie1(expense);
         }
-        
+
         // let xAxis: string[] = [];
         // let data: number[] = [];
         // res.data.filter(item => item.incomeExpenseType == 'expense').forEach((item: { typeCode: any; amount: any }) => {
@@ -178,7 +193,7 @@ onMounted(() => {
   }, 1000);
 
   setTimeout(() => {
-    getBalance(2, "2022-10").then((res: { code: string; data: FinanceDetail[]; message: any }) => {
+    getBalance(null, searchDate.value).then((res: { code: string; data: FinanceDetail[]; message: any }) => {
       if (res.code == "200") {
         balanceList.value = res.data;
         if (res.data && res.data.length) {

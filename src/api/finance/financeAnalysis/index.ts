@@ -10,12 +10,15 @@ import {
     getIncomeAndExpense: "/getIncomeAndExpense",
   };
 
-export function getBalance(belongTo?: number, searchDate?: string): Promise<any> {
-    return getDataOne(baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getBalance + 
-        "?belongTo=" + belongTo + "&searchDate="+ searchDate);
+export function getBalance(belongTo?: number| null, searchDate?: string): Promise<any> {
+  let url = baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getBalance + "?searchDate=" + searchDate;
+  if(belongTo) {
+    url += "&belongTo=" + belongTo;
   }
+  return getDataOne(url);
+}
 
-  export function getIncomeAndExpense(belongTo?: number, searchDate?: string, type?: string): Promise<any> {
+  export function getIncomeAndExpense(belongTo?: number| null, searchDate?: string, type?: string): Promise<any> {
     let url = baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getIncomeAndExpense + '?1=1';
     if(belongTo) {
       url += "&belongTo=" + belongTo;

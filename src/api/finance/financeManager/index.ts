@@ -13,8 +13,9 @@ const financeMangerUrl = {
   url: "",
 };
 
-export function getFinanceMangerPage(params: any): Promise<any> {
-  return postData(baseService.finance + baseFinanceManager + financeMangerUrl.page, params);
+export function getFinanceMangerPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
+  let url = baseService.finance + baseFinanceManager + financeMangerUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
+  return postData(url, params);
 }
 
 export function getFinanceMangerDetail(id: number): Promise<any> {

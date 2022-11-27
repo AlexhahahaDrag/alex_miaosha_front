@@ -1,0 +1,78 @@
+#kind: pipeline
+#type: docker
+#name: default
+#
+#steps:
+#  - name: install && build
+#    image: zhoukingzz/blog-node-module:v3
+#    pull: always
+#    commands:
+#      - pwd
+#      - ls -la
+#      - ln -sfn /drone/node_modules node_modules
+#      - ls -la
+#      - npm run build
+#      - ls -la
+#
+#  - name: scp
+#    image: appleboy/drone-scp
+#    pull: always
+#    settings:
+#      debug: true
+#      source:
+#        - dist/
+#      host: 123.249.83.33
+#      username: root
+#      port: 22
+#      password:
+#        from_secret: ssh_password
+#      when:
+#        branch:
+#          include:
+#            - master
+#        event:
+#          - push
+#          - merge
+#
+#  - name: commands
+#    image: appleboy/drone-ssh
+#    pull: always
+#    settings:
+#      host: 123.249.83.22
+#      username: root
+#      port: 22
+#      password:
+#        from_secret: ssh_password
+#      script:
+#        - nginx -s reload
+#
+#trigger:
+#  branch:
+#    include:
+#      - master
+#  event:
+#    include:
+#      - push
+kind: pipeline
+type: ssh
+name: alex_miaosha-admin
+
+clone:
+  depth: 1
+  disable: false
+
+steps:
+  - name: build
+    failure: always
+    commands:
+      - source /etc/profile
+      - yarn install
+      - yarn run build
+  - name: deploy
+    when:
+      branch:
+        - master
+    failure: always
+    commands:
+      - rm -rf /home/cicd/pages/*
+      - mv -f dist/* /home/cicd/pages/
