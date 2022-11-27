@@ -23,7 +23,7 @@ export interface pageInfo {
   defaultPageSize: number;
 }
 
-export const pagination = ref<pageInfo>({
+export let pagination = ref<pageInfo>({
   // 数据总数
   total: 50,
   // 当前页数
@@ -85,9 +85,9 @@ export const columns = [
     key: "isValid",
   },
   {
-    title: "操作时间",
-    dataIndex: "operateTime",
-    key: "operateTime",
+    title: "业务时间",
+    dataIndex: "infoDate",
+    key: "infoDate",
   },
   {
     title: "操作",

@@ -29,7 +29,7 @@
                 style="width: 400px"
                 :ranges="ranges"
                 show-time
-                format="YYYY/MM/DD HH:mm:ss"
+                format="YYYY/MM/DD"
               />
               <a-button type="primary" @click="query"> 查找</a-button>
               <a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -90,7 +90,7 @@
               :key="record.incomeAndExpenses"
               :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
             >
-              {{ record.incomeAndExpenses == '' ? "收入" : "支出" }}
+              {{ record.incomeAndExpenses == 'income' ? "收入" : "支出" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'fromSource'">
@@ -130,6 +130,7 @@ import {
   ModelInfo,
   fromSourceTransferList,
   dictInfo,
+pageInfo,
 } from "./financeManager";
 import dayjs, { Dayjs } from "dayjs";
 import {
@@ -143,9 +144,9 @@ import svgIcon from "@v/common/icons/svgIcon.vue";
 
 let rowIds = [] as any;
 
-const fromSourceList = ref<dictInfo>([]);
+const fromSourceList = ref<dictInfo[]>([]);
 
-const incomeAndExpensesList = ref<dictInfo>([]);
+const incomeAndExpensesList = ref<dictInfo[]>([]);
 
 const rowSelection = ref({
   checkStrictly: false,
@@ -170,14 +171,18 @@ function cancelQuery() {
 }
 
 function query() {
-  getFinancePage(searchInfo.value);
+  getFinancePage(searchInfo.value, pagination.value);
+}
+
+function handleTableChange(pagination) {
+  getFinancePage(searchInfo.value, pagination);
 }
 
 function delFinance(ids: string) {
   deleteFinanceManger(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getFinancePage(searchInfo.value);
+      getFinancePage(searchInfo.value, pagination.value);
     } else {
       message.error((res && res.message) || "删除失败！", 3);
     }
@@ -212,9 +217,9 @@ const ranges = {
   Today: [dayjs(), dayjs()] as RangeValue,
 };
 
-function getFinancePage(param: SearchInfo) {
+function getFinancePage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
-  getFinanceMangerPage(param)
+  getFinanceMangerPage(param, cur.current, cur.pageSize)
     .then((res) => {
       if (res.code == "200") {
         dataSource.value = res.data.records;
@@ -248,7 +253,7 @@ function init() {
   //获取字典列表
   getDictInfoList();
   //获取财务管理页面数据
-  getFinancePage(searchInfo.value);
+  getFinancePage(searchInfo.value, pagination.value);
 }
 
 init();
@@ -272,7 +277,7 @@ function editFinance(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
   visible.value = v;
-  getFinancePage(searchInfo.value);
+  getFinancePage(searchInfo.value, pagination.value);
 };
 
 const handleCancel = (v: boolean) => {
