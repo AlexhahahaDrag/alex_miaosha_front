@@ -20,7 +20,5 @@ const props = withDefaults(defineProps<SvgInfo>(), {
 
 const symbolId = computed(() => `#${props.prefix}-${props.name}`);
 
-console.log("symbolId:" + symbolId);
-
 const color = computed(() => props.color);
 </script>
