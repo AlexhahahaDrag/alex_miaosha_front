@@ -8,10 +8,10 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
     volumes: # 将容器内目录挂载到宿主机，仓库需要开启Trusted设置
       - name: yarn-package
         path: /usr/local/soft/drone/alex_miaosha/front # 将应用打包好的Jar和执行脚本挂载出来
-    commands:
-      - yarn build
-      # 将打包后的dist包，拷贝到挂载目录
-      - cp /drone/dist  /usr/local/soft/drone/alex_miaosha/front/
+#    commands:
+#      - yarn build
+#      # 将打包后的dist包，拷贝到挂载目录
+#      - cp /drone/dist  /usr/local/soft/drone/alex_miaosha/front/
 
     - name: ssh-monitor
       pull: if-not-exists
