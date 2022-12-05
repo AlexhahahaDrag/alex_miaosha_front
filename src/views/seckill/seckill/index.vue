@@ -51,7 +51,6 @@
                 title="确认删除博客?"
                 ok-text="确认"
                 cancel-text="取消"
-                @confirm="confirm(record.id)"
                 @cancel="cancel"
               >
                 <a-button type="primary" size="small" danger>删除</a-button>
@@ -145,7 +144,7 @@ function handleTableChange(pagination: pageInfo) {
   // blogList(searchInfo.value);
 }
 
-const confirm = (id: number) => {
+// const confirm = (id: number) => {
   // deleteBlogById(id).then((res) => {
   //   if (res.code == "success") {
   //     message.success(res.message);
@@ -154,7 +153,7 @@ const confirm = (id: number) => {
   //     message.error(res.message);
   //   }
   // });
-};
+// };
 
 let loading = ref<boolean>(false);
 let dataSource = ref();
@@ -170,10 +169,6 @@ const ranges = {
   Today: [dayjs(), dayjs()] as RangeValue,
   "This Month": [dayjs(), dayjs().endOf("month")] as RangeValue,
 };
-
-function getSeckillList() {
-
-}
 
 </script>
 <style lang="scss" scoped>

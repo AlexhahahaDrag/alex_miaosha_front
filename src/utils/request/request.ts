@@ -14,21 +14,21 @@ axios.defaults.headers.post["Content-Type"] =
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
   if (error.response) {
-    const { data = {}, status, statusText } = error.response;
-    //403 无权限
-    if (status === 403) {
-      notification.error({
-        message: "Forbidden",
-        description: (data && data.message) || statusText,
-      });
-    }
-    //401 未登录、未授权
-    if (status === 401 && data.result && data.result.isLogin) {
-      notification.error({
-        message: "Unauthorized",
-        description: "Authorization verification failed",
-      });
-    }
+    // const { data, status, statusText } = error.response;
+    // //403 无权限
+    // if (status === 403) {
+    //   notification.error({
+    //     message: "Forbidden",
+    //     description: (data && data.message) || statusText,
+    //   });
+    // }
+    // //401 未登录、未授权
+    // if (status === 401 && data.result && data.result.isLogin) {
+    //   notification.error({
+    //     message: "Unauthorized",
+    //     description: "Authorization verification failed",
+    //   });
+    // }
   } else {
     notification.error({
       message: "system error",

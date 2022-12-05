@@ -148,6 +148,7 @@ function handleTableChange(pagination: pageInfo) {
 }
 
 const confirm = (id: number) => {
+    console.log(id);
   // deleteBlogById(id).then((res) => {
   //   if (res.code == "success") {
   //     message.success(res.message);

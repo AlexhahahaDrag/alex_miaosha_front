@@ -1,78 +1,64 @@
-#kind: pipeline
-#type: docker
-#name: default
-#
-#steps:
-#  - name: install && build
-#    image: zhoukingzz/blog-node-module:v3
-#    pull: always
-#    commands:
-#      - pwd
-#      - ls -la
-#      - ln -sfn /drone/node_modules node_modules
-#      - ls -la
-#      - npm run build
-#      - ls -la
-#
-#  - name: scp
-#    image: appleboy/drone-scp
-#    pull: always
-#    settings:
-#      debug: true
-#      source:
-#        - dist/
-#      host: 123.249.83.33
-#      username: root
-#      port: 22
-#      password:
-#        from_secret: ssh_password
-#      when:
-#        branch:
-#          include:
-#            - master
-#        event:
-#          - push
-#          - merge
-#
-#  - name: commands
-#    image: appleboy/drone-ssh
-#    pull: always
-#    settings:
-#      host: 123.249.83.22
-#      username: root
-#      port: 22
-#      password:
-#        from_secret: ssh_password
-#      script:
-#        - nginx -s reload
-#
-#trigger:
-#  branch:
-#    include:
-#      - master
-#  event:
-#    include:
-#      - push
 kind: pipeline
 type: ssh
-name: alex_miaosha-admin
+name: alex_miaosha_front
 
-clone:
-  depth: 1
-  disable: false
+steps: # 定义流水线执行步骤，这些步骤将顺序执行
+  - name: yarn-package # 流水线名称
+    image: node:latest # 定义创建容器的Docker镜像
+    volumes: # 将容器内目录挂载到宿主机，仓库需要开启Trusted设置
+      - name: yarn-package
+        path: /usr/local/soft/drone/alex_miaosha/front # 将应用打包好的Jar和执行脚本挂载出来
+    commands:
+      - yarn build
+      # 将打包后的dist包，拷贝到挂载目录
+      - cp /drone/dist  /usr/local/soft/drone/alex_miaosha/front/
 
-steps:
-  - name: build
-    failure: always
-    commands:
-      - source /etc/profile
-      - yarn install
-      - yarn run build
-  - name: deploy
-    when:
-      branch:
-        - master
-    failure: always
-    commands:
-      - rm -rf /home/cicd/pages/*
-      - mv -f dist/* /home/cicd/pages/
+    - name: ssh-monitor
+      pull: if-not-exists
+      image: appleboy/drone-ssh
+      settings:
+        # 你服务器ip地址
+        host: 123.249.83.33
+        # 服务器端口号
+        port: 22
+        # 服务器账号
+        username: root
+        # 密码登入写法
+        password:
+          from_secret: ssh_password
+        script:
+          - cd /usr/local/soft/drone/alex_miaosha/front
+          - docker build  -t alex_miaosha_front:latest .
+          - docker rm -f alex_miaosha_front
+          - docker run -p 3000:3000 --name=alex_miaosha_front -d alex_miaosha_front:latest
+
+  - name: notify      # 步骤4 部署完成，邮件通知
+    pull: if-not-exists # 如果镜像不存在则拉取,免去每次都要重新下载
+    image: drillster/drone-email
+    settings:
+      recipients_only: true # 只发送给指定邮件收件人，不默认发送给流水线创建人
+      host: smtp.qq.com      #SMTP服务器 例如 smtp.qq.com
+      port: 465   #SMTP服务端口  例如QQ邮箱端口465
+      subject: "Drone Build Complete!"
+      username:
+        from_secret: ssh_email_username
+      password:
+        from_secret: ssh_email_password
+      from:
+        from_secret: ssh_email_username
+      recipients: 734663446@qq.com           #收件人邮箱
+    when: #执行条件
+      status:
+        - success
+        - changed
+        - failure
+
+volumes: # 定义流水线挂载目录，用于共享数据
+  - name: yarn-package
+    host:
+      path: /usr/local/soft/drone/alex_miaosha/front   #jar包目录可以修改从宿主机中挂载的目录
+
+# 可限制哪些分支可以推送自动CICD
+trigger:
+  branch:
+    - master

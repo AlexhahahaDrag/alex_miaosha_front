@@ -1,4 +1,4 @@
-import { getData, postData, deleteData } from "@/api/common/index";
+import { getData, deleteData } from "@/api/common/index";
 
 const baseGoods = "/api/am-mission";
 

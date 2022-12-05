@@ -1,4 +1,4 @@
-import { getDataOne, getData, postData, putData, deleteData } from "@/api/common/index";
+import { getDataOne, postData, putData, deleteData } from "@/api/common/index";
 
 const baseDict = "/api/am-finance";
 
