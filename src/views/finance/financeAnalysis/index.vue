@@ -70,19 +70,25 @@
     <a-row :gutter="16" style="padding-top: 10px">
       <div class="mainGrid">
         <div class="div1">
-          <bar-chart height="100%" width="100%" :data="pieIncomeData" :config="dayConfig">
-          </bar-chart>
-        </div>
-        <!-- <div class="div2">
-          <pie-chart
-            title="当月支出分析"
+          <bar-chart
             height="100%"
             width="100%"
-            :data="pieExpenseData"
-            :tooltip="tooltip"
+            title="日消费"
+            :data="dayData"
+            :config="dayConfig"
           >
-          </pie-chart>
-        </div> -->
+          </bar-chart>
+        </div>
+        <div class="div2">
+          <bar-chart
+            height="100%"
+            width="100%"
+            title="月消费"
+            :data="monthData"
+            :config="monthConfig"
+          >
+          </bar-chart>
+        </div>
       </div>
     </a-row>
   </div>
@@ -98,7 +104,7 @@ import {
 } from "@/api/finance/financeAnalysis";
 import { FinanceDetail } from "@/views/finance/financeManager/detail/detail";
 import * as math from "mathjs";
-import { ItemInfo, resultType } from "./analysis";
+import { ItemInfo } from "./analysis";
 import dayjs, { Dayjs } from "dayjs";
 import barChart from "./chart/barChart.vue";
 import pieChart from "./chart/pieChart.vue";
@@ -172,19 +178,67 @@ function getIncomeAndExpenseInfo(userId: number, dateStr: string) {
 let dayConfig = ref<barItem>({
   xAxis: [],
   series: [],
-  yTitle: "金钱",
+  yTitle: "金钱(元)",
   yNameGap: 30,
   tooltip: {},
   legend: [],
 });
+
+let monthData = ref<any>([]);
+
+let monthConfig = ref<barItem>({
+  xAxis: [],
+  series: [],
+  yTitle: "金钱(元)",
+  yNameGap: 30,
+  tooltip: {},
+  legend: [],
+});
+
+let dayData = ref<any>([]);
 
 function getDayExpenseInfo(userId: number, dateStr: string) {
   getDayExpense(userId, dateStr).then(
     (res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
         if (res.data) {
-          console.log("1111111111");
-          console.log(res.data);
+          let map = {};
+          let num = 0;
+          let legend = [] as any;
+          for (let i = 0; i < res.data.length; i++) {
+            if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
+              break;
+            } else {
+              map[res.data[i].userId ? res.data[i].userId : "0"] = i;
+              num++;
+              legend.push(
+                res.data[i].username ? res.data[i].username : res.data[i].userId
+              );
+            }
+          }
+          let series = [] as any;
+          for (let i = 0; i < num; i++) {
+            series[i] = [];
+          }
+          let xAxis = [] as any;
+          res.data.forEach((item) => {
+            series[map[item.userId]].push(item.amount);
+            xAxis.push(item.infoDate);
+          });
+          dayConfig.value = {
+            xAxis: xAxis,
+            series: series,
+            yTitle: "金钱(元)",
+            yNameGap: 30,
+            tooltip: {
+              trigger: "axis",
+              axisPointer: {
+                type: "shadow",
+              },
+            },
+            legend: legend,
+          };
+          dayData.value = series;
         }
       } else {
         message.error((res && res.message) || "查询列表失败！");
@@ -198,36 +252,68 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
     (res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
         if (res.data) {
-          console.log("222222222222");
-          console.log(res.data);
-          let len = getNum(res.data);
-          let legend = [len];
-          res.data.forEach((item, index) => {
-            legend[index] = item.username;
+          let map = {};
+          let num = 0;
+          let legend = [] as any;
+          for (let i = 0; i < res.data.length; i++) {
+            if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
+              break;
+            } else {
+              map[res.data[i].userId ? res.data[i].userId : "0"] = i;
+              num++;
+              legend.push(
+                res.data[i].username ? res.data[i].username : res.data[i].userId
+              );
+            }
+          }
+          let series = [] as any;
+          for (let i = 0; i < num; i++) {
+            series[i] = [];
+          }
+          let xAxis = [] as any;
+          res.data.forEach((item) => {
+            series[map[item.userId]].push(item.amount);
+            xAxis.push(item.infoDate);
           });
-          console.log(legend);
+          monthConfig.value = {
+            xAxis: xAxis,
+            series: series,
+            yTitle: "金钱(元)",
+            yNameGap: 30,
+            tooltip: {
+              trigger: "axis",
+              axisPointer: {
+                type: "shadow",
+              },
+              formatter(param: any) {
+                let tip = "";
+                let unit = "元";
+                let name = "花费";
+                tip += `<p style="margin: 0"></p>`;
+                param.forEach(
+                  (element: {
+                    axisValue: any;
+                    marker: any;
+                    value: any;
+                    seriesName: any;
+                  }) => {
+                    tip += `<p style="margin: 0">${element.marker}${
+                      element.seriesName
+                    }${name}: ${element.value ? element.value : 0.00}${unit}</p>`;
+                  }
+                );
+                return tip;
+              },
+            },
+            legend: legend,
+          };
+          monthData.value = series;
         }
       } else {
         message.error((res && res.message) || "查询列表失败！");
       }
     }
   );
-}
-
-function getNum(data: resultType[]) {
-  if (!data) {
-    return 0;
-  }
-  let map = {};
-  let num: number = 0;
-  data.forEach((item) => {
-    if (map[item.userId ? item.userId : "0"]) {
-      return num;
-    } else {
-      num++;
-      map[item.userId ? item.userId : "0"] = item.username;
-    }
-  });
 }
 
 function getInfo() {

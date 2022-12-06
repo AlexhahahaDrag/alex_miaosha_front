@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, onMounted, watch, PropType, ref } from "vue";
+import { onMounted, watch, PropType, ref } from "vue";
 import chart from "@/views/model/chart/index.vue";
 import { barItem } from "./bar";
 
@@ -34,18 +34,33 @@ const props = defineProps({
   },
 });
 
+let colorInfo = [
+  "#55aaff",
+  "#ff9933",
+  "#5555ff",
+  "#aa55ff",
+  "#dd4444",
+  "#bb2222",
+  "#dd4488",
+  "#22ff99",
+  "#ffcc66",
+  "#7777dd",
+  "rgb(217, 0, 27)",
+  "#777fff",
+];
+
 const setOption = (data: any[]) => {
-  console.log(data);
   let { xAxis, yTitle, yNameGap, tooltip, legend } = props.config;
   options.value = {
     title: {
       text: props.title,
+      left: "center",
     },
     color: [
       "#55aaff",
+      "#ff9933",
       "#5555ff",
       "#aa55ff",
-      "#ff9933",
       "#dd4444",
       "#bb2222",
       "#dd4488",
@@ -68,6 +83,20 @@ const setOption = (data: any[]) => {
     },
     legend: {
       data: legend || [],
+      icon: "roundRect",
+      left: "right",
+      itemHeight: 6,
+      itemWidth: 18,
+      textStyle: {
+        fontSize: 14,
+        lineHeight: 14,
+        rich: {
+          a: {
+            verticalAlign: "middle",
+          },
+        },
+        padding: [0, 0, -2, 0], //[上、右、下、左]
+      },
     },
     yAxis: {
       type: "value",
@@ -90,11 +119,24 @@ const setOption = (data: any[]) => {
     series: [] as any,
   };
   if (data) {
+    let colorIndex = 0;
     data.forEach((item, index) => {
+      let i = legend ? index % legend.length : 0;
       let se = {
-        name: legend ? legend[index] : index,
+        name: legend ? legend[i] : i,
         type: "bar",
         data: item,
+        smooth: true,
+        showSymbol: 0,
+        itemStyle: {
+          normal: {
+            color: colorInfo[colorIndex],
+            lineStyle: {
+              type: "line",
+              color: colorInfo[colorIndex++],
+            },
+          },
+        },
       };
       options.value.series[index] = se;
     });
@@ -104,6 +146,7 @@ const setOption = (data: any[]) => {
 const chartOption = {
   title: {
     text: "",
+    left: "center",
   },
   color: [] as string[],
   legend: {},
@@ -138,60 +181,6 @@ const chartOption = {
 };
 
 const options = ref(chartOption);
-// const options = {
-//   title: {
-//     text: props.title,
-//   },
-//   tooltip: {
-//     trigger: "axis",
-//   },
-//   legend: {
-//     data: ["Rainfall", "Evaporation"],
-//   },
-//   calculable: true,
-//   xAxis: [
-//     {
-//       type: "category",
-//       // prettier-ignore
-//       data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-//     },
-//   ],
-//   yAxis: [
-//     {
-//       type: "value",
-//     },
-//   ],
-//   series: [
-//     {
-//       name: "Rainfall",
-//       type: "bar",
-//       data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
-//       markPoint: {
-//         data: [
-//           { type: "max", name: "Max" },
-//           { type: "min", name: "Min" },
-//         ],
-//       },
-//       markLine: {
-//         data: [{ type: "average", name: "Avg" }],
-//       },
-//     },
-//     {
-//       name: "Evaporation",
-//       type: "bar",
-//       data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
-//       markPoint: {
-//         data: [
-//           { name: "Max", value: 182.2, xAxis: 7, yAxis: 183 },
-//           { name: "Min", value: 2.3, xAxis: 11, yAxis: 3 },
-//         ],
-//       },
-//       markLine: {
-//         data: [{ type: "average", name: "Avg" }],
-//       },
-//     },
-//   ],
-// };
 
 onMounted(() => {
   watch(

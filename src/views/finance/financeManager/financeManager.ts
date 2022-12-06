@@ -80,6 +80,11 @@ export const columns = [
     key: "incomeAndExpenses",
   },
   {
+    title: "属于",
+    dataIndex: "belongTo",
+    key: "belongTo",
+  },
+  {
     title: "状态",
     dataIndex: "isValid",
     key: "isValid",

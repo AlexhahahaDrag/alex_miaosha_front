@@ -113,13 +113,32 @@
               </a-select>
             </a-form-item>
           </a-col>
+        </a-row>
+        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item
               name="infoDate"
               label="业务时间"
               :rules="[{ required: true, message: 'input something' }]"
             >
-              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter" />
+              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter" :locale="zhCN" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              name="belongTo"
+              label="属于"
+              :rules="[{ required: true, message: 'input something' }]"
+            >
+              <a-select
+                style="width: 100px"
+                ref="select"
+                v-model:value="formState.belongTo"
+                mode="combobox"
+                :field-names="{ label: 'username', value: 'id' }"
+                :options="userList"
+              >
+              </a-select>
             </a-form-item>
           </a-col>
         </a-row>
@@ -138,9 +157,14 @@ import { getDictList } from "@/api/finance/dict/dict";
 import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../financeManager";
 import dayjs from "dayjs";
+import zhCN from "ant-design-vue/es/locale/zh_CN";
 
-dayjs.locale("zh-cn");
 const dateFormatter = "YYYY-MM-DD HH:mm:ss";
+
+let userList = ref([
+  { id: 1, username: "mj" },
+  { id: 2, username: "臭屁宝" },
+]);
 
 const modelConfig = {
   confirmLoading: true,
@@ -251,7 +275,12 @@ function init() {
         });
     } else {
       modelConfig.confirmLoading = false;
-      formState.value = { isValid: "1", incomeAndExpenses: "expense", infoDate: dayjs() };
+      formState.value = {
+        isValid: 1,
+        incomeAndExpenses: "expense",
+        infoDate: dayjs(),
+        belongTo: 2,
+      };
     }
   }
   getDictInfoList();

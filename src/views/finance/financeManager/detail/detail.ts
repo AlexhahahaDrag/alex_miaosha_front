@@ -6,7 +6,8 @@ export interface FinanceDetail {
   amount?: number;
   fromSource?: string;
   fromSourceName?: string;
-  isValid?: string;
+  isValid?: number;
   infoDate?: Dayjs | string;
   incomeAndExpenses?: string;
+  belongTo?: number;
 }
