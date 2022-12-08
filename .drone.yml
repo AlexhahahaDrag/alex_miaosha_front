@@ -33,7 +33,7 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
       script:
         - cd /usr/local/soft/drone/alex_miaosha/front
         - docker build  -t alex_miaosha_front:latest .
-        - docker rm -f alex_miaosha_front
+        - docker rm -f alex_front
         - docker run -p 3000:3000 --name=alex_front -d alex_miaosha_front:latest
 
   - name: notify      # 步骤4 部署完成，邮件通知
