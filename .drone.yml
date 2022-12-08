@@ -14,7 +14,8 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
       - yarn build
       # 将打包后的dist包，拷贝到挂载目录
       - cp /drone/src/Dockerfile  /usr/local/soft/drone/alex_miaosha/front/Dockerfile
-      - cp /dist  /usr/local/soft/drone/alex_miaosha/front/
+      - cp /drone/src/docker/nginx.conf  /usr/local/soft/drone/alex_miaosha/front/nginx.conf
+      - cp /drone/src/dist/  /usr/local/soft/drone/alex_miaosha/front/
 
   - name: ssh-front
     pull: if-not-exists
