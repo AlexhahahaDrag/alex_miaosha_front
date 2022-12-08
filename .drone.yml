@@ -12,6 +12,7 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
       - yarn config set registry https://registry.npm.taobao.org/
       - yarn install
       - yarn build
+      - ll
       # 将打包后的dist包，拷贝到挂载目录
       - cp /drone/dist  /usr/local/soft/drone/alex_miaosha/front/
 
