@@ -24,6 +24,14 @@
                 :options="incomeAndExpensesList"
                 :allowClear="true"
               ></a-select>
+              <a-select
+                style="width: 100px"
+                ref="select"
+                v-model:value="searchInfo.belongTo"
+                mode="combobox"
+                :field-names="{ label: 'username', value: 'id' }"
+                :options="userList"
+              ></a-select>
               <a-range-picker
                 v-model:value="times"
                 style="width: 400px"
@@ -90,7 +98,7 @@
               :key="record.incomeAndExpenses"
               :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
             >
-              {{ record.incomeAndExpenses == 'income' ? "收入" : "支出" }}
+              {{ record.incomeAndExpenses == "income" ? "收入" : "支出" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'fromSource'">
@@ -99,7 +107,8 @@
                 v-if="record.fromSource == fromSource.value && fromSource.value != ''"
                 :name="fromSource.label"
                 class="svg"
-                style="width: 1.5em;
+                style="
+                  width: 1.5em;
                   height: 1.5em;
                   font-size: 18px;
                   cursor: pointer;
@@ -130,17 +139,19 @@ import {
   ModelInfo,
   fromSourceTransferList,
   dictInfo,
-pageInfo,
+  pageInfo,
 } from "./financeManager";
 import dayjs, { Dayjs } from "dayjs";
-import {
-  getFinanceMangerPage,
-  deleteFinanceManger,
-} from "@/api/finance/financeManager";
+import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dict";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
+
+let userList = ref([
+  { id: 1, username: "mj" },
+  { id: 2, username: "臭屁宝" },
+]);
 
 let rowIds = [] as any;
 
@@ -239,9 +250,11 @@ function getDictInfoList() {
   loading.value = true;
   getDictList("pay_way,income_expense_type").then((res) => {
     if (res.code == "200") {
-      fromSourceList.value = res.data.filter((item: { belongTo: string; }) => item.belongTo == "pay_way");
+      fromSourceList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "pay_way"
+      );
       incomeAndExpensesList.value = res.data.filter(
-        (item: { belongTo: string; }) => item.belongTo == "income_expense_type"
+        (item: { belongTo: string }) => item.belongTo == "income_expense_type"
       );
     } else {
       message.error((res && res.message) || "查询列表失败！");

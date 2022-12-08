@@ -8,6 +8,7 @@ export interface SearchInfo {
   pageNo?:number;
   pageSize?:number;
   incomeAndExpenses?: string;
+  belongTo?:number;
 }
 
 export interface pageInfo {
