@@ -290,7 +290,7 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
                 let tip = "";
                 let unit = "元";
                 let name = "花费";
-                tip += `<p style="margin: 0"></p>`;
+                tip += `<p style="margin: 0">${param[0].axisValue}月</p>`;
                 param.forEach(
                   (element: {
                     axisValue: any;
