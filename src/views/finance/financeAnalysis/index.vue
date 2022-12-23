@@ -131,6 +131,7 @@ function getBalanceInfo(userId: number, dateStr: string) {
   getBalance(userId, dateStr).then(
     (res: { code: string; data: FinanceDetail[]; message: any }) => {
       if (res.code == "200") {
+        sum.value = 0;
         balanceList.value = res.data;
         if (res.data && res.data.length) {
           res.data.forEach(
@@ -209,7 +210,7 @@ function getDayExpenseInfo(userId: number, dateStr: string) {
             if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
               break;
             } else {
-              map[res.data[i].userId ? res.data[i].userId : "0"] = i;
+              map[res.data[i].userId ? res.data[i].userId : "0"] = i + 1;
               num++;
               legend.push(
                 res.data[i].username ? res.data[i].username : res.data[i].userId
@@ -222,7 +223,7 @@ function getDayExpenseInfo(userId: number, dateStr: string) {
           }
           let xAxis = [] as any;
           res.data.forEach((item) => {
-            series[map[item.userId]].push(item.amount);
+            series[map[item.userId] - 1].push(item.amount);
             xAxis.push(item.infoDate);
           });
           dayConfig.value = {
@@ -259,7 +260,7 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
             if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
               break;
             } else {
-              map[res.data[i].userId ? res.data[i].userId : "0"] = i;
+              map[res.data[i].userId ? res.data[i].userId : "0"] = i + 1;
               num++;
               legend.push(
                 res.data[i].username ? res.data[i].username : res.data[i].userId
@@ -272,7 +273,7 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
           }
           let xAxis = [] as any;
           res.data.forEach((item) => {
-            series[map[item.userId]].push(item.amount);
+            series[map[item.userId] - 1].push(item.amount);
             xAxis.push(item.infoDate);
           });
           monthConfig.value = {
@@ -289,7 +290,7 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
                 let tip = "";
                 let unit = "元";
                 let name = "花费";
-                tip += `<p style="margin: 0"></p>`;
+                tip += `<p style="margin: 0">${param[0].axisValue}月</p>`;
                 param.forEach(
                   (element: {
                     axisValue: any;

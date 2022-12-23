@@ -51,7 +51,30 @@ let colorInfo = [
 
 const setOption = (data: any[]) => {
   let { xAxis, yTitle, yNameGap, tooltip, legend } = props.config;
-  options.value = {
+  if (data) {
+    let series = [] as any;
+    let colorIndex = 0;
+    data.forEach((item, index) => {
+      let i = legend ? index % legend.length : 0;
+      let se = {
+        name: legend ? legend[i] : i,
+        type: "bar",
+        data: item,
+        smooth: true,
+        showSymbol: 0,
+        itemStyle: {
+          normal: {
+            color: colorInfo[colorIndex],
+            lineStyle: {
+              type: "line",
+              color: colorInfo[colorIndex++],
+            },
+          },
+        },
+      };
+      series[index] = se;
+    });
+    options.value = {
     title: {
       text: props.title,
       left: "center",
@@ -116,30 +139,8 @@ const setOption = (data: any[]) => {
         },
       },
     },
-    series: [] as any,
+    series: series,
   };
-  if (data) {
-    let colorIndex = 0;
-    data.forEach((item, index) => {
-      let i = legend ? index % legend.length : 0;
-      let se = {
-        name: legend ? legend[i] : i,
-        type: "bar",
-        data: item,
-        smooth: true,
-        showSymbol: 0,
-        itemStyle: {
-          normal: {
-            color: colorInfo[colorIndex],
-            lineStyle: {
-              type: "line",
-              color: colorInfo[colorIndex++],
-            },
-          },
-        },
-      };
-      options.value.series[index] = se;
-    });
   }
 };
 
