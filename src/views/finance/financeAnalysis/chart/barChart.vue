@@ -182,14 +182,17 @@ const chartOption = {
 
 const options = ref(chartOption);
 
+
+watch(
+  () => props.data,
+  () => {
+    setOption(props.data);
+  },
+  { deep: true, flush: "post" }
+);
+
 onMounted(() => {
-  watch(
-    () => props.data,
-    () => {
-      setOption(props.data);
-    },
-    { deep: true, flush: "post" }
-  );
+  setOption(props.data);
 });
 </script>
 

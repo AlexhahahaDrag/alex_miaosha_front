@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onUnmounted, onMounted, ref, watch } from "vue";
 import * as echarts from "echarts";
 import { nanoid } from "nanoid";
 //import dark from './dark';
@@ -64,5 +64,8 @@ onMounted(() => {
   );
   disposeChart();
   initEcharts();
+});
+onUnmounted(() => {
+    disposeChart();
 });
 </script>
