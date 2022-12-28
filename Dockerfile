@@ -14,7 +14,7 @@ COPY ./nginx.conf /etc/nginx/
 # 拷贝前端vue项目打包后生成的文件到nginx下运行
 COPY ./dist /usr/share/nginx/html
 
-# 暴露8101端口
+# 暴露3000端口
 EXPOSE 3000
 
 # 注：CMD不同于RUN，CMD用于指定在容器启动时所要执行的命令，而RUN用于指定镜像构建时所要执行的命令。

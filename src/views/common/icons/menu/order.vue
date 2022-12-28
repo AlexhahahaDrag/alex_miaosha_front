@@ -1,7 +1,6 @@
 <template>
   <svgIcon
     name="order"
-    @click.native="goto"
     class="svg"
     color="hotpink"
   ></svgIcon>

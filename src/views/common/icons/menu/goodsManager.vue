@@ -1,7 +1,6 @@
 <template>
   <svgIcon
     name="goodsManager"
-    @click.native="goto"
     color="hotpink"
     class="svg"
   ></svgIcon>

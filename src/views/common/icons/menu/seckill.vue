@@ -1,7 +1,6 @@
 <template>
   <svgIcon
     name="seckill"
-    @click.native="goto"
     color="hotpink"
     class="svg"
   ></svgIcon>

@@ -1,8 +1,8 @@
 <template>
   <svgIcon
-    name="goods"
+    name="user"
+    color="white"
     class="svg"
-    color="hotpink"
   ></svgIcon>
 </template>
 

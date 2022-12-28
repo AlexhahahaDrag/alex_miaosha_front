@@ -8,6 +8,7 @@ import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
 import FinanceManager from '@v/finance/financeManager/index.vue';
 import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
+import UserManager from '@v/user/userManager/index.vue';
 import NProgress from 'nprogress';
 
 export const routes: MenuDataItem[] = [
@@ -106,19 +107,34 @@ export const routes: MenuDataItem[] = [
     component: Layout,
     redirect: "/finance/financeManager",
     name: "财务管理",
-    meta: { title: "财务管理", icon: "finance", hiedInMenu: false },
+    meta: { title: "财务管理", icon: "financeManager", hiedInMenu: false },
     children: [
       {
         path: "/finance/financeManager",
         name: "财务信息",
         component: FinanceManager,
-        meta: { title: "财务信息", icon: "financeManager", hiedInMenu: false },
+        meta: { title: "财务信息", icon: "finance", hiedInMenu: false },
       },
       {
         path: "/finance/financeAnalysis",
         name: "财务分析",
         component: FinanceAnalysis,
         meta: { title: "财务分析", icon: "financeAnalysis", hiedInMenu: false },
+      },
+    ],
+  },
+  {
+    path: "/user",
+    component: Layout,
+    redirect: "/user/userManager",
+    name: "用户管理",
+    meta: { title: "用户管理", icon: "userManager", hiedInMenu: false },
+    children: [
+      {
+        path: "/user/userManager",
+        name: "用户管理",
+        component: UserManager,
+        meta: { title: "用户信息", icon: "user", hiedInMenu: false },
       },
     ],
   },

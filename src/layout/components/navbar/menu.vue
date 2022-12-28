@@ -17,6 +17,12 @@
             <template v-else-if="route.meta.icon == 'promotion'">
               <Promotion />
             </template>
+            <template v-else-if="route.meta.icon == 'userManager'">
+              <UserManager />
+            </template>
+            <template v-else-if="route.meta.icon == 'financeManager'">
+              <FinanceManager />
+            </template>
           </template>
         </template>
         <template #title>{{ route.meta ? route.meta.title : "未知" }}</template>
@@ -40,6 +46,15 @@
             <template v-else-if="route.meta.icon == 'seckill'">
               <Seckill />
             </template>
+            <template v-else-if="route.meta.icon == 'finance'">
+              <Finance />
+            </template>
+            <template v-else-if="route.meta.icon == 'financeAnalysis'">
+              <FinanceAnalysis />
+            </template>
+            <template v-else-if="route.meta.icon == 'user'">
+              <User />
+            </template>
           </template>
         </template>
         <router-link :to="route.path">
@@ -59,6 +74,12 @@ import Seckill from '@v/common/icons/menu/seckill.vue';
 import GoodsManager from '@v/common/icons/menu/goodsManager.vue';
 import OrderManager from '@v/common/icons/menu/orderManager.vue';
 import Promotion from '@v/common/icons/menu/promotion.vue';
+import Finance from '@v/common/icons/menu/finance.vue';
+import FinanceManager from '@v/common/icons/menu/financeManager.vue';
+import FinanceAnalysis from '@v/common/icons/menu/financeAnalysis.vue';
+import User from '@v/common/icons/menu/user.vue';
+import UserManager from '@v/common/icons/menu/userManager.vue';
+
 
 interface Props {
   routes: MenuDataItem[];

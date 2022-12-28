@@ -1,8 +1,8 @@
 <template>
   <svgIcon
-    name="goods"
+    name="finance"
+    color="white"
     class="svg"
-    color="hotpink"
   ></svgIcon>
 </template>
 
