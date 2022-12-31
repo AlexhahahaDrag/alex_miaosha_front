@@ -22,5 +22,6 @@ export function deleteData(url: string): Promise<any> {
 }
 
 export const baseService = {
-  "finance": "/api/am-finance",
+  finance: "/api/am-finance",
+  user: "/api/am-user",
 }

@@ -147,7 +147,7 @@ export const routes: MenuDataItem[] = [
   
   router.beforeEach(()  => {
     NProgress.start() // start progress bar
-  return true
+    return true
   });
 
   router.afterEach(() => {

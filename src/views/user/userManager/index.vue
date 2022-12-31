@@ -5,40 +5,7 @@
           <div class="search-box-in">
             <a-form layout="inline" @keyup.enter.native="searchInfo">
               <a-space>
-                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
-                <a-select
-                  ref="select"
-                  v-model:value="searchInfo.fromSource"
-                  mode="combobox"
-                  placeholder="请输入来源"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="fromSourceList"
-                  :allowClear="true"
-                ></a-select>
-                <a-select
-                  ref="select"
-                  v-model:value="searchInfo.incomeAndExpenses"
-                  mode="combobox"
-                  placeholder="请输入收支类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="incomeAndExpensesList"
-                  :allowClear="true"
-                ></a-select>
-                <a-select
-                  style="width: 100px"
-                  ref="select"
-                  v-model:value="searchInfo.belongTo"
-                  mode="combobox"
-                  :field-names="{ label: 'username', value: 'id' }"
-                  :options="userList"
-                ></a-select>
-                <a-range-picker
-                  v-model:value="times"
-                  style="width: 400px"
-                  :ranges="ranges"
-                  show-time
-                  format="YYYY/MM/DD"
-                />
+                <a-input v-model:value="searchInfo.username" placeholder="用户名" allow-clear />
                 <a-button type="primary" @click="query"> 查找</a-button>
                 <a-button type="primary" @click="cancelQuery">清空</a-button>
               </a-space>
@@ -48,9 +15,9 @@
       </div>
       <div class="button">
         <a-space>
-          <a-button type="primary" @click="editFinance('add')">新增</a-button>
+          <a-button type="primary" @click="editUser('add')">新增</a-button>
           <a-button type="primary" @click="query">导入</a-button>
-          <a-button type="danger" @click="batchDelFinanceManager">删除</a-button>
+          <a-button type="danger" @click="batchDelUserManager">删除</a-button>
         </a-space>
       </div>
       <div class="content">
@@ -70,14 +37,14 @@
                 <a-button
                   type="primary"
                   size="small"
-                  @click="editFinance('update', record.id)"
+                  @click="editUser('update', record.id)"
                   >编辑</a-button
                 >
                 <a-popconfirm
-                  title="确认删除博客?"
+                  title="确认删除用户信息?"
                   ok-text="确认"
                   cancel-text="取消"
-                  @confirm="delFinance(record.id)"
+                  @confirm="delUser(record.id)"
                   @cancel="cancel"
                 >
                   <a-button type="primary" size="small" danger>删除</a-button>
@@ -142,16 +109,12 @@
     pageInfo,
   } from "./userManager";
   import dayjs, { Dayjs } from "dayjs";
-  import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
+  import { getUserMangerPage, deleteUserManger } from "@/api/user/userManager";
   import { getDictList } from "@/api/finance/dict/dict";
   import { message } from "ant-design-vue";
   import Detail from "./detail/index.vue";
   import svgIcon from "@v/common/icons/svgIcon.vue";
-  
-  let userList = ref([
-    { id: 1, username: "mj" },
-    { id: 2, username: "臭屁宝" },
-  ]);
+import { log } from "console";
   
   let rowIds = [] as any;
   
@@ -182,25 +145,25 @@
   }
   
   function query() {
-    getFinancePage(searchInfo.value, pagination.value);
+    getUserPage(searchInfo.value, pagination.value);
   }
   
   function handleTableChange(pagination) {
-    getFinancePage(searchInfo.value, pagination);
+    getUserPage(searchInfo.value, pagination);
   }
   
-  function delFinance(ids: string) {
-    deleteFinanceManger(ids).then((res) => {
+  function delUser(ids: string) {
+    deleteUserManger(ids).then((res) => {
       if (res.code == "200") {
         message.success((res && "删除" + res.message) || "删除成功！", 3);
-        getFinancePage(searchInfo.value, pagination.value);
+        getUserPage(searchInfo.value, pagination.value);
       } else {
         message.error((res && res.message) || "删除失败！", 3);
       }
     });
   }
   
-  function batchDelFinanceManager() {
+  function batchDelUserManager() {
     let ids = "";
     if (rowIds && rowIds.length > 0) {
       rowIds.forEach((item: string) => {
@@ -211,7 +174,7 @@
       message.warning("请先选择数据！", 3);
       return;
     }
-    delFinance(ids);
+    delUser(ids);
   }
   
   let loading = ref<boolean>(false);
@@ -222,15 +185,9 @@
     console.log(e);
   };
   
-  let times = ref<RangeValue>();
-  
-  const ranges = {
-    Today: [dayjs(), dayjs()] as RangeValue,
-  };
-  
-  function getFinancePage(param: SearchInfo, cur: pageInfo) {
+  function getUserPage(param: SearchInfo, cur: pageInfo) {
     loading.value = true;
-    getFinanceMangerPage(param, cur.current, cur.pageSize)
+    getUserMangerPage(param, cur.current, cur.pageSize)
       .then((res) => {
         if (res.code == "200") {
           dataSource.value = res.data.records;
@@ -240,8 +197,13 @@
         } else {
           message.error((res && res.message) || "查询列表失败！");
         }
-      })
-      .finally(() => {
+      }).catch((e) => {
+        console.log("12345678910");
+        console.log(e);
+        pagination.value.current = 0;
+        pagination.value.pageSize = 10;
+        pagination.value.total = 0;
+      }).finally(() => {
         loading.value = false;
       });
   }
@@ -266,7 +228,7 @@
     //获取字典列表
     getDictInfoList();
     //获取财务管理页面数据
-    getFinancePage(searchInfo.value, pagination.value);
+    getUserPage(searchInfo.value, pagination.value);
   }
   
   init();
@@ -276,7 +238,7 @@
   let modelInfo = ref<ModelInfo>({});
   
   //新增和修改弹窗
-  function editFinance(type: string, id?: number) {
+  function editUser(type: string, id?: number) {
     if (type == "add") {
       modelInfo.value.title = "新增明细";
       modelInfo.value.id = undefined;
@@ -290,7 +252,7 @@
   
   const handleOk = (v: boolean) => {
     visible.value = v;
-    getFinancePage(searchInfo.value, pagination.value);
+    getUserPage(searchInfo.value, pagination.value);
   };
   
   const handleCancel = (v: boolean) => {

@@ -158,6 +158,7 @@ import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../financeManager";
 import dayjs from "dayjs";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
+import { setTimeout } from "timers/promises";
 
 const dateFormatter = "YYYY-MM-DD HH:mm:ss";
 
@@ -261,18 +262,18 @@ function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
       getFinanceMangerDetail(props.modelInfo.id)
-        .then((res) => {
-          if (res.code == "200") {
-            formState.value = res.data;
-            formState.value.infoDate = dayjs(formState.value.infoDate);
-            modelConfig.confirmLoading = false;
-          } else {
-            message.error((res && res.message) || "查询失败！");
-          }
-        })
-        .catch(() => {
-          message.error("系统问题，请联系管理员！");
-        });
+      .then((res) => {
+        if (res.code == "200") {
+          formState.value = res.data;
+          formState.value.infoDate = dayjs(formState.value.infoDate);
+          modelConfig.confirmLoading = false;
+        } else {
+          message.error((res && res.message) || "查询失败！");
+        }
+      })
+      .catch(() => {
+        message.error("系统问题，请联系管理员！");
+      });
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {

@@ -1,14 +1,7 @@
 import { ref } from "vue";
 
 export interface SearchInfo {
-  name ?: string;
-  typeCode ?: string;
-  fromSource?: string;
-  isValid?: number;
-  pageNo?:number;
-  pageSize?:number;
-  incomeAndExpenses?: string;
-  belongTo?:number;
+  username ?: string;
 }
 
 export interface pageInfo {
@@ -56,44 +49,54 @@ export const columns = [
   //   key: "id",
   // },
   {
-    title: "名称",
-    dataIndex: "name",
-    key: "name",
+    title: "用户名",
+    dataIndex: "username",
+    key: "username",
   },
   {
-    title: "类别",
-    dataIndex: "typeCode",
-    key: "typeCode",
+    title: "昵称",
+    dataIndex: "nickName",
+    key: "nickName",
   },
   {
-    title: "金额",
-    dataIndex: "amount",
-    key: "amount",
+    title: "性别",
+    dataIndex: "gender",
+    key: "gender",
   },
   {
-    title: "支付方式",
-    dataIndex: "fromSource",
-    key: "fromSource",
+    title: "个人头像",
+    dataIndex: "avatar",
+    key: "avatar",
   },
   {
-    title: "收支类型",
-    dataIndex: "incomeAndExpenses",
-    key: "incomeAndExpenses",
+    title: "邮箱",
+    dataIndex: "email",
+    key: "email",
   },
   {
-    title: "属于",
-    dataIndex: "belongTo",
-    key: "belongTo",
+    title: "生日",
+    dataIndex: "birthday",
+    key: "birthday",
+  },
+  {
+    title: "手机",
+    dataIndex: "mobile",
+    key: "mobile",
+  },
+  {
+    title: "最后登录IP",
+    dataIndex: "lastLoginIp",
+    key: "lastLoginIp",
+  },
+  {
+    title: "最后登录时间",
+    dataIndex: "lastLoginTime",
+    key: "lastLoginTime",
   },
   {
     title: "状态",
-    dataIndex: "isValid",
-    key: "isValid",
-  },
-  {
-    title: "业务时间",
-    dataIndex: "infoDate",
-    key: "infoDate",
+    dataIndex: "status",
+    key: "status",
   },
   {
     title: "操作",
