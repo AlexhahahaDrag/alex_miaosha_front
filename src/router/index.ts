@@ -10,6 +10,7 @@ import FinanceManager from '@v/finance/financeManager/index.vue';
 import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
 import UserManager from '@v/user/userManager/index.vue';
 import NProgress from 'nprogress';
+import { useUserStore } from "@/store/modules/user/user";
 
 export const routes: MenuDataItem[] = [
   {
@@ -145,8 +146,18 @@ export const routes: MenuDataItem[] = [
     routes,
   });
   
-  router.beforeEach(()  => {
+  router.beforeEach((to, from, next)  => {
+    const userStore = useUserStore();
     NProgress.start() // start progress bar
+    if (userStore.getToken) {  // 判断当前的token是否存在
+      next();
+    }
+    else {
+      next({
+        path: '/login',
+        query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
+      })
+    }
     return true
   });
 
