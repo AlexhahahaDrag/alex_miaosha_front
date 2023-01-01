@@ -158,7 +158,6 @@ import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../financeManager";
 import dayjs from "dayjs";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
-import { setTimeout } from "timers/promises";
 
 const dateFormatter = "YYYY-MM-DD HH:mm:ss";
 
