@@ -147,12 +147,12 @@ export const routes: MenuDataItem[] = [
   });
   
   router.beforeEach((to, from, next)  => {
+    console.log(from);
     const userStore = useUserStore();
     NProgress.start() // start progress bar
     if (userStore.getToken) {  // 判断当前的token是否存在
       next();
-    }
-    else {
+    } else {
       next({
         path: '/login',
         query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由

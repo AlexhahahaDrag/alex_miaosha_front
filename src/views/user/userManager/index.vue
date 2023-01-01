@@ -108,13 +108,11 @@
     dictInfo,
     pageInfo,
   } from "./userManager";
-  import dayjs, { Dayjs } from "dayjs";
   import { getUserMangerPage, deleteUserManger } from "@/api/user/userManager";
   import { getDictList } from "@/api/finance/dict/dict";
   import { message } from "ant-design-vue";
   import Detail from "./detail/index.vue";
   import svgIcon from "@v/common/icons/svgIcon.vue";
-import { log } from "console";
   
   let rowIds = [] as any;
   
@@ -135,8 +133,6 @@ import { log } from "console";
       console.log(selected, selectedRows, changeRows);
     },
   });
-  
-  type RangeValue = [Dayjs, Dayjs];
   
   let searchInfo = ref<SearchInfo>({});
   
