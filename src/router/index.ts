@@ -10,7 +10,7 @@ import FinanceManager from '@v/finance/financeManager/index.vue';
 import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
 import UserManager from '@v/user/userManager/index.vue';
 import NProgress from 'nprogress';
-// import { useUserStore } from "@/store/modules/user/user";
+import { useUserStore } from "@/store/modules/user/user";
 
 export const routes: MenuDataItem[] = [
   {
@@ -31,7 +31,7 @@ export const routes: MenuDataItem[] = [
     ],
   },
   {
-    name: "login",
+    name: "登录",
     path: "/login",
     component: Login,
   },
@@ -147,23 +147,15 @@ export const routes: MenuDataItem[] = [
   });
   
   router.beforeEach((to, from, next)  => {
-    // const userStore = useUserStore();
+    const userStore = useUserStore();
     NProgress.start(); // start progress bar
-    // console.log("token:" + userStore.getToken);
-    if (true) {  // 判断当前的token是否存在
+    if (to.path=='/login' || userStore.getToken) {
       next();
       console.log('from' + from)
     } else {
-      if (to.path == '/login') {
-        next({ path: '/' });
-      } else {
-        next({
-          path: '/login',
-          query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
-        });
-      }
+      return { name: 'Login' };
     }
-    return true
+    
   });
 
   router.afterEach(() => {
