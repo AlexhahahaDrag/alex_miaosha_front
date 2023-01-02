@@ -150,7 +150,7 @@ export const routes: MenuDataItem[] = [
     // const userStore = useUserStore();
     NProgress.start(); // start progress bar
     // console.log("token:" + userStore.getToken);
-    if (false) {  // 判断当前的token是否存在
+    if (true) {  // 判断当前的token是否存在
       next();
       console.log('from' + from)
     } else {
