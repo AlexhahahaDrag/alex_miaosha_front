@@ -10,7 +10,7 @@ import FinanceManager from '@v/finance/financeManager/index.vue';
 import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
 import UserManager from '@v/user/userManager/index.vue';
 import NProgress from 'nprogress';
-import { useUserStore } from "@/store/modules/user/user";
+// import { useUserStore } from "@/store/modules/user/user";
 
 export const routes: MenuDataItem[] = [
   {
@@ -147,10 +147,10 @@ export const routes: MenuDataItem[] = [
   });
   
   router.beforeEach((to, from, next)  => {
-    const userStore = useUserStore();
+    // const userStore = useUserStore();
     NProgress.start(); // start progress bar
-    console.log("token:" + userStore.getToken);
-    if (userStore.getToken) {  // 判断当前的token是否存在
+    // console.log("token:" + userStore.getToken);
+    if (false) {  // 判断当前的token是否存在
       next();
       console.log('from' + from)
     } else {
