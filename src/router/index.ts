@@ -148,8 +148,8 @@ export const routes: MenuDataItem[] = [
   
   router.beforeEach((to, from, next)  => {
     const userStore = useUserStore();
-    NProgress.start() // start progress bar
-    debugger;
+    NProgress.start(); // start progress bar
+    console.log("token:" + userStore.getToken);
     if (userStore.getToken) {  // 判断当前的token是否存在
       next();
       console.log('from' + from)
