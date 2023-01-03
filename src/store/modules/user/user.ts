@@ -21,8 +21,8 @@ export const useUserStore = defineStore({
       // return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
     },
     getToken(): string {
-      let localStorage = window.localStorage;
-      return this.token || localStorage.getItem("token") || "";
+      let sessionStorage = window.sessionStorage;
+      return this.token || sessionStorage.getItem("token") || "";
       // return this.token || getAuthCache<string>(TOKEN_KEY);
     },
     // getRoleList(): RoleEnum[] {
@@ -40,8 +40,8 @@ export const useUserStore = defineStore({
   actions: {
     setToken(info: string | undefined) {
       this.token = info ? info : ""; // for null or undefined value
-      let localStorage = window.localStorage;
-      localStorage.setItem("token", this.token);
+      let sessionStorage = window.sessionStorage;
+      sessionStorage.setItem("token", this.token);
       // setAuthCache(TOKEN_KEY, info);
     },
     async login(

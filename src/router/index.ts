@@ -31,7 +31,7 @@ export const routes: MenuDataItem[] = [
     ],
   },
   {
-    name: "登录",
+    name: "login",
     path: "/login",
     component: Login,
   },
@@ -153,7 +153,7 @@ export const routes: MenuDataItem[] = [
       next();
       console.log('from' + from)
     } else {
-      return { name: 'Login' };
+      next({ name: 'login' });
     }
     
   });
