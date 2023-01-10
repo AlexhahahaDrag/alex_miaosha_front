@@ -1,13 +1,20 @@
 import { Dayjs } from 'dayjs';
 export interface FinanceDetail {
   id?: number;
-  name?: string;
-  typeCode?: string;
-  amount?: number;
-  fromSource?: string;
-  fromSourceName?: string;
-  isValid?: number;
-  infoDate?: Dayjs | string;
-  incomeAndExpenses?: string;
-  belongTo?: number;
+  username?: string;
+  password?: string;
+  gender?: number;
+  avatar?: string;
+  email?: string;
+  birthday?: Dayjs | string;
+  mobile?: string;
+  summary?: string;
+  status?: number;
+  nickName?: string;
+  qqNumber?: string;
+  weChat?: string;
+  occupation?: string;
+  github?: string;
+  gitee?: string;
+  person_resume?: string;
 }

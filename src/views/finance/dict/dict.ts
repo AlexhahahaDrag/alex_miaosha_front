@@ -1,14 +1,8 @@
 import { ref } from "vue";
 
 export interface SearchInfo {
-  name ?: string;
-  typeCode ?: string;
-  fromSource?: string;
-  isValid?: number;
-  pageNo?:number;
-  pageSize?:number;
-  incomeAndExpenses?: string;
-  belongTo?:number;
+  typeName ?: string;
+  belongToName?: string;
 }
 
 export interface pageInfo {
@@ -56,36 +50,30 @@ export const columns = [
   //   key: "id",
   // },
   {
-    title: "名称",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "类别",
+    title: "类别编码",
     dataIndex: "typeCode",
     key: "typeCode",
   },
   {
-    title: "金额",
-    dataIndex: "amount",
-    key: "amount",
+    title: "类别",
+    dataIndex: "typeName",
+    key: "typeName",
   },
   {
-    title: "支付方式",
-    dataIndex: "fromSource",
-    align: 'center',
-    key: "fromSource",
+    title: "分类编码",
+    dataIndex: "belongTo",
+    key: "belongTo",
   },
   {
-    title: "收支类型",
-    dataIndex: "incomeAndExpenses",
-    align: 'center',
-    key: "incomeAndExpenses",
-  },
-  {
-    title: "属于",
+    title: "分类",
     dataIndex: "belongToName",
     key: "belongToName",
+  },
+  {
+    title: "排序",
+    dataIndex: "orderBy",
+    align: 'center',
+    key: "orderBy",
   },
   {
     title: "状态",
@@ -95,8 +83,8 @@ export const columns = [
   },
   {
     title: "业务时间",
-    dataIndex: "infoDate",
-    key: "infoDate",
+    dataIndex: "operateTime",
+    key: "operateTime",
   },
   {
     title: "操作",
@@ -122,18 +110,6 @@ export interface ModelInfo {
   id?: number | undefined;
   confirmLoading ?: boolean;
 }
-
-export const fromSourceTransferList = [
-  { value: "xj", label: "cash" },
-  { value: "yhk", label: "card" },
-  { value: "zfb", label: "zhifubao" },
-  { value: "wx", label: "weChat" },
-  { value: "mt", label: "meituan" },
-  { value: "hb", label: "redPacket" },
-  { value: "bt", label: "whiteBar" },
-  { value: "hf", label: "telCharge" },
-  { value: "other", label: "" },
-]
 
 export interface dictInfo {
   typeCode?: string|number|undefined,

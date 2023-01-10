@@ -13,7 +13,8 @@
       @cancel="handleCancel"
     >
       <a-form
-        name="financeForm"
+        ref="formRef"
+        name="dictForm"
         class="ant-advanced-search-form"
         :model="formState"
         @finish="onFinish"
@@ -22,107 +23,77 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item
-              name="username"
-              label="用户名"
-              :rules="[{ required: true, message: '用户名不能为空!' }]"
+              name="typeCode"
+              label="类别编码"
+              :rules="[{ required: true, message: '类别编码必填！' }]"
             >
-              <a-input v-model:value="formState.username" placeholder="请填写用户名"></a-input>
+              <a-input v-model:value="formState.typeCode" placeholder="请填写类别编码"></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
-              name="gender"
-              label="性别"
+              name="typeName"
+              label="类别"
+              :rules="[{ required: true, message: '类别必填' }]"
+            >
+              <a-input
+                v-model:value="formState.typeName"
+                placeholder="请填写类别"
+              ></a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <!-- <a-col :span="12">
+            <a-form-item
+              name="belongTo"
+              label="分类"
+              :rules="[{ required: true, message: '分类必填' }]"
             >
               <a-select
                 ref="select"
-                v-model:value="formState.gender"
+                v-model:value="formState.belongTo"
                 mode="combobox"
-                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                placeholder="请输入分类"
+                :field-names="{ label: 'belongToName', value: 'belongTo' }"
                 :options="fromSourceList"
                 :allowClear="true"
               >
               </a-select>
             </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="24">
+          </a-col> -->
           <a-col :span="12">
             <a-form-item
-              name="nickName"
-              label="用户名"
-              :rules="[{ required: true, message: '昵称不能为空!' }]"
+              name="belongTo"
+              label="分类编码"
+              :rules="[{ required: true, message: '分类编码必填！' }]"
             >
-              <a-input v-model:value="formState.nickName" placeholder="请填写昵称"></a-input>
+              <a-input v-model:value="formState.belongTo" placeholder="请填写分类编码"></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
-              name="weChat"
-              label="微信号"
-            >
-              <a-input v-model:value="formState.weChat" placeholder="请填写微信号"></a-input>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item
-              name="qqNumber"
-              label="QQ号"
-            >
-              <a-input v-model:value="formState.qqNumber" placeholder="请填写QQ号"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item
-              name="occupation"
-              label="职业"
-            >
-              <a-input v-model:value="formState.occupation" placeholder="请填写职业"></a-input>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item
-              name="email"
-              label="邮箱"
+              name="belongToName"
+              label="分类"
+              :rules="[{ required: true, message: '分类必填' }]"
             >
               <a-input
-                v-model:value="formState.email"
-                placeholder="请填写邮箱！"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item
-              name="birthday"
-              label="生日"
-            >
-              <a-date-picker v-model:value="formState.birthday" :format="dateFormatter" :locale="zhCN" />
+                v-model:value="formState.belongToName"
+                placeholder="请填写分类"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item
-              name="mobile"
-              label="电话号"
-              :rules="[{ required: true, message: '电话号不能为空！' }]"
-            >
-            <a-input v-model:value="formState.username" placeholder="请填写电话号"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item
-              name="status"
+              name="isValid"
               label="状态"
-              :rules="[{ required: true, message: '状态不能为空！' }]"
+              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-select
                 ref="select"
-                v-model:value="formState.status"
+                v-model:value="formState.isValid"
                 mode="combobox"
                 placeholder="请输入有效状态"
                 :field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -132,34 +103,37 @@
               </a-select>
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="24">
-
+          <a-col :span="12">
+            <a-form-item
+              name="orderBy"
+              label="排序"
+              :rules="[{ required: true, message: '排序必填' }]"
+            >
+              <a-input
+                v-model:value="formState.orderBy"
+                placeholder="请填写排序"
+              ></a-input>
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </a-modal>
-  <!-- `summary` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '自我简介最多150字', -->
   </div>
 </template>
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import { FinanceDetail } from "./detail";
+import { DictDetail } from "./detail";
 import {
-  getFinanceMangerDetail,
-  addOrEditFinanceManger,
-} from "@/api/finance/financeManager";
+  getDictManagerDetail,
+  addOrEditDictManager,
+} from "@/api/finance/dict/dictManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import { ModelInfo, dictInfo } from "../userManager";
+import { ModelInfo, dictInfo } from "../dict";
 import dayjs from "dayjs";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
+import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 
-const dateFormatter = "YYYY-MM-DD HH:mm:ss";
-
-let userList = ref([
-  { id: 1, username: "mj" },
-  { id: 2, username: "臭屁宝" },
-]);
+const formRef = ref();
 
 const modelConfig = {
   confirmLoading: true,
@@ -172,12 +146,19 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<FinanceDetail>({});
+let formState = ref<DictDetail>({});
 
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
-  saveFinanceManager();
+  formRef.value
+        .validate()
+        .then(() => {
+          saveFinanceManager();
+        })
+        .catch((error: ValidateErrorEntity<DictDetail>) => {
+          console.log('error', error);
+        });
 };
 
 const handleCancel = () => {
@@ -192,7 +173,7 @@ function saveFinanceManager() {
   } else {
     method = "post";
   }
-  addOrEditFinanceManger(method, formState.value)
+  addOrEditDictManager(method, formState.value)
     .then((res) => {
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
@@ -225,7 +206,7 @@ let validList = [
 ];
 
 function getDictInfoList() {
-  getDictList("is_valid").then((res) => {
+  getDictList("pay_way,income_expense_type,is_valid").then((res) => {
     if (res.code == "200") {
       fromSourceList.value = res.data.filter(
         (item: { belongTo: string }) => item.belongTo == "pay_way"
@@ -255,26 +236,21 @@ watch(
 function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
-      getFinanceMangerDetail(props.modelInfo.id)
-        .then((res) => {
-          if (res.code == "200") {
-            formState.value = res.data;
-            formState.value.infoDate = dayjs(formState.value.infoDate);
-            modelConfig.confirmLoading = false;
-          } else {
-            message.error((res && res.message) || "查询失败！");
-          }
-        })
-        .catch(() => {
-          message.error("系统问题，请联系管理员！");
-        });
+      getDictManagerDetail(props.modelInfo.id)
+      .then((res) => {
+        if (res.code == "200") {
+          formState.value = res.data;
+          modelConfig.confirmLoading = false;
+        } else {
+          message.error((res && res.message) || "查询失败！");
+        }
+      }).catch(() => {
+        message.error("系统问题，请联系管理员！");
+      });
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {
         isValid: 1,
-        incomeAndExpenses: "expense",
-        infoDate: dayjs(),
-        belongTo: 2,
       };
     }
   }

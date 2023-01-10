@@ -84,14 +84,19 @@ export const columns = [
     key: "mobile",
   },
   {
-    title: "最后登录IP",
-    dataIndex: "lastLoginIp",
-    key: "lastLoginIp",
+    title: "QQ",
+    dataIndex: "qqNumber",
+    key: "qqNumber",
   },
   {
-    title: "最后登录时间",
-    dataIndex: "lastLoginTime",
-    key: "lastLoginTime",
+    title: "微信",
+    dataIndex: "weChat",
+    key: "weChat",
+  },
+  {
+    title: "职业",
+    dataIndex: "occupation",
+    key: "occupation",
   },
   {
     title: "状态",
