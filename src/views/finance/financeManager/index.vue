@@ -143,7 +143,7 @@ import {
 } from "./financeManager";
 import dayjs, { Dayjs } from "dayjs";
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
-import { getDictList } from "@/api/finance/dict/dict";
+import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";

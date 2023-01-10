@@ -105,7 +105,6 @@ export const columns = [
   },
 ];
 
-
 export interface DataItem {
   name: string;
   typeCode: string;

@@ -153,7 +153,7 @@ import {
   getFinanceMangerDetail,
   addOrEditFinanceManger,
 } from "@/api/finance/financeManager";
-import { getDictList } from "@/api/finance/dict/dict";
+import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
 import dayjs from "dayjs";

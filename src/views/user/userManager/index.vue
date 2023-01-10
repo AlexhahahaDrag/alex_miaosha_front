@@ -109,7 +109,7 @@
     pageInfo,
   } from "./userManager";
   import { getUserMangerPage, deleteUserManger } from "@/api/user/userManager";
-  import { getDictList } from "@/api/finance/dict/dict";
+  import { getDictList } from "@/api/finance/dict/dictManager";
   import { message } from "ant-design-vue";
   import Detail from "./detail/index.vue";
   import svgIcon from "@v/common/icons/svgIcon.vue";
@@ -193,9 +193,7 @@
         } else {
           message.error((res && res.message) || "查询列表失败！");
         }
-      }).catch((e) => {
-        console.log("12345678910");
-        console.log(e);
+      }).catch(() => {
         pagination.value.current = 0;
         pagination.value.pageSize = 10;
         pagination.value.total = 0;

@@ -1,91 +1,238 @@
 <template>
-  <div>
-    <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="字典名称" prop="typeName">
-            <el-input v-model="formData.typeName" placeholder="请输入字典名称" clearable :style="{width: '100%'}">
-            </el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="类型" prop="field104">
-            <el-select v-model="formData.field104" placeholder="请选择类型" clearable :style="{width: '100%'}">
-              <el-option v-for="(item, index) in field104Options" :key="index" :label="item.label"
-                         :value="item.value" :disabled="item.disabled"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="4">
-          <el-form-item label="" prop="查询">
-            <el-button type="primary" icon="el-icon-search" size="medium"> 主要按钮 </el-button>
-          </el-form-item>
-        </el-col>
-        <el-col :span="4">
-          <el-form-item label="" prop="取消">
-            <el-button type="primary" icon="el-icon-search" size="small"> 主要按钮 </el-button>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row type="flex" justify="start" align="top">
-      </el-row>
-      <el-form-item size="large">
-        <el-button type="primary" @click="submitForm">提交</el-button>
-        <el-button @click="resetForm">重置</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="page-info">
+    <div class="search">
+      <div class="search-box">
+        <div class="search-box-in">
+          <a-form layout="inline" @keyup.enter.native="searchInfo">
+            <a-space>
+              <a-input v-model:value="searchInfo.typeName" placeholder="名称" allow-clear />
+              <a-input v-model:value="searchInfo.belongToName" placeholder="名称" allow-clear />
+              <a-button type="primary" @click="query"> 查找</a-button>
+              <a-button type="primary" @click="cancelQuery">清空</a-button>
+            </a-space>
+          </a-form>
+        </div>
+      </div>
+    </div>
+    <div class="button">
+      <a-space>
+        <a-button type="primary" @click="editDict('add')">新增</a-button>
+        <a-button type="primary" @click="query">导入</a-button>
+        <a-button type="danger" @click="batchDelDictManager">删除</a-button>
+      </a-space>
+    </div>
+    <div class="content">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1200 }"
+        :row-selection="rowSelection"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'operation'">
+            <a-space>
+              <a-button
+                type="primary"
+                size="small"
+                @click="editDict('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除字典信息?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delDict(record.id)"
+                @cancel="cancel"
+              >
+                <a-button type="primary" size="small" danger>删除</a-button>
+              </a-popconfirm>
+            </a-space>
+            <span></span>
+          </template>
+          <template v-else-if="column.key === 'isValid'">
+            <a-tag
+              :key="record.isValid"
+              :color="record.isValid == 1 ? '#87d068' : 'grey'"
+            >
+              {{ record.isValid == 1 ? "有效" : "失效" }}
+            </a-tag>
+          </template>
+        </template>
+      </a-table>
+      <Detail
+        ref="editInfo"
+        :visible="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      ></Detail>
+    </div>
   </div>
 </template>
-<script>
-export default {
-  components: {},
-  props: [],
-  data() {
-    return {
-      formData: {
-        typeName: undefined,
-        field104: undefined,
-        查询: undefined,
-        取消: undefined,
-      },
-      rules: {
-        typeName: [{
-          required: true,
-          message: '请输入字典名称',
-          trigger: 'blur'
-        }],
-        field104: [{
-          required: true,
-          message: '请选择类型',
-          trigger: 'change'
-        }],
-      },
-      field104Options: [{
-        "label": "选项一",
-        "value": 1
-      }, {
-        "label": "选项二",
-        "value": 2
-      }],
-    }
+<script setup lang="ts">
+import { ref } from "vue";
+import {
+  SearchInfo,
+  pagination,
+  columns,
+  DataItem,
+  ModelInfo,
+  dictInfo,
+  pageInfo,
+} from "./dict";
+import { getDictManagerPage, deleteDictManager } from "@/api/finance/dict/dictManager";
+import { getDictList } from "@/api/finance/dict/dictManager";
+import { message } from "ant-design-vue";
+import Detail from "./detail/index.vue";
+// import svgIcon from "@v/common/icons/svgIcon.vue";
+
+let rowIds = [] as any;
+
+const fromSourceList = ref<dictInfo[]>([]);
+
+const incomeAndExpensesList = ref<dictInfo[]>([]);
+
+const rowSelection = ref({
+  checkStrictly: false,
+  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+    rowIds = selectedRowKeys;
   },
-  computed: {},
-  watch: {},
-  created() {},
-  mounted() {},
-  methods: {
-    submitForm() {
-      this.$refs['elForm'].validate(valid => {
-        if (!valid) return
-        // TODO 提交表单
-      })
-    },
-    resetForm() {
-      this.$refs['elForm'].resetFields()
-    },
-  }
+  onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+    console.log(record, selected, selectedRows);
+  },
+  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+    console.log(selected, selectedRows, changeRows);
+  },
+});
+
+let searchInfo = ref<SearchInfo>({});
+
+function cancelQuery() {
+  searchInfo.value = {};
 }
 
+function query() {
+  getDictPage(searchInfo.value, pagination.value);
+}
+
+function handleTableChange(pagination) {
+  getDictPage(searchInfo.value, pagination);
+}
+
+function delDict(ids: string) {
+  deleteDictManager(ids).then((res) => {
+    if (res.code == "200") {
+      message.success((res && "删除" + res.message) || "删除成功！", 3);
+      getDictPage(searchInfo.value, pagination.value);
+    } else {
+      message.error((res && res.message) || "删除失败！", 3);
+    }
+  }).catch((e) => {
+      message.error("删除异常，请联系管理员！", 3);
+      console.log(e);
+    }
+  );
+}
+
+function batchDelDictManager() {
+  let ids = "";
+  if (rowIds && rowIds.length > 0) {
+    rowIds.forEach((item: string) => {
+      ids += item + ",";
+    });
+    ids = ids.substring(0, ids.length - 1);
+  } else {
+    message.warning("请先选择数据！", 3);
+    return;
+  }
+  delDict(ids);
+}
+
+let loading = ref<boolean>(false);
+
+let dataSource = ref();
+
+const cancel = (e: MouseEvent) => {
+  console.log(e);
+};
+
+function getDictPage(param: SearchInfo, cur: pageInfo) {
+  loading.value = true;
+  getDictManagerPage(param, cur.current, cur.pageSize)
+    .then((res) => {
+      if (res.code == "200") {
+        dataSource.value = res.data.records;
+        pagination.value.current = res.data.current;
+        pagination.value.pageSize = res.data.size;
+        pagination.value.total = res.data.total;
+      } else {
+        message.error((res && res.message) || "查询列表失败！");
+      }
+    }).catch((e) => {
+        message.error("获取页面异常，请联系管理员！", 3);
+        console.log(e);
+      }
+    ).finally(() => {
+      loading.value = false;
+    });
+}
+
+function getDictInfoList() {
+  loading.value = true;
+  getDictList("pay_way,income_expense_type").then((res) => {
+    if (res.code == "200") {
+      fromSourceList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "pay_way"
+      );
+      incomeAndExpensesList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "income_expense_type"
+      );
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
+function init() {
+  //获取字典列表
+  getDictInfoList();
+  //获取财务管理页面数据
+  getDictPage(searchInfo.value, pagination.value);
+}
+
+init();
+
+let visible = ref<boolean>(false);
+
+let modelInfo = ref<ModelInfo>({});
+
+//新增和修改弹窗
+function editDict(type: string, id?: number) {
+  if (type == "add") {
+    modelInfo.value.title = "新增明细";
+    modelInfo.value.id = undefined;
+  } else if (type == "update") {
+    modelInfo.value.title = "修改明细";
+    modelInfo.value.id = id;
+  }
+  modelInfo.value.confirmLoading = true;
+  visible.value = true;
+}
+
+const handleOk = (v: boolean) => {
+  visible.value = v;
+  getDictPage(searchInfo.value, pagination.value);
+};
+
+const handleCancel = (v: boolean) => {
+  visible.value = v;
+};
 </script>
-<style>
+<style lang="scss" scoped>
+@import "@/style/index.scss";
 </style>

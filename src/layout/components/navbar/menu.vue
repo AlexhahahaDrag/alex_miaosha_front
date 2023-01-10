@@ -55,6 +55,9 @@
             <template v-else-if="route.meta.icon == 'user'">
               <User />
             </template>
+            <template v-else-if="route.meta.icon == 'dict'">
+              <Dict />
+            </template>
           </template>
         </template>
         <router-link :to="route.path">
@@ -77,6 +80,7 @@ import Promotion from '@v/common/icons/menu/promotion.vue';
 import Finance from '@v/common/icons/menu/finance.vue';
 import FinanceManager from '@v/common/icons/menu/financeManager.vue';
 import FinanceAnalysis from '@v/common/icons/menu/financeAnalysis.vue';
+import Dict from '@v/common/icons/menu/dict.vue';
 import User from '@v/common/icons/menu/user.vue';
 import UserManager from '@v/common/icons/menu/userManager.vue';
 

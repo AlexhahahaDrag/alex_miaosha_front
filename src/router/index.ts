@@ -8,6 +8,7 @@ import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
 import FinanceManager from '@v/finance/financeManager/index.vue';
 import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
+import Dict from '@v/finance/dict/index.vue';
 import UserManager from '@v/user/userManager/index.vue';
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
@@ -121,6 +122,12 @@ export const routes: MenuDataItem[] = [
         name: "财务分析",
         component: FinanceAnalysis,
         meta: { title: "财务分析", icon: "financeAnalysis", hiedInMenu: false },
+      },
+      {
+        path: "/finance/dict",
+        name: "字典信息",
+        component: Dict,
+        meta: { title: "字典信息", icon: "dict", hiedInMenu: false },
       },
     ],
   },
