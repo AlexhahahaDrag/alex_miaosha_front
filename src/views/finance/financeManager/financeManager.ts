@@ -129,9 +129,13 @@ export const fromSourceTransferList = [
   { value: "zfb", label: "zhifubao" },
   { value: "wx", label: "weChat" },
   { value: "mt", label: "meituan" },
-  { value: "hb", label: "redPacket" },
+  { value: "hb", label: "huabei" },
   { value: "bt", label: "whiteBar" },
   { value: "hf", label: "telCharge" },
+  { value: "rqf", label: "gasCharge" },
+  { value: "sf", label: "waterCharge" },
+  { value: "df", label: "electricCharge" },
+  { value: "jd", label: "jingdong" },
   { value: "other", label: "" },
 ]
 
