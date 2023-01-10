@@ -1,4 +1,3 @@
-import { Dayjs } from 'dayjs';
 export interface DictDetail {
   id?: number;
   typeCode?: string;
