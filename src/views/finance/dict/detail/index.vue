@@ -130,7 +130,6 @@ import {
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../dict";
-import dayjs from "dayjs";
 import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 
 const formRef = ref();

@@ -191,6 +191,7 @@ const handleCancel = () => {
 
 //保存财务信息
 function saveFinanceManager() {
+  modelConfig.confirmLoading = true;
   let method = "";
   if (formState.value.id) {
     method = "put";
@@ -199,6 +200,7 @@ function saveFinanceManager() {
   }
   addOrEditFinanceManger(method, formState.value)
     .then((res) => {
+      modelConfig.confirmLoading = false;
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
         emit("handleOk", false);

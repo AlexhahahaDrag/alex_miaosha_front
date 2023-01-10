@@ -151,15 +151,9 @@ import {
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
-import dayjs from "dayjs";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 
 const dateFormatter = "YYYY-MM-DD HH:mm:ss";
-
-let userList = ref([
-  { id: 1, username: "mj" },
-  { id: 2, username: "臭屁宝" },
-]);
 
 const modelConfig = {
   confirmLoading: true,
@@ -259,7 +253,6 @@ function init() {
         .then((res) => {
           if (res.code == "200") {
             formState.value = res.data;
-            formState.value.infoDate = dayjs(formState.value.infoDate);
             modelConfig.confirmLoading = false;
           } else {
             message.error((res && res.message) || "查询失败！");
@@ -271,10 +264,7 @@ function init() {
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {
-        isValid: 1,
-        incomeAndExpenses: "expense",
-        infoDate: dayjs(),
-        belongTo: 2,
+        status: 1,
       };
     }
   }
