@@ -244,20 +244,8 @@ function getDictInfoList() {
   });
 }
 
-watch(
-  () => props.visible,
-  (newVal) => {
-    if (newVal) {
-      init();
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  }
-);
-
 function init() {
+  getDictInfoList();
   if (props.modelInfo) {
     if (props.modelInfo.id) {
       getFinanceMangerDetail(props.modelInfo.id)
@@ -283,8 +271,20 @@ function init() {
       };
     }
   }
-  getDictInfoList();
 }
+
+watch(
+  () => props.visible,
+  (newVal) => {
+    if (newVal) {
+      init();
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 
 defineExpose({ handleOk, handleCancel });
 </script>
