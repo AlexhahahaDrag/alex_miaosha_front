@@ -2,7 +2,7 @@
   <div>
     <a-modal
       :visible="props.visible"
-      :width="props.modelInfo && props.modelInfo.width ? props.modelInfo : '1000px'"
+      :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       "

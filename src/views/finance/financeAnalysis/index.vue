@@ -30,14 +30,24 @@
           <p style="font-size: 20px">{{ sum }}</p>
         </a-card>
       </a-col>
-      <a-col :span="4" v-for="item in balanceList.slice(0, 5)">
+      <a-col :span="4">
+        <a-card title="月总消费" :bordered="false">
+          <p style="font-size: 20px">{{ monthExpenseSum }}</p>
+        </a-card>
+      </a-col>
+      <a-col :span="4">
+        <a-card title="月总收入" :bordered="false">
+          <p style="font-size: 20px">{{ monthIncomeSum }}</p>
+        </a-card>
+      </a-col>
+      <a-col :span="4" v-for="item in balanceList.slice(0, 3)">
         <a-card :title="item.typeName" :bordered="false">
           <p style="font-size: 20px">{{ item.amount }}</p>
         </a-card>
       </a-col>
     </a-row>
     <a-row :gutter="16" style="padding-top: 10px">
-      <a-col :span="4" v-for="item in balanceList.slice(5)">
+      <a-col :span="4" v-for="item in balanceList.slice(3)">
         <a-card :title="item.typeName" :bordered="false">
           <p style="font-size: 20px">{{ item.amount }}</p>
         </a-card>
@@ -116,6 +126,8 @@ const dateFormatter = "YYYY-MM";
 const balanceList = ref<FinanceDetail | any>([]);
 
 let sum = ref<any>(0);
+let monthExpenseSum = ref<any>(0);
+let monthIncomeSum = ref<any>(0);
 
 let searchUser = ref<number>(0);
 
@@ -154,11 +166,17 @@ function getIncomeAndExpenseInfo(userId: number, dateStr: string) {
     (res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
         if (res.data) {
+          monthExpenseSum.value = 0;
+          monthIncomeSum.value = 0;
           let dd: ItemInfo[] = [];
           res.data
             .filter((item) => item.incomeAndExpenses == "income")
             .forEach((item: { typeCode: any; amount: any }) => {
               dd.push({ name: item.typeCode, value: item.amount });
+              monthIncomeSum.value = math.add(
+                monthIncomeSum.value,
+                math.bignumber(item.amount ? item.amount : 0)
+              )
             });
           pieIncomeData.value = dd;
           let expense: ItemInfo[] = [];
@@ -166,6 +184,10 @@ function getIncomeAndExpenseInfo(userId: number, dateStr: string) {
             .filter((item) => item.incomeAndExpenses == "expense")
             .forEach((item: { typeCode: any; amount: any }) => {
               expense.push({ name: item.typeCode, value: item.amount });
+              monthExpenseSum.value = math.add(
+                monthExpenseSum.value,
+                math.bignumber(item.amount ? item.amount : 0)
+              )
             });
           pieExpenseData.value = expense;
         }
