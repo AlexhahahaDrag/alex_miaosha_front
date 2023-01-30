@@ -34,46 +34,9 @@ const props = defineProps({
   },
 });
 
-let colorInfo = [
-  "#55aaff",
-  "#ff9933",
-  "#5555ff",
-  "#aa55ff",
-  "#dd4444",
-  "#bb2222",
-  "#dd4488",
-  "#22ff99",
-  "#ffcc66",
-  "#7777dd",
-  "rgb(217, 0, 27)",
-  "#777fff",
-];
-
 const setOption = (data: any[]) => {
-  let { xAxis, yTitle, yNameGap, tooltip, legend } = props.config;
+  let { xAxis, yTitle, yNameGap, tooltip, color, xTile } = props.config;
   if (data) {
-    let series = [] as any;
-    let colorIndex = 0;
-    data.forEach((item, index) => {
-      let i = legend ? index % legend.length : 0;
-      let se = {
-        name: legend ? legend[i] : i,
-        type: "bar",
-        data: item,
-        smooth: true,
-        showSymbol: 0,
-        itemStyle: {
-          normal: {
-            color: colorInfo[colorIndex],
-            lineStyle: {
-              type: "line",
-              color: colorInfo[colorIndex++],
-            },
-          },
-        },
-      };
-      series[index] = se;
-    });
     options.value = {
     title: {
       text: props.title,
@@ -103,24 +66,25 @@ const setOption = (data: any[]) => {
       axisTick: {
         alignWithLabel: true,
       },
+      name: xTile ? xTile : '',
     },
-    legend: {
-      data: legend || [],
-      icon: "roundRect",
-      left: "right",
-      itemHeight: 6,
-      itemWidth: 18,
-      textStyle: {
-        fontSize: 14,
-        lineHeight: 14,
-        rich: {
-          a: {
-            verticalAlign: "middle",
-          },
-        },
-        padding: [0, 0, -2, 0], //[上、右、下、左]
-      },
-    },
+    // legend: {
+    //   data: legend || [1],
+    //   icon: "roundRect",
+    //   left: "right",
+    //   itemHeight: 6,
+    //   itemWidth: 18,
+    //   textStyle: {
+    //     fontSize: 14,
+    //     lineHeight: 14,
+    //     rich: {
+    //       a: {
+    //         verticalAlign: "middle",
+    //       },
+    //     },
+    //     padding: [0, 0, -2, 0], //[上、右、下、左]
+    //   },
+    // },
     yAxis: {
       type: "value",
       name: yTitle ? yTitle : "",
@@ -139,7 +103,23 @@ const setOption = (data: any[]) => {
         },
       },
     },
-    series: series,
+    series: [
+    {
+        type: "bar",
+        data: data,
+        smooth: true,
+        showSymbol: 0,
+        itemStyle: {
+          normal: {
+            color: color,
+            lineStyle: {
+              type: "line",
+              color: color,
+            },
+          },
+        },
+      }
+    ],
   };
   }
 };
@@ -150,7 +130,6 @@ const chartOption = {
     left: "center",
   },
   color: [] as string[],
-  legend: {},
   tooltip: {} as Object,
   xAxis: {
     type: "category",
@@ -159,6 +138,7 @@ const chartOption = {
     axisTick: {
       alignWithLabel: true,
     },
+    name: '',
   },
   yAxis: {
     type: "value",
@@ -182,7 +162,6 @@ const chartOption = {
 };
 
 const options = ref(chartOption);
-
 
 watch(
   () => props.data,

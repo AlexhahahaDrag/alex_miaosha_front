@@ -201,10 +201,12 @@ function getIncomeAndExpenseInfo(userId: number, dateStr: string) {
 let dayConfig = ref<barItem>({
   xAxis: [],
   series: [],
+  xTile: "天数",
   yTitle: "金钱(元)",
   yNameGap: 30,
   tooltip: {},
   legend: [],
+  color: "#aa55ff",
 });
 
 let monthData = ref<any>([]);
@@ -212,10 +214,12 @@ let monthData = ref<any>([]);
 let monthConfig = ref<barItem>({
   xAxis: [],
   series: [],
+  xTile: "月份",
   yTitle: "金钱(元)",
   yNameGap: 30,
   tooltip: {},
   legend: [],
+  color: '#5555ff',
 });
 
 let dayData = ref<any>([]);
@@ -225,41 +229,42 @@ function getDayExpenseInfo(userId: number, dateStr: string) {
     (res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
         if (res.data) {
-          let map = {};
-          let num = 0;
-          let legend = [] as any;
-          for (let i = 0; i < res.data.length; i++) {
-            if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
-              break;
-            } else {
-              map[res.data[i].userId ? res.data[i].userId : "0"] = i + 1;
-              num++;
-              legend.push(
-                res.data[i].username ? res.data[i].username : res.data[i].userId
-              );
-            }
-          }
           let series = [] as any;
-          for (let i = 0; i < num; i++) {
-            series[i] = [];
-          }
           let xAxis = [] as any;
           res.data.forEach((item) => {
-            series[map[item.userId] - 1].push(item.amount);
+            series.push(item.amount);
             xAxis.push(item.infoDate);
           });
           dayConfig.value = {
             xAxis: xAxis,
             series: series,
+            xTile: "天数",
             yTitle: "金钱(元)",
-            yNameGap: 30,
+            yNameGap: 50,
             tooltip: {
               trigger: "axis",
               axisPointer: {
                 type: "shadow",
               },
+              formatter(param: any) {
+                let tip = "";
+                let unit = "元";
+                let name = "花费";
+                tip += `<p style="margin: 0">${param[0].axisValue}日</p>`;
+                param.forEach(
+                  (element: {
+                    axisValue: any;
+                    marker: any;
+                    value: any;
+                    seriesName: any;
+                  }) => {
+                    tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.00}${unit}</p>`;
+                  }
+                );
+                return tip;
+              },
             },
-            legend: legend,
+            color: "#aa55ff",
           };
           dayData.value = series;
         }
@@ -275,34 +280,18 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
     (res: { code: string; data: any[]; message: any }) => {
       if (res.code == "200") {
         if (res.data) {
-          let map = {};
-          let num = 0;
-          let legend = [] as any;
-          for (let i = 0; i < res.data.length; i++) {
-            if (map[res.data[i].userId ? res.data[i].userId : "0"]) {
-              break;
-            } else {
-              map[res.data[i].userId ? res.data[i].userId : "0"] = i + 1;
-              num++;
-              legend.push(
-                res.data[i].username ? res.data[i].username : res.data[i].userId
-              );
-            }
-          }
           let series = [] as any;
-          for (let i = 0; i < num; i++) {
-            series[i] = [];
-          }
           let xAxis = [] as any;
           res.data.forEach((item) => {
-            series[map[item.userId] - 1].push(item.amount);
+            series.push(item.amount);
             xAxis.push(item.infoDate);
           });
           monthConfig.value = {
             xAxis: xAxis,
             series: series,
             yTitle: "金钱(元)",
-            yNameGap: 30,
+            xTile: "月份",
+            yNameGap: 50,
             tooltip: {
               trigger: "axis",
               axisPointer: {
@@ -320,15 +309,13 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
                     value: any;
                     seriesName: any;
                   }) => {
-                    tip += `<p style="margin: 0">${element.marker}${
-                      element.seriesName
-                    }${name}: ${element.value ? element.value : 0.00}${unit}</p>`;
+                    tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.00}${unit}</p>`;
                   }
                 );
                 return tip;
               },
             },
-            legend: legend,
+            color: "5555ff",
           };
           monthData.value = series;
         }

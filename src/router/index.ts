@@ -162,7 +162,6 @@ export const routes: MenuDataItem[] = [
     } else {
       next({ name: 'login' });
     }
-    
   });
 
   router.afterEach(() => {

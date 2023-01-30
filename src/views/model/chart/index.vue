@@ -13,7 +13,9 @@ import "echarts/theme/infographic";
 const props = defineProps({
   options: {
     type: Object,
-    default: null,
+    default: () => {
+      return {};
+    },
   },
   width: {
     type: String,
@@ -33,6 +35,7 @@ const style = ref({
 });
 let chart: any = null;
 const initEcharts = () => {
+  disposeChart();
   if (!chart) {
     chart = echarts.init(document.getElementById(id.value)!);
   } else {
@@ -62,7 +65,6 @@ onMounted(() => {
     },
     { deep: true, flush: "post" }
   );
-  disposeChart();
   initEcharts();
 });
 onUnmounted(() => {
