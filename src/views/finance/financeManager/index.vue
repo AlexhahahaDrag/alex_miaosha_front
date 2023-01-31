@@ -61,7 +61,7 @@
         :row-key="(record) => record.id"
         :pagination="pagination"
         @change="handleTableChange"
-        :scroll="{ x: 1200 }"
+        :scroll="{ x: 1100 }"
         :row-selection="rowSelection"
       >
         <template #bodyCell="{ column, record }">

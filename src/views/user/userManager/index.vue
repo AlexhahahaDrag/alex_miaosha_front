@@ -28,7 +28,7 @@
           :row-key="(record) => record.id"
           :pagination="pagination"
           @change="handleTableChange"
-          :scroll="{ x: 1200 }"
+          :scroll="{ x: 1400 }"
           :row-selection="rowSelection"
         >
           <template #bodyCell="{ column, record }">
@@ -52,20 +52,20 @@
               </a-space>
               <span></span>
             </template>
-            <template v-else-if="column.key === 'isValid'">
+            <template v-else-if="column.key === 'status'">
               <a-tag
-                :key="record.isValid"
-                :color="record.isValid == 1 ? '#87d068' : 'grey'"
+                :key="record.status"
+                :color="record.status == 1 ? '#87d068' : 'grey'"
               >
-                {{ record.isValid == 1 ? "有效" : "失效" }}
+                {{ record.status == 1 ? "有效" : "失效" }}
               </a-tag>
             </template>
-            <template v-else-if="column.key === 'incomeAndExpenses'">
+            <template v-else-if="column.key === 'gender'">
               <a-tag
-                :key="record.incomeAndExpenses"
-                :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
+                :key="record.gender"
+                :color="record.gender == 1 ? 'green' : 'red'"
               >
-                {{ record.incomeAndExpenses == "income" ? "收入" : "支出" }}
+                {{ record.gender == 0 ? "" : (record.gender == 1 ? "男" : "女") }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'fromSource'">
@@ -108,7 +108,7 @@
     dictInfo,
     pageInfo,
   } from "./userManager";
-  import { getUserMangerPage, deleteUserManger } from "@/api/user/userManager";
+  import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
   import { getDictList } from "@/api/finance/dict/dictManager";
   import { message } from "ant-design-vue";
   import Detail from "./detail/index.vue";
@@ -149,7 +149,7 @@
   }
   
   function delUser(ids: string) {
-    deleteUserManger(ids).then((res) => {
+    deleteUserManager(ids).then((res) => {
       if (res.code == "200") {
         message.success((res && "删除" + res.message) || "删除成功！", 3);
         getUserPage(searchInfo.value, pagination.value);
@@ -183,7 +183,7 @@
   
   function getUserPage(param: SearchInfo, cur: pageInfo) {
     loading.value = true;
-    getUserMangerPage(param, cur.current, cur.pageSize)
+    getUserManagerPage(param, cur.current, cur.pageSize)
       .then((res) => {
         if (res.code == "200") {
           dataSource.value = res.data.records;

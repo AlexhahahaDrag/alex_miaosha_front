@@ -13,20 +13,20 @@ import {
     url: "",
   };
   
-  export function getUserMangerPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
+  export function getUserManagerPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
     let url = baseService.user + baseUserManager + userMangerUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
     return postData(url, params);
   }
   
-  export function getUserMangerDetail(id: number): Promise<any> {
+  export function getUserManagerDetail(id: number): Promise<any> {
     return getDataOne(baseService.user + baseUserManager + userMangerUrl.url + "?id=" + id);
   }
   
-  export function deleteUserManger(ids: string) : Promise<any>{
+  export function deleteUserManager(ids: string) : Promise<any>{
     return deleteData(baseService.user + baseUserManager + userMangerUrl.url + "?ids=" + ids);
   }
   
-  export function addOrEditUserManger(
+  export function addOrEditUserManager(
     method: string,
     params: any
   ): Promise<any> {

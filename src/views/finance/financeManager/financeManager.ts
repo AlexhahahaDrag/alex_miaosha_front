@@ -59,38 +59,45 @@ export const columns = [
     title: "名称",
     dataIndex: "name",
     key: "name",
+    width: '150px',
   },
   {
     title: "类别",
     dataIndex: "typeCode",
     key: "typeCode",
+    width: '100px',
   },
   {
     title: "金额",
     dataIndex: "amount",
     key: "amount",
+    width: '80px',
   },
   {
     title: "支付方式",
     dataIndex: "fromSource",
     align: 'center',
+    width: '100px',
     key: "fromSource",
   },
   {
     title: "收支类型",
     dataIndex: "incomeAndExpenses",
     align: 'center',
+    width: '100px',
     key: "incomeAndExpenses",
   },
   {
     title: "属于",
     dataIndex: "belongToName",
+    width: '100px',
     key: "belongToName",
   },
   {
     title: "状态",
     dataIndex: "isValid",
     align: 'center',
+    width: '100px',
     key: "isValid",
   },
   {
@@ -101,7 +108,8 @@ export const columns = [
   {
     title: "操作",
     key: "operation",
-    width: 200,
+    fixed: 'right',
+    width: 160,
   },
 ];
 

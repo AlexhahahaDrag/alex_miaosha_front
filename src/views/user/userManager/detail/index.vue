@@ -147,9 +147,9 @@
 import { ref, watch,reactive } from "vue";
 import { FinanceDetail } from "./detail";
 import {
-  getFinanceMangerDetail,
-  addOrEditFinanceManger,
-} from "@/api/finance/financeManager";
+  getUserManagerDetail,
+  addOrEditUserManager,
+} from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
@@ -209,7 +209,7 @@ const emit = defineEmits(["handleOk", "handleCancel"]);
 const handleOk = () => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(() => saveFinanceManager()).catch(()=> {
+    formRef.value.validateFields().then(() => saveUserManager()).catch(()=> {
     loading.value = false;
   });
   }
@@ -220,14 +220,14 @@ const handleCancel = () => {
 };
 
 //保存财务信息
-function saveFinanceManager() {
+function saveUserManager() {
   let method = "";
   if (formState.value.id) {
     method = "put";
   } else {
     method = "post";
   }
-  addOrEditFinanceManger(method, formState.value)
+  addOrEditUserManager(method, formState.value)
     .then((res) => {
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
@@ -294,7 +294,7 @@ function initForm() {
 function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
-      getFinanceMangerDetail(props.modelInfo.id)
+      getUserManagerDetail(props.modelInfo.id)
         .then((res) => {
           if (res.code == "200") {
             formState.value = res.data;
