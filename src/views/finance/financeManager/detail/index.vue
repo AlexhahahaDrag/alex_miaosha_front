@@ -239,9 +239,11 @@ const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
   loading.value = true;
-  formRef.value.validateFields().then(() => saveFinanceManager()).catch(()=> {
+  if (formRef.value) {
+    formRef.value.validateFields().then(() => saveFinanceManager()).catch(()=> {
     loading.value = false;
   });
+  }
 };
 
 const handleCancel = () => {
