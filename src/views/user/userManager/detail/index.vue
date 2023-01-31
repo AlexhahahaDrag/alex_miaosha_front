@@ -12,19 +12,24 @@
       :destroyOnClose="modelConfig.destroyOnClose"
       @cancel="handleCancel"
     >
+    <template #footer>
+        <a-button key="back" @click="handleCancel">取消</a-button>
+        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+      </template>
       <a-form
+        ref="formRef"
         name="financeForm"
-        class="ant-advanced-search-form"
+        :rules="rulesRef"
         :model="formState"
-        @finish="onFinish"
         @finishFailed="onFinishFailed"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
       >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item
               name="username"
               label="用户名"
-              :rules="[{ required: true, message: '用户名不能为空!' }]"
             >
               <a-input v-model:value="formState.username" placeholder="请填写用户名"></a-input>
             </a-form-item>
@@ -39,7 +44,7 @@
                 v-model:value="formState.gender"
                 mode="combobox"
                 :field-names="{ label: 'typeName', value: 'typeCode' }"
-                :options="fromSourceList"
+                :options="genderList"
                 :allowClear="true"
               >
               </a-select>
@@ -50,8 +55,7 @@
           <a-col :span="12">
             <a-form-item
               name="nickName"
-              label="用户名"
-              :rules="[{ required: true, message: '昵称不能为空!' }]"
+              label="昵称"
             >
               <a-input v-model:value="formState.nickName" placeholder="请填写昵称"></a-input>
             </a-form-item>
@@ -100,7 +104,7 @@
               name="birthday"
               label="生日"
             >
-              <a-date-picker v-model:value="formState.birthday" :format="dateFormatter" :locale="zhCN" />
+              <a-date-picker v-model:value="formState.birthday" width="100%"/>
             </a-form-item>
           </a-col>
         </a-row>
@@ -109,16 +113,14 @@
             <a-form-item
               name="mobile"
               label="电话号"
-              :rules="[{ required: true, message: '电话号不能为空！' }]"
             >
-            <a-input v-model:value="formState.username" placeholder="请填写电话号"></a-input>
+            <a-input v-model:value="formState.mobile" placeholder="请填写电话号"></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
               name="status"
               label="状态"
-              :rules="[{ required: true, message: '状态不能为空！' }]"
             >
               <a-select
                 ref="select"
@@ -142,18 +144,20 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch,reactive } from "vue";
 import { FinanceDetail } from "./detail";
 import {
   getFinanceMangerDetail,
   addOrEditFinanceManger,
 } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
-import { message } from "ant-design-vue";
+import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
 
-const dateFormatter = "YYYY-MM-DD HH:mm:ss";
+const labelCol = ref({span: 5});
+const wrapperCol = ref({span: 19}); 
+
+let loading = ref<boolean>(false);
 
 const modelConfig = {
   confirmLoading: true,
@@ -168,10 +172,45 @@ const props = defineProps<Props>();
 
 let formState = ref<FinanceDetail>({});
 
+const formRef = ref<FormInstance>();
+const rulesRef = reactive({
+  username: [
+        {
+          required: true,
+          message: '用户名称不能为空！',
+        },
+      ],
+      nickName: [
+        {
+          required: true,
+          message: '昵称不能为空！',
+        },
+      ],
+      mobile: [
+        {
+          required: true,
+          message: '电话号不能为空！',
+        },
+        {
+          message: '输入的电话号不合法！',
+          pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+        },
+      ],
+      email: [
+        {
+          message: '输入的邮箱不合法！',
+          pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.*[a-zA-Z0-9_-]+)+$/,
+        },
+      ],
+    });
+
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
-  saveFinanceManager();
+  loading.value = true;
+  formRef.value.validateFields().then(() => saveFinanceManager()).catch(()=> {
+    loading.value = false;
+  });
 };
 
 const handleCancel = () => {
@@ -194,38 +233,35 @@ function saveFinanceManager() {
       } else {
         message.error((res && res.message) || "保存失败！");
       }
-      formState.value = {};
+      initForm();
     })
     .catch(() => {
       message.error("系统问题，请联系管理员！");
+    }).finally(() => {
+      loading.value = false;
     });
 }
-
-const onFinish = (values: any) => {
-  console.log("Success:", values);
-};
 
 const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
 };
 
-let fromSourceList = ref<dictInfo[]>([]);
+let genderList = ref<dictInfo[]>([]);
 
-let incomeAndExpensesList = ref<dictInfo[]>([]);
-
-let validList = [
-  { typeCode: 0, typeName: "无效" },
-  { typeCode: 1, typeName: "有效" },
-];
+let validList = ref<dictInfo[]>([]);
 
 function getDictInfoList() {
-  getDictList("is_valid").then((res) => {
+  getDictList("is_valid,gender").then((res) => {
     if (res.code == "200") {
-      fromSourceList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "pay_way"
-      );
-      incomeAndExpensesList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "income_expense_type"
+      genderList.value = [];
+      genderList.value.push({typeCode: 0, typeName: "请选择"});
+      res.data.forEach(item => {
+        if (item.belongTo == 'gender') {
+          genderList.value.push({typeCode: item.typeCode, typeName: item.typeName});
+        }
+      });
+      validList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "is_valid"
       );
     } else {
       message.error((res && res.message) || "查询列表失败！");
@@ -246,6 +282,13 @@ watch(
   }
 );
 
+function initForm() {
+  formState.value = {
+        status: 1,
+        gender: 0,
+      };
+}
+
 function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
@@ -263,9 +306,7 @@ function init() {
         });
     } else {
       modelConfig.confirmLoading = false;
-      formState.value = {
-        status: 1,
-      };
+      initForm();
     }
   }
   getDictInfoList();

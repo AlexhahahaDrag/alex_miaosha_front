@@ -12,19 +12,26 @@
       :destroyOnClose="modelConfig.destroyOnClose"
       @cancel="handleCancel"
     >
+    <template #footer>
+        <a-button key="back" @click="handleCancel">取消</a-button>
+        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+      </template>
       <a-form
+        ref="formRef"
         name="financeForm"
         class="ant-advanced-search-form"
         :model="formState"
         @finish="onFinish"
         @finishFailed="onFinishFailed"
+        :rules="rulesRef"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
       >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item
               name="name"
               label="名称"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-input v-model:value="formState.name" placeholder="请填写名称"></a-input>
             </a-form-item>
@@ -33,7 +40,6 @@
             <a-form-item
               name="typeCode"
               label="类别"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-input
                 v-model:value="formState.typeCode"
@@ -47,7 +53,6 @@
             <a-form-item
               name="amount"
               label="金额"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-input
                 v-model:value="formState.amount"
@@ -62,7 +67,6 @@
             <a-form-item
               name="fromSource"
               label="支付方式"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-select
                 ref="select"
@@ -82,7 +86,6 @@
             <a-form-item
               name="incomeAndExpenses"
               label="收支类型"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-select
                 ref="select"
@@ -99,7 +102,6 @@
             <a-form-item
               name="isValid"
               label="状态"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-select
                 ref="select"
@@ -119,16 +121,14 @@
             <a-form-item
               name="infoDate"
               label="业务时间"
-              :rules="[{ required: true, message: 'input something' }]"
             >
-              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter" :locale="zhCN" />
+              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter"/>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item
               name="belongTo"
               label="属于"
-              :rules="[{ required: true, message: 'input something' }]"
             >
               <a-select
                 style="width: 100px"
@@ -147,19 +147,75 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch,reactive } from "vue";
 import { FinanceDetail } from "./detail";
 import {
   getFinanceMangerDetail,
   addOrEditFinanceManger,
 } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
-import { message } from "ant-design-vue";
+import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../financeManager";
 import dayjs from "dayjs";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
+
+const labelCol = ref({span: 5});
+const wrapperCol = ref({span: 19}); 
 
 const dateFormatter = "YYYY-MM-DD HH:mm:ss";
+let loading = ref<boolean>(false);
+
+const formRef = ref<FormInstance>();
+
+const rulesRef = reactive({
+  name: [
+        {
+          required: true,
+          message: '名称不能为空！',
+        },
+      ],
+      amount: [
+        {
+          required: true,
+          message: '金额不能为空！',
+        },
+      ],
+      typeCode: [
+        {
+          required: true,
+          message: '类别不能为空！',
+        },
+      ],
+      fromSource: [
+        {
+          required: true,
+          message: '支付方式不能为空！',
+        },
+      ],
+      incomeAndExpenses: [
+        {
+          required: true,
+          message: '收支类型不能为空！',
+        },
+      ],
+      isValid: [
+        {
+          required: true,
+          message: '状态不能为空！',
+        },
+      ],
+      infoDate: [
+        {
+          required: true,
+          message: '业务时间不能为空！',
+        },
+      ],
+      belongTo: [
+        {
+          required: true,
+          message: '属于不能为空！',
+        },
+      ],
+    });
 
 let userList = ref([
   { id: 1, username: "mj" },
@@ -182,7 +238,10 @@ let formState = ref<FinanceDetail>({});
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
-  saveFinanceManager();
+  loading.value = true;
+  formRef.value.validateFields().then(() => saveFinanceManager()).catch(()=> {
+    loading.value = false;
+  });
 };
 
 const handleCancel = () => {
@@ -191,7 +250,6 @@ const handleCancel = () => {
 
 //保存财务信息
 function saveFinanceManager() {
-  modelConfig.confirmLoading = true;
   let method = "";
   if (formState.value.id) {
     method = "put";
@@ -200,7 +258,6 @@ function saveFinanceManager() {
   }
   addOrEditFinanceManger(method, formState.value)
     .then((res) => {
-      modelConfig.confirmLoading = false;
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
         emit("handleOk", false);
@@ -211,6 +268,8 @@ function saveFinanceManager() {
     })
     .catch(() => {
       message.error("系统问题，请联系管理员！");
+    }).finally(() => {
+      loading.value = false;
     });
 }
 
