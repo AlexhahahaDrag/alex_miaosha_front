@@ -104,7 +104,7 @@
               name="birthday"
               label="生日"
             >
-              <a-date-picker v-model:value="formState.birthday" width="100%"/>
+              <a-date-picker v-model:value="formState.birthday" :getPopupContainer="triggerNode=>{return triggerNode.parentNode}"/>
             </a-form-item>
           </a-col>
         </a-row>
@@ -316,3 +316,6 @@ function init() {
 
 defineExpose({ handleOk, handleCancel });
 </script>
+<style lang="scss" scoped>
+@import "@/style/index.scss";
+</style>

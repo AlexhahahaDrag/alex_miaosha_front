@@ -122,7 +122,7 @@
               name="infoDate"
               label="业务时间"
             >
-              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter"/>
+              <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter" :getPopupContainer="triggerNode=>{return triggerNode.parentNode}"/>
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -131,7 +131,6 @@
               label="属于"
             >
               <a-select
-                style="width: 100px"
                 ref="select"
                 v-model:value="formState.belongTo"
                 mode="combobox"
@@ -351,3 +350,6 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
+<style lang="scss" scoped>
+@import "@/style/index.scss";
+</style>
