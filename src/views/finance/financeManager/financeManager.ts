@@ -1,14 +1,16 @@
 import { ref } from "vue";
 
 export interface SearchInfo {
-  name ?: string;
-  typeCode ?: string;
+  name?: string;
+  typeCode?: string;
   fromSource?: string;
   isValid?: number;
-  pageNo?:number;
-  pageSize?:number;
+  pageNo?: number;
+  pageSize?: number;
   incomeAndExpenses?: string;
-  belongTo?:number;
+  belongTo?: number;
+  infoDateStart?: string | null;
+  infoDateEnd?: string | null;
 }
 
 export interface pageInfo {
@@ -59,57 +61,59 @@ export const columns = [
     title: "名称",
     dataIndex: "name",
     key: "name",
-    width: '150px',
+    width: '6',
   },
   {
     title: "类别",
     dataIndex: "typeCode",
     key: "typeCode",
-    width: '100px',
+    width: '4',
   },
   {
     title: "金额",
     dataIndex: "amount",
     key: "amount",
-    width: '80px',
+    align: "center",
+    width: '4',
   },
   {
     title: "支付方式",
     dataIndex: "fromSource",
     align: 'center',
-    width: '100px',
+    width: '4',
     key: "fromSource",
   },
   {
     title: "收支类型",
     dataIndex: "incomeAndExpenses",
     align: 'center',
-    width: '100px',
+    width: '4',
     key: "incomeAndExpenses",
   },
   {
     title: "属于",
     dataIndex: "belongToName",
-    width: '100px',
+    width: '4',
     key: "belongToName",
   },
   {
     title: "状态",
     dataIndex: "isValid",
     align: 'center',
-    width: '100px',
+    width: '4',
     key: "isValid",
   },
   {
     title: "业务时间",
     dataIndex: "infoDate",
     key: "infoDate",
+    width: '15',
   },
   {
     title: "操作",
     key: "operation",
     fixed: 'right',
-    width: 160,
+    width: '8',
   },
 ];
 
@@ -128,7 +132,7 @@ export interface ModelInfo {
   title?: string;
   width?: string;
   id?: number | undefined;
-  confirmLoading ?: boolean;
+  confirmLoading?: boolean;
 }
 
 export const fromSourceTransferList = [
@@ -148,6 +152,6 @@ export const fromSourceTransferList = [
 ]
 
 export interface dictInfo {
-  typeCode?: string|number|undefined,
-  typeName?: string|undefined,
+  typeCode?: string | number | undefined,
+  typeName?: string | undefined,
 }

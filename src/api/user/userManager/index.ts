@@ -6,11 +6,12 @@ import {
     baseService,
   } from "@/api/common/index";
   
-  const baseUserManager = "/user";
+  const baseUserManager = "/api/v1/user";
   
   const userMangerUrl = {
     page: "/page",
     url: "",
+    list: "/list",
   };
   
   export function getUserManagerPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
@@ -37,3 +38,7 @@ import {
     }
   }
   
+  export function getUserManagerList(params: any): Promise<any> {
+    let url = baseService.user + baseUserManager + userMangerUrl.list ;
+    return postData(url, params);
+  }

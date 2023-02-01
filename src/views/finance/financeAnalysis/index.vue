@@ -1,4 +1,5 @@
 <template>
+    <div class="page-info">
   <div class="search">
     <div class="search-box">
       <div class="search-box-in">
@@ -23,6 +24,8 @@
       </div>
     </div>
   </div>
+ 
+  <div class="content">
   <div style="background-color: #ececec; padding: 10px">
     <a-row :gutter="16">
       <a-col :span="4">
@@ -101,7 +104,9 @@
         </div>
       </div>
     </a-row>
+    </div>
   </div>
+</div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
@@ -120,6 +125,7 @@ import barChart from "./chart/barChart.vue";
 import pieChart from "./chart/pieChart.vue";
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { barItem } from "./chart/bar";
+import { getUserManagerList } from "@/api/user/userManager";
 
 const dateFormatter = "YYYY-MM";
 
@@ -133,8 +139,6 @@ let searchUser = ref<number>(0);
 
 let userList = ref([
   { id: 0, username: "所有人" },
-  { id: 1, username: "mj" },
-  { id: 2, username: "臭屁宝" },
 ]);
 
 let searchDateTime = ref<Dayjs>(dayjs());
@@ -326,7 +330,19 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
   );
 }
 
+function getUserInfoList() {
+  getUserManagerList({}).then((res) => {
+    if (res.code == "200") {
+      userList.value = [...userList.value, ...res.data];
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
 function getInfo() {
+    //获取用户信息
+    getUserInfoList();
   let dateStr = searchDateTime.value.format(dateFormatter);
   getBalanceInfo(searchUser.value, dateStr);
   getIncomeAndExpenseInfo(searchUser.value, dateStr);
