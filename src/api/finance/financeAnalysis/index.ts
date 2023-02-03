@@ -3,7 +3,7 @@ import {
     baseService,
   } from "@/api/common/index";
   
-  const baseFinanceAnalysis = "/finance-analysis";
+  const baseFinanceAnalysis = "/api/v1/finance-analysis";
   
   const financeAnalysisUrl = {
     getBalance: "/getBalance",

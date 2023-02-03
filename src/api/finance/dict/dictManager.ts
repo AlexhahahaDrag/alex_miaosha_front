@@ -2,7 +2,7 @@ import { getDataOne, postData, putData, deleteData, baseService, } from "@/api/c
 
 const baseDict = "/api/am-finance";
 
-const baseDictManager = "/dict-info";
+const baseDictManager = "/api/v1/dict-info";
 
 const dictUrl = {
     page: '/page',

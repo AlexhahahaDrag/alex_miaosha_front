@@ -1,13 +1,13 @@
-import { getData, deleteData } from "@/api/common/index";
+import { getData, deleteData, baseService } from "@/api/common/index";
 
-const baseGoods = "/api/am-mission";
+const baseGoods = "/api/v1";
 
 const platformGoodsUrl = {
     list: '/goods/getGoodsList',
 }
 
 export function getPlatformList(params: any): Promise<any> {
-  return getData(baseGoods + platformGoodsUrl.list, params);
+  return getData(baseService.mission + baseGoods + platformGoodsUrl.list, params);
 }
 
 export function deleteBlogById(id: number) {

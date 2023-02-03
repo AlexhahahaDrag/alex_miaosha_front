@@ -6,7 +6,7 @@ import {
   baseService,
 } from "@/api/common/index";
 
-const baseFinanceManager = "/finance-info";
+const baseFinanceManager = "/api/v1/finance-info";
 
 const financeMangerUrl = {
   page: "/page",
