@@ -1,7 +1,5 @@
 import { getDataOne, postData, putData, deleteData, baseService, } from "@/api/common/index";
 
-const baseDict = "/api/am-finance";
-
 const baseDictManager = "/api/v1/dict-info";
 
 const dictUrl = {
@@ -16,7 +14,7 @@ export function getDictManagerPage(params: any, pageNo: number | null | undefine
 }
 
 export function getDictList(belongTo: string): Promise<any> {
-  return getDataOne(baseDict + baseDictManager + dictUrl.listByBelong + "?belongTo=" + belongTo);
+  return getDataOne(baseService.finance + baseDictManager + dictUrl.listByBelong + "?belongTo=" + belongTo);
 }
 
 export function getDictManagerDetail(id: number): Promise<any> {

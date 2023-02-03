@@ -2,48 +2,58 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <div class="search-box-in">
-          <a-form layout="inline" @keyup.enter.native="searchInfo">
-            <a-space>
-              <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
-              <a-select
-                ref="select"
-                v-model:value="searchInfo.fromSource"
-                mode="combobox"
-                placeholder="请输入来源"
-                :field-names="{ label: 'typeName', value: 'typeCode' }"
-                :options="fromSourceList"
-                :allowClear="true"
-              ></a-select>
-              <a-select
-                ref="select"
-                v-model:value="searchInfo.incomeAndExpenses"
-                mode="combobox"
-                placeholder="请输入收支类型"
-                :field-names="{ label: 'typeName', value: 'typeCode' }"
-                :options="incomeAndExpensesList"
-                :allowClear="true"
-              ></a-select>
-              <a-select
-                style="width: 100px"
-                ref="select"
-                v-model:value="searchInfo.belongTo"
-                mode="combobox"
-                :field-names="{ label: 'username', value: 'id' }"
-                :options="userList"
-              ></a-select>
-              <a-range-picker
-                v-model:value="times"
-                style="width: 400px"
-                :ranges="ranges"
-                show-time
-                format="YYYY/MM/DD"
-              />
-              <a-button type="primary" @click="query"> 查找</a-button>
-              <a-button type="primary" @click="cancelQuery">清空</a-button>
-            </a-space>
-          </a-form>
-        </div>
+        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+          <a-row :gutter="24">
+            <a-col :span="6">
+              <a-form-item name="name" label="名称">
+                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="typeCode" label="类别">
+                <a-input v-model:value="searchInfo.typeCode" placeholder="请输入类别" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="fromSource" label="来源">
+                <a-select ref="select" v-model:value="searchInfo.fromSource" mode="combobox" placeholder="请输入来源"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList"
+                  :allowClear="true"></a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="incomeAndExpenses" label="收支类型">
+                <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" mode="combobox"
+                  placeholder="请输入收支类型" :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="incomeAndExpensesList" :allowClear="true"></a-select>
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row :gutter="24">
+            <a-col :span="6">
+              <a-form-item name="belongTo" label="属于">
+                <a-select ref="select" v-model:value="searchInfo.belongTo" mode="combobox"
+                  :field-names="{ label: 'username', value: 'id' }" :options="userList"></a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="infoDateStart" label="业务时间从">
+                <a-date-picker v-model:value="infoDateStart" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="infoDateEnd" label="至">
+                <a-date-picker v-model:value="infoDateEnd" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
+        </a-form>
       </div>
     </div>
     <div class="button">
@@ -54,77 +64,51 @@
       </a-space>
     </div>
     <div class="content">
-      <a-table
-        :dataSource="dataSource"
-        :columns="columns"
-        :loading="loading"
-        :row-key="(record) => record.id"
-        :pagination="pagination"
-        @change="handleTableChange"
-        :scroll="{ x: 1200 }"
-        :row-selection="rowSelection"
-      >
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
+        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button
-                type="primary"
-                size="small"
-                @click="editFinance('update', record.id)"
-                >编辑</a-button
-              >
-              <a-popconfirm
-                title="确认删除博客?"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="delFinance(record.id)"
-                @cancel="cancel"
-              >
+              <a-button type="primary" size="small" @click="editFinance('update', record.id)">编辑</a-button>
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delFinance(record.id)"
+                @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
+          <template v-else-if="column.key === 'amount'">
+            <span>
+              {{
+                String(record.amount.toFixed(2)).replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ','
+                ).replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3')
+              }} </span>
+          </template>
           <template v-else-if="column.key === 'isValid'">
-            <a-tag
-              :key="record.isValid"
-              :color="record.isValid == 1 ? '#87d068' : 'grey'"
-            >
+            <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
               {{ record.isValid == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'incomeAndExpenses'">
-            <a-tag
-              :key="record.incomeAndExpenses"
-              :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
-            >
+            <a-tag :key="record.incomeAndExpenses" :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'">
               {{ record.incomeAndExpenses == "income" ? "收入" : "支出" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'fromSource'">
             <div v-for="fromSource in fromSourceTransferList">
-              <svgIcon
-                v-if="record.fromSource.indexOf(fromSource.value) >= 0  && fromSource.value != ''"
-                :name="fromSource.label"
-                class="svg"
-                style="
+              <svgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
+                :name="fromSource.label" class="svg" style="
                   width: 1.5em;
                   height: 1.5em;
                   font-size: 18px;
                   cursor: pointer;
-                  verticle-align: middle;"
-              ></svgIcon>
+                  verticle-align: middle;"></svgIcon>
             </div>
           </template>
         </template>
       </a-table>
-      <Detail
-        ref="editInfo"
-        :visible="visible"
-        :modelInfo="modelInfo"
-        @handleOk="handleOk"
-        @handleCancel="handleCancel"
-      ></Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></Detail>
     </div>
   </div>
 </template>
@@ -140,17 +124,18 @@ import {
   dictInfo,
   pageInfo,
 } from "./financeManager";
-import dayjs, { Dayjs } from "dayjs";
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
+import { getUserManagerList } from "@/api/user/userManager";
+import { Dayjs } from 'dayjs'
 
-let userList = ref([
-  { id: 1, username: "mj" },
-  { id: 2, username: "臭屁宝" },
-]);
+const labelCol = ref({ span: 5 });
+const wrapperCol = ref({ span: 19 });
+
+let userList = ref([]);
 
 let rowIds = [] as any;
 
@@ -170,17 +155,22 @@ const rowSelection = ref({
   onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
     console.log(selected, selectedRows, changeRows);
   },
-});
-
-type RangeValue = [Dayjs, Dayjs];
+})
 
 let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
+  infoDateStart.value = null;
+  infoDateEnd.value = null;
 }
 
+let infoDateStart = ref<Dayjs | null>();
+let infoDateEnd = ref<Dayjs | null>();
+
 function query() {
+  searchInfo.value.infoDateStart = infoDateStart.value ? infoDateStart.value.format('YYYY-MM-DD') : null;
+  searchInfo.value.infoDateEnd = infoDateEnd.value ? infoDateEnd.value.format('YYYY-MM-DD') : null;
   getFinancePage(searchInfo.value, pagination.value);
 }
 
@@ -219,13 +209,7 @@ let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-};
-
-let times = ref<RangeValue>();
-
-const ranges = {
-  Today: [dayjs(), dayjs()] as RangeValue,
-};
+}
 
 function getFinancePage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -246,7 +230,6 @@ function getFinancePage(param: SearchInfo, cur: pageInfo) {
 }
 
 function getDictInfoList() {
-  loading.value = true;
   getDictList("pay_way,income_expense_type").then((res) => {
     if (res.code == "200") {
       fromSourceList.value = res.data.filter(
@@ -261,11 +244,23 @@ function getDictInfoList() {
   });
 }
 
+function getUserInfoList() {
+  getUserManagerList({}).then((res) => {
+    if (res.code == "200") {
+      userList.value = res.data;
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
 function init() {
   //获取字典列表
   getDictInfoList();
   //获取财务管理页面数据
   getFinancePage(searchInfo.value, pagination.value);
+  //获取用户信息
+  getUserInfoList();
 }
 
 init();
