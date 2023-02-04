@@ -265,10 +265,10 @@ function init() {
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {
-        isValid: 1,
+        isValid: '1',
         incomeAndExpenses: "expense",
         infoDate: dayjs(),
-        belongTo: 2,
+        belongTo: '2',
       };
     }
   }
