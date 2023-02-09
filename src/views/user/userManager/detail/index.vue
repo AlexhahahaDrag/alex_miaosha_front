@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div v-modalDrag="true" id="modalBox">
     <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo : '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel" :getContainer="getContainer">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
         <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
@@ -57,7 +57,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="birthday" label="生日">
-              <a-date-picker v-model:value="formState.birthday"
+              <a-date-picker v-model:value="formState.birthday" :format="dateFormatter"
                 :getPopupContainer="triggerNode => { return triggerNode.parentNode }" />
             </a-form-item>
           </a-col>
@@ -77,11 +77,22 @@
           </a-col>
         </a-row>
         <a-row :gutter="24">
-
+          <a-col :span="12">
+            <a-form-item name="avatar" label="头像">
+              <myUpload></myUpload>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="24">
+            <a-form-item :span="12" name="summary" label="个人简介">
+              <a-textarea :span="24" v-model:value="formState.summary" placeholder="请添加个人简介"
+                :auto-size="{ minRows: 2, maxRows: 5 }" :maxlength="500" show-count/>
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </a-modal>
-    <!-- `summary` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '自我简介最多150字', -->
   </div>
 </template>
 <script lang="ts" setup>
@@ -94,12 +105,15 @@ import {
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
+import dayjs from "dayjs";
+import myUpload from '@/views/components/myUpload.vue'
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
+const labelCol = ref({ span: 6 });
+const wrapperCol = ref({ span: 18 });
 
 let loading = ref<boolean>(false);
 
+const dateFormatter = "YYYY-MM-DD";
 const modelConfig = {
   confirmLoading: true,
   destroyOnClose: true,
@@ -156,6 +170,10 @@ const handleOk = () => {
   }
 };
 
+const getContainer = () => {
+  return document.getElementById("modalBox");
+}
+
 const handleCancel = () => {
   emit("handleCancel", false);
 };
@@ -199,9 +217,9 @@ function getDictInfoList() {
     if (res.code == "200") {
       genderList.value = [];
       genderList.value.push({ typeCode: 0, typeName: "请选择" });
-      res.data.forEach(item => {
+      res.data.forEach((item: { belongTo: string; typeCode: any; typeName: any; }) => {
         if (item.belongTo == 'gender') {
-          genderList.value.push({ typeCode: item.typeCode, typeName: item.typeName });
+          genderList.value.push({ typeCode: Number(item.typeCode), typeName: item.typeName });
         }
       });
       validList.value = res.data.filter(
@@ -228,7 +246,7 @@ watch(
 
 function initForm() {
   formState.value = {
-    status: 1,
+    status: '1',
     gender: 0,
   };
 }
@@ -240,6 +258,7 @@ function init() {
         .then((res) => {
           if (res.code == "200") {
             formState.value = res.data;
+            formState.value.birthday = dayjs(formState.value.birthday);
             modelConfig.confirmLoading = false;
           } else {
             message.error((res && res.message) || "查询失败！");

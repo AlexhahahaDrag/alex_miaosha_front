@@ -9,7 +9,7 @@ export interface FinanceDetail {
   birthday?: Dayjs | string;
   mobile?: string;
   summary?: string;
-  status?: number;
+  status?: string;
   nickName?: string;
   qqNumber?: string;
   weChat?: string;
