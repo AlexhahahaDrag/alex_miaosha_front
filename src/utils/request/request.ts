@@ -1,7 +1,7 @@
 import { useUserStore } from "@/store/modules/user/user";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { ResponseBody } from "@/api/typing";
-import { notification } from "ant-design-vue";
+import { message } from "ant-design-vue";
 
 const request = axios.create({
   // baseURL: process.env.VUE_APP_API_BASE_URL,
@@ -14,14 +14,11 @@ axios.defaults.headers.post["Content-Type"] =
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
   if (error.response) {
-    // const { data, status, statusText } = error.response;
-    // //403 无权限
-    // if (status === 403) {
-    //   notification.error({
-    //     message: "Forbidden",
-    //     description: (data && data.message) || statusText,
-    //   });
-    // }
+    const { status } = error.response;
+    // 403 无权限
+    if (status === 403) {
+      message.warning("请先登录！", 3);
+    }
     // //401 未登录、未授权
     // if (status === 401 && data.result && data.result.isLogin) {
     //   notification.error({
@@ -30,10 +27,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     //   });
     // }
   } else {
-    notification.error({
-      message: "system error",
-      description: "请联系管理员",
-    });
+    message.warning("请联系管理员", 3);
   }
   return Promise.reject(error);
 };

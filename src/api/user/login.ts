@@ -9,8 +9,8 @@ import {
 let baseUrl = "/api/v1"
 
 enum Api {
-  Login = "/user/login",
-  Logout = "/user/logout",
+  login = "/user/login",
+  logout = "/user/logout",
 }
 
 export interface LoginParams {
@@ -29,9 +29,9 @@ function transParams(data) {
 }
 
 export function loginApi(params: LoginParams) {
-  return request.post<LoginResultModel>(baseService.user + baseUrl + Api.Login, transParams(params));
+  return request.post<LoginResultModel>(baseService.user + baseUrl + Api.login, transParams(params));
 }
 
 export function logoutApi() {
-  return request.post(Api.logout);
+  return request.post(baseService.user + baseUrl + Api.logout);
 }

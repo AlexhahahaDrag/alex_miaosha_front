@@ -7,7 +7,6 @@
                         <UserOutlined />
                     </template>
                 </a-avatar>
-                <DownOutlined />
             </a>
             <template #overlay>
                 <a-menu @click="handleMenuClick">
@@ -26,10 +25,10 @@
     </a-badge>
 </template>
 <script setup lang="ts">
-import { UserOutlined } from '@ant-design/icons-vue';
+import { DownOutlined, UserOutlined } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import router from '@/router/index'
-import { } from '@/api/user/login'
+import { logoutApi } from '@/api/user/login'
 
 const handleMenuClick: MenuProps['onClick'] = e => {
     switch (e.key) {
@@ -40,9 +39,19 @@ const handleMenuClick: MenuProps['onClick'] = e => {
             window.open("https://github.com/AlexhahahaDrag/alex_miaosha_front");
             break;
         case 'logout':
+            logout();
             break;
     }
 };
+
+function logout() {
+    logoutApi().then(() => {
+        //跳转到登录页面
+        router.push("/login");
+    }).catch(e => {
+        console.log(e);
+    });
+}
 </script>
 <style lang="scss" scoped>
 .right-menu-item {
