@@ -1,0 +1,89 @@
+<template>
+    <a-badge :count="1">
+        <a-dropdown>
+            <a class="ant-dropdown-link" @click.prevent>
+                <a-avatar shape="square">
+                    <template #icon>
+                        <UserOutlined />
+                    </template>
+                </a-avatar>
+                <DownOutlined />
+            </a>
+            <template #overlay>
+                <a-menu @click="handleMenuClick">
+                    <a-menu-item key="home">
+                        首页
+                    </a-menu-item>
+                    <a-menu-item key="github">
+                        github
+                    </a-menu-item>
+                    <a-menu-item key="logout">
+                        注销
+                    </a-menu-item>
+                </a-menu>
+            </template>
+        </a-dropdown>
+    </a-badge>
+</template>
+<script setup lang="ts">
+import { UserOutlined } from '@ant-design/icons-vue';
+import type { MenuProps } from 'ant-design-vue';
+import router from '@/router/index'
+import { } from '@/api/user/login'
+
+const handleMenuClick: MenuProps['onClick'] = e => {
+    switch (e.key) {
+        case 'home':
+            router.push("/");
+            break;
+        case 'github':
+            window.open("https://github.com/AlexhahahaDrag/alex_miaosha_front");
+            break;
+        case 'logout':
+            break;
+    }
+};
+</script>
+<style lang="scss" scoped>
+.right-menu-item {
+    display: inline-block;
+    padding: 0 8px;
+    height: 100%;
+    font-size: 18px;
+    color: #5a5e66;
+    vertical-align: text-bottom;
+
+    &.hover-effect {
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.025);
+        }
+    }
+}
+
+.avatar-container {
+    margin-right: 30px;
+
+    .avatar-wrapper {
+        margin-top: 5px;
+        position: relative;
+
+        .user-avatar {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .el-icon-caret-bottom {
+            cursor: pointer;
+            position: absolute;
+            right: -20px;
+            top: 25px;
+            font-size: 12px;
+        }
+    }
+}
+</style>
