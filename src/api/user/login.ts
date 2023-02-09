@@ -31,3 +31,7 @@ function transParams(data) {
 export function loginApi(params: LoginParams) {
   return request.post<LoginResultModel>(baseService.user + baseUrl + Api.Login, transParams(params));
 }
+
+export function logoutApi() {
+  return request.post(Api.logout);
+}

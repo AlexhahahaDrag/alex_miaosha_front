@@ -5,8 +5,13 @@
       <Navbar :routes="routes" :selectedKeys="selectedKeys"></Navbar>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header style="background: #fff; padding: 0" >
-      <Breadcrumb></Breadcrumb>
+      <a-layout-header style="background: #fff; padding: 0">
+        <div class="navbar">
+          <Breadcrumb class="breadcrumb-container"></Breadcrumb>
+          <div class="right-menu">
+            <RightInfo></RightInfo>
+          </div>
+        </div>
       </a-layout-header>
       <a-layout-content style="margin: 20px 16px">
         <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
@@ -25,14 +30,49 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Navbar from "./components/navbar/index.vue";
 import Breadcrumb from "./components/breadcrumb/index.vue";
+import RightInfo from "./components/rightInfo/index.vue";
 
 const router = useRouter().options.routes as [];
 const routes = computed(() => algorithm.increaseIndexes(router));
-  let collapsed = ref<boolean>(false);
-  let selectedKeys = ref<string[]>(['1']);
+let collapsed = ref<boolean>(false);
+let selectedKeys = ref<string[]>(['1']);
 
 </script>
-<style>
+<style lang="scss" scoped>
+.navbar {
+  height: 50px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+
+  .hamburger-container {
+    line-height: 46px;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+    transition: background 0.3s;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+  }
+
+  .breadcrumb-container {
+    float: left;
+  }
+
+  .right-menu {
+    float: right;
+    height: 100%;
+    line-height: 50px;
+    margin-right: 50px;
+    &:focus {
+      outline: none;
+    }
+  }
+}
 </style>
 
 <!-- <template>

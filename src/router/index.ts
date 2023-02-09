@@ -15,7 +15,7 @@ import { useUserStore } from "@/store/modules/user/user";
 
 export const routes: MenuDataItem[] = [
   {
-    name: "index",
+    name: "home",
     path: "/",
     redirect: "/dashboard/welcome",
     component: Layout,
