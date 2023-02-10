@@ -78,9 +78,9 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item name="avatar" label="头像">
-              <myUpload></myUpload>
-            </a-form-item>
+<!--            <a-form-item name="avatar" label="头像">-->
+<!--              <myUpload></myUpload>-->
+<!--            </a-form-item>-->
           </a-col>
         </a-row>
         <a-row :gutter="24">
@@ -106,7 +106,7 @@ import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
 import dayjs from "dayjs";
-import myUpload from '@/views/components/myUpload.vue'
+// import myUpload from '@/views/components/myUpload.vue'
 
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });

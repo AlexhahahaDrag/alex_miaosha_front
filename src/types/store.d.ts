@@ -6,4 +6,5 @@ export interface UserInfo {
   desc?: string;
   homePath?: string;
   roles: RoleInfo[];
+  avatarUrl?: string;
 }

@@ -2,11 +2,12 @@ import { loginApi } from "@/api/user/login";
 import { defineStore } from "pinia";
 import { UserState } from "./typing";
 import { LoginParams } from "@/api/user/login";
+import { piniaPersistConfig } from '@/config/piniaPersist';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
 export const useUserStore = defineStore({
-  id: "app-user",
+  id: 'app-user',
   state: (): UserState => ({
     userInfo: null,
     token: undefined,
@@ -39,10 +40,12 @@ export const useUserStore = defineStore({
   },
   actions: {
     setToken(info: string | undefined) {
-      this.token = info ? info : ""; // for null or undefined value
-      let sessionStorage = window.sessionStorage;
-      sessionStorage.setItem("token", this.token);
+      this.token = info ? info : "";
       // setAuthCache(TOKEN_KEY, info);
+    },
+    //设置用户信息
+    setUserInfo(admin) {
+      this.userInfo = admin;
     },
     async login(
       params: LoginParams & {
@@ -54,6 +57,8 @@ export const useUserStore = defineStore({
         const { goHome = true, ...loginParams } = params;
         const data = await loginApi(loginParams);
         const { token, admin } = data.data;
+        // save userInfo
+        this.setUserInfo(admin);
         // save token
         this.setToken(token);
         return admin;
@@ -62,4 +67,5 @@ export const useUserStore = defineStore({
       }
     },
   },
+  persist: piniaPersistConfig('app-user'),
 });

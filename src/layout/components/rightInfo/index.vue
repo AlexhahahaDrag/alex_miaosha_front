@@ -1,8 +1,8 @@
 <template>
-    <a-badge :count="1">
+    <a-badge :count="newsCount">
         <a-dropdown>
             <a class="ant-dropdown-link" @click.prevent>
-                <a-avatar shape="square">
+                <a-avatar shape="square" :src="userInfo ? userInfo.avatarUrl: ''">
                     <template #icon>
                         <UserOutlined />
                     </template>
@@ -25,10 +25,16 @@
     </a-badge>
 </template>
 <script setup lang="ts">
-import { DownOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { ref } from 'vue';
+import { UserOutlined } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import router from '@/router/index'
 import { logoutApi } from '@/api/user/login'
+import { useUserStore } from "@/store/modules/user/user";
+
+const { userInfo } = useUserStore();
+debugger;
+const newsCount = ref<number>(0);
 
 const handleMenuClick: MenuProps['onClick'] = e => {
     switch (e.key) {
@@ -79,19 +85,19 @@ function logout() {
         margin-top: 5px;
         position: relative;
 
-        .user-avatar {
+        .ant-avatar {
             cursor: pointer;
             width: 40px;
             height: 40px;
             border-radius: 10px;
         }
 
-        .el-icon-caret-bottom {
+        .ant-dropdown-link {
             cursor: pointer;
             position: absolute;
             right: -20px;
             top: 25px;
-            font-size: 12px;
+            font-size: 120px;
         }
     }
 }
