@@ -43,7 +43,7 @@
           </template>
           <template v-else-if="column.key === 'birthday'">
             <span>
-              {{ record.birthday ?  String(record.birthday).substring(0, 10) : '' }}
+              {{ record.birthday ? String(record.birthday).substring(0, 10) : '' }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
@@ -95,13 +95,15 @@ import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
 
 let rowIds = [] as any;
-
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
 const fromSourceList = ref<dictInfo[]>([]);
-
 const incomeAndExpensesList = ref<dictInfo[]>([]);
+let searchInfo = ref<SearchInfo>({});
+let loading = ref<boolean>(false);
+let dataSource = ref();
+let visible = ref<boolean>(false);
+let modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
   checkStrictly: false,
@@ -117,7 +119,7 @@ const rowSelection = ref({
   },
 });
 
-let searchInfo = ref<SearchInfo>({});
+
 
 function cancelQuery() {
   searchInfo.value = {};
@@ -155,10 +157,6 @@ function batchDelUserManager() {
   }
   delUser(ids);
 }
-
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
@@ -208,12 +206,6 @@ function init() {
   getUserPage(searchInfo.value, pagination.value);
 }
 
-init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
 function editUser(type: string, id?: number) {
   if (type == "add") {
@@ -235,6 +227,9 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
+
+//初始化
+init();
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";

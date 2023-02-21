@@ -1,5 +1,5 @@
 import { Dayjs } from 'dayjs';
-export interface FinanceDetail {
+export interface UserDetail {
   id?: number;
   username?: string;
   password?: string;

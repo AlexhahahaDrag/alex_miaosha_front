@@ -33,7 +33,6 @@ import { logoutApi } from '@/api/user/login'
 import { useUserStore } from "@/store/modules/user/user";
 
 const { userInfo } = useUserStore();
-debugger;
 const newsCount = ref<number>(0);
 
 const handleMenuClick: MenuProps['onClick'] = e => {

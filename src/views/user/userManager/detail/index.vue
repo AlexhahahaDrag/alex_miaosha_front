@@ -1,5 +1,5 @@
 <template>
-  <div v-modalDrag="true" id="modalBox">
+  <div id="modalBox">
     <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo : '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
@@ -78,16 +78,16 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-<!--            <a-form-item name="avatar" label="头像">-->
-<!--              <myUpload></myUpload>-->
-<!--            </a-form-item>-->
+            <a-form-item name="avatar" label="头像">
+              <myUpload></myUpload>
+            </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
             <a-form-item :span="12" name="summary" label="个人简介">
               <a-textarea :span="24" v-model:value="formState.summary" placeholder="请添加个人简介"
-                :auto-size="{ minRows: 2, maxRows: 5 }" :maxlength="500" show-count/>
+                :auto-size="{ minRows: 2, maxRows: 5 }" :maxlength="500" show-count />
             </a-form-item>
           </a-col>
         </a-row>
@@ -97,7 +97,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch, reactive } from "vue";
-import { FinanceDetail } from "./detail";
+import { UserDetail } from "./detail";
 import {
   getUserManagerDetail,
   addOrEditUserManager,
@@ -106,28 +106,27 @@ import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../userManager";
 import dayjs from "dayjs";
-// import myUpload from '@/views/components/myUpload.vue'
-
-const labelCol = ref({ span: 6 });
-const wrapperCol = ref({ span: 18 });
-
-let loading = ref<boolean>(false);
-
-const dateFormatter = "YYYY-MM-DD";
-const modelConfig = {
-  confirmLoading: true,
-  destroyOnClose: true,
-};
+import myUpload from '@/views/components/myUpload.vue'
 
 interface Props {
   visible?: boolean;
   modelInfo?: ModelInfo;
 }
+
+const labelCol = ref({ span: 6 });
+const wrapperCol = ref({ span: 18 });
+let loading = ref<boolean>(false);
+const dateFormatter = "YYYY-MM-DD";
+const modelConfig = {
+  confirmLoading: true,
+  destroyOnClose: true,
+};
 const props = defineProps<Props>();
-
-let formState = ref<FinanceDetail>({});
-
+let formState = ref<UserDetail>({});
 const formRef = ref<FormInstance>();
+let genderList = ref<dictInfo[]>([]);
+let validList = ref<dictInfo[]>([]);
+
 const rulesRef = reactive({
   username: [
     {
@@ -158,8 +157,6 @@ const rulesRef = reactive({
     },
   ],
 });
-
-const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
   loading.value = true;
@@ -207,10 +204,6 @@ function saveUserManager() {
 const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
 };
-
-let genderList = ref<dictInfo[]>([]);
-
-let validList = ref<dictInfo[]>([]);
 
 function getDictInfoList() {
   getDictList("is_valid,gender").then((res) => {
@@ -275,6 +268,7 @@ function init() {
   getDictInfoList();
 }
 
+const emit = defineEmits(["handleOk", "handleCancel"]);
 defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped>
