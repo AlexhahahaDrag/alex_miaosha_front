@@ -1,5 +1,4 @@
-<template>
-    <!-- <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
+<template><!-- <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
         :show-upload-list="false" action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
         :before-upload="beforeUpload" @change="handleChange">
         <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
@@ -8,30 +7,67 @@
             <plus-outlined v-else></plus-outlined>
             <div class="ant-upload-text">Upload</div>
         </div>
-    </a-upload> -->
-    <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-        :show-upload-list="false" action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-         @change="handleChange">
+</a-upload> -->
+    <!-- <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
+        :show-upload-list="false" :customRequest="customRequest">
         <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
         <div v-else>
             <loading-outlined v-if="loading"></loading-outlined>
             <plus-outlined v-else></plus-outlined>
             <div class="ant-upload-text">Upload</div>
         </div>
-    </a-upload>
+    </a-upload> -->
+    <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
+        :show-upload-list="false" @change="handleChange">
+        <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
+        <div v-else>
+            <loading-outlined v-if="loading"></loading-outlined>
+            <plus-outlined v-else></plus-outlined>
+            <div class="ant-upload-text">Upload</div>
+        </div>
+</a-upload>
 </template>
 <script setup lang="ts">
 import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { ref } from 'vue';
 import type { UploadChangeParam } from 'ant-design-vue';
+import { addOrEditFileManager } from '@/api/file/index'
 // import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 
-// function getBase64(img: Blob, callback: (base64Url: string) => void) {
-//     const reader = new FileReader();
-//     reader.addEventListener('load', () => callback(reader.result as string));
-//     reader.readAsDataURL(img);
-// }
+function getBase64(img: Blob | undefined, callback: (base64Url: string) => void) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result as string));
+    if (img) {
+        reader.readAsDataURL(img);
+    }
+}
+
+function customRequest(data) {
+    debugger;
+    const formData = new FormData();
+	formData.append("file", data.file);
+	saveFile(formData);
+}
+
+function saveFile(formData) {
+    let method = "";
+        // if (formState.value.id) {
+        //     method = "put";
+        // } else {
+        method = "post";
+        // }
+    addOrEditFileManager(method, 'user', formData).then(res => {
+            if (res.code == "200") {
+                message.success((res && res.message) || "保存成功！");
+                // emit("handleOk", false);
+            } else {
+                message.error((res && res.message) || "保存失败！");
+            }
+        }).finally(() => {
+            loading.value = false;
+        })
+}
 
 const fileList = ref([]);
 const loading = ref<boolean>(false);
@@ -42,19 +78,23 @@ const handleChange = (info: UploadChangeParam) => {
         loading.value = true;
         return;
     }
-    if (info.file.status === 'done') {
-        // Get this url from response in real world.
-        // getBase64(info.file.originFileObj, (base64Url: string) => {
-        //     imageUrl.value = base64Url;
-        //     loading.value = false;
-        // });
-    }
-    if (info.file.status === 'error') {
+    debugger;
+    // if (info.file.status === 'done') {
+        debugger;
+    // Get this url from response in real world.
+    const formData = new FormData() as any;
+	formData.append("file", info.file.originFileObj);
+	saveFile(formData);
+    getBase64(info.file.originFileObj, (base64Url: string) => {
+        imageUrl.value = base64Url;
         loading.value = false;
+    });
+
+    // }
+    if (info.file.status === 'error') {
         message.error('upload error');
     }
 };
-
 // const beforeUpload = (file: UploadProps['fileList'][number]) => {
 //     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
 //     if (!isJpgOrPng) {

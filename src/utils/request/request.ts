@@ -26,8 +26,6 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     //     description: "Authorization verification failed",
     //   });
     // }
-  } else {
-    message.warning("请联系管理员", 3);
   }
   return Promise.reject(error);
 };
@@ -40,6 +38,19 @@ const requestHandler = (
   const token = userStore.getToken;
   if (token) {
     config.headers["Authorization"] = token;
+  }
+  return config;
+};
+
+//请求拦截器
+const requestHandlerFile = (
+  config
+): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  const userStore = useUserStore();
+  const token = userStore.getToken;
+  if (token) {
+    config.headers["Authorization"] = token;
+    config.headers['Content-Type'] = 'multipart/form-data';
   }
   return config;
 };
@@ -57,5 +68,11 @@ const responseHandler = (
 // 添加响应拦截器
 request.interceptors.response.use(responseHandler, errorHandler);
 
-// export {AxiosResponse};
-export default request;
+const requestFile = axios.create({
+  timeout: 6000,
+});
+
+// 添加请求拦截器
+requestFile.interceptors.request.use(requestHandlerFile, errorHandler);
+
+export { request as default, requestFile };

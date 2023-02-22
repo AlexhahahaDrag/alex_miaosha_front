@@ -1,4 +1,5 @@
-import { getDataOne, postData, putData, deleteData, baseService, } from "@/api/common/index";
+import { getDataOne, postData, putData, deleteData, baseService, postFileData, } from "@/api/common/index";
+import { requestFile } from "@/utils/request/request";
 
 const baseFileManager = "/api/v1/file-info";
 
@@ -8,25 +9,26 @@ const fileUrl = {
 }
 
 export function getFilePage(params: any, pageNo: number | null | undefined, pageSize: number | null | undefined): Promise<any> {
-    let url = baseService.finance + baseFileManager + fileUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
+    let url = baseService.file + baseFileManager + fileUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
     return postData(url, params);
 }
 
 export function getFileDetail(id: number | string): Promise<any> {
-    return getDataOne(baseService.finance + baseFileManager + fileUrl.url + "?id=" + id);
+    return getDataOne(baseService.file + baseFileManager + fileUrl.url + "?id=" + id);
 }
 
 export function addOrEditFileManager(
     method: string,
+    type: string,
     params: any
 ): Promise<any> {
     if ("put" == method) {
-        return putData(baseService.finance + baseFileManager + fileUrl.url, params);
+        return putData(baseService.file + baseFileManager + fileUrl.url, params);
     } else {
-        return postData(baseService.finance + baseFileManager + fileUrl.url, params);
+        return postFileData(baseService.file + baseFileManager + fileUrl.url + "?type=" + type, params);
     }
 }
 
 export function deleteDictManager(ids: string): Promise<any> {
-    return deleteData(baseService.finance + baseFileManager + fileUrl.url + "?ids=" + ids);
+    return deleteData(baseService.file + baseFileManager + fileUrl.url + "?ids=" + ids);
 }
