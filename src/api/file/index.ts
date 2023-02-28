@@ -1,5 +1,4 @@
 import { getDataOne, postData, putData, deleteData, baseService, postFileData, } from "@/api/common/index";
-import { requestFile } from "@/utils/request/request";
 
 const baseFileManager = "/api/v1/file-info";
 
