@@ -128,13 +128,6 @@ export interface DataItem {
   isValid: number;
 }
 
-export interface ModelInfo {
-  title?: string;
-  width?: string;
-  id?: number | undefined;
-  confirmLoading?: boolean;
-}
-
 export const fromSourceTransferList = [
   { value: "xj", label: "cash" },
   { value: "yhk", label: "card" },
@@ -150,8 +143,3 @@ export const fromSourceTransferList = [
   { value: "jd", label: "jingdong" },
   { value: "other", label: "" },
 ]
-
-export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
-}

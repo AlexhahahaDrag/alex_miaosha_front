@@ -14,7 +14,7 @@ const PmsAttrUrl = {
 };
 
 export function getPmsAttrPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
-  let url = baseService.product + PmsAttrUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
+  let url = baseService.product + basePmsAttr + PmsAttrUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
   return postData(url, params);
 }
 
@@ -33,6 +33,6 @@ export function addOrEditPmsAttr(
   if ("put" == method) {
     return putData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
   } else {
-    return postData(baseService.product + PmsAttrUrl.url, params);
+    return postData(baseService.product + basePmsAttr +  PmsAttrUrl.url, params);
   }
 }

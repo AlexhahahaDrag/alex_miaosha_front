@@ -3,42 +3,17 @@
     <div class="search">
       <div class="search-box">
         <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-         <a-row :gutter="24">
-            <a-col :span="6">
-              <a-form-item name="attrId" label="属性id">
-                <a-input v-model:value="searchInfo.attrId" placeholder="属性id" allow-clear />
-              </a-form-item>
-            </a-col>
+          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="attrName" label="属性名">
                 <a-input v-model:value="searchInfo.attrName" placeholder="属性名" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
-              <a-form-item name="searchType" label="是否需要检索[0-不需要，1-需要]">
-                <a-input v-model:value="searchInfo.searchType" placeholder="是否需要检索[0-不需要，1-需要]" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item name="icon" label="属性图标">
-                <a-input v-model:value="searchInfo.icon" placeholder="属性图标" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-         <a-row :gutter="24">
-            <a-col :span="6">
-              <a-form-item name="valueSelect" label="可选值列表[用逗号分隔]">
-                <a-input v-model:value="searchInfo.valueSelect" placeholder="可选值列表[用逗号分隔]" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item name="attrType" label="属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]">
-                <a-input v-model:value="searchInfo.attrType" placeholder="属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item name="enable" label="启用状态[0 - 禁用，1 - 启用]">
-                <a-input v-model:value="searchInfo.enable" placeholder="启用状态[0 - 禁用，1 - 启用]" allow-clear />
+              <a-form-item name="enable" label="状态">
+                <a-select ref="select" v-model:value="searchInfo.enable" mode="combobox" placeholder="请输入状态"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
+                  :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -46,22 +21,13 @@
                 <a-input v-model:value="searchInfo.catelogId" placeholder="所属分类" allow-clear />
               </a-form-item>
             </a-col>
-          </a-row>
-         <a-row :gutter="24">
-            <a-col :span="6">
-              <a-form-item name="showDesc" label="快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整">
-                <a-input v-model:value="searchInfo.showDesc" placeholder="快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整" allow-clear />
-              </a-form-item>
+            <a-col :span="6" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
             </a-col>
           </a-row>
-            <a-row :gutter="24">
-                <a-col :span="6" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
         </a-form>
       </div>
     </div>
@@ -79,17 +45,21 @@
           <template v-if="column.key === 'operation'">
             <a-space>
               <a-button type="primary" size="small" @click="editPmsAttr('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsAttr(record.id)"
-                @cancel="cancel">
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsAttr(record.id)" @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
+          <template v-else-if="column.key === 'enable'">
+            <a-tag :key="record.enable" :color="record.enable == '1' ? '#87d068' : 'grey'">
+              {{ record.enable == '1' ? "有效" : "失效" }}
+            </a-tag>
+          </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </Detail>
     </div>
   </div>
 </template>
@@ -100,17 +70,18 @@ import {
   pagination,
   columns,
   DataItem,
-  ModelInfo,
   pageInfo,
 } from "./pmsAttrListTs";
+import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getPmsAttrPage, deletePmsAttr } from "@/api/product/pmsAttr/pmsAttrTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/pmsAttrDetail.vue";
 import { Dayjs } from 'dayjs'
+import { getDictList } from "@/api/finance/dict/dictManager";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
+let validList = ref<dictInfo[]>([]);
 let rowIds = [] as any;
 
 const rowSelection = ref({
@@ -197,7 +168,22 @@ function getPmsAttrListPage(param: SearchInfo, cur: pageInfo) {
     });
 }
 
+function getDictInfoList() {
+  getDictList("is_valid").then((res) => {
+    if (res.code == "200") {
+      validList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "is_valid"
+      );
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
+
 function init() {
+  //获取字典值
+  getDictInfoList();
   //获取商品属性页面数据
   getPmsAttrListPage(searchInfo.value, pagination.value);
 }

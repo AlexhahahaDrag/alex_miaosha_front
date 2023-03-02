@@ -1,7 +1,6 @@
 import { ref } from "vue";
 
 export interface SearchInfo {
-  attrId?: number;
   attrName?: string;
   searchType?: number;
   icon?: string;
@@ -52,17 +51,12 @@ export let pagination = ref<pageInfo>({
 
 export const columns = [
   {
-    title: "属性id",
-    dataIndex: "attrId",
-    key: "attrId",
-  },
-  {
     title: "属性名",
     dataIndex: "attrName",
     key: "attrName",
   },
   {
-    title: "是否需要检索[0-不需要，1-需要]",
+    title: "需要检索",
     dataIndex: "searchType",
     key: "searchType",
   },
@@ -72,17 +66,17 @@ export const columns = [
     key: "icon",
   },
   {
-    title: "可选值列表[用逗号分隔]",
+    title: "可选值列表",
     dataIndex: "valueSelect",
     key: "valueSelect",
   },
   {
-    title: "属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]",
+    title: "属性类型",
     dataIndex: "attrType",
     key: "attrType",
   },
   {
-    title: "启用状态[0 - 禁用，1 - 启用]",
+    title: "状态",
     dataIndex: "enable",
     key: "enable",
   },
@@ -92,7 +86,7 @@ export const columns = [
     key: "catelogId",
   },
   {
-    title: "快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整",
+    title: "快速展示",
     dataIndex: "showDesc",
     key: "showDesc",
   },
@@ -115,16 +109,4 @@ export interface DataItem {
   enable: number;
   catelogId: number;
   showDesc: number;
-}
-
-export interface ModelInfo {
-  title?: string;
-  width?: string;
-  id?: number | undefined;
-  confirmLoading?: boolean;
-}
-
-export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
 }

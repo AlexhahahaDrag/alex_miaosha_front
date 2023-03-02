@@ -83,11 +83,10 @@ import {
   pagination,
   columns,
   DataItem,
-  ModelInfo,
   fromSourceTransferList,
-  dictInfo,
   pageInfo,
 } from "./userManager";
+import { dictInfo, ModelInfo } from "@/views/common/ts/common";
 import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";

@@ -85,8 +85,8 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item :span="12" name="summary" label="个人简介">
-              <a-textarea :span="24" v-model:value="formState.summary" placeholder="请添加个人简介"
+            <a-form-item :label-col="{span: 3}" :wrapperCol="{span: 24}" name="summary" label="个人简介">
+              <a-textarea v-model:value="formState.summary" placeholder="请添加个人简介"
                 :auto-size="{ minRows: 2, maxRows: 5 }" :maxlength="500" show-count />
             </a-form-item>
           </a-col>
@@ -104,9 +104,9 @@ import {
 } from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
-import { ModelInfo, dictInfo } from "../userManager";
 import dayjs from "dayjs";
 import myUpload from '@/views/components/myUpload.vue'
+import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 
 interface Props {
   visible?: boolean;

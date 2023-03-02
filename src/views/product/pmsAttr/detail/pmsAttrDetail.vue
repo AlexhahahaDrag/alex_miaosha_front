@@ -13,53 +13,46 @@
         @finishFailed="onFinishFailed" :rules="rulesRef" :label-col="labelCol" :wrapper-col="wrapperCol">
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item name="attrId" label="属性id">
-              <a-input v-model:value="formState.attrId" placeholder="请填写属性id"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
             <a-form-item name="attrName" label="属性名">
               <a-input v-model:value="formState.attrName" placeholder="请填写属性名"></a-input>
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="searchType" label="是否需要检索[0-不需要，1-需要]">
               <a-input v-model:value="formState.searchType" placeholder="请填写是否需要检索[0-不需要，1-需要]"></a-input>
             </a-form-item>
           </a-col>
+        </a-row>
+        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="icon" label="属性图标">
               <a-input v-model:value="formState.icon" placeholder="请填写属性图标"></a-input>
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="valueSelect" label="可选值列表[用逗号分隔]">
               <a-input v-model:value="formState.valueSelect" placeholder="请填写可选值列表[用逗号分隔]"></a-input>
             </a-form-item>
           </a-col>
+        </a-row>
+        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="attrType" label="属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]">
               <a-input v-model:value="formState.attrType" placeholder="请填写属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]"></a-input>
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="enable" label="启用状态[0 - 禁用，1 - 启用]">
               <a-input v-model:value="formState.enable" placeholder="请填写启用状态[0 - 禁用，1 - 启用]"></a-input>
             </a-form-item>
           </a-col>
+        </a-row>
+        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="catelogId" label="所属分类">
               <a-input v-model:value="formState.catelogId" placeholder="请填写所属分类"></a-input>
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="showDesc" label="快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整">
               <a-input v-model:value="formState.showDesc" placeholder="请填写快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整"></a-input>
@@ -88,12 +81,6 @@ let loading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 
 const rulesRef = reactive({
-  attrId: [
-    {
-      required: true,
-      message: '属性id不能为空！',
-    },
-  ],
   attrName: [
     {
       required: true,

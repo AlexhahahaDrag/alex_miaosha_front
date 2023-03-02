@@ -14,7 +14,7 @@ const PmsBrandUrl = {
 };
 
 export function getPmsBrandPage(params: any, pageNo: number | null | undefined, pageSize : number | null| undefined): Promise<any> {
-  let url = baseService.product + PmsBrandUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
+  let url = baseService.product + basePmsBrand + PmsBrandUrl.page + "?pageNum=" + (pageNo ? pageNo : 1) + "&pageSize=" + (pageSize ? pageSize : 10);
   return postData(url, params);
 }
 
@@ -33,6 +33,6 @@ export function addOrEditPmsBrand(
   if ("put" == method) {
     return putData(baseService.product + basePmsBrand + PmsBrandUrl.url, params);
   } else {
-    return postData(baseService.product + PmsBrandUrl.url, params);
+    return postData(baseService.product + basePmsBrand +  PmsBrandUrl.url, params);
   }
 }
