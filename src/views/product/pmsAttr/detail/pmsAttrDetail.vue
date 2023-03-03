@@ -71,7 +71,7 @@ import {
   addOrEditPmsAttr,
 } from "@/api/product/pmsAttr/pmsAttrTs";
 import { message, FormInstance } from "ant-design-vue";
-import { ModelInfo } from "../pmsAttrListTs";
+import { ModelInfo } from "@/views/finance/dict/dict";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

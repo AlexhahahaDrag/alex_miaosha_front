@@ -15,7 +15,7 @@
             ref="select"
             v-model:value="searchUser"
             mode="combobox"
-            :field-names="{ label: 'username', value: 'id' }"
+            :field-names="{ label: 'nickName', value: 'id' }"
             :options="userList"
             @change="changeMonth"
           >
@@ -138,7 +138,7 @@ let monthIncomeSum = ref<any>(0);
 let searchUser = ref<number>(0);
 
 let userList = ref([
-  { id: 0, username: "所有人" },
+  { id: 0, nickName: "所有人" },
 ]);
 
 let searchDateTime = ref<Dayjs>(dayjs());
