@@ -118,9 +118,7 @@ import {
   pagination,
   columns,
   DataItem,
-  ModelInfo,
   fromSourceTransferList,
-  dictInfo,
   pageInfo,
 } from "./financeManager";
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
@@ -130,6 +128,7 @@ import Detail from "./detail/index.vue";
 import svgIcon from "@v/common/icons/svgIcon.vue";
 import { getUserManagerList } from "@/api/user/userManager";
 import { Dayjs } from 'dayjs'
+import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

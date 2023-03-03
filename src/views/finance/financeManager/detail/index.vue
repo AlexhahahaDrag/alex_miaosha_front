@@ -63,7 +63,7 @@
           <a-col :span="12">
             <a-form-item name="belongTo" label="属于">
               <a-select ref="select" v-model:value="formState.belongTo" mode="combobox"
-                :field-names="{ label: 'username', value: 'id' }" :options="userList">
+                :field-names="{ label: 'nickName', value: 'id' }" :options="userList">
               </a-select>
             </a-form-item>
           </a-col>
@@ -81,7 +81,7 @@ import {
 } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
-import { ModelInfo, dictInfo } from "../financeManager";
+import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import dayjs from "dayjs";
 import { getUserManagerList } from "@/api/user/userManager";
 

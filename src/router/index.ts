@@ -2,7 +2,8 @@ import Layout from "@/layout/index.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { MenuDataItem } from "./typing";
 import Order from '@v/order/order/index.vue';
-import Goods from '@v/goods/goods/index.vue';
+import PmsAttrList from '@v/product/pmsAttr/pmsAttrList.vue';
+import PmsBrandList from '@v/product/pmsBrand/pmsBrandList.vue';
 import Dashboard from '@v/dashboard/index.vue';
 import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
@@ -54,17 +55,23 @@ export const routes: MenuDataItem[] = [
   //   },
   // },
   {
-    path: "/goods",
+    path: "/product",
     component: Layout,
-    redirect: "/goodsManager/goods",
+    redirect: "/product/pmsAttr/pmsAttrList",
     name: "商品管理",
-    meta: { title: "商品管理", icon: "goodsManager", hiedInMenu: false },
+    meta: { title: "商品管理", icon: "productManager", hiedInMenu: false },
     children: [
       {
-        path: "/goodsManager/goods",
+        path: "/product/pmsAttr/pmsAttrList",
         name: "商品信息",
-        component: Goods,
-        meta: { title: "商品信息", icon: "goods", hiedInMenu: false },
+        component: PmsAttrList,
+        meta: { title: "商品信息", icon: "pmsAttr", hiedInMenu: false },
+      },
+      {
+        path: "/product/pmsBrand/pmsBrandList",
+        name: "品牌信息",
+        component: PmsBrandList,
+        meta: { title: "品牌信息", icon: "pmsBrand", hiedInMenu: false },
       },
     ],
   },

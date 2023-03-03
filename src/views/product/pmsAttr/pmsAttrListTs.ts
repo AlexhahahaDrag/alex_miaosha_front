@@ -1,10 +1,14 @@
 import { ref } from "vue";
 
 export interface SearchInfo {
-  activityName ?: string;
-  activityStatus ?: string;
-  currentPage?: number;
-  pageSize?: number;
+  attrName?: string;
+  searchType?: number;
+  icon?: string;
+  valueSelect?: string;
+  attrType?: number;
+  enable?: number;
+  catelogId?: number;
+  showDesc?: number;
 }
 
 export interface pageInfo {
@@ -20,7 +24,7 @@ export interface pageInfo {
   defaultPageSize: number;
 }
 
-export const pagination = ref<pageInfo>({
+export let pagination = ref<pageInfo>({
   // 数据总数
   total: 50,
   // 当前页数
@@ -47,41 +51,62 @@ export const pagination = ref<pageInfo>({
 
 export const columns = [
   {
-    title: "商品id",
-    dataIndex: "id",
-    key: "id",
+    title: "属性名",
+    dataIndex: "attrName",
+    key: "attrName",
   },
   {
-    title: "活动名称",
-    dataIndex: "activityName",
-    key: "activityName",
-    ellipsis: true,
+    title: "需要检索",
+    dataIndex: "searchType",
+    key: "searchType",
   },
   {
-    title: "开始时间",
-    dataIndex: "startTime",
-    key: "startTime",
-    ellipsis: true,
+    title: "属性图标",
+    dataIndex: "icon",
+    key: "icon",
   },
   {
-    title: "结束时间",
-    dataIndex: "endTime",
-    key: "endTime",
-    ellipsis: true,
+    title: "可选值列表",
+    dataIndex: "valueSelect",
+    key: "valueSelect",
   },
   {
-    title: "活动状态",
-    dataIndex: "activityStatus",
-    key: "activityStatus",
+    title: "属性类型",
+    dataIndex: "attrType",
+    key: "attrType",
   },
   {
-    title: "申请规则",
-    dataIndex: "blogSortList",
-    key: "blogSortList",
+    title: "状态",
+    dataIndex: "enable",
+    key: "enable",
+  },
+  {
+    title: "所属分类",
+    dataIndex: "catelogId",
+    key: "catelogId",
+  },
+  {
+    title: "快速展示",
+    dataIndex: "showDesc",
+    key: "showDesc",
   },
   {
     title: "操作",
     key: "operation",
-    width: 200,
+    fixed: 'right',
+    width: '8',
   },
 ];
+
+
+export interface DataItem {
+  attrId: number;
+  attrName: string;
+  searchType: number;
+  icon: string;
+  valueSelect: string;
+  attrType: number;
+  enable: number;
+  catelogId: number;
+  showDesc: number;
+}

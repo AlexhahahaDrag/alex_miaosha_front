@@ -30,4 +30,5 @@ export const baseService = {
   user: "/api/am-user",
   mission: "/api/am-mission",
   file: "/api/am-oss",
+  product: "/api/am-product",
 }
