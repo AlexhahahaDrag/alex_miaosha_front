@@ -65,8 +65,8 @@ export const columns = [
   },
   {
     title: "个人头像",
-    dataIndex: "avatar",
-    key: "avatar",
+    dataIndex: "avatarUrl",
+    key: "avatarUrl",
   },
   {
     title: "邮箱",
@@ -110,22 +110,3 @@ export const columns = [
     width: 160,
   },
 ];
-
-export interface DataItem {
-  name: string;
-  typeCode: string;
-  typeName: string;
-  amount: number;
-  fromSource: string;
-  fromSourceName: string;
-  isValid: number;
-}
-
-export const fromSourceTransferList = [
-  { value: "xj", label: "cash" },
-  { value: "yhk", label: "card" },
-  { value: "zfb", label: "zhifubao" },
-  { value: "wx", label: "weChat" },
-  { value: "mt", label: "meituan" },
-  { value: "other", label: "" },
-]

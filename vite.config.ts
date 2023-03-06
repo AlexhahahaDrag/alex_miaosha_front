@@ -65,7 +65,7 @@ export default defineConfig({
     // host: '10.10.20.38',
     // port: VITE_PORT,
     // port: 10000,
-    // open: VITE_OPEN,
+    open: true,
     https: false,
     proxy: {
       // 选项写法

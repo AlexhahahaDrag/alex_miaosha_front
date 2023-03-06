@@ -79,7 +79,7 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="avatar" label="头像">
-              <myUpload></myUpload>
+              <myUpload @customImageRequest="customImageRequest"></myUpload>
             </a-form-item>
           </a-col>
         </a-row>
@@ -107,6 +107,7 @@ import { message, FormInstance } from "ant-design-vue";
 import dayjs from "dayjs";
 import myUpload from '@/views/components/myUpload.vue'
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
+import {FileInfo} from '@/views/components/fileInfo';
 
 interface Props {
   visible?: boolean;
@@ -166,6 +167,11 @@ const handleOk = () => {
     });
   }
 };
+
+const customImageRequest = (file: FileInfo) => {
+  debugger;
+  formState.value.avatar = file.id;
+}
 
 const getContainer = () => {
   return document.getElementById("modalBox");
