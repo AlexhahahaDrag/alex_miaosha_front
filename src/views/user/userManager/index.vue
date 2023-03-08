@@ -56,22 +56,12 @@
               {{ record.gender == 0 ? "" : (record.gender == 1 ? "男" : "女") }}
             </a-tag>
           </template>
-          <template v-else-if="column.key === 'fromSource'">
-            <div v-for="fromSource in fromSourceTransferList">
-              <svgIcon v-if="record.fromSource == fromSource.value && fromSource.value != ''" :name="fromSource.label"
-                class="svg" style="
-                  width: 1.5em;
-                  height: 1.5em;
-                  font-size: 18px;
-                  cursor: pointer;
-                  verticle-align: middle;
-                "></svgIcon>
-            </div>
+          <template v-else-if="column.key === 'avatarUrl' && record.avatarUrl">
+              <a-image :width="100" :src= record.avatarUrl />
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel">
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
       </Detail>
     </div>
   </div>
@@ -83,7 +73,6 @@ import {
   pagination,
   columns,
   DataItem,
-  fromSourceTransferList,
   pageInfo,
 } from "./userManager";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
@@ -91,7 +80,6 @@ import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
-import svgIcon from "@v/common/icons/svgIcon.vue";
 
 let rowIds = [] as any;
 const labelCol = ref({ span: 5 });

@@ -32,7 +32,7 @@
   import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
   import { useRouter } from "vue-router";
   import { useUserStore } from "@/store/modules/user/user";
-  
+
   interface loginForm {
     username: string;
     password: string;
