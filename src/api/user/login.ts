@@ -1,5 +1,4 @@
 import request from "@/utils/request/request";
-import { LoginResultModel } from "./typing";
 import {
   baseService,
 } from "@/api/common/index";
