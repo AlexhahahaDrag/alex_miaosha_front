@@ -69,7 +69,7 @@ const responseHandler = (
 request.interceptors.response.use(responseHandler, errorHandler);
 
 const requestFile = axios.create({
-  timeout: 6000,
+  timeout: 30000,
 });
 
 // 添加请求拦截器

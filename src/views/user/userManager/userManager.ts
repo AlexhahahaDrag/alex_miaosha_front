@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { Dayjs } from 'dayjs';
 
 export interface SearchInfo {
   username ?: string;
@@ -65,8 +66,8 @@ export const columns = [
   },
   {
     title: "个人头像",
-    dataIndex: "avatar",
-    key: "avatar",
+    dataIndex: "avatarUrl",
+    key: "avatarUrl",
   },
   {
     title: "邮箱",
@@ -112,20 +113,21 @@ export const columns = [
 ];
 
 export interface DataItem {
-  name: string;
-  typeCode: string;
-  typeName: string;
-  amount: number;
-  fromSource: string;
-  fromSourceName: string;
-  isValid: number;
+  id?: number;
+  username?: string;
+  password?: string;
+  gender?: number;
+  avatar?: number;
+  email?: string;
+  birthday?: Dayjs | string;
+  mobile?: string;
+  summary?: string;
+  status?: string;
+  nickName?: string;
+  qqNumber?: string;
+  weChat?: string;
+  occupation?: string;
+  github?: string;
+  gitee?: string;
+  person_resume?: string;
 }
-
-export const fromSourceTransferList = [
-  { value: "xj", label: "cash" },
-  { value: "yhk", label: "card" },
-  { value: "zfb", label: "zhifubao" },
-  { value: "wx", label: "weChat" },
-  { value: "mt", label: "meituan" },
-  { value: "other", label: "" },
-]

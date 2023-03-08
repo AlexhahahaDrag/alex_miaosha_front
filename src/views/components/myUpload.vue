@@ -1,89 +1,57 @@
 <template>
-    <!-- <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-        :show-upload-list="false" action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-        :before-upload="beforeUpload" @change="handleChange">
-        <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-        <div v-else>
-            <loading-outlined v-if="loading"></loading-outlined>
-            <plus-outlined v-else></plus-outlined>
-            <div class="ant-upload-text">Upload</div>
-        </div>
-</a-upload> -->
-    <!-- <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-        :show-upload-list="false" :customRequest="customRequest">
-        <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-        <div v-else>
-            <loading-outlined v-if="loading"></loading-outlined>
-            <plus-outlined v-else></plus-outlined>
-            <div class="ant-upload-text">Upload</div>
-        </div>
-    </a-upload> -->
-    <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-        :show-upload-list="false" @change="handleChange">
-        <img v-if="imageUrl" :src="imageUrl" alt="avatar" />
-        <div v-else>
-            <loading-outlined v-if="loading"></loading-outlined>
-            <plus-outlined v-else></plus-outlined>
-            <div class="ant-upload-text">Upload</div>
-        </div>
-    </a-upload>
+    <div class="clearfix">
+        <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
+            :show-upload-list="true" @change="handleChange" :customRequest="customImageRequest" @preview="handlePreview">
+            <div>
+                <plus-outlined />
+                <div style="margin-top: 8px">Upload</div>
+            </div>
+        </a-upload>
+        <a-modal :visible="previewVisible" :title="previewTitle" :footer="null" @cancel="handleCancel">
+            <img alt="example" style="width: 100%" :src="previewImage" />
+        </a-modal>
+    </div>
 </template>
 <script setup lang="ts">
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+import { message, UploadProps } from 'ant-design-vue';
 import { ref } from 'vue';
 import type { UploadChangeParam } from 'ant-design-vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
 import { addOrEditFileManager } from '@/api/file/index'
 
-function getBase64(img: Blob | undefined, callback: (base64Url: string) => void) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result as string));
-    if (img) {
-        reader.readAsDataURL(img);
-    }
-}
+const emit = defineEmits(["customImageRequest"]);
 
-function saveFile(formData) {
+// 通过覆盖默认的上传行为，可以自定义自己的上传实现(只写了前端没有写请求)
+const customImageRequest = (info: any) => {
+    const formData = new FormData() as any;
+    formData.append("file", info.file);
     let method = "";
+    let id = '';
     // if (formState.value.id) {
-    //     method = "put";
-    // } else {
-    method = "post";
-    // }
+    if (id) {
+        method = "put";
+    } else {
+        method = "post";
+    }
     addOrEditFileManager(method, 'user', formData).then(res => {
-        if (res.code == "200") {
-            message.success((res && res.message) || "保存成功！");
-            // emit("handleOk", false);
-        } else {
-            message.error((res && res.message) || "保存失败！");
+        if (res.data && res.data.code == "200") {
+            info.onSuccess(res.data, info.file);
+            emit("customImageRequest", res.data.data);
         }
-    }).finally(() => {
-        loading.value = false;
-    })
-}
+    });
+};
 
-const fileList = ref([]);
 const loading = ref<boolean>(false);
-const imageUrl = ref<string>('');
 
 const handleChange = (info: UploadChangeParam) => {
     if (info.file.status === 'uploading') {
         loading.value = true;
         return;
     }
-    debugger;
-    // if (info.file.status === 'done') {
-    debugger;
-    // Get this url from response in real world.
-    const formData = new FormData() as any;
-    formData.append("file", info.file.originFileObj);
-    saveFile(formData);
-    getBase64(info.file.originFileObj, (base64Url: string) => {
-        imageUrl.value = base64Url;
+    if (info.file.status === 'done') {
         loading.value = false;
-    });
-
-    // }
+        return;
+    }
     if (info.file.status === 'error') {
         message.error('upload error');
     }
@@ -99,6 +67,34 @@ const handleChange = (info: UploadChangeParam) => {
 //     }
 //     return isJpgOrPng && isLt2M;
 // };
+
+function getBase6412(file: File) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+const previewVisible = ref(false);
+const previewImage = ref('');
+const previewTitle = ref('');
+
+const fileList = ref<UploadProps['fileList']>([]);
+
+const handleCancel = () => {
+    previewVisible.value = false;
+    previewTitle.value = '';
+};
+const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+        file.preview = (await getBase6412(file.originFileObj)) as string;
+    }
+    previewImage.value = file.url || file.preview;
+    previewVisible.value = true;
+    previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
+};
 </script>
 <style>
 .avatar-uploader>.ant-upload {

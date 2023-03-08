@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { UserState } from "./typing";
 import { LoginParams } from "@/api/user/login";
 import { piniaPersistConfig } from '@/config/piniaPersist';
+import { message } from "ant-design-vue";
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -52,17 +53,22 @@ export const useUserStore = defineStore({
         goHome?: boolean;
       }
     ) {
-      // ): Promise<GetUserInfoModel | null> {
+      //  ): Promise<GetUserInfoModel | null> {
       try {
         const { goHome = true, ...loginParams } = params;
         const data = await loginApi(loginParams);
-        const { token, admin } = data.data;
-        // save userInfo
-        this.setUserInfo(admin);
-        // save token
-        this.setToken(token);
-        return admin;
+        if (data.code == '200') {
+          const { token, admin } = data.data;
+          // save userInfo
+          this.setUserInfo(admin);
+          // save token
+          this.setToken(token);
+          return admin;
+        } else {
+          message.error((data && data.message) || "删除失败！", 3);
+        }
       } catch (error) {
+        message.error("系统错误，请联系管理员！", 3);
         return Promise.reject(error);
       }
     },

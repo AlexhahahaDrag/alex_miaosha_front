@@ -4,7 +4,7 @@ export interface UserDetail {
   username?: string;
   password?: string;
   gender?: number;
-  avatar?: string;
+  avatar?: number;
   email?: string;
   birthday?: Dayjs | string;
   mobile?: string;

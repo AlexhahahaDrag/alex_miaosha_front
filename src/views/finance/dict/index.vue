@@ -88,7 +88,6 @@ import { getDictManagerPage, deleteDictManager } from "@/api/finance/dict/dictMa
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import Detail from "./detail/index.vue";
-// import svgIcon from "@v/common/icons/svgIcon.vue";
 
 let rowIds = [] as any;
 

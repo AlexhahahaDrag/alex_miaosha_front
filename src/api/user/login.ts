@@ -28,10 +28,10 @@ function transParams(data) {
   return params;
 }
 
-export function loginApi(params: LoginParams) {
-  return request.post<LoginResultModel>(baseService.user + baseUrl + Api.login, transParams(params));
+export function loginApi(params: LoginParams): Promise<any> {
+  return request.post(baseService.user + baseUrl + Api.login, transParams(params));
 }
 
-export function logoutApi() {
+export function logoutApi(): Promise<any> {
   return request.post(baseService.user + baseUrl + Api.logout);
 }
