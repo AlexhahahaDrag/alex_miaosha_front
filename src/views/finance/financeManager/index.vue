@@ -23,9 +23,9 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="incomeAndExpenses" label="收支类型">
-                <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" mode="combobox"
-                  placeholder="请输入收支类型" :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="incomeAndExpensesList" :allowClear="true"></a-select>
+                <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" mode="combobox" placeholder="请输入收支类型"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="incomeAndExpensesList"
+                  :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -70,8 +70,7 @@
           <template v-if="column.key === 'operation'">
             <a-space>
               <a-button type="primary" size="small" @click="editFinance('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delFinance(record.id)"
-                @cancel="cancel">
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delFinance(record.id)" @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -80,8 +79,8 @@
           <template v-else-if="column.key === 'amount'">
             <span>
               {{
-                String(record.amount.toFixed(2)).replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ',').replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3')
-              }} </span>
+                String(record.amount.toFixed(2)).replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ','
+                ).replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3') }} </span>
           </template>
           <template v-else-if="column.key === 'isValid'">
             <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
@@ -93,21 +92,26 @@
               {{ record.incomeAndExpenses == "income" ? "收入" : "支出" }}
             </a-tag>
           </template>
+          <template v-else-if="column.key === 'infoDate'">
+            <span>
+              {{ record.infoDate ? String(record.infoDate).substring(0, 10) : '' }}
+            </span>
+          </template>
           <template v-else-if="column.key === 'fromSource'">
             <div v-for="fromSource in fromSourceTransferList">
               <svgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
                 :name="fromSource.label" class="svg" style="
-                  width: 1.5em;
-                  height: 1.5em;
-                  font-size: 18px;
-                  cursor: pointer;
-                  verticle-align: middle;"></svgIcon>
+                    width: 1.5em;
+                    height: 1.5em;
+                    font-size: 18px;
+                    cursor: pointer;
+                    verticle-align: middle;"></svgIcon>
             </div>
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </Detail>
     </div>
   </div>
 </template>

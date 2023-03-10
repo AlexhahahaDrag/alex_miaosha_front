@@ -57,7 +57,8 @@
             </a-tag>
           </template>
           <template v-else-if="column.key === 'avatarUrl' && record.avatarUrl">
-              <a-image :width="100" :src= record.avatarUrl />
+              <image :src=record.avatarUrl></image>
+              <a-image :width="50" :src= record.avatarUrl />
           </template>
         </template>
       </a-table>

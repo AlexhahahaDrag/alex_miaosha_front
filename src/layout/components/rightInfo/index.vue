@@ -1,8 +1,9 @@
 <template>
     <a-badge :count="newsCount">
+        欢迎你，{{userInfo ? userInfo.nickName ? userInfo.nickName : userInfo.username : ''}}
         <a-dropdown>
             <a class="ant-dropdown-link" @click.prevent>
-                <a-avatar shape="square" :src="userInfo ? userInfo.avatarUrl: ''">
+                <a-avatar shape="square" :src="userInfo && userInfo.avatarUrl ? userInfo.avatarUrl : ''">
                     <template #icon>
                         <UserOutlined />
                     </template>
@@ -15,6 +16,9 @@
                     </a-menu-item>
                     <a-menu-item key="github">
                         github
+                    </a-menu-item>
+                    <a-menu-item key="resetPwd">
+                        重置密码(todo...)
                     </a-menu-item>
                     <a-menu-item key="logout">
                         注销
