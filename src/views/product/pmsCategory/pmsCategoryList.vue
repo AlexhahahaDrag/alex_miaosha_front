@@ -3,39 +3,66 @@
     <div class="search">
       <div class="search-box">
         <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-row :gutter="24">
+         <a-row :gutter="24">
             <a-col :span="6">
-              <a-form-item name="name" label="品牌名">
-                <a-input v-model:value="searchInfo.name" placeholder="品牌名" allow-clear />
+              <a-form-item name="name" label="分类名称">
+                <a-input v-model:value="searchInfo.name" placeholder="分类名称" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
-              <a-form-item name="showStatus" label="显示状态">
-                <a-select ref="select" v-model:value="searchInfo.showStatus" mode="combobox" placeholder="请输入显示状态"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
-                  :allowClear="true"></a-select>
+              <a-form-item name="parentCid" label="父分类id">
+                <a-input v-model:value="searchInfo.parentCid" placeholder="父分类id" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
-              <a-form-item name="firstLetter" label="检索首字母">
-                <a-input v-model:value="searchInfo.firstLetter" placeholder="检索首字母" allow-clear />
+              <a-form-item name="catLevel" label="层级">
+                <a-input v-model:value="searchInfo.catLevel" placeholder="层级" allow-clear />
               </a-form-item>
             </a-col>
-            <a-col :span="6" style="text-align: right">
-              <a-space>
-                <a-button type="primary" @click="query"> 查找</a-button>
-                <a-button type="primary" @click="cancelQuery">清空</a-button>
-              </a-space>
+            <a-col :span="6">
+              <a-form-item name="showStatus" label="是否显示[0-不显示，1显示]">
+                <a-input v-model:value="searchInfo.showStatus" placeholder="是否显示[0-不显示，1显示]" allow-clear />
+              </a-form-item>
             </a-col>
           </a-row>
+         <a-row :gutter="24">
+            <a-col :span="6">
+              <a-form-item name="sort" label="排序">
+                <a-input v-model:value="searchInfo.sort" placeholder="排序" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="icon" label="图标地址">
+                <a-input v-model:value="searchInfo.icon" placeholder="图标地址" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="productUnit" label="计量单位">
+                <a-input v-model:value="searchInfo.productUnit" placeholder="计量单位" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="productCount" label="商品数量">
+                <a-input v-model:value="searchInfo.productCount" placeholder="商品数量" allow-clear />
+              </a-form-item>
+            </a-col>
+          </a-row>
+            <a-row :gutter="24">
+                <a-col :span="6" style="text-align: right">
+                  <a-space>
+                    <a-button type="primary" @click="query"> 查找</a-button>
+                    <a-button type="primary" @click="cancelQuery">清空</a-button>
+                  </a-space>
+                </a-col>
+            </a-row>
         </a-form>
       </div>
     </div>
     <div class="button">
       <a-space>
-        <a-button type="primary" @click="editPmsBrand('add')">新增</a-button>
+        <a-button type="primary" @click="editPmsCategory('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelPmsBrand">删除</a-button>
+        <a-button type="danger" @click="batchDelPmsCategory">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -44,26 +71,18 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editPmsBrand('update', record.brandId)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsBrand(record.id)"
+              <a-button type="primary" size="small" @click="editPmsCategory('update', record.id)">编辑</a-button>
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsCategory(record.id)"
                 @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
-          <template v-else-if="column.key === 'showStatus'">
-            <a-tag :key="record.showStatus" :color="record.showStatus == '1' ? '#87d068' : 'grey'">
-              {{ record.showStatus == '1' ? "有效" : "失效" }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'logoUrl' && record.logoUrl">
-              <a-image :width="50" :src= record.logoUrl />
-          </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></Detail>
     </div>
   </div>
 </template>
@@ -74,16 +93,14 @@ import {
   pagination,
   columns,
   DataItem,
+  ModelInfo,
   pageInfo,
-} from "./pmsBrandListTs";
-import { getPmsBrandPage, deletePmsBrand } from "@/api/product/pmsBrand/pmsBrandTs";
+} from "./pmsCategoryListTs";
+import { getPmsCategoryPage, deletePmsCategory } from "@/api/product/pmsCategory/pmsCategoryTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsBrandDetail.vue";
-import { Dayjs } from 'dayjs';
-import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import { getDictList } from "@/api/finance/dict/dictManager";
+import Detail from "./detail/pmsCategoryDetail.vue";
+import { Dayjs } from 'dayjs'
 
-let validList = ref<dictInfo[]>([]);
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -115,25 +132,25 @@ let infoDateStart = ref<Dayjs | null>();
 let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
-  getPmsBrandListPage(searchInfo.value, pagination.value);
+  getPmsCategoryListPage(searchInfo.value, pagination.value);
 }
 
 function handleTableChange(pagination) {
-  getPmsBrandListPage(searchInfo.value, pagination);
+  getPmsCategoryListPage(searchInfo.value, pagination);
 }
 
-function delPmsBrand(ids: string) {
-  deletePmsBrand(ids).then((res) => {
+function delPmsCategory(ids: string) {
+  deletePmsCategory(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getPmsBrandListPage(searchInfo.value, pagination.value);
+      getPmsCategoryListPage(searchInfo.value, pagination.value);
     } else {
       message.error((res && res.message) || "删除失败！", 3);
     }
   });
 }
 
-function batchDelPmsBrand() {
+function batchDelPmsCategory() {
   let ids = "";
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
@@ -144,7 +161,7 @@ function batchDelPmsBrand() {
     message.warning("请先选择数据！", 3);
     return;
   }
-  delPmsBrand(ids);
+  delPmsCategory(ids);
 }
 
 let loading = ref<boolean>(false);
@@ -155,9 +172,9 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 }
 
-function getPmsBrandListPage(param: SearchInfo, cur: pageInfo) {
+function getPmsCategoryListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
-  getPmsBrandPage(param, cur.current, cur.pageSize)
+  getPmsCategoryPage(param, cur.current, cur.pageSize)
     .then((res) => {
       if (res.code == "200") {
         dataSource.value = res.data.records;
@@ -173,23 +190,9 @@ function getPmsBrandListPage(param: SearchInfo, cur: pageInfo) {
     });
 }
 
-function getDictInfoList() {
-  getDictList("is_valid").then((res) => {
-    if (res.code == "200") {
-      validList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "is_valid"
-      );
-    } else {
-      message.error((res && res.message) || "查询列表失败！");
-    }
-  });
-}
-
 function init() {
-  //获取字典值
-  getDictInfoList();
-  //获取品牌页面数据
-  getPmsBrandListPage(searchInfo.value, pagination.value);
+  //获取商品三级分类页面数据
+  getPmsCategoryListPage(searchInfo.value, pagination.value);
 }
 
 init();
@@ -199,7 +202,7 @@ let visible = ref<boolean>(false);
 let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
-function editPmsBrand(type: string, id?: number) {
+function editPmsCategory(type: string, id?: number) {
   if (type == "add") {
     modelInfo.value.title = "新增明细";
     modelInfo.value.id = undefined;
@@ -213,7 +216,7 @@ function editPmsBrand(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
   visible.value = v;
-  getPmsBrandListPage(searchInfo.value, pagination.value);
+  getPmsCategoryListPage(searchInfo.value, pagination.value);
 };
 
 const handleCancel = (v: boolean) => {

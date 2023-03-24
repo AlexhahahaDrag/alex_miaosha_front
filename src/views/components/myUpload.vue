@@ -2,7 +2,7 @@
     <div class="clearfix">
         <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
             :show-upload-list="true" @change="handleChange" :customRequest="customImageRequest" @preview="handlePreview">
-            <div>
+            <div v-if="fileList && fileList.length < 1">
                 <plus-outlined />
                 <div style="margin-top: 8px">Upload</div>
             </div>
@@ -14,26 +14,31 @@
 </template>
 <script setup lang="ts">
 import { message, UploadProps } from 'ant-design-vue';
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { addOrEditFileManager } from '@/api/file/index'
+import { FileInfo } from './fileInfo';
 
 const emit = defineEmits(["customImageRequest"]);
 
-// 通过覆盖默认的上传行为，可以自定义自己的上传实现(只写了前端没有写请求)
+interface Props {
+    fileInfo?: FileInfo;
+    fromSystem ?: string;
+}
+
+// 通过覆盖默认的上传行为,可以自定义自己的上传实现(只写了前端没有写请求)
 const customImageRequest = (info: any) => {
     const formData = new FormData() as any;
     formData.append("file", info.file);
     let method = "";
     let id = '';
-    // if (formState.value.id) {
     if (id) {
         method = "put";
     } else {
         method = "post";
     }
-    addOrEditFileManager(method, 'user', formData).then(res => {
+    addOrEditFileManager(method, props.fromSystem ? props.fromSystem : 'common', formData).then(res => {
         if (res.data && res.data.code == "200") {
             info.onSuccess(res.data, info.file);
             emit("customImageRequest", res.data.data);
@@ -56,8 +61,12 @@ const handleChange = (info: UploadChangeParam) => {
         message.error('upload error');
     }
 };
+
 // const beforeUpload = (file: UploadProps['fileList'][number]) => {
-//     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+//     if(!file) {
+//         return;
+//     }
+//     const isJpgOrPng = imageTypeList.indexOf(file.type) >= 0;
 //     if (!isJpgOrPng) {
 //         message.error('You can only upload JPG file!');
 //     }
@@ -80,7 +89,8 @@ function getBase6412(file: File) {
 const previewVisible = ref(false);
 const previewImage = ref('');
 const previewTitle = ref('');
-
+const props = defineProps<Props>();
+// const imageTypeList = ['bmp', 'jpg', 'png', 'tif', 'gif', 'pcx', 'tga', 'exif', 'fpx', 'svg', 'psd', 'cdr', 'pcd', 'dxf', 'ufo', 'eps', 'ai', 'raw', 'WMF', 'webp', 'avif', 'apng'];
 const fileList = ref<UploadProps['fileList']>([]);
 
 const handleCancel = () => {
@@ -95,6 +105,35 @@ const handlePreview = async (file) => {
     previewVisible.value = true;
     previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
 };
+
+function init() {
+    fileList.value = [];
+    if (props.fileInfo) {
+        if (props.fileInfo.id) {
+            fileList.value?.push(
+                {
+                    uid: props.fileInfo.id + '',
+                    name: 'test.png',
+                    status: 'done',
+                    url: props.fileInfo.url,
+                }
+            );
+        }
+    }
+}
+
+watch(
+  () => props.fileInfo,
+  () => {
+    init()
+  },
+  { deep: true, flush: "post" }
+);
+
+onMounted(() => {
+    init()
+});
+
 </script>
 <style>
 .avatar-uploader>.ant-upload {

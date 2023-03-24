@@ -79,7 +79,7 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="avatar" label="头像">
-              <myUpload @customImageRequest="customImageRequest"></myUpload>
+              <myUpload :fromSystem="fromSystem" :fileInfo="fileInfo" @customImageRequest="customImageRequest"></myUpload>
             </a-form-item>
           </a-col>
         </a-row>
@@ -127,6 +127,8 @@ let formState = ref<UserDetail>({});
 const formRef = ref<FormInstance>();
 let genderList = ref<dictInfo[]>([]);
 let validList = ref<dictInfo[]>([]);
+let fileInfo = ref<FileInfo>({});
+let fromSystem = 'user';
 
 const rulesRef = reactive({
   username: [
@@ -169,7 +171,6 @@ const handleOk = () => {
 };
 
 const customImageRequest = (file: FileInfo) => {
-  debugger;
   formState.value.avatar = file.id;
 }
 
@@ -259,6 +260,12 @@ function init() {
             formState.value = res.data;
             formState.value.birthday = dayjs(formState.value.birthday);
             modelConfig.confirmLoading = false;
+            if (formState.value.avatar) {
+              fileInfo.value.id = formState.value.avatar;
+              fileInfo.value.url = formState.value.avatarUrl;
+            } else {
+              fileInfo.value = {};
+            }
           } else {
             message.error((res && res.message) || "查询失败！");
           }
@@ -268,6 +275,7 @@ function init() {
         });
     } else {
       modelConfig.confirmLoading = false;
+      fileInfo.value = {};
       initForm();
     }
   }

@@ -2,11 +2,13 @@ import { ref } from "vue";
 
 export interface SearchInfo {
   name?: string;
-  logo?: string;
-  descript?: string;
+  parentCid?: number;
+  catLevel?: number;
   showStatus?: number;
-  firstLetter?: string;
   sort?: number;
+  icon?: string;
+  productUnit?: string;
+  productCount?: number;
 }
 
 export interface pageInfo {
@@ -24,7 +26,7 @@ export interface pageInfo {
 
 export let pagination = ref<pageInfo>({
   // 数据总数
-  total: 10,
+  total: 50,
   // 当前页数
   current: 1,
   // 每页条数
@@ -49,29 +51,44 @@ export let pagination = ref<pageInfo>({
 
 export const columns = [
   {
-    title: "品牌名",
+    title: "分类名称",
     dataIndex: "name",
     key: "name",
   },
   {
-    title: "logo",
-    dataIndex: "logoUrl",
-    key: "logoUrl",
+    title: "父分类id",
+    dataIndex: "parentCid",
+    key: "parentCid",
   },
   {
-    title: "显示状态",
+    title: "层级",
+    dataIndex: "catLevel",
+    key: "catLevel",
+  },
+  {
+    title: "是否显示[0-不显示，1显示]",
     dataIndex: "showStatus",
     key: "showStatus",
-  },
-  {
-    title: "检索首字母",
-    dataIndex: "firstLetter",
-    key: "firstLetter",
   },
   {
     title: "排序",
     dataIndex: "sort",
     key: "sort",
+  },
+  {
+    title: "图标地址",
+    dataIndex: "icon",
+    key: "icon",
+  },
+  {
+    title: "计量单位",
+    dataIndex: "productUnit",
+    key: "productUnit",
+  },
+  {
+    title: "商品数量",
+    dataIndex: "productCount",
+    key: "productCount",
   },
   {
     title: "操作",
@@ -83,11 +100,25 @@ export const columns = [
 
 
 export interface DataItem {
-  brandId: number;
+  catId: number;
   name: string;
-  logo: string;
-  descript: string;
+  parentCid: number;
+  catLevel: number;
   showStatus: number;
-  firstLetter: string;
   sort: number;
+  icon: string;
+  productUnit: string;
+  productCount: number;
+}
+
+export interface ModelInfo {
+  title?: string;
+  width?: string;
+  id?: number | undefined;
+  confirmLoading?: boolean;
+}
+
+export interface dictInfo {
+  typeCode?: string | number | undefined,
+  typeName?: string | undefined,
 }

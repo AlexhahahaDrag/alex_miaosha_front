@@ -2,6 +2,7 @@ import { useUserStore } from "@/store/modules/user/user";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { ResponseBody } from "@/api/typing";
 import { message } from "ant-design-vue";
+import  router from "@/router";
 
 const request = axios.create({
   // baseURL: process.env.VUE_APP_API_BASE_URL,
@@ -18,6 +19,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     // 403 无权限
     if (status === 403) {
       message.warning("请先登录！", 3);
+      router.push('/Login');
     }
     // //401 未登录、未授权
     // if (status === 401 && data.result && data.result.isLogin) {
@@ -38,6 +40,8 @@ const requestHandler = (
   const token = userStore.getToken;
   if (token) {
     config.headers["Authorization"] = token;
+  } else {
+    router.push('/Login');
   }
   return config;
 };
@@ -51,6 +55,8 @@ const requestHandlerFile = (
   if (token) {
     config.headers["Authorization"] = token;
     config.headers['Content-Type'] = 'multipart/form-data';
+  } else {
+    router.push('/Login');
   }
   return config;
 };
