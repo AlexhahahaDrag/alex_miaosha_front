@@ -128,7 +128,7 @@ const formRef = ref<FormInstance>();
 let genderList = ref<dictInfo[]>([]);
 let validList = ref<dictInfo[]>([]);
 let fileInfo = ref<FileInfo>({});
-let fromSystem = 'user';
+let fromSystem = ref<string>('user');
 
 const rulesRef = reactive({
   username: [

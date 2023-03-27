@@ -45,7 +45,7 @@
           <template v-if="column.key === 'operation'">
             <a-space>
               <a-button type="primary" size="small" @click="editPmsBrand('update', record.brandId)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsBrand(record.id)"
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsBrand(record.brandId)"
                 @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>

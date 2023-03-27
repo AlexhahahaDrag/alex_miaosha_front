@@ -19,7 +19,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="logo" label="品牌logo地址">
-              <myUpload :fileInfo="fileInfo" :type="fromSystem" @customImageRequest="customImageRequest"></myUpload>
+              <myUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @customImageRequest="customImageRequest"></myUpload>
             </a-form-item>
           </a-col>
         </a-row>
@@ -112,7 +112,7 @@ let formState = ref<PmsBrandDetail>({});
 
 let fileInfo = ref<FileInfo>({});
 
-let fromSystem = 'product';
+let fromSystem = ref<string>('product');
 
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
