@@ -9,7 +9,7 @@ export interface SearchInfo {
   skuDefaultImg?: string;
   skuTitle?: string;
   skuSubtitle?: string;
-  price?: bigDecimal;
+  price?: number;
   saleCount?: number;
 }
 
@@ -121,7 +121,7 @@ export interface DataItem {
   skuDefaultImg: string;
   skuTitle: string;
   skuSubtitle: string;
-  price: bigDecimal;
+  price: number;
   saleCount: number;
 }
 
