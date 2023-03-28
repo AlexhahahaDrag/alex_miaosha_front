@@ -1,112 +1,74 @@
 <template>
-    <div class="page-info">
-  <div class="search">
-    <div class="search-box">
-      <div class="search-box-in">
+  <div class="page-info">
+    <div class="search">
+      <div class="search-box">
         <a-space>
-          <a-date-picker
-            v-model:value="searchDateTime"
-            picker="month"
-            :locale="locale"
-            @change="changeMonth"
-          />
-          <a-select
-            style="width: 100px"
-            ref="select"
-            v-model:value="searchUser"
-            mode="combobox"
-            :field-names="{ label: 'nickName', value: 'id' }"
-            :options="userList"
-            @change="changeMonth"
-          >
+          <a-date-picker v-model:value="searchDateTime" picker="month" :locale="locale" @change="changeMonth" />
+          <a-select style="width: 100px" ref="select" v-model:value="searchUser" mode="combobox"
+            :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="changeMonth">
           </a-select>
         </a-space>
       </div>
     </div>
-  </div>
- 
-  <div class="content">
-  <div style="background-color: #ececec; padding: 10px">
-    <a-row :gutter="16">
-      <a-col :span="4">
-        <a-card title="总金额" :bordered="false">
-          <p style="font-size: 20px">{{ sum }}</p>
-        </a-card>
-      </a-col>
-      <a-col :span="4">
-        <a-card title="月总消费" :bordered="false">
-          <p style="font-size: 20px">{{ monthExpenseSum }}</p>
-        </a-card>
-      </a-col>
-      <a-col :span="4">
-        <a-card title="月总收入" :bordered="false">
-          <p style="font-size: 20px">{{ monthIncomeSum }}</p>
-        </a-card>
-      </a-col>
-      <a-col :span="4" v-for="item in balanceList.slice(0, 3)">
-        <a-card :title="item.typeName" :bordered="false">
-          <p style="font-size: 20px">{{ item.amount }}</p>
-        </a-card>
-      </a-col>
-    </a-row>
-    <a-row :gutter="16" style="padding-top: 10px">
-      <a-col :span="4" v-for="item in balanceList.slice(3)">
-        <a-card :title="item.typeName" :bordered="false">
-          <p style="font-size: 20px">{{ item.amount }}</p>
-        </a-card>
-      </a-col>
-    </a-row>
-    <a-row :gutter="16" style="padding-top: 10px">
-      <div class="mainGrid">
-        <div class="div1">
-          <pie-chart
-            title="当月收入分析"
-            height="100%"
-            width="100%"
-            :data="pieIncomeData"
-            :tooltip="tooltip"
-          >
-          </pie-chart>
-        </div>
-        <div class="div2">
-          <pie-chart
-            title="当月支出分析"
-            height="100%"
-            width="100%"
-            :data="pieExpenseData"
-            :tooltip="tooltip"
-          >
-          </pie-chart>
-        </div>
+
+    <div class="content">
+      <div style="background-color: #ececec; padding: 10px">
+        <a-row :gutter="16">
+          <a-col :span="4">
+            <a-card title="总金额" :bordered="false">
+              <p style="font-size: 20px">{{ sum }}</p>
+            </a-card>
+          </a-col>
+          <a-col :span="4">
+            <a-card title="月总消费" :bordered="false">
+              <p style="font-size: 20px">{{ monthExpenseSum }}</p>
+            </a-card>
+          </a-col>
+          <a-col :span="4">
+            <a-card title="月总收入" :bordered="false">
+              <p style="font-size: 20px">{{ monthIncomeSum }}</p>
+            </a-card>
+          </a-col>
+          <a-col :span="4" v-for="item in balanceList.slice(0, 3)">
+            <a-card :title="item.typeName" :bordered="false">
+              <p style="font-size: 20px">{{ item.amount }}</p>
+            </a-card>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16" style="padding-top: 10px">
+          <a-col :span="4" v-for="item in balanceList.slice(3)">
+            <a-card :title="item.typeName" :bordered="false">
+              <p style="font-size: 20px">{{ item.amount }}</p>
+            </a-card>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16" style="padding-top: 10px">
+          <div class="mainGrid">
+            <div class="div1">
+              <pie-chart title="当月收入分析" height="100%" width="100%" :data="pieIncomeData" :tooltip="tooltip">
+              </pie-chart>
+            </div>
+            <div class="div2">
+              <pie-chart title="当月支出分析" height="100%" width="100%" :data="pieExpenseData" :tooltip="tooltip">
+              </pie-chart>
+            </div>
+          </div>
+        </a-row>
+        <a-row :gutter="16" style="padding-top: 10px">
+          <div class="mainGrid">
+            <div class="div1">
+              <bar-chart height="100%" width="100%" title="日消费" :data="dayData" :config="dayConfig">
+              </bar-chart>
+            </div>
+            <div class="div2">
+              <bar-chart height="100%" width="100%" title="月消费" :data="monthData" :config="monthConfig">
+              </bar-chart>
+            </div>
+          </div>
+        </a-row>
       </div>
-    </a-row>
-    <a-row :gutter="16" style="padding-top: 10px">
-      <div class="mainGrid">
-        <div class="div1">
-          <bar-chart
-            height="100%"
-            width="100%"
-            title="日消费"
-            :data="dayData"
-            :config="dayConfig"
-          >
-          </bar-chart>
-        </div>
-        <div class="div2">
-          <bar-chart
-            height="100%"
-            width="100%"
-            title="月消费"
-            :data="monthData"
-            :config="monthConfig"
-          >
-          </bar-chart>
-        </div>
-      </div>
-    </a-row>
     </div>
   </div>
-</div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
@@ -126,16 +88,17 @@ import pieChart from "./chart/pieChart.vue";
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { barItem } from "./chart/bar";
 import { getUserManagerList } from "@/api/user/userManager";
+import { useUserStore } from "@/store/modules/user/user";
 
 const dateFormatter = "YYYY-MM";
 
 const balanceList = ref<FinanceDetail | any>([]);
-
+let userInfo = useUserStore()?.getUserInfo;
 let sum = ref<any>(0);
 let monthExpenseSum = ref<any>(0);
 let monthIncomeSum = ref<any>(0);
 
-let searchUser = ref<number>(0);
+let searchUser = ref<number>(userInfo.id);
 
 let userList = ref([
   { id: 0, nickName: "所有人" },
@@ -152,10 +115,10 @@ function getBalanceInfo(userId: number, dateStr: string) {
         if (res.data && res.data.length) {
           res.data.forEach(
             (item) =>
-              (sum.value = math.add(
-                sum.value,
-                math.bignumber(item.amount ? item.amount : 0)
-              ))
+            (sum.value = math.add(
+              sum.value,
+              math.bignumber(item.amount ? item.amount : 0)
+            ))
           );
         }
       } else {
@@ -341,8 +304,6 @@ function getUserInfoList() {
 }
 
 function getInfo() {
-    //获取用户信息
-    getUserInfoList();
   let dateStr = searchDateTime.value.format(dateFormatter);
   getBalanceInfo(searchUser.value, dateStr);
   getIncomeAndExpenseInfo(searchUser.value, dateStr);
@@ -355,6 +316,8 @@ const changeMonth = () => {
 };
 
 onMounted(() => {
+  //获取用户信息
+  getUserInfoList();
   getInfo();
 });
 
@@ -368,12 +331,38 @@ const tooltip = ref({
 });
 </script>
 <style lang="scss" scoped>
+.search-box {}
+
+.page-info {
+  width: 100%;
+
+  .search {
+    background: rgb(237, 240, 237);
+    border-radius: 10px 10px 10px 10px;
+  }
+
+  .search-box {
+    padding-top: 15px;
+    padding-left: 20px;
+    padding-bottom: 10px;
+  }
+
+  .button {
+    margin-top: 10px;
+  }
+
+  .content {
+    margin-top: 10px;
+  }
+}
+
 .mainGrid {
   width: 100%;
   height: 350px;
 
   .div1 {
-    display: inline-block; /*转为行内块儿 */
+    display: inline-block;
+    /*转为行内块儿 */
     width: 48%;
     height: 95%;
     text-align: center;
@@ -382,11 +371,13 @@ const tooltip = ref({
     background-color: white;
     margin-left: 10px;
     margin-right: 10px;
-    border-radius: 5px; /*--调节圆周程度*/
+    border-radius: 5px;
+    /*--调节圆周程度*/
   }
 
   .div2 {
-    display: inline-block; /*转为行内块儿 */
+    display: inline-block;
+    /*转为行内块儿 */
     width: 49%;
     height: 95%;
     text-align: center;
@@ -394,11 +385,10 @@ const tooltip = ref({
     color: aliceblue;
     background-color: white;
     margin-right: 10px;
-    border-radius: 5px; /*--调节圆周程度*/
+    border-radius: 5px;
+    /*--调节圆周程度*/
   }
 }
 </style>
 
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>
