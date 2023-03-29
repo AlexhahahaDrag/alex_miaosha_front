@@ -11,6 +11,9 @@ RUN rm /etc/nginx/nginx.conf
 # 把主机的nginx.conf文件复制到nginx容器的/etc/nginx文件夹下
 COPY ./nginx.conf /etc/nginx/
 
+COPY ./cert/server.crt /cert/server.crt
+COPY ./cert/server.key /cert/server.key
+
 # 拷贝前端vue项目打包后生成的文件到nginx下运行
 COPY ./dist /usr/share/nginx/html
 

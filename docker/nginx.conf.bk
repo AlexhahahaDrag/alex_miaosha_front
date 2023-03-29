@@ -29,15 +29,9 @@ http {
     }
 
   	server {
-        listen       3000 ssl;
+        listen       3000;
         charset utf-8;
         server_name  mjzp.xyz;# 服务器地址或绑定域名
-        ssl_certificate      /cert/server.crt; #替换成您的证书文件的路径。
-        ssl_certificate_key  /cert/server.key; #替换成您的私钥文件的路径。
-        ssl_session_cache    shared:SSL:1m;
-        ssl_session_timeout  5m;
-        ssl_ciphers  HIGH:!aNULL:!MD5; #加密套件。
-        ssl_prefer_server_ciphers  on;
 
     	# start ---------------------------------------------------------------------------------------------
         location / {
