@@ -1,7 +1,7 @@
 <template>
   <div>
-    <a-modal :visible="props.visible"
-      :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'" :title="
+    <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
+      :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
@@ -84,6 +84,7 @@ import { message, FormInstance } from "ant-design-vue";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import dayjs from "dayjs";
 import { getUserManagerList } from "@/api/user/userManager";
+import { useUserStore } from "@/store/modules/user/user";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -158,6 +159,7 @@ interface Props {
 const props = defineProps<Props>();
 
 let formState = ref<FinanceDetail>({});
+let userInfo = useUserStore()?.getUserInfo;
 
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
@@ -268,7 +270,7 @@ function init() {
         isValid: '1',
         incomeAndExpenses: "expense",
         infoDate: dayjs(),
-        belongTo: '2',
+        belongTo: userInfo ? userInfo.id + '' : '2',
       };
     }
   }

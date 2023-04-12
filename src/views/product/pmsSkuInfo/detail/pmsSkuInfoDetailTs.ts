@@ -8,6 +8,6 @@ export interface PmsSkuInfoDetail {
   skuDefaultImg?: string;
   skuTitle?: string;
   skuSubtitle?: string;
-  price?: bigDecimal;
+  price?: number;
   saleCount?: number;
 }
