@@ -58,6 +58,9 @@
             <template v-else-if="route.meta.icon == 'dict'">
               <Dict />
             </template>
+            <template v-else-if="route.meta.icon == 'accountRecordInfo'">
+              <AccountRecordInfo />
+            </template>
           </template>
         </template>
         <router-link :to="route.path">
@@ -83,6 +86,7 @@ import FinanceAnalysis from '@v/common/icons/menu/financeAnalysis.vue';
 import Dict from '@v/common/icons/menu/dict.vue';
 import User from '@v/common/icons/menu/user.vue';
 import UserManager from '@v/common/icons/menu/userManager.vue';
+import AccountRecordInfo from '@v/common/icons/menu/accountRecordInfo.vue';
 
 
 interface Props {
