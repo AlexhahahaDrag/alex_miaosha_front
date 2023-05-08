@@ -3,7 +3,7 @@
     <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-      " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
+      " :maskClosable="false" @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>

@@ -74,7 +74,7 @@ export const columns = [
   {
     title: "操作",
     key: "operation",
-    fixed: 'right',
+    // fixed: 'right',
     width: '8',
   },
 ];

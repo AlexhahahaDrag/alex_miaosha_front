@@ -4,7 +4,7 @@
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+      :maskClosable="false" :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
         <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
