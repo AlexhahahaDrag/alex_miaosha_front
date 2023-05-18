@@ -68,7 +68,12 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
   response: AxiosResponse<any>
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-  return response.data;
+  const { data } = response;
+  if (data.code == 403) {
+    router.push('/Login');
+    return;
+  }
+  return data;
 };
 
 // 添加响应拦截器
