@@ -6,7 +6,7 @@ import {
   baseService,
 } from "@/api/common/index";
 
-const basePmsSkuInfo = "/api/v1//pms-sku-info";
+const basePmsSkuInfo = "/api/v1/pms-sku-info";
 
 const PmsSkuInfoUrl = {
   page: "/page",

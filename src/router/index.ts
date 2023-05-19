@@ -4,6 +4,7 @@ import { MenuDataItem } from "./typing";
 import Order from '@v/order/order/index.vue';
 import PmsAttrList from '@v/product/pmsAttr/pmsAttrList.vue';
 import PmsBrandList from '@v/product/pmsBrand/pmsBrandList.vue';
+import PmsShopProductList from '@v/product/pmsShopProduct/pmsShopProductList.vue';
 import Dashboard from '@v/dashboard/index.vue';
 import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
@@ -73,6 +74,12 @@ export const routes: MenuDataItem[] = [
         name: "品牌信息",
         component: PmsBrandList,
         meta: { title: "品牌信息", icon: "pmsBrand", hiedInMenu: false },
+      },
+      {
+        path: "/product/pmsShopProduct/pmsShopProductList",
+        name: "网上商品信息",
+        component: PmsShopProductList,
+        meta: { title: "网上商品信息", icon: "PmsShopProduct", hiedInMenu: false },
       },
     ],
   },

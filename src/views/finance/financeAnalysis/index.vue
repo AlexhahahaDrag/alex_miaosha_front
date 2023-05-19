@@ -282,7 +282,7 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
                 return tip;
               },
             },
-            color: "5555ff",
+            color: "#5555ff",
           };
           monthData.value = series;
         }
