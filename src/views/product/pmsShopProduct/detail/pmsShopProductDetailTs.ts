@@ -1,5 +1,6 @@
 
 export interface PmsShopProductDetail {
+  id?:string;
   image?: string;
   price?: number;
   name?: string;
@@ -7,4 +8,7 @@ export interface PmsShopProductDetail {
   icons?: string;
   productUrl?: string;
   source?: string;
+  comparePrice?:number;
+  lowestPrice?:number;
+  highestPrice?:number;
 }

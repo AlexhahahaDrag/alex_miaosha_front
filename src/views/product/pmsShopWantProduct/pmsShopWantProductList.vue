@@ -3,39 +3,39 @@
     <div class="search">
       <div class="search-box">
         <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-row :gutter="24">
+         <a-row :gutter="24">
             <a-col :span="6">
-              <a-form-item name="attrName" label="属性名">
-                <a-input v-model:value="searchInfo.attrName" placeholder="属性名" allow-clear />
+              <a-form-item name="name" label="商品名称">
+                <a-input v-model:value="searchInfo.name" placeholder="商品名称" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
-              <a-form-item name="enable" label="状态">
-                <a-select ref="select" v-model:value="searchInfo.enable" mode="combobox" placeholder="请输入状态"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
+              <a-form-item name="shop" label="商铺">
+                <a-input v-model:value="searchInfo.shop" placeholder="商铺" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="source" label="来源">
+                <a-select ref="select" v-model:value="searchInfo.source" mode="combobox" placeholder="请输入来源类型"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="6">
-              <a-form-item name="catelogId" label="所属分类">
-                <a-input v-model:value="searchInfo.catelogId" placeholder="所属分类" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6" style="text-align: right">
-              <a-space>
-                <a-button type="primary" @click="query"> 查找</a-button>
-                <a-button type="primary" @click="cancelQuery">清空</a-button>
-              </a-space>
-            </a-col>
-          </a-row>
+                <a-col :span="6" style="text-align: right">
+                  <a-space>
+                    <a-button type="primary" @click="query"> 查找</a-button>
+                    <a-button type="primary" @click="cancelQuery">清空</a-button>
+                  </a-space>
+                </a-col>
+            </a-row>
         </a-form>
       </div>
     </div>
     <div class="button">
       <a-space>
-        <a-button type="primary" @click="editPmsAttr('add')">新增</a-button>
+        <a-button type="primary" @click="editPmsShopWantProduct('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelPmsAttr">删除</a-button>
+        <a-button type="danger" @click="batchDelPmsShopWantProduct">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -44,22 +44,28 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editPmsAttr('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsAttr(record.id)" @cancel="cancel">
+              <a-button type="primary" size="small" @click="editPmsShopWantProduct('update', record.id)">编辑</a-button>
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsShopWantProduct(record.id)"
+                @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
-            <span></span>
           </template>
-          <template v-else-if="column.key === 'enable'">
-            <a-tag :key="record.enable" :color="record.enable == '1' ? '#87d068' : 'grey'">
-              {{ record.enable == '1' ? "有效" : "失效" }}
-            </a-tag>
+          <template v-else-if="column.key === 'source'">
+            <div v-for="source in sourceTransferList">
+              <svgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
+                class="svg" style="
+                    width: 1.5em;
+                    height: 1.5em;
+                    font-size: 18px;
+                    cursor: pointer;
+                    verticle-align: middle;"></svgIcon>
+            </div>
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></Detail>
     </div>
   </div>
 </template>
@@ -70,17 +76,20 @@ import {
   pagination,
   columns,
   DataItem,
+  ModelInfo,
   pageInfo,
-} from "./pmsAttrListTs";
-import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import { getPmsAttrPage, deletePmsAttr } from "@/api/product/pmsAttr/pmsAttrTs";
+  sourceTransferList,
+} from "./pmsShopWantProductListTs";
+import { getPmsShopWantProductPage, deletePmsShopWantProduct } from "@/api/product/pmsShopWantProduct/pmsShopWantProductTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsAttrDetail.vue";
+import Detail from "./detail/pmsShopWantProductDetail.vue";
+import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
+import svgIcon from "@v/common/icons/svgIcon.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-let validList = ref<dictInfo[]>([]);
+
 let rowIds = [] as any;
 
 const rowSelection = ref({
@@ -98,31 +107,32 @@ const rowSelection = ref({
 })
 
 let searchInfo = ref<SearchInfo>({});
+const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 function cancelQuery() {
   searchInfo.value = {};
 }
 
 function query() {
-  getPmsAttrListPage(searchInfo.value, pagination.value);
+  getPmsShopWantProductListPage(searchInfo.value, pagination.value);
 }
 
 function handleTableChange(pagination) {
-  getPmsAttrListPage(searchInfo.value, pagination);
+  getPmsShopWantProductListPage(searchInfo.value, pagination);
 }
 
-function delPmsAttr(ids: string) {
-  deletePmsAttr(ids).then((res) => {
+function delPmsShopWantProduct(ids: string) {
+  deletePmsShopWantProduct(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getPmsAttrListPage(searchInfo.value, pagination.value);
+      getPmsShopWantProductListPage(searchInfo.value, pagination.value);
     } else {
       message.error((res && res.message) || "删除失败！", 3);
     }
   });
 }
 
-function batchDelPmsAttr() {
+function batchDelPmsShopWantProduct() {
   let ids = "";
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
@@ -133,7 +143,7 @@ function batchDelPmsAttr() {
     message.warning("请先选择数据！", 3);
     return;
   }
-  delPmsAttr(ids);
+  delPmsShopWantProduct(ids);
 }
 
 let loading = ref<boolean>(false);
@@ -144,9 +154,9 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 }
 
-function getPmsAttrListPage(param: SearchInfo, cur: pageInfo) {
+function getPmsShopWantProductListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
-  getPmsAttrPage(param, cur.current, cur.pageSize)
+  getPmsShopWantProductPage(param, cur.current, cur.pageSize)
     .then((res) => {
       if (res.code == "200") {
         dataSource.value = res.data.records;
@@ -163,23 +173,21 @@ function getPmsAttrListPage(param: SearchInfo, cur: pageInfo) {
 }
 
 function getDictInfoList() {
-  getDictList("is_valid").then((res) => {
+  getDictList("shop_type").then((res) => {
     if (res.code == "200") {
-      validList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "is_valid"
-      );
+      sourceList.value = sourceList.value.concat(res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "shop_type"
+      ));
     } else {
       message.error((res && res.message) || "查询列表失败！");
     }
   });
 }
 
-
 function init() {
-  //获取字典值
   getDictInfoList();
-  //获取商品属性页面数据
-  getPmsAttrListPage(searchInfo.value, pagination.value);
+  //获取商品想买网上商品信息页面数据
+  getPmsShopWantProductListPage(searchInfo.value, pagination.value);
 }
 
 init();
@@ -189,7 +197,7 @@ let visible = ref<boolean>(false);
 let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
-function editPmsAttr(type: string, id?: number) {
+function editPmsShopWantProduct(type: string, id?: number) {
   if (type == "add") {
     modelInfo.value.title = "新增明细";
     modelInfo.value.id = undefined;
@@ -203,7 +211,7 @@ function editPmsAttr(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
   visible.value = v;
-  getPmsAttrListPage(searchInfo.value, pagination.value);
+  getPmsShopWantProductListPage(searchInfo.value, pagination.value);
 };
 
 const handleCancel = (v: boolean) => {

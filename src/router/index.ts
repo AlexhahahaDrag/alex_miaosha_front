@@ -5,6 +5,7 @@ import Order from '@v/order/order/index.vue';
 import PmsAttrList from '@v/product/pmsAttr/pmsAttrList.vue';
 import PmsBrandList from '@v/product/pmsBrand/pmsBrandList.vue';
 import PmsShopProductList from '@v/product/pmsShopProduct/pmsShopProductList.vue';
+import PmsShopWantProductList from '@v/product/pmsShopWantProduct/pmsShopWantProductList.vue';
 import Dashboard from '@v/dashboard/index.vue';
 import Login from '@v/login/index.vue';
 import Seckill from '@v/seckill/seckill/index.vue';
@@ -80,6 +81,12 @@ export const routes: MenuDataItem[] = [
         name: "网上商品信息",
         component: PmsShopProductList,
         meta: { title: "网上商品信息", icon: "PmsShopProduct", hiedInMenu: false },
+      },
+      {
+        path: "/product/pmsShopWantProduct/pmsShopWantProductList",
+        name: "网上想买商品信息",
+        component: PmsShopWantProductList,
+        meta: { title: "网上想买商品信息", icon: "PmsShopWantProduct", hiedInMenu: false },
       },
     ],
   },

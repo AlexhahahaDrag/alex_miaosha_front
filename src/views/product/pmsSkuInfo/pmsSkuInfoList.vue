@@ -111,7 +111,6 @@ import {
 import { getPmsSkuInfoPage, deletePmsSkuInfo } from "@/api/product/pmsSkuInfo/pmsSkuInfoTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/pmsSkuInfoDetail.vue";
-import { Dayjs } from 'dayjs'
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -136,12 +135,7 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
-  infoDateStart.value = null;
-  infoDateEnd.value = null;
 }
-
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
   getPmsSkuInfoListPage(searchInfo.value, pagination.value);
