@@ -98,7 +98,7 @@ import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo } from "../pmsShopProductListTs";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { barItem } from "@/views/finance/financeAnalysis/chart/bar";
-import lineChart from "@/views/finance/financeAnalysis/chart/lineChart.vue";
+// import lineChart from "@/views/finance/financeAnalysis/chart/lineChart.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
