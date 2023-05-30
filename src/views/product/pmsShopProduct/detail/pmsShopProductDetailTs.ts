@@ -11,4 +11,5 @@ export interface PmsShopProductDetail {
   comparePrice?:number;
   lowestPrice?:number;
   highestPrice?:number;
+  skuId?:string;
 }
