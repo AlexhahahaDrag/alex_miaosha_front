@@ -4,7 +4,6 @@ import {
   putData,
   deleteData,
   baseService,
-  getData,
 } from "@/api/common/index";
 
 const basePmsShopProduct = "/api/v1//pms-shop-product";
