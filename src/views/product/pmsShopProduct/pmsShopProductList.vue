@@ -59,12 +59,10 @@
             <a :href=record.productUrl target="_blank">查看商城商品信息</a>
           </template>
           <template v-else-if="column.key === 'price' && record.price">
-            <span style="re" v-if="record.price < record.comparePrice">
-              <a-tag color="red">{{ record.price }}</a-tag>
-            </span>
-            <span v-else>
-              {{ record.price }}
-            </span>
+            <span v-if="record.comparePrice && record.price && record.price < record.comparePrice"
+              style="font-weight: 900; font-style: oblique; color: red;">
+              {{ record.price }}</span>
+            <span v-else>{{ record.price }}</span>
           </template>
           <template v-else-if="column.key === 'source'">
             <div v-for="source in sourceTransferList">
@@ -103,7 +101,6 @@ import {
 import { getNewestPmsShopProductPage, deletePmsShopProduct } from "@/api/product/pmsShopProduct/pmsShopProductTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/pmsShopProductDetail.vue";
-import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import svgIcon from "@v/common/icons/svgIcon.vue";
 import { dictInfo } from "@/views/finance/dict/dict";
@@ -132,12 +129,7 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
-  infoDateStart.value = null;
-  infoDateEnd.value = null;
 }
-
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
   getPmsShopProductListPage(searchInfo.value, pagination.value);
@@ -176,7 +168,7 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const sourceList = ref<dictInfo[]>([{typeName: '请选择', typeCode: ''}]);
+const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 const cancel = (e: MouseEvent) => {
   console.log(e);

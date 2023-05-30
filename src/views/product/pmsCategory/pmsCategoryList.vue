@@ -99,7 +99,6 @@ import {
 import { getPmsCategoryPage, deletePmsCategory } from "@/api/product/pmsCategory/pmsCategoryTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/pmsCategoryDetail.vue";
-import { Dayjs } from 'dayjs'
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -124,12 +123,7 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
-  infoDateStart.value = null;
-  infoDateEnd.value = null;
 }
-
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
   getPmsCategoryListPage(searchInfo.value, pagination.value);

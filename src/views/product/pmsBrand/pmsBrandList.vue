@@ -79,7 +79,6 @@ import {
 import { getPmsBrandPage, deletePmsBrand } from "@/api/product/pmsBrand/pmsBrandTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/pmsBrandDetail.vue";
-import { Dayjs } from 'dayjs';
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 
@@ -107,12 +106,7 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
-  infoDateStart.value = null;
-  infoDateEnd.value = null;
 }
-
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
   getPmsBrandListPage(searchInfo.value, pagination.value);
