@@ -1,5 +1,6 @@
 
 export interface PmsShopProductDetail {
+  id?:number;
   image?: string;
   price?: number;
   name?: string;
