@@ -183,8 +183,11 @@ function savePmsShopProductManager() {
       }
       formState.value = {};
     })
-    .catch(() => {
-      message.error("系统问题，请联系管理员！");
+    .catch((error: any) => {
+      let data = error?.response?.data;
+      if (data) {
+        message.error((data?.message) || "保存失败！");
+      }
     }).finally(() => {
       loading.value = false;
     });

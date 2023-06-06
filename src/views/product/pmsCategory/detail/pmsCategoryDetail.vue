@@ -178,8 +178,11 @@ function savePmsCategoryManager() {
       }
       formState.value = {};
     })
-    .catch(() => {
-      message.error("系统问题，请联系管理员！");
+    .catch((error: any) => {
+      let data = error?.response?.data;
+      if (data) {
+        message.error((data?.message) || "保存失败！");
+      }
     }).finally(() => {
       loading.value = false;
     });
@@ -205,8 +208,11 @@ function init() {
             message.error((res && res.message) || "查询失败！");
           }
         })
-        .catch(() => {
-          message.error("系统问题，请联系管理员！");
+        .catch((error: any) => {
+          let data = error?.response?.data;
+          if (data) {
+            message.error((data?.message) || "查询失败！");
+          }
         });
     } else {
       modelConfig.confirmLoading = false;

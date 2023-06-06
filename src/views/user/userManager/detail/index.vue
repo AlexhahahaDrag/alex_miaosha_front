@@ -192,7 +192,7 @@ function saveUserManager() {
   }
 
   addOrEditUserManager(method, formState.value)
-    .then((res) => {
+    .then((res: any) => {
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
         emit("handleOk", false);
@@ -200,9 +200,11 @@ function saveUserManager() {
         message.error((res && res.message) || "保存失败！");
       }
       initForm();
-    })
-    .catch(() => {
-      message.error("系统问题，请联系管理员！");
+    }).catch((error: any) => {
+      let data = error?.response?.data;
+      if (data) {
+        message.error((data?.message) || "保存失败！");
+      }
     }).finally(() => {
       loading.value = false;
     });

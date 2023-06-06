@@ -21,13 +21,6 @@ const errorHandler = (error: AxiosError): Promise<any> => {
       message.warning("请先登录！", 3);
       router.push('/Login');
     }
-    // //401 未登录、未授权
-    // if (status === 401 && data.result && data.result.isLogin) {
-    //   notification.error({
-    //     message: "Unauthorized",
-    //     description: "Authorization verification failed",
-    //   });
-    // }
   }
   return Promise.reject(error);
 };
@@ -73,6 +66,7 @@ const responseHandler = (
     router.push('/Login');
     return;
   }
+  debugger;
   return data;
 };
 
