@@ -66,7 +66,6 @@ const responseHandler = (
     router.push('/Login');
     return;
   }
-  debugger;
   return data;
 };
 

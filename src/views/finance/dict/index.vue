@@ -2,16 +2,26 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <div class="search-box-in">
-          <a-form layout="inline" @keyup.enter.native="searchInfo">
-            <a-space>
-              <a-input v-model:value="searchInfo.typeName" placeholder="名称" allow-clear />
-              <a-input v-model:value="searchInfo.belongToName" placeholder="名称" allow-clear />
-              <a-button type="primary" @click="query"> 查找</a-button>
-              <a-button type="primary" @click="cancelQuery">清空</a-button>
-            </a-space>
-          </a-form>
-        </div>
+        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+          <a-row :gutter="24">
+            <a-col :span="6">
+              <a-form-item name="typeName" label="类别">
+                <a-input v-model:value="searchInfo.typeName" placeholder="类别" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item name="belongToName" label="分类名称">
+                <a-input v-model:value="searchInfo.belongToName" placeholder="请输入分类名称" allow-clear />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
+        </a-form>
       </div>
     </div>
     <div class="button">
@@ -22,54 +32,28 @@
       </a-space>
     </div>
     <div class="content">
-      <a-table
-        :dataSource="dataSource"
-        :columns="columns"
-        :loading="loading"
-        :row-key="(record) => record.id"
-        :pagination="pagination"
-        @change="handleTableChange"
-        :scroll="{ x: 1200 }"
-        :row-selection="rowSelection"
-      >
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
+        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1200 }" :row-selection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button
-                type="primary"
-                size="small"
-                @click="editDict('update', record.id)"
-                >编辑</a-button
-              >
-              <a-popconfirm
-                title="确认删除字典信息?"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="delDict(record.id)"
-                @cancel="cancel"
-              >
+              <a-button type="primary" size="small" @click="editDict('update', record.id)">编辑</a-button>
+              <a-popconfirm title="确认删除字典信息?" ok-text="确认" cancel-text="取消" @confirm="delDict(record.id)"
+                @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
           <template v-else-if="column.key === 'isValid'">
-            <a-tag
-              :key="record.isValid"
-              :color="record.isValid == 1 ? '#87d068' : 'grey'"
-            >
+            <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
               {{ record.isValid == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
         </template>
       </a-table>
-      <Detail
-        ref="editInfo"
-        :visible="visible"
-        :modelInfo="modelInfo"
-        @handleOk="handleOk"
-        @handleCancel="handleCancel"
-      ></Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </Detail>
     </div>
   </div>
 </template>
@@ -94,6 +78,9 @@ let rowIds = [] as any;
 const fromSourceList = ref<dictInfo[]>([]);
 
 const incomeAndExpensesList = ref<dictInfo[]>([]);
+
+const labelCol = ref({ span: 5 });
+const wrapperCol = ref({ span: 19 });
 
 const rowSelection = ref({
   checkStrictly: false,
@@ -132,9 +119,9 @@ function delDict(ids: string) {
       message.error((res && res.message) || "删除失败！", 3);
     }
   }).catch((e) => {
-      message.error("删除异常，请联系管理员！", 3);
-      console.log(e);
-    }
+    message.error("删除异常，请联系管理员！", 3);
+    console.log(e);
+  }
   );
 }
 
@@ -173,9 +160,9 @@ function getDictPage(param: SearchInfo, cur: pageInfo) {
         message.error((res && res.message) || "查询列表失败！");
       }
     }).catch((e) => {
-        message.error("获取页面异常，请联系管理员！", 3);
-        console.log(e);
-      }
+      message.error("获取页面异常，请联系管理员！", 3);
+      console.log(e);
+    }
     ).finally(() => {
       loading.value = false;
     });

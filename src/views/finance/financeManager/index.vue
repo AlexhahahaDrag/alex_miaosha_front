@@ -33,7 +33,7 @@
             <a-col :span="6">
               <a-form-item name="belongTo" label="属于">
                 <a-select ref="select" v-model:value="searchInfo.belongTo" mode="combobox"
-                  :field-names="{ label: 'username', value: 'id' }" :options="userList"></a-select>
+                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">

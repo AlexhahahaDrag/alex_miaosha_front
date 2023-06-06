@@ -19,6 +19,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="logo" label="品牌logo地址">
+              <a-input v-model:value="formState.logo" placeholder="请品牌logo地址"></a-input>
               <myUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @customImageRequest="customImageRequest"></myUpload>
             </a-form-item>
           </a-col>
