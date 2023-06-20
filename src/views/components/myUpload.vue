@@ -20,7 +20,7 @@ import { PlusOutlined } from '@ant-design/icons-vue';
 import { addOrEditFileManager } from '@/api/file/index'
 import { FileInfo } from './fileInfo';
 
-const emit = defineEmits(["customImageRequest"]);
+const emit = defineEmits(["customImageRequest", "handleRemove"]);
 
 interface Props {
     fileInfo?: FileInfo;
