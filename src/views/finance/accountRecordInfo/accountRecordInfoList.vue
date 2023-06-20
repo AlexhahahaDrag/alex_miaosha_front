@@ -11,7 +11,9 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="account" label="账号">
-                <a-input v-model:value="searchInfo.account" placeholder="账号" allow-clear />
+                <a-select ref="select" v-model:value="searchInfo.account" mode="combobox" placeholder="请输入账号"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList"
+                  :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -87,6 +89,8 @@ import { getAccountRecordInfoPage, deleteAccountRecordInfo } from "@/api/finance
 import { message } from "ant-design-vue";
 import Detail from "./detail/accountRecordInfoDetail.vue";
 import dayjs, { Dayjs } from 'dayjs'
+import { dictInfo } from "@/views/finance/dict/dict";
+import { getDictList } from "@/api/finance/dict/dictManager";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -177,9 +181,25 @@ function getAccountRecordInfoListPage(param: SearchInfo, cur: pageInfo) {
     });
 }
 
+const accountList = ref<dictInfo[]>([]);
+
+function getDictInfoList() {
+  getDictList("account_type").then((res) => {
+    if (res.code == "200") {
+      accountList.value = res.data.filter(
+        (item: { belongTo: string }) => item.belongTo == "account_type"
+      );
+      console.log(accountList);
+    } else {
+      message.error((res && res.message) || "查询列表失败！");
+    }
+  });
+}
+
 function init() {
   //获取页面数据
   getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+  getDictInfoList();
 }
 
 init();

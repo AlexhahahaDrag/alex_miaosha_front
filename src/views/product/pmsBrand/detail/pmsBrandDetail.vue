@@ -1,9 +1,8 @@
 <template>
   <div>
     <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-      :title="
-        props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-      " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
+      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
+        " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
@@ -19,8 +18,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="logo" label="品牌logo地址">
-              <a-input v-model:value="formState.logo" placeholder="请品牌logo地址"></a-input>
-              <myUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @customImageRequest="customImageRequest"></myUpload>
+              <myUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @handleRemove="handleRemove" @customImageRequest="customImageRequest"></myUpload>
             </a-form-item>
           </a-col>
         </a-row>
@@ -88,6 +86,7 @@ const rulesRef = reactive({
     {
       required: true,
       message: '品牌logo地址不能为空！',
+      trigger: 'submit'
     },
   ],
   firstLetter: [
@@ -183,6 +182,11 @@ function getDictInfoList() {
 
 const customImageRequest = (file: FileInfo) => {
   formState.value.logo = file.id;
+}
+
+const handleRemove = () => {
+  formState.value.logo = null;
+  formState.value.logoUrl = '';
 }
 
 function init() {

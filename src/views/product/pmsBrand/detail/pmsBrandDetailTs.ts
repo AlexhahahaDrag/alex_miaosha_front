@@ -1,7 +1,7 @@
 export interface PmsBrandDetail {
   brandId?: number;
   name?: string;
-  logo?: number;
+  logo?: number | null;
   logoUrl?: string;
   descript?: string;
   showStatus?: number;

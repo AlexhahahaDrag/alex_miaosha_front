@@ -1,7 +1,7 @@
 <template>
     <div class="clearfix">
         <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-            :show-upload-list="true" @change="handleChange" :customRequest="customImageRequest" @preview="handlePreview">
+            :show-upload-list="true" @change="handleChange" @remove="handleRemove" :customRequest="customImageRequest" @preview="handlePreview">
             <div v-if="fileList && fileList.length < 1">
                 <plus-outlined />
                 <div style="margin-top: 8px">Upload</div>
@@ -24,7 +24,7 @@ const emit = defineEmits(["customImageRequest"]);
 
 interface Props {
     fileInfo?: FileInfo;
-    fromSystem ?: string;
+    fromSystem?: string;
 }
 
 // 通过覆盖默认的上传行为,可以自定义自己的上传实现(只写了前端没有写请求)
@@ -62,6 +62,11 @@ const handleChange = (info: UploadChangeParam) => {
     }
 };
 
+const handleRemove = () => {
+    fileList.value = [];
+    emit("handleRemove");
+}
+ 
 // const beforeUpload = (file: UploadProps['fileList'][number]) => {
 //     if(!file) {
 //         return;
@@ -123,11 +128,11 @@ function init() {
 }
 
 watch(
-  () => props.fileInfo,
-  () => {
-    init()
-  },
-  { deep: true, flush: "post" }
+    () => props.fileInfo,
+    () => {
+        init()
+    },
+    { deep: true, flush: "post" }
 );
 
 onMounted(() => {
