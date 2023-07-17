@@ -128,7 +128,7 @@ function saveAccountRecordInfoManager() {
     method = "post";
   }
   let postParam = {
-    id: 0,
+    id: null,
     name: '',
     avliDate: '',
     amount: 0,
