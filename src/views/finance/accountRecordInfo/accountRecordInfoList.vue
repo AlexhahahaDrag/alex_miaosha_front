@@ -50,7 +50,7 @@
           <template v-else-if="column.key === 'amount'">
             <span>
               {{
-                String(record.amount.toFixed(2)).replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ','
+                String(record?.amount?.toFixed(2) || '').replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ','
                 ).replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3') }} </span>
           </template>
           <template v-else-if="column.key === 'isSend'">

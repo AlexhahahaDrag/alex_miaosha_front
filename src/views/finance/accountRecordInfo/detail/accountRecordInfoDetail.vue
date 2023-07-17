@@ -1,9 +1,8 @@
 <template>
   <div>
     <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-      :title="
-        props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-      " :maskClosable="false" @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
+      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
+        " :maskClosable="false" @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
@@ -128,7 +127,16 @@ function saveAccountRecordInfoManager() {
   } else {
     method = "post";
   }
-  addOrEditAccountRecordInfo(method, formState.value)
+  let postParam = {
+    id: 0,
+    name: '',
+    avliDate: '',
+    amount: 0,
+    account: '',
+  };
+  Object.assign(postParam, formState.value);
+  postParam.avliDate = postParam?.avliDate ? dayjs(postParam.avliDate).format("YYYY-MM-DD HH:mm:ss") : '';
+  addOrEditAccountRecordInfo(method, postParam)
     .then((res) => {
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
@@ -205,6 +213,4 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped>@import "@/style/index.scss";</style>
