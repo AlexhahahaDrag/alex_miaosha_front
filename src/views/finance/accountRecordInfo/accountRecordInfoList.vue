@@ -60,7 +60,7 @@
           </template>
           <template v-else-if="column.key === 'avliDate'">
             <span>
-              {{ record.avliDate ? dayjs(record.avliDate).format("YYYY-MM-DD HH:mm:ss") : '' }}
+              {{ record.avliDate ? dayjs(record.avliDate).format("YYYY-MM-DD") : '' }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
