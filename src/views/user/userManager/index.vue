@@ -6,7 +6,7 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="username" label="用户名">
-                <a-input v-model:value="searchInfo.username" placeholder="用户名" allow-clear />
+                <a-input v-model:value="searchInfo.username" placeholder="用户名" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6"></a-col>
@@ -125,6 +125,9 @@ function delUser(ids: string) {
   deleteUserManager(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
+      if ((pagination.value.total ? pagination.value.total - 1 : 0) <= (pagination.value.current ? pagination.value.current - 1 : 1) * (pagination.value.pageSize || 10)) {
+        pagination.value.current = pagination.value.current ? pagination.value.current - 1 : 1;
+      }
       getUserPage(searchInfo.value, pagination.value);
     } else {
       message.error((res && res.message) || "删除失败！", 3);
@@ -214,6 +217,11 @@ const handleOk = (v: boolean) => {
 
 const handleCancel = (v: boolean) => {
   visible.value = v;
+};
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
 };
 
 //初始化
