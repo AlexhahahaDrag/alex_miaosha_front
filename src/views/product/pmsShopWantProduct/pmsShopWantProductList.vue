@@ -3,31 +3,31 @@
     <div class="search">
       <div class="search-box">
         <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-         <a-row :gutter="24">
+          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="商品名称">
-                <a-input v-model:value="searchInfo.name" placeholder="商品名称" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="商品名称" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="shop" label="商铺">
-                <a-input v-model:value="searchInfo.shop" placeholder="商铺" allow-clear />
+                <a-input v-model:value="searchInfo.shop" placeholder="商铺" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="source" label="来源">
                 <a-select ref="select" v-model:value="searchInfo.source" mode="combobox" placeholder="请输入来源类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
-                <a-col :span="6" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
+            <a-col :span="6" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
         </a-form>
       </div>
     </div>
@@ -64,8 +64,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </Detail>
     </div>
   </div>
 </template>
@@ -217,6 +217,11 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";

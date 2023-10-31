@@ -171,6 +171,7 @@ function init() {
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {
+        name: '猫超',
       };
     }
   }
@@ -191,8 +192,8 @@ function getDictInfoList() {
 
 watch(
   () => props.visible,
-  (newVal) => {
-    if (newVal) {
+  () => {
+    if (props.visible) {
       init();
     }
   },

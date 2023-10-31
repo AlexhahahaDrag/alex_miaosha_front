@@ -6,56 +6,56 @@
          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="spuId" label="spuId">
-                <a-input v-model:value="searchInfo.spuId" placeholder="spuId" allow-clear />
+                <a-input v-model:value="searchInfo.spuId" placeholder="spuId" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuName" label="sku名称">
-                <a-input v-model:value="searchInfo.skuName" placeholder="sku名称" allow-clear />
+                <a-input v-model:value="searchInfo.skuName" placeholder="sku名称" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuDesc" label="sku介绍描述">
-                <a-input v-model:value="searchInfo.skuDesc" placeholder="sku介绍描述" allow-clear />
+                <a-input v-model:value="searchInfo.skuDesc" placeholder="sku介绍描述" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="catalogId" label="所属分类id">
-                <a-input v-model:value="searchInfo.catalogId" placeholder="所属分类id" allow-clear />
+                <a-input v-model:value="searchInfo.catalogId" placeholder="所属分类id" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="brandId" label="品牌id">
-                <a-input v-model:value="searchInfo.brandId" placeholder="品牌id" allow-clear />
+                <a-input v-model:value="searchInfo.brandId" placeholder="品牌id" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuDefaultImg" label="默认图片">
-                <a-input v-model:value="searchInfo.skuDefaultImg" placeholder="默认图片" allow-clear />
+                <a-input v-model:value="searchInfo.skuDefaultImg" placeholder="默认图片" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuTitle" label="标题">
-                <a-input v-model:value="searchInfo.skuTitle" placeholder="标题" allow-clear />
+                <a-input v-model:value="searchInfo.skuTitle" placeholder="标题" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuSubtitle" label="副标题">
-                <a-input v-model:value="searchInfo.skuSubtitle" placeholder="副标题" allow-clear />
+                <a-input v-model:value="searchInfo.skuSubtitle" placeholder="副标题" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="price" label="价格">
-                <a-input v-model:value="searchInfo.price" placeholder="价格" allow-clear />
+                <a-input v-model:value="searchInfo.price" placeholder="价格" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="saleCount" label="销量">
-                <a-input v-model:value="searchInfo.saleCount" placeholder="销量" allow-clear />
+                <a-input v-model:value="searchInfo.saleCount" placeholder="销量" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
@@ -228,6 +228,11 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";
