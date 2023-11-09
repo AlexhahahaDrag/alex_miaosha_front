@@ -2,7 +2,8 @@ import { useUserStore } from "@/store/modules/user/user";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { ResponseBody } from "@/api/typing";
 import { message } from "ant-design-vue";
-import  router from "@/router";
+import router from "@/router";
+import { decrypt } from '@/utils/crypto/index';
 
 const request = axios.create({
   // baseURL: process.env.VUE_APP_API_BASE_URL,
@@ -27,7 +28,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
 
 //请求拦截器
 const requestHandler = (
-  config
+  config: any
 ): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
   const userStore = useUserStore();
   const token = userStore.getToken;
@@ -41,7 +42,7 @@ const requestHandler = (
 
 //请求拦截器
 const requestHandlerFile = (
-  config
+  config: any
 ): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
   const userStore = useUserStore();
   const token = userStore.getToken;
@@ -61,12 +62,16 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
   response: AxiosResponse<any>
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-  const { data } = response;
-  if (data.code == 403) {
+  const { data, request } = response;
+  if (request?.responseURL?.indexOf('/user/login') >= 0) {
+    return data;
+  }
+  let resData = decrypt(data);
+  if (resData.code == 403) {
     router.push('/Login');
     return;
   }
-  return data;
+  return resData;
 };
 
 // 添加响应拦截器

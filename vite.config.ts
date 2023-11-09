@@ -21,7 +21,8 @@ const alias: Record<string, string> = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(),
+  plugins: [
+    vue(),
     Components({
       resolvers: [
         AntDesignVueResolver({
@@ -30,7 +31,7 @@ export default defineConfig({
       ],
     }),
     createSvgIconsPlugin({
-      iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons/finance'), pathResolve('src/icons/soft'),pathResolve('src/icons')],
+      iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons/finance'), pathResolve('src/icons/soft'), pathResolve('src/icons')],
       symbolId: 'icon-[dir]-[name]',
       inject: 'body-last',//body-last|body-first默认body-last
       customDomId: '__svg__icons__dom__', //默认__svg__icons__dom__
@@ -42,7 +43,7 @@ export default defineConfig({
         modifyVars: { ...getThemeVariables() },
         javascriptEnabled: true,
       },
-   },
+    },
   },
   resolve: {
     alias,
@@ -65,6 +66,8 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: true,
+    minify: true,
+    target: 'es2015',
   },
 })
 
