@@ -6,18 +6,18 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="名称">
-                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="名称" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="typeCode" label="类别">
-                <a-input v-model:value="searchInfo.typeCode" placeholder="请输入类别" allow-clear />
+                <a-input v-model:value="searchInfo.typeCode" placeholder="请输入类别" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="fromSource" label="来源">
                 <a-select ref="select" v-model:value="searchInfo.fromSource" mode="combobox" placeholder="请输入来源"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
@@ -25,7 +25,7 @@
               <a-form-item name="incomeAndExpenses" label="收支类型">
                 <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" mode="combobox" placeholder="请输入收支类型"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="incomeAndExpensesList"
-                  :allowClear="true"></a-select>
+                  @change="initPage" :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -33,17 +33,17 @@
             <a-col :span="6">
               <a-form-item name="belongTo" label="属于">
                 <a-select ref="select" v-model:value="searchInfo.belongTo" mode="combobox"
-                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList"></a-select>
+                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="initPage"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="infoDateStart" label="业务时间从">
-                <a-date-picker v-model:value="infoDateStart" />
+                <a-date-picker v-model:value="infoDateStart" @change="initPage" />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="infoDateEnd" label="至">
-                <a-date-picker v-model:value="infoDateEnd" />
+                <a-date-picker v-model:value="infoDateEnd" @change="initPage" />
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -256,7 +256,13 @@ function getUserInfoList() {
   });
 }
 
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
+
 function init() {
+  initPage();
   //获取字典列表
   getDictInfoList();
   //获取财务管理页面数据

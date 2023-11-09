@@ -19,7 +19,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="avliDate" label="有效期">
-              <a-date-picker show-time v-model:value="formState.avliDate" :format="dateFormatter"
+              <a-date-picker v-model:value="formState.avliDate" :format="dateFormatter"
                 :getPopupContainer="triggerNode => { return triggerNode.parentNode }" />
             </a-form-item>
           </a-col>
@@ -127,16 +127,7 @@ function saveAccountRecordInfoManager() {
   } else {
     method = "post";
   }
-  let postParam = {
-    id: null,
-    name: '',
-    avliDate: '',
-    amount: 0,
-    account: '',
-  };
-  Object.assign(postParam, formState.value);
-  postParam.avliDate = postParam?.avliDate ? dayjs(postParam.avliDate).format("YYYY-MM-DD HH:mm:ss") : '';
-  addOrEditAccountRecordInfo(method, postParam)
+  addOrEditAccountRecordInfo(method, formState.value)
     .then((res) => {
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");

@@ -89,7 +89,7 @@ import { useUserStore } from "@/store/modules/user/user";
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-const dateFormatter = "YYYY-MM-DD HH:mm:ss";
+const dateFormatter = "YYYY-MM-DD";
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();

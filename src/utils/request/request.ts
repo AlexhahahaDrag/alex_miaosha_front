@@ -4,6 +4,7 @@ import { ResponseBody } from "@/api/typing";
 import { message } from "ant-design-vue";
 import router from "@/router";
 import { decrypt } from '@/utils/crypto/index';
+import moment from 'moment';
 
 const request = axios.create({
   // baseURL: process.env.VUE_APP_API_BASE_URL,
@@ -37,6 +38,13 @@ const requestHandler = (
   } else {
     router.push('/Login');
   }
+  if (config?.data) {
+    for (const k in config.data) {
+      if (config.data[k] && config.data[k].$L == 'zh-cn') {
+        config.data[k] = config.data[k].add(8, 'hours');
+      }
+    }
+  }
   return config;
 };
 
@@ -51,6 +59,13 @@ const requestHandlerFile = (
     config.headers['Content-Type'] = 'multipart/form-data';
   } else {
     router.push('/Login');
+  }
+  if (config?.data) {
+    for (const k in config.data) {
+      if (config.data[k] && config.data[k] instanceof Date) {
+        config.data[k] = moment(config.data[k]).add(8, 'hours').local().toISOString()
+      }
+    }
   }
   return config;
 };
