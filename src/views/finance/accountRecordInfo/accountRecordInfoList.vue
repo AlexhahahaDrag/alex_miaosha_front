@@ -6,13 +6,13 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="名称">
-                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="名称" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="account" label="账号">
                 <a-select ref="select" v-model:value="searchInfo.account" mode="combobox" placeholder="请输入账号"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
@@ -60,7 +60,7 @@
           </template>
           <template v-else-if="column.key === 'avliDate'">
             <span>
-              {{ record.avliDate ? dayjs(record.avliDate).format("YYYY-MM-DD HH:mm:ss") : '' }}
+              {{ record.avliDate ? dayjs(record.avliDate).format("YYYY-MM-DD") : '' }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
@@ -196,7 +196,14 @@ function getDictInfoList() {
   });
 }
 
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+  console.log(pagination.value);
+}
+
 function init() {
+  initPage();
   //获取页面数据
   getAccountRecordInfoListPage(searchInfo.value, pagination.value);
   getDictInfoList();

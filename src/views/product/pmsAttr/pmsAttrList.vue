@@ -6,19 +6,19 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="attrName" label="属性名">
-                <a-input v-model:value="searchInfo.attrName" placeholder="属性名" allow-clear />
+                <a-input v-model:value="searchInfo.attrName" placeholder="属性名" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="enable" label="状态">
-                <a-select ref="select" v-model:value="searchInfo.enable" mode="combobox" placeholder="请输入状态"
+                <a-select ref="select" v-model:value="searchInfo.enable" mode="combobox" @change="initPage" placeholder="请输入状态"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="catelogId" label="所属分类">
-                <a-input v-model:value="searchInfo.catelogId" placeholder="所属分类" allow-clear />
+                <a-input v-model:value="searchInfo.catelogId" placeholder="所属分类" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -199,6 +199,11 @@ function editPmsAttr(type: string, id?: number) {
   }
   modelInfo.value.confirmLoading = true;
   visible.value = true;
+}
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
 }
 
 const handleOk = (v: boolean) => {

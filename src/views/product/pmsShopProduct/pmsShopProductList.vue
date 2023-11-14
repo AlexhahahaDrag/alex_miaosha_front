@@ -6,18 +6,18 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="name">
-                <a-input v-model:value="searchInfo.name" placeholder="name" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="name" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="shop" label="商铺">
-                <a-input v-model:value="searchInfo.shop" placeholder="商铺" allow-clear />
+                <a-input v-model:value="searchInfo.shop" placeholder="商铺" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="source" label="来源">
                 <a-select ref="select" v-model:value="searchInfo.source" mode="combobox" placeholder="请输入来源类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage" 
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
@@ -238,6 +238,11 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";

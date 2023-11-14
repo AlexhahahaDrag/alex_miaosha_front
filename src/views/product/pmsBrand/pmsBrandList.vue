@@ -6,19 +6,19 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="品牌名">
-                <a-input v-model:value="searchInfo.name" placeholder="品牌名" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="品牌名" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="showStatus" label="显示状态">
                 <a-select ref="select" v-model:value="searchInfo.showStatus" mode="combobox" placeholder="请输入显示状态"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="firstLetter" label="检索首字母">
-                <a-input v-model:value="searchInfo.firstLetter" placeholder="检索首字母" allow-clear />
+                <a-input v-model:value="searchInfo.firstLetter" placeholder="检索首字母" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -209,6 +209,11 @@ const handleOk = (v: boolean) => {
   visible.value = v;
   getPmsBrandListPage(searchInfo.value, pagination.value);
 };
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
 
 const handleCancel = (v: boolean) => {
   visible.value = v;
