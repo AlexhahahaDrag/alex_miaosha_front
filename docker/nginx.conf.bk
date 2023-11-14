@@ -59,7 +59,7 @@ http {
         location /user-bucket/ {
             proxy_read_timeout 600s;
             # 配置minio访问地址与桶名
-            proxy_pass http://123.249.83.33:9000/user-bucket/;
+            proxy_pass http://81.70.158.140:9000/user-bucket/;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
@@ -81,7 +81,7 @@ http {
    server {
        # Minio API
        listen       9000;
-       server_name  123.249.83.33;
+       server_name  81.70.158.140;
        location / {
            proxy_set_header X-Real-IP $remote_addr;
            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -90,7 +90,7 @@ http {
            proxy_connect_timeout  3000;
            proxy_http_version 1.1;
            proxy_set_header Connection "";
-           proxy_pass http://123.249.83.33:9000;
+           proxy_pass http://81.70.158.140:9000;
        }
 
        error_page   500 502 503 504  /50x.html;
