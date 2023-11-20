@@ -134,11 +134,6 @@ function delAccountRecordInfo(ids: string) {
   deleteAccountRecordInfo(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
-      console.log((pagination.value.total || 0) <= (pagination.value.current || 1) * (Number(pagination.value.size) || 0));
-      console.log(pagination.value.total || 0)
-      if ((pagination.value.total ? pagination.value.total - 1 : 0) <= (pagination.value.current || 1) * (Number(pagination.value.size) || 0)) {
-        pagination.value.current = pagination.value.current ? pagination.value.current - 1 : 1;
-      }
       getAccountRecordInfoListPage(searchInfo.value, pagination.value);
     } else {
       message.error((res && res.message) || "删除失败！", 3);

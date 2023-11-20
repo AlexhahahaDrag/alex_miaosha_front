@@ -6,29 +6,29 @@
          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="分类名称">
-                <a-input v-model:value="searchInfo.name" placeholder="分类名称" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="分类名称" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="parentCid" label="父分类id">
-                <a-input v-model:value="searchInfo.parentCid" placeholder="父分类id" allow-clear />
+                <a-input v-model:value="searchInfo.parentCid" placeholder="父分类id" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="catLevel" label="层级">
-                <a-input v-model:value="searchInfo.catLevel" placeholder="层级" allow-clear />
+                <a-input v-model:value="searchInfo.catLevel" placeholder="层级" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="showStatus" label="是否显示[0-不显示，1显示]">
-                <a-input v-model:value="searchInfo.showStatus" placeholder="是否显示[0-不显示，1显示]" allow-clear />
+                <a-input v-model:value="searchInfo.showStatus" placeholder="是否显示[0-不显示，1显示]" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="sort" label="排序">
-                <a-input v-model:value="searchInfo.sort" placeholder="排序" allow-clear />
+                <a-input v-model:value="searchInfo.sort" placeholder="排序" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -38,12 +38,12 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="productUnit" label="计量单位">
-                <a-input v-model:value="searchInfo.productUnit" placeholder="计量单位" allow-clear />
+                <a-input v-model:value="searchInfo.productUnit" placeholder="计量单位" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="productCount" label="商品数量">
-                <a-input v-model:value="searchInfo.productCount" placeholder="商品数量" allow-clear />
+                <a-input v-model:value="searchInfo.productCount" placeholder="商品数量" @change="initPage" allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
@@ -212,6 +212,11 @@ const handleOk = (v: boolean) => {
   visible.value = v;
   getPmsCategoryListPage(searchInfo.value, pagination.value);
 };
+
+const initPage = () => {
+  pagination.value.current = 1;
+  pagination.value.pageSize = 10;
+}
 
 const handleCancel = (v: boolean) => {
   visible.value = v;
