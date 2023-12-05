@@ -16,7 +16,7 @@ COPY ./nginx.conf /etc/nginx/
 
 # 拷贝前端vue项目打包后生成的文件到nginx下运行
 COPY ./dist /usr/share/nginx/pc
-COPY ./mobile /usr/share/nginx/mobile
+COPY ./mobile/dist /usr/share/nginx/mobile
 # 暴露3000端口
 EXPOSE 3000
 
