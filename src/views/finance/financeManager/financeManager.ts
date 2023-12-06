@@ -28,7 +28,7 @@ export interface pageInfo {
 
 export let pagination = ref<pageInfo>({
   // 数据总数
-  total: 50,
+  total: 0,
   // 当前页数
   current: 1,
   // 每页条数
@@ -74,7 +74,7 @@ export const columns = [
     dataIndex: "amount",
     key: "amount",
     align: "center",
-    // width: '4',
+    width: '4',
   },
   {
     title: "支付方式",
