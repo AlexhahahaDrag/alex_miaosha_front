@@ -98,7 +98,7 @@
             </span>
           </template>
           <template v-else-if="column.key === 'fromSource'">
-            <div v-for="fromSource in fromSourceTransferList">
+            <div v-for="(fromSource, index) in fromSourceTransferList" :key="index">
               <svgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
                 :name="fromSource.label" class="svg" style="
                     width: 1.5em;

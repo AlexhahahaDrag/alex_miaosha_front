@@ -14,6 +14,7 @@ import FinanceAnalysis from '@v/finance/financeAnalysis/index.vue';
 import AccountRecordInfo from '@v/finance/accountRecordInfo/accountRecordInfoList.vue';
 import Dict from '@v/finance/dict/index.vue';
 import UserManager from '@v/user/userManager/index.vue';
+import OrgManager from '@v/user/orgInfo/orgInfoList.vue';
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
 
@@ -168,9 +169,24 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/user/userManager",
-        name: "用户管理",
+        name: "userManager",
         component: UserManager,
         meta: { title: "用户信息", icon: "user", hiedInMenu: false },
+      },
+    ],
+  },
+  {
+    path: "/org",
+    component: Layout,
+    redirect: "/org/orgManager",
+    name: "机构管理",
+    meta: { title: "机构管理", icon: "orgManager", hiedInMenu: false },
+    children: [
+      {
+        path: "/org/orgManager",
+        name: "orgManager",
+        component: OrgManager,
+        meta: { title: "机构管理", icon: "org", hiedInMenu: false },
       },
     ],
   },
