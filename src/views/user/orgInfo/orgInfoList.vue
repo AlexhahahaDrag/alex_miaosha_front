@@ -92,6 +92,7 @@ import { getOrgInfoPage, deleteOrgInfo } from "@/api/user/orgInfo/orgInfoTs";
 import { message } from "ant-design-vue";
 import Detail from "./detail/orgInfoDetail.vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
+import { dictInfo } from "@/views/finance/dict/dict";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
