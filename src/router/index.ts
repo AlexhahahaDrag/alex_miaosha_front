@@ -131,30 +131,30 @@ export const routes: MenuDataItem[] = [
     path: "/finance",
     component: Layout,
     redirect: "/finance/financeManager",
-    name: "财务管理",
+    name: "finance",
     meta: { title: "财务管理", icon: "financeManager", hiedInMenu: false },
     children: [
       {
         path: "/finance/financeManager",
-        name: "财务信息",
+        name: "financeManager",
         component: FinanceManager,
         meta: { title: "财务信息", icon: "finance", hiedInMenu: false },
       },
       {
         path: "/finance/financeAnalysis",
-        name: "财务分析",
+        name: "financeAnalysis",
         component: FinanceAnalysis,
         meta: { title: "财务分析", icon: "financeAnalysis", hiedInMenu: false },
       },
       {
         path: "/finance/accountRecordInfo",
-        name: "账号管理",
+        name: "accountRecordInfo",
         component: AccountRecordInfo,
         meta: { title: "账号管理", icon: "accountRecordInfo", hiedInMenu: false },
       },
       {
         path: "/finance/dict",
-        name: "字典信息",
+        name: "dict",
         component: Dict,
         meta: { title: "字典信息", icon: "dict", hiedInMenu: false },
       },
@@ -164,7 +164,7 @@ export const routes: MenuDataItem[] = [
     path: "/user",
     component: Layout,
     redirect: "/user/userManager",
-    name: "用户管理",
+    name: "user",
     meta: { title: "用户管理", icon: "userManager", hiedInMenu: false },
     children: [
       {
@@ -173,17 +173,8 @@ export const routes: MenuDataItem[] = [
         component: UserManager,
         meta: { title: "用户信息", icon: "user", hiedInMenu: false },
       },
-    ],
-  },
-  {
-    path: "/org",
-    component: Layout,
-    redirect: "/org/orgManager",
-    name: "机构管理",
-    meta: { title: "机构管理", icon: "orgManager", hiedInMenu: false },
-    children: [
       {
-        path: "/org/orgManager",
+        path: "/user/orgManager",
         name: "orgManager",
         component: OrgManager,
         meta: { title: "机构管理", icon: "org", hiedInMenu: false },
