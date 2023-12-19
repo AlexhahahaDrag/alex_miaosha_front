@@ -1,9 +1,11 @@
 import { loginApi } from "@/api/user/login";
 import { defineStore } from "pinia";
 import { UserState } from "./typing";
+import type { MenuInfo } from "./typing";
 import { LoginParams } from "@/api/user/login";
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from "ant-design-vue";
+import { useRouter } from 'vue-router';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -15,37 +17,46 @@ export const useUserStore = defineStore({
     roleList: [],
     sessionTimeout: false,
     lastUpdateTime: 0,
+    menuInfo: null,
+    hasMenu: false,
   }),
 
   getters: {
     getUserInfo(): any {
       return this.userInfo;
-      // return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
     },
     getToken(): string {
       let sessionStorage = window.sessionStorage;
       return this.token || sessionStorage.getItem("token") || "";
-      // return this.token || getAuthCache<string>(TOKEN_KEY);
     },
-    // getRoleList(): RoleEnum[] {
-    //   return this.roleList.length > 0
-    //     ? this.roleList
-    //     : getAuthCache<RoleEnum[]>(ROLES_KEY);
-    // },
+    getMenuInfo(): MenuInfo[] | null {
+      return this.menuInfo || null;
+    },
     getSessionTimeout(): boolean {
       return !!this.sessionTimeout;
     },
     getLastUpdateTime(): number {
       return this.lastUpdateTime;
     },
+    getRouteStatus(): Boolean {
+      return this.hasMenu;
+    },
   },
   actions: {
     setToken(info: string | undefined) {
       this.token = info ? info : "";
-      // setAuthCache(TOKEN_KEY, info);
+    },
+    setMenuInfo(info: MenuInfo[]) {
+      this.menuInfo = info ? info : null;
+      const router = useRouter();
+      console.log(`router`, router);
+    },
+    changeRouteStatus(state: any) {
+      this.hasMenu = state
+      sessionStorage.setItem("hasRoute", state)
     },
     //设置用户信息
-    setUserInfo(admin) {
+    setUserInfo(admin: any) {
       this.userInfo = admin;
     },
     async login(
@@ -58,11 +69,12 @@ export const useUserStore = defineStore({
         const { goHome = true, ...loginParams } = params;
         const data = await loginApi(loginParams);
         if (data.code == '200') {
-          const { token, admin } = data.data;
+          const { token, admin, menuInfo } = data.data;
           // save userInfo
           this.setUserInfo(admin);
           // save token
           this.setToken(token);
+          this.setMenuInfo(menuInfo);
           return admin;
         } else {
           message.error((data && data.message) || "删除失败！", 3);

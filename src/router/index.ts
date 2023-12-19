@@ -1,5 +1,5 @@
 import Layout from "@/layout/index.vue";
-import { createRouter, createWebHashHistory } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHashHistory } from "vue-router";
 import { MenuDataItem } from "./typing";
 import Order from '@v/order/order/index.vue';
 import PmsAttrList from '@v/product/pmsAttr/pmsAttrList.vue';
@@ -17,6 +17,8 @@ import UserManager from '@v/user/userManager/index.vue';
 import OrgManager from '@v/user/orgInfo/orgInfoList.vue';
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
+import type { Component } from 'vue';
+import type { MenuInfo } from "@/store/modules/user/typing";
 
 export const routes: MenuDataItem[] = [
   {
@@ -179,28 +181,62 @@ export const routes: MenuDataItem[] = [
         component: OrgManager,
         meta: { title: "机构管理", icon: "org", hiedInMenu: false },
       },
+      {
+        path: "/user/menuInfo",
+        name: "menuInfo",
+        component: (): Component => import('@/views/user/menuInfo/menuInfoList.vue'),
+        meta: { title: "菜单管理", icon: "menu", hiedInMenu: false },
+      },
     ],
   },
 ];
-  
-  const router = createRouter({
-    history: createWebHashHistory(),
-    routes,
-  });
-  
-  router.beforeEach((to, from, next)  => {
-    const userStore = useUserStore();
-    NProgress.start(); // start progress bar
-    if (to.path=='/login' || userStore.getToken) {
-      next();
-      console.log('from' + from)
-    } else {
-      next({ name: 'login' });
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore();
+  NProgress.start(); // start progress bar
+  if (to.path == '/login') {
+    next();
+    console.log('from' + from)
+  } else if (userStore.getToken) {
+    console.log(`token:`, userStore.getToken, userStore.getRouteStatus)
+    if (!userStore.getRouteStatus) {
+      if (userStore.menuInfo?.length) {
+        userStore.menuInfo.forEach((item: MenuInfo) => {
+          router.addRoute(getChildren(item));
+        });
+      }
+      userStore.changeRouteStatus(true);
     }
-  });
+    next();
+  } else {
+    next({ name: 'login' });
+  }
+});
 
-  router.afterEach(() => {
-    NProgress.done() // finish progress bar
-  });
+router.afterEach(() => {
+  NProgress.done() // finish progress bar
+});
 
-  export default router;
+const getChildren = (item: MenuInfo): RouteRecordRaw => {
+  let routeInfo: RouteRecordRaw = {
+    path: item.path,
+    component: "Layout" === item.component ? Layout : (): Component => import(item.component),
+    redirect: item.redirect,
+    name: item.name,
+    meta: { title: item.title, icon: item.icon, hiedInMenu: item.hideInMenu },
+    children: [],
+  };
+  if (item?.children?.length) {
+    item.children.forEach((childItem: any) => {
+      routeInfo.children?.push(getChildren(childItem));
+    });
+  }
+  return routeInfo;
+};
+
+export default router;
