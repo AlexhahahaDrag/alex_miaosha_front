@@ -5,7 +5,6 @@ import type { MenuInfo } from "./typing";
 import { LoginParams } from "@/api/user/login";
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from "ant-design-vue";
-import { useRouter } from 'vue-router';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -48,8 +47,6 @@ export const useUserStore = defineStore({
     },
     setMenuInfo(info: MenuInfo[]) {
       this.menuInfo = info ? info : null;
-      const router = useRouter();
-      console.log(`router`, router);
     },
     changeRouteStatus(state: any) {
       this.hasMenu = state
