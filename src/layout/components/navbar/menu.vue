@@ -1,4 +1,3 @@
-[] as unknown[] as unknown[] as unknown[] as unknown
 <template>
   <template v-for="route in p" :key="route.path" :item="route" :base-path="route.path">
     <template v-if="route.children && route.children.length > 0">
