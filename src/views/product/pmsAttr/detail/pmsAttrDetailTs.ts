@@ -1,5 +1,6 @@
+
 export interface PmsAttrDetail {
-  attrId?: number;
+  id?: number,
   attrName?: string;
   searchType?: number;
   icon?: string;
