@@ -126,7 +126,7 @@ router.beforeEach((to: any, from: any, next) => {
       addRouter();
     } else if (routes.length <= 3) {
       addRouter();
-      next({ ...to, replace: true})
+      next({ ...to, replace: true })
     } else {
       next();
     }
@@ -158,7 +158,12 @@ const getChildren = (item: MenuInfo): any => {
     component: component,
     redirect: item.redirect,
     name: item.name,
-    meta: { title: item.title, icon: item.icon, hiedInMenu: item.hideInMenu == '0' ? false : true },
+    meta: {
+      title: item.title,
+      icon: item.icon,
+      hiedInMenu: item.hideInMenu == '0' ? false : true,
+      showInHome: item.showInHome == '1' ? true : false
+    },
     children: [],
   };
   if (item?.children?.length) {
