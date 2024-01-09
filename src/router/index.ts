@@ -45,22 +45,19 @@ let router = createRouter({
   routes,
 });
 
-router.beforeEach((to: any, from: any, next) => {
+router.beforeEach((to: any, _from: any, next) => {
   const userStore = useUserStore();
   NProgress.start();
   if (to.path == '/login') {
     next();
-    console.log('from' + from)
   } else if (userStore.getToken) {
     if (!userStore.getRouteStatus) {
       addRouter();
-      console.log('22222222222222222222222222222' , router.options.routes);
+      next({ ...to, replace: true })
     } else if (routes.length <= 3) {
       addRouter();
-      console.log('333333333333333333333333333' , router.options.routes);
       next({ ...to, replace: true })
     } else {
-      console.log('44444444444444444444444' , router.options.routes);
       next();
     }
   } else {
@@ -88,7 +85,6 @@ const getChildren = (item: MenuInfo): any => {
   let component = item.component == null ? Error404 : 
     ("Layout" === item.component ? Layout : 
       modules[item.component]);
-      console.log('component111111111111111111111111111111' , item.component, modules[item.component], modules);
   let routeInfo: RouteRecordRaw = {
     path: item.path,
     component: component,

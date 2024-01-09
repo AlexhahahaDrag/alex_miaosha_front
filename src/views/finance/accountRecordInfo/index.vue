@@ -97,8 +97,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
@@ -187,7 +186,6 @@ function getDictInfoList() {
       accountList.value = res.data.filter(
         (item: { belongTo: string }) => item.belongTo == "account_type"
       );
-      console.log(accountList);
     } else {
       message.error((res && res.message) || "查询列表失败！");
     }
