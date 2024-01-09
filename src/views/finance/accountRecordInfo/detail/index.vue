@@ -43,7 +43,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, reactive } from "vue";
 import { AccountRecordInfoDetail } from "./accountRecordInfoDetailTs";
 import {
   getAccountRecordInfoDetail,

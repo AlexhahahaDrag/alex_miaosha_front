@@ -96,7 +96,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, reactive } from "vue";
 import { UserDetail } from "./detail";
 import {
   getUserManagerDetail,
@@ -105,7 +104,6 @@ import {
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import dayjs from "dayjs";
-import myUpload from '@/views/components/myUpload.vue'
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import {FileInfo} from '@/views/components/fileInfo';
 

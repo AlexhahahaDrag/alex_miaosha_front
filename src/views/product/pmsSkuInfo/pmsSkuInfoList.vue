@@ -99,7 +99,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -110,7 +109,6 @@ import {
 } from "./pmsSkuInfoListTs";
 import { getPmsSkuInfoPage, deletePmsSkuInfo } from "@/api/product/pmsSkuInfo/pmsSkuInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsSkuInfoDetail.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

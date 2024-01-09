@@ -68,7 +68,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -78,7 +77,6 @@ import {
 } from "./pmsBrandListTs";
 import { getPmsBrandPage, deletePmsBrand } from "@/api/product/pmsBrand/pmsBrandTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsBrandDetail.vue";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 

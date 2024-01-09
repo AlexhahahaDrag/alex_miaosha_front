@@ -70,7 +70,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -82,10 +81,8 @@ import {
 } from "./pmsShopWantProductListTs";
 import { getPmsShopWantProductPage, deletePmsShopWantProduct } from "@/api/product/pmsShopWantProduct/pmsShopWantProductTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsShopWantProductDetail.vue";
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
-import svgIcon from "@v/common/icons/svgIcon.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

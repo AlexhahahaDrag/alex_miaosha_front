@@ -64,7 +64,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -75,7 +74,6 @@ import {
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getPmsAttrPage, deletePmsAttr } from "@/api/product/pmsAttr/pmsAttrTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsAttrDetail.vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
 
 const labelCol = ref({ span: 5 });

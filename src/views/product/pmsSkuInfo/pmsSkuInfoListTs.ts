@@ -1,5 +1,3 @@
-import { ref } from "vue";
-
 export interface SearchInfo {
   spuId?: number;
   skuName?: string;

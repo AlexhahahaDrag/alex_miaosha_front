@@ -76,7 +76,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -87,7 +86,6 @@ import {
 } from "./accountRecordInfoListTs";
 import { getAccountRecordInfoPage, deleteAccountRecordInfo } from "@/api/finance/accountRecordInfo/accountRecordInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/accountRecordInfoDetail.vue";
 import dayjs, { Dayjs } from 'dayjs'
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";

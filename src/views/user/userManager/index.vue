@@ -68,7 +68,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -80,7 +79,6 @@ import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import Detail from "./detail/index.vue";
 
 let rowIds = [] as any;
 const labelCol = ref({ span: 5 });

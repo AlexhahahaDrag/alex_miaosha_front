@@ -88,7 +88,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -100,9 +99,7 @@ import {
 } from "./pmsShopProductListTs";
 import { getNewestPmsShopProductPage, deletePmsShopProduct } from "@/api/product/pmsShopProduct/pmsShopProductTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsShopProductDetail.vue";
 import dayjs from 'dayjs';
-import svgIcon from "@v/common/icons/svgIcon.vue";
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 

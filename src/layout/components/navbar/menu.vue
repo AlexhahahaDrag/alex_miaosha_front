@@ -70,23 +70,7 @@
   </template>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import { MenuDataItem } from "@/router/typing";
-import Home from '@v/common/icons/menu/home.vue';
-import Goods from '@/views/common/icons/menu/goods.vue';
-import Order from '@v/common/icons/menu/order.vue';
-import Seckill from '@v/common/icons/menu/seckill.vue';
-import GoodsManager from '@v/common/icons/menu/goodsManager.vue';
-import OrderManager from '@v/common/icons/menu/orderManager.vue';
-import Promotion from '@v/common/icons/menu/promotion.vue';
-import Finance from '@v/common/icons/menu/finance.vue';
-import FinanceManager from '@v/common/icons/menu/financeManager.vue';
-import FinanceAnalysis from '@v/common/icons/menu/financeAnalysis.vue';
-import Dict from '@v/common/icons/menu/dict.vue';
-import User from '@v/common/icons/menu/user.vue';
-import UserManager from '@v/common/icons/menu/userManager.vue';
-import AccountRecordInfo from '@v/common/icons/menu/accountRecordInfo.vue';
-
 
 interface Props {
   routes: MenuDataItem[];

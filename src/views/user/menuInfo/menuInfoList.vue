@@ -110,7 +110,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -121,7 +120,6 @@ import {
 } from "./menuInfoListTs";
 import { getMenuInfoPage, deleteMenuInfo } from "@/api/user/menuInfo/menuInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/menuInfoDetail.vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { dictInfo } from "@/views/finance/dict/dict";
 

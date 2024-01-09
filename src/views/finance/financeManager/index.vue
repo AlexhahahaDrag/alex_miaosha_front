@@ -116,7 +116,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -128,8 +127,6 @@ import {
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import Detail from "./detail/index.vue";
-import svgIcon from "@v/common/icons/svgIcon.vue";
 import { getUserManagerList } from "@/api/user/userManager";
 import { Dayjs } from 'dayjs'
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
