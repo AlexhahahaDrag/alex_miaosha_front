@@ -55,7 +55,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, reactive } from "vue";
 import { PmsBrandDetail } from "./pmsBrandDetailTs";
 import {
   getPmsBrandDetail,
@@ -64,7 +63,6 @@ import {
 import { message, FormInstance } from "ant-design-vue";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
-import myUpload from '@/views/components/myUpload.vue'
 import { FileInfo } from '@/views/components/fileInfo';
 
 let validList = ref<dictInfo[]>([]);

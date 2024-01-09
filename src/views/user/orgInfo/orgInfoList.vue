@@ -79,7 +79,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -90,7 +89,6 @@ import {
 } from "./orgInfoListTs";
 import { getOrgInfoPage, deleteOrgInfo } from "@/api/user/orgInfo/orgInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/orgInfoDetail.vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { dictInfo } from "@/views/finance/dict/dict";
 

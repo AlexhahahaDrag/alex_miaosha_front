@@ -73,7 +73,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, reactive } from "vue";
 import { FinanceDetail } from "./detail";
 import {
   getFinanceMangerDetail,

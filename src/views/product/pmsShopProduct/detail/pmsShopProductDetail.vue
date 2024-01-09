@@ -87,7 +87,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, Ref } from "vue";
 import { PmsShopProductDetail } from "./pmsShopProductDetailTs";
 import {
   getPmsShopProductDetail,

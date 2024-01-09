@@ -64,7 +64,6 @@
   </div>
 </template>
 <script lang='ts' setup>
-import { ref, watch, reactive } from 'vue';
 import { PmsAttrDetail } from './pmsAttrDetailTs';
 import {
   getPmsAttrDetail,

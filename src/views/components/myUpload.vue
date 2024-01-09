@@ -14,7 +14,6 @@
 </template>
 <script setup lang="ts">
 import { message, UploadProps } from 'ant-design-vue';
-import { ref, watch, onMounted } from 'vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { addOrEditFileManager } from '@/api/file/index'

@@ -89,7 +89,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import { SearchInfo, pageInfo, pagination, columns } from "./seckill";
 import dayjs, { Dayjs } from "dayjs";
 
