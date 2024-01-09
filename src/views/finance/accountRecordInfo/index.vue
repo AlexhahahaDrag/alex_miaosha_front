@@ -30,7 +30,7 @@
       <a-space>
         <a-button type="primary" @click="editAccountRecordInfo('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelAccountRecordInfo">删除</a-button>
+        <a-button type="primary" danger @click="batchDelAccountRecordInfo">删除</a-button>
       </a-space>
     </div>
     <div class="content">

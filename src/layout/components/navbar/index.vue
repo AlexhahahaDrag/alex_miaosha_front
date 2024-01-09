@@ -8,9 +8,10 @@
 
 <script setup lang="ts">
 import { MenuDataItem } from "@/router/typing";
+import { Key } from "ant-design-vue/es/_util/type";
 interface Props {
   routes: MenuDataItem[];
-  selectedKeys: String[];
+  selectedKeys: Key[];
 }
 const props = withDefaults(defineProps<Props>(), {
   routes: () => [],

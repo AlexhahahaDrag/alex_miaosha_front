@@ -87,7 +87,6 @@
   </div>
 </template>
 <script lang='ts' setup>
-import { ref, watch, reactive } from 'vue';
 import { MenuInfoDetail } from './menuInfoDetailTs';
 import {
   getMenuInfoDetail,

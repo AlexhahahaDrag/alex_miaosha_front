@@ -1,10 +1,8 @@
 <template>
   <div>
-    <a-modal :visible='props.visible'
-             :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-             :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'"
-             @ok='handleOk' okText='保存' :confirmLoading='modelConfig.confirmLoading'
-             :destroyOnClose='modelConfig.destroyOnClose' @cancel='handleCancel'>
+    <a-modal :visible='props.visible' :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
+      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'" @ok='handleOk' okText='保存'
+      :confirmLoading='modelConfig.confirmLoading' :destroyOnClose='modelConfig.destroyOnClose' @cancel='handleCancel'>
       <template #footer>
         <a-button key='back' @click='handleCancel'>取消</a-button>
         <a-button key='submit' type='primary' :loading='loading' @click='handleOk'>保存</a-button>
@@ -26,7 +24,8 @@
         <a-row :gutter='24'>
           <a-col :span='12'>
             <a-form-item :name="labelMap['orgShortName'].name" :label="labelMap['orgShortName'].label">
-              <a-input v-model:value='formState.orgShortName' :placeholder="'请填写' + labelMap['orgShortName'].label"></a-input>
+              <a-input v-model:value='formState.orgShortName'
+                :placeholder="'请填写' + labelMap['orgShortName'].label"></a-input>
             </a-form-item>
           </a-col>
           <a-col :span='12'>
@@ -43,8 +42,9 @@
           </a-col>
           <a-col :span='12'>
             <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-              <a-select ref="select" v-model:value="formState.status" mode="combobox" :placeholder="'请输入' + labelMap['status'].label"
-                :field-names="{ label: 'typeName', value: 'typeCode' }" :options="statusList" :allowClear="true">
+              <a-select ref="select" v-model:value="formState.status" mode="combobox"
+                :placeholder="'请输入' + labelMap['status'].label" :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="statusList" :allowClear="true">
               </a-select>
             </a-form-item>
           </a-col>
@@ -72,14 +72,14 @@ let loading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 
 const labelMap = ref<any>(
-{
-    orgCode: {name: 'orgCode', label: '机构编码'},
-    orgName: {name: 'orgName', label: '机构名称'},
-    orgShortName: {name: 'orgShortName', label: '机构简称'},
-    parentId: {name: 'parentId', label: '父级机构id'},
-    summary: {name: 'summary', label: '简介最多150字'},
-    status: {name: 'status', label: '状态'},
-});
+  {
+    orgCode: { name: 'orgCode', label: '机构编码' },
+    orgName: { name: 'orgName', label: '机构名称' },
+    orgShortName: { name: 'orgShortName', label: '机构简称' },
+    parentId: { name: 'parentId', label: '父级机构id' },
+    summary: { name: 'summary', label: '简介最多150字' },
+    status: { name: 'status', label: '状态' },
+  });
 
 const rulesRef = reactive({
   orgCode: [

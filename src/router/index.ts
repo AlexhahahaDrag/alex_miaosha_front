@@ -6,9 +6,9 @@ import Login from '@v/login/index.vue';
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
-import Error404 from '@/views/common/error/404.vue';
+import Error404 from '@/views/common/error/Error404.vue';
 
-const modules = import.meta.glob("@/views/**/**.vue");
+const modules = import.meta.glob("/src/views/**/**.vue");
 
 export const routes: MenuDataItem[] = [
   {
@@ -36,7 +36,7 @@ export const routes: MenuDataItem[] = [
   },
   {
     path: '/:catchAll(.*)',
-    component: () => import("@/views/common/error/404.vue")
+    component: () => import("@/views/common/error/Error404.vue")
   }
 ];
 
@@ -54,10 +54,13 @@ router.beforeEach((to: any, from: any, next) => {
   } else if (userStore.getToken) {
     if (!userStore.getRouteStatus) {
       addRouter();
+      console.log('22222222222222222222222222222' , router.options.routes);
     } else if (routes.length <= 3) {
       addRouter();
+      console.log('333333333333333333333333333' , router.options.routes);
       next({ ...to, replace: true })
     } else {
+      console.log('44444444444444444444444' , router.options.routes);
       next();
     }
   } else {
@@ -85,6 +88,7 @@ const getChildren = (item: MenuInfo): any => {
   let component = item.component == null ? Error404 : 
     ("Layout" === item.component ? Layout : 
       modules[item.component]);
+      console.log('component111111111111111111111111111111' , item.component, modules[item.component], modules);
   let routeInfo: RouteRecordRaw = {
     path: item.path,
     component: component,
