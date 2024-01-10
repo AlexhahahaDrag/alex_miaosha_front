@@ -12,7 +12,7 @@
           />
         </a-form-item>
         <a-form-item name="password">
-          <a-input
+          <a-input-password
             v-model:value="loginForm.password"
             type="password"
             placeholder="请输入密码"
