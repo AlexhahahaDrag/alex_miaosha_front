@@ -4,24 +4,11 @@
       <a-sub-menu v-if="!route.meta?.hiedInMenu" :key="route.path">
         <template #icon>
           <template v-if="route?.meta" style="text-align:center">
-            <template v-if="route.meta.icon == 'homeIcon'">
-              <HomeIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'goodsManagerIcon'">
-              <GoodsManagerIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'orderManagerIcon'">
-              <OrderManagerIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'promotionIcon'">
-              <PromotionIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'userManagerIcon'">
-              <UserManagerIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'financeManagerIconIcon'">
-              <FinanceManagerIcon />
-            </template>
+            <svgIcon
+                :name="route?.meta?.icon ||'#icon-home'"
+                class="svg"
+                color="white"
+            ></svgIcon>
           </template>
         </template>
         <template #title>{{ route?.meta?.title || "未知" }}</template>
@@ -33,33 +20,11 @@
         <template #title>{{ route?.meta?.title || "未知" }}</template>
         <template #icon>
           <template v-if="route.meta" style="vertical-align:middle">
-            <template v-if="route.meta.icon == 'homeIcon'">
-              <HomeIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'goodsIcon'">
-              <GoodsIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'orderIcon'">
-              <OrderIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'seckillIcon'">
-              <SeckillIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'financeIcon'">
-              <FinanceIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'financeAnalysisIcon'">
-              <FinanceAnalysisIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'userIconIcon'">
-              <UserIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'dictIcon '">
-              <DictIcon />
-            </template>
-            <template v-else-if="route.meta.icon == 'accountRecordInfoIcon'">
-              <AccountRecordInfoIcon />
-            </template>
+            <svgIcon
+                :name="route?.meta?.icon ||'#icon-home'"
+                class="svg"
+                color="white"
+            ></svgIcon>
           </template>
         </template>
         <router-link :to="route.path">
@@ -82,3 +47,6 @@ const props = withDefaults(defineProps<Props>(), {
 const p = ref<MenuDataItem[]>(props.routes);
 
 </script>
+<style lang="scss" scoped>
+@import "@/views/common/icons/menu/svg.scss";
+</style>
