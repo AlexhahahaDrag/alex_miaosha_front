@@ -93,8 +93,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <PmsSkuInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></PmsSkuInfoDetail>
     </div>
   </div>
 </template>

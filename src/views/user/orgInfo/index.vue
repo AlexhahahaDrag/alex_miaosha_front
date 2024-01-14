@@ -73,8 +73,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <OrgInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></OrgInfoDetail>
     </div>
   </div>
 </template>
