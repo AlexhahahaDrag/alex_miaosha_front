@@ -1,5 +1,3 @@
-import { ref } from "vue";
-
 export interface SearchInfo {
   typeName ?: string;
   belongToName?: string;

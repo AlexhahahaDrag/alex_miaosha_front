@@ -29,16 +29,14 @@
     </a-badge>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
 import { UserOutlined } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
-import router from '@/router/index'
 import { logoutApi } from '@/api/user/login'
 import { useUserStore } from "@/store/modules/user/user";
 
 const { userInfo } = useUserStore();
 const newsCount = ref<number>(0);
-
+const router = useRouter();
 const handleMenuClick: MenuProps['onClick'] = e => {
     switch (e.key) {
         case 'home':

@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import Menu from "./menu.vue";
 import { MenuDataItem } from "@/router/typing";
 interface Props {

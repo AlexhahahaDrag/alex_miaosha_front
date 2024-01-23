@@ -52,13 +52,12 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <DictDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </DictDetail>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -71,7 +70,6 @@ import {
 import { getDictManagerPage, deleteDictManager } from "@/api/finance/dict/dictManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import Detail from "./detail/index.vue";
 
 let rowIds = [] as any;
 

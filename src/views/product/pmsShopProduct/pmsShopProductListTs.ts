@@ -1,4 +1,3 @@
-import { ref } from "vue";
 export interface SearchInfo {
   price?: number;
   name?: string;

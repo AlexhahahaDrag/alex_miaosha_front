@@ -66,12 +66,13 @@ export const useUserStore = defineStore({
         const { goHome = true, ...loginParams } = params;
         const data = await loginApi(loginParams);
         if (data.code == '200') {
-          const { token, admin, menuInfo } = data.data;
+          const { token, admin } = data.data;
+          console.log(admin);
           // save userInfo
           this.setUserInfo(admin);
           // save token
           this.setToken(token);
-          this.setMenuInfo(menuInfo);
+          this.setMenuInfo(admin.menuInfoVoList);
           return admin;
         } else {
           message.error((data && data.message) || "删除失败！", 3);

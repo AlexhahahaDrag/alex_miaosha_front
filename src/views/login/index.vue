@@ -27,11 +27,10 @@
   </template>
   
   <script setup lang="ts">
-  import { reactive, UnwrapRef, ref } from "vue";
   import { LoginParams } from "@/api/user/login";
   import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
-  import { useRouter } from "vue-router";
   import { useUserStore } from "@/store/modules/user/user";
+import { UnwrapRef } from "vue";
 
   interface loginForm {
     username: string;

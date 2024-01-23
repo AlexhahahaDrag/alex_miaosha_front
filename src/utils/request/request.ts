@@ -77,10 +77,7 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
   response: AxiosResponse<any>
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-  const { data, request } = response;
-  if (request?.responseURL?.indexOf('/user/login') >= 0) {
-    return data;
-  }
+  const { data } = response;
   let resData = decrypt(data);
   if (resData.code == 403) {
     router.push('/Login');

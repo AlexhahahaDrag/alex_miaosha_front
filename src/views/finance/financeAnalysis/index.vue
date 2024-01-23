@@ -71,7 +71,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import {
   getBalance,
@@ -83,8 +82,6 @@ import { FinanceDetail } from "@/views/finance/financeManager/detail/detail";
 import * as math from "mathjs";
 import { ItemInfo } from "./analysis";
 import dayjs, { Dayjs } from "dayjs";
-import barChart from "./chart/barChart.vue";
-import pieChart from "./chart/pieChart.vue";
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { barItem } from "./chart/bar";
 import { getUserManagerList } from "@/api/user/userManager";

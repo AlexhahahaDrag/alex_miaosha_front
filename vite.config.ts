@@ -5,6 +5,7 @@ import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from "unplugin-vue-components/resolvers";
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import { getThemeVariables } from 'ant-design-vue/dist/theme';
+import AutoImport from 'unplugin-auto-import/vite';
 
 const pathResolve = (dir: string): any => {
   return resolve(__dirname, "./", dir);
@@ -23,12 +24,20 @@ const alias: Record<string, string> = {
 export default defineConfig({
   plugins: [
     vue(),
+    AutoImport({
+      // 指定需要自动导入的库
+      imports: ['vue', 'vue-router', 'vuex'],
+      // Vite特定的配置
+      dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
+      // 其他配置...
+    }),
     Components({
       resolvers: [
         AntDesignVueResolver({
           importStyle: 'less',
         }),
       ],
+      dirs: ['src/views'],
     }),
     createSvgIconsPlugin({
       iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons/finance'), pathResolve('src/icons/soft'), pathResolve('src/icons')],
