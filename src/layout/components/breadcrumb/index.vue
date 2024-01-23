@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { RouteLocationMatched } from "vue-router";
+import { RouteLocationMatched } from 'vue-router';
 
 const Route = useRoute();
 

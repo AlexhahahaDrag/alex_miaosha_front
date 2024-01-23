@@ -9,7 +9,7 @@
         <div class="navbar">
           <Breadcrumb class="breadcrumb-container"></Breadcrumb>
           <div class="right-menu">
-            <RightInfo></RightInfo>
+            <MyRightInfo></MyRightInfo>
           </div>
         </div>
       </a-layout-header>
@@ -26,7 +26,7 @@
 </template>
 <script setup lang="ts">
 import { algorithm } from '@/utils/algorithm';
-import { useRouter } from 'vue-router';
+import MyRightInfo from '@/layout/components/myRightInfo/index.vue';
 
 const router = useRouter().options.routes as [];
 const routes = computed(() => algorithm.increaseIndexes(router));
@@ -88,7 +88,6 @@ let selectedKeys = ref<string[]>(['1']);
 <script setup lang="ts">
 import Navbar from "./components/navbar/index.vue";
 import Breadcrumb from "./components/breadcrumb/index.vue";
-import { useRouter } from "vue-router";
 import { algorithm } from "@/utils/algorithm/index";
 
 const router = useRouter().options.routes as [];

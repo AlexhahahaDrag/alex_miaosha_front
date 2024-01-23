@@ -8,7 +8,7 @@ import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
 import Error404 from '@/views/common/error/404.vue';
 
-const modules = import.meta.glob("@/views/**/**.vue");
+const modules = import.meta.glob('/src/views/**/**.vue');
 
 export const routes: MenuDataItem[] = [
   {

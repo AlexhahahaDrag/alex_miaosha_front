@@ -37,7 +37,7 @@ export default defineConfig({
           importStyle: 'less',
         }),
       ],
-      dirs: ['src/views'],
+      dirs: ['src/views', 'src/layout'],
     }),
     createSvgIconsPlugin({
       iconDirs: [pathResolve('src/icons/menu'), pathResolve('src/icons/finance'), pathResolve('src/icons/soft'), pathResolve('src/icons')],

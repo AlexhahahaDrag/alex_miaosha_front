@@ -1,27 +1,10 @@
 <template>
   <template v-for="route in p" :key="route.path" :item="route" :base-path="route.path">
     <template v-if="route.children && route.children.length > 0">
-      <a-sub-menu :key="route.path">
+      <a-sub-menu :key="route.name" v-if="!route.meta?.hiedInMenu">
         <template #icon>
-          <template v-if="route.meta" style="text-align:center">
-            <template v-if="route.meta.icon == 'home'">
-              <Home />
-            </template>
-            <template v-else-if="route.meta.icon == 'goodsManager'">
-              <GoodsManager />
-            </template>
-            <template v-else-if="route.meta.icon == 'orderManager'">
-              <OrderManager />
-            </template>
-            <template v-else-if="route.meta.icon == 'promotion'">
-              <Promotion />
-            </template>
-            <template v-else-if="route.meta.icon == 'userManager'">
-              <UserManager />
-            </template>
-            <template v-else-if="route.meta.icon == 'financeManager'">
-              <FinanceManager />
-            </template>
+          <template v-if="route?.meta?.icon" style="text-align:center">
+              <SvgIcon :name="route.meta.icon" color="white" class="svg"></SvgIcon>
           </template>
         </template>
         <template #title>{{ route.meta ? route.meta.title : "未知" }}</template>
@@ -29,37 +12,11 @@
       </a-sub-menu>
     </template>
     <template v-else>
-      <a-menu-item :key="route.path" :item="route" :base-path="route.path">
+      <a-menu-item :key="route.name" :item="route" :base-path="route.path" v-if="!route.meta?.hiedInMenu">
         <template #title>{{ route.meta ? route.meta.title : "未知" }}</template>
         <template #icon>
-          <template v-if="route.meta" style="vertical-align:middle">
-            <template v-if="route.meta.icon == 'home'">
-              <Home />
-            </template>
-            <template v-else-if="route.meta.icon == 'goods'">
-              <Goods />
-            </template>
-            <template v-else-if="route.meta.icon == 'order'">
-              <Order />
-            </template>
-            <template v-else-if="route.meta.icon == 'seckill'">
-              <Seckill />
-            </template>
-            <template v-else-if="route.meta.icon == 'finance'">
-              <Finance />
-            </template>
-            <template v-else-if="route.meta.icon == 'financeAnalysis'">
-              <FinanceAnalysis />
-            </template>
-            <template v-else-if="route.meta.icon == 'user'">
-              <User />
-            </template>
-            <template v-else-if="route.meta.icon == 'dict'">
-              <Dict />
-            </template>
-            <template v-else-if="route.meta.icon == 'accountRecordInfo'">
-              <AccountRecordInfo />
-            </template>
+          <template v-if="route.meta?.icon" style="vertical-align:middle">
+            <SvgIcon :name="route.meta.icon" color="white" class="svg"></SvgIcon>
           </template>
         </template>
         <router-link :to="route.path">
@@ -82,3 +39,11 @@ const props = withDefaults(defineProps<Props>(), {
 const p = ref<MenuDataItem[]>(props.routes);
 
 </script>
+<style lang="less" scoped>
+.svg {
+  width: 1em;
+  height: 1em;
+  font-size: 18px;
+  cursor: pointer;
+}
+</style>

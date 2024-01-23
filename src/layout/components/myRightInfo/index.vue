@@ -1,6 +1,6 @@
 <template>
     <a-badge :count="newsCount">
-        欢迎你，{{userInfo ? userInfo.nickName ? userInfo.nickName : userInfo.username : ''}}
+        欢迎你，{{ userInfo ? userInfo.nickName ? userInfo.nickName : userInfo.username : '' }}
         <a-dropdown>
             <a class="ant-dropdown-link" @click.prevent>
                 <a-avatar shape="square" :src="userInfo && userInfo.avatarUrl ? userInfo.avatarUrl : ''">
