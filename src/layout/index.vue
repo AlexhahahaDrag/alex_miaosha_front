@@ -1,7 +1,7 @@
 <template>
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <div class="logo" />
+      <div class="logo"></div>
       <Navbar :routes="routes" :selectedKeys="selectedKeys"></Navbar>
     </a-layout-sider>
     <a-layout>
@@ -9,7 +9,7 @@
         <div class="navbar">
           <Breadcrumb class="breadcrumb-container"></Breadcrumb>
           <div class="right-menu">
-            <RightInfo></RightInfo>
+            <MyRightInfo></MyRightInfo>
           </div>
         </div>
       </a-layout-header>

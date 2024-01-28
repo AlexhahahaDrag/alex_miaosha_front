@@ -8,7 +8,7 @@ import { barItem } from "./bar";
 const props = defineProps({
   config: {
     type: Object as PropType<barItem>,
-    default: () => {},
+    default: () => { },
   },
   title: {
     type: String,
@@ -36,89 +36,87 @@ const setOption = (data: any[]) => {
   let { xAxis, yTitle, yNameGap, tooltip, color, xTile } = props.config;
   if (data) {
     options.value = {
-    title: {
-      text: props.title,
-      left: "center",
-    },
-    color: [
-      "#55aaff",
-      "#ff9933",
-      "#5555ff",
-      "#aa55ff",
-      "#dd4444",
-      "#bb2222",
-      "#dd4488",
-      "#22ff99",
-      "#ffcc66",
-      "#7777dd",
-      "rgb(217, 0, 27)",
-      "#777fff",
-    ],
-    tooltip: tooltip || {
-      trigger: "axis",
-    },
-    xAxis: {
-      type: "category",
-      boundaryGap: false,
-      data: xAxis ? xAxis : [],
-      axisTick: {
-        alignWithLabel: true,
+      title: {
+        text: props.title,
+        left: "center",
       },
-      name: xTile ? xTile : '',
-    },
-    // legend: {
-    //   data: legend || [1],
-    //   icon: "roundRect",
-    //   left: "right",
-    //   itemHeight: 6,
-    //   itemWidth: 18,
-    //   textStyle: {
-    //     fontSize: 14,
-    //     lineHeight: 14,
-    //     rich: {
-    //       a: {
-    //         verticalAlign: "middle",
-    //       },
-    //     },
-    //     padding: [0, 0, -2, 0], //[上、右、下、左]
-    //   },
-    // },
-    yAxis: {
-      type: "value",
-      name: yTitle ? yTitle : "",
-      nameLocation: "center",
-      nameGap: yNameGap ? yNameGap : 28,
-      axisTick: {
-        show: false,
+      color: [
+        "#55aaff",
+        "#ff9933",
+        "#5555ff",
+        "#aa55ff",
+        "#dd4444",
+        "#bb2222",
+        "#dd4488",
+        "#22ff99",
+        "#ffcc66",
+        "#7777dd",
+        "rgb(217, 0, 27)",
+        "#777fff",
+      ],
+      tooltip: tooltip || {
+        trigger: "axis",
       },
-      axisLine: {
-        show: false,
+      xAxis: {
+        type: "category",
+        boundaryGap: false,
+        data: xAxis ? xAxis : [],
+        axisTick: {
+          alignWithLabel: true,
+        },
+        name: xTile ? xTile : '',
       },
-      splitNumber: 4,
-      splitLine: {
-        lineStyle: {
-          type: "dashed",
+      // legend: {
+      //   data: legend || [1],
+      //   icon: "roundRect",
+      //   left: "right",
+      //   itemHeight: 6,
+      //   itemWidth: 18,
+      //   textStyle: {
+      //     fontSize: 14,
+      //     lineHeight: 14,
+      //     rich: {
+      //       a: {
+      //         verticalAlign: "middle",
+      //       },
+      //     },
+      //     padding: [0, 0, -2, 0], //[上、右、下、左]
+      //   },
+      // },
+      yAxis: {
+        type: "value",
+        name: yTitle ? yTitle : "",
+        nameLocation: "center",
+        nameGap: yNameGap ? yNameGap : 28,
+        axisTick: {
+          show: false,
+        },
+        axisLine: {
+          show: false,
+        },
+        splitNumber: 4,
+        splitLine: {
+          lineStyle: {
+            type: "dashed",
+          },
         },
       },
-    },
-    series: [
-    {
-        type: "bar",
-        data: data,
-        smooth: true,
-        showSymbol: 0,
-        itemStyle: {
-          normal: {
+      series: [
+        {
+          type: "bar",
+          data: data,
+          smooth: true,
+          showSymbol: 0,
+          itemStyle: {
             color: color,
             lineStyle: {
               type: "line",
               color: color,
             },
           },
-        },
-      }
-    ],
-  };
+        }
+      ],
+    };
   }
 };
 

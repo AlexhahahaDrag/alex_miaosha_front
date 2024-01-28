@@ -34,7 +34,6 @@ import type { MenuProps } from 'ant-design-vue';
 import { logoutApi } from '@/api/user/login'
 import { useUserStore } from "@/store/modules/user/user";
 
-const router = useRouter();
 const { userInfo } = useUserStore();
 const newsCount = ref<number>(0);
 const router = useRouter();
