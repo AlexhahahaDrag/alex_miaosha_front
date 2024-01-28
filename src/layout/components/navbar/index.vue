@@ -7,9 +7,9 @@
 </template>
 
 <script setup lang="ts">
-import { Key } from "ant-design-vue/lib/_util/type";
 import Menu from "./menu.vue";
 import { MenuDataItem } from "@/router/typing";
+import { Key } from "ant-design-vue/es/_util/type";
 interface Props {
   routes: MenuDataItem[];
   selectedKeys: Key[];

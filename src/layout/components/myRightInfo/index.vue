@@ -34,6 +34,7 @@ import type { MenuProps } from 'ant-design-vue';
 import { logoutApi } from '@/api/user/login'
 import { useUserStore } from "@/store/modules/user/user";
 
+const router = useRouter();
 const { userInfo } = useUserStore();
 const newsCount = ref<number>(0);
 const router = useRouter();
@@ -51,13 +52,10 @@ const handleMenuClick: MenuProps['onClick'] = e => {
     }
 };
 
-function logout() {
-    logoutApi().then(() => {
-        //跳转到登录页面
-        router.push("/login");
-    }).catch(e => {
-        console.log(e);
-    });
+const logout = async () => {
+    await logoutApi();
+    //跳转到登录页面
+    router.push("/login");
 }
 </script>
 <style lang="scss" scoped>

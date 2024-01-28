@@ -26,7 +26,7 @@ export default defineConfig({
     vue(),
     AutoImport({
       // 指定需要自动导入的库
-      imports: ['vue', 'vue-router', 'vuex'],
+      imports: ['vue', 'vue-router', 'pinia'],
       // Vite特定的配置
       dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
       // 其他配置...
@@ -58,7 +58,7 @@ export default defineConfig({
     alias,
   },
   server: {
-    // host: '10.10.20.38',
+    host: '0.0.0.0',
     // port: VITE_PORT,
     // port: 10000,
     open: true,

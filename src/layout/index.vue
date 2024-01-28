@@ -9,7 +9,7 @@
         <div class="navbar">
           <Breadcrumb class="breadcrumb-container"></Breadcrumb>
           <div class="right-menu">
-            <MyRightInfo></MyRightInfo>
+            <RightInfo></RightInfo>
           </div>
         </div>
       </a-layout-header>
@@ -86,8 +86,10 @@ let selectedKeys = ref<string[]>(['1']);
   </a-layout>
 </template>
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import Navbar from "./components/navbar/index.vue";
 import Breadcrumb from "./components/breadcrumb/index.vue";
+import { useRouter } from "vue-router";
 import { algorithm } from "@/utils/algorithm/index";
 
 const router = useRouter().options.routes as [];

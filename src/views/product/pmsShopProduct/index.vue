@@ -35,7 +35,7 @@
       <a-space>
         <a-button type="primary" @click="editPmsShopProduct('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelPmsShopProduct">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsShopProduct">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -100,7 +100,6 @@ import {
 import { getNewestPmsShopProductPage, deletePmsShopProduct } from "@/api/product/pmsShopProduct/pmsShopProductTs";
 import { message } from "ant-design-vue";
 import dayjs from 'dayjs';
-import svgIcon from "@v/common/icons/svgIcon.vue";
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 

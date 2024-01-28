@@ -85,7 +85,7 @@
       <a-space>
         <a-button type="primary" @click="editMenuInfo('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelMenuInfo">删除</a-button>
+        <a-button type="primary" danger @click="batchDelMenuInfo">删除</a-button>
       </a-space>
     </div>
     <div class="content">

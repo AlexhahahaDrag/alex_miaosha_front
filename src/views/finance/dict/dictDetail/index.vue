@@ -131,7 +131,7 @@ import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../dict";
 import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 
-const formRef = ref();
+const formRef = ref<any>();
 
 const modelConfig = {
   confirmLoading: true,

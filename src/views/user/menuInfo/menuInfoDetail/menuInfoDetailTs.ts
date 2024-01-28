@@ -1,4 +1,3 @@
-
 export interface MenuInfoDetail {
   id?: number,
   name?: string;
