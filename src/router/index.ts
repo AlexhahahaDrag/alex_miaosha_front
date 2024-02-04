@@ -45,6 +45,8 @@ let router = createRouter({
   routes,
 });
 
+let dynamicRouter = [] as any[];
+
 router.beforeEach((to: any, _from: any, next) => {
   const userStore = useUserStore();
   NProgress.start();
@@ -52,9 +54,11 @@ router.beforeEach((to: any, _from: any, next) => {
     next();
   } else if (userStore.getToken) {
     if (!userStore.getRouteStatus) {
+      dynamicRouter = [];
       addRouter();
       next({ ...to, replace: true })
     } else if (routes.length <= 3) {
+      dynamicRouter = [];
       addRouter();
       next({ ...to, replace: true })
     } else {
@@ -74,7 +78,6 @@ const addRouter = () => {
   if (userStore.menuInfo?.length) {
     
     let aa = userStore.getRoleInfo;
-    console.log(`aaaaaaaaaaaa`, aa, aa.permissionList);
     if (!aa?.permissionList?.length) {
       return;
     }
@@ -82,6 +85,7 @@ const addRouter = () => {
       if (judgePermission(aa?.permissionList, item?.permissionCode)) {
         let newRouter = getChildren(item, aa.permissionList);
         router.addRoute(newRouter);
+        dynamicRouter.push(newRouter);
         routes.push(newRouter);
       }
     });
@@ -114,7 +118,8 @@ const getChildren = (item: MenuInfo, permissionList: any[]): any => {
       title: item.title,
       icon: item.icon,
       hiedInMenu: item.hideInMenu != '0',
-      showInHome: item.showInHome == '1'
+      showInHome: item.showInHome == '1',
+      permissionCode: item.permissionCode,
     },
     children: [],
   };
@@ -127,5 +132,14 @@ const getChildren = (item: MenuInfo, permissionList: any[]): any => {
   }
   return routeInfo;
 };
+
+export const refreshRouter = () => {
+  dynamicRouter.forEach(route => {
+    router.removeRoute(route.name);
+    let index = routes.findIndex(item => item.name === route.name);
+    routes.splice(index);
+  });
+  dynamicRouter = []; // 清空引用
+}
 
 export default router;
