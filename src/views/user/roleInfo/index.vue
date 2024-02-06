@@ -5,11 +5,6 @@
         <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
           <a-row :gutter="24">
             <a-col :span="8">
-              <a-form-item :name="labelMap['orgId'].name" :label="labelMap['orgId'].label">
-                <a-input v-model:value="searchInfo.orgId" :placeholder="'请选择' + labelMap['orgId'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
               <a-form-item :name="labelMap['roleCode'].name" :label="labelMap['roleCode'].label">
                 <a-input v-model:value="searchInfo.roleCode" :placeholder="'请选择' + labelMap['roleCode'].label"
                   allow-clear />
@@ -31,7 +26,7 @@
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-                <a-select ref="select" v-model:value="searchInfo.status" mode="combobox"
+                <a-select ref="select" v-model:value="searchInfo.status"
                   :placeholder="'请输入' + labelMap['status'].label" :field-names="{ label: 'typeName', value: 'typeCode' }"
                   :options="statusList" :allowClear="true">
                 </a-select>
@@ -56,7 +51,7 @@
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record: any) => record.id"
         :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
@@ -138,7 +133,7 @@ function cancelQuery() {
   searchInfo.value = {};
 }
 
-function handleTableChange(pagination) {
+function handleTableChange(pagination: any) {
   getRoleInfoListPage(searchInfo.value, pagination);
 }
 
@@ -191,6 +186,10 @@ function getRoleInfoListPage(param: SearchInfo, cur: pageInfo) {
     .finally(() => {
       loading.value = false;
     });
+}
+
+function query() {
+  getRoleInfoListPage(searchInfo.value, pagination.value);
 }
 
 function init() {

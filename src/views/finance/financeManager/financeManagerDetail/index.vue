@@ -31,7 +31,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="fromSource" label="支付方式">
-              <a-select ref="select" v-model:value="formState.fromSource" mode="combobox" placeholder="请输入来源"
+              <a-select ref="select" v-model:value="formState.fromSource" placeholder="请输入来源"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList" :allowClear="true">
               </a-select>
             </a-form-item>
@@ -40,14 +40,14 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="incomeAndExpenses" label="收支类型">
-              <a-select ref="select" v-model:value="formState.incomeAndExpenses" mode="combobox" placeholder="请输入收支类型"
+              <a-select ref="select" v-model:value="formState.incomeAndExpenses" placeholder="请输入收支类型"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="incomeAndExpensesList"
                 :allowClear="true"></a-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="isValid" label="状态">
-              <a-select ref="select" v-model:value="formState.isValid" mode="combobox" placeholder="请输入有效状态"
+              <a-select ref="select" v-model:value="formState.isValid" placeholder="请输入有效状态"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" :allowClear="true">
               </a-select>
             </a-form-item>
@@ -57,12 +57,12 @@
           <a-col :span="12">
             <a-form-item name="infoDate" label="业务时间">
               <a-date-picker v-model:value="formState.infoDate" :format="dateFormatter"
-                :getPopupContainer="triggerNode => { return triggerNode.parentNode }" />
+                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="belongTo" label="属于">
-              <a-select ref="select" v-model:value="formState.belongTo" mode="combobox"
+              <a-select ref="select" v-model:value="formState.belongTo" 
                 :field-names="{ label: 'nickName', value: 'id' }" :options="userList">
               </a-select>
             </a-form-item>

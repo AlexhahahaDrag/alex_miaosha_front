@@ -16,8 +16,8 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="source" label="来源">
-                <a-select ref="select" v-model:value="searchInfo.source" mode="combobox" placeholder="请输入来源类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage" 
+                <a-select ref="select" v-model:value="searchInfo.source" placeholder="请输入来源类型"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
@@ -66,13 +66,13 @@
           </template>
           <template v-else-if="column.key === 'source'">
             <div v-for="source in sourceTransferList">
-              <svgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
+              <SvgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
                 class="svg" style="
                     width: 1.5em;
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></svgIcon>
+                    verticle-align: middle;"></SvgIcon>
             </div>
           </template>
           <template v-else-if="column.key === 'operateTime' && record.operateTime">
@@ -82,7 +82,8 @@
           </template>
         </template>
       </a-table>
-      <PmsShopProductDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <PmsShopProductDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel">
       </PmsShopProductDetail>
     </div>
   </div>

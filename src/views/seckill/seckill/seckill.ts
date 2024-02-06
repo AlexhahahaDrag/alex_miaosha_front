@@ -5,20 +5,7 @@ export interface SearchInfo {
   pageSize?: number;
 }
 
-export interface pageInfo {
-  current?: number;
-  pageSize?: number;
-  total?: number;
-  showTotal: Function;
-  showSizeChanger: boolean;
-  pageSizeOptions: string[];
-  showSizeChange: Function;
-  size: string;
-  showQuickJumper: boolean;
-  defaultPageSize: number;
-}
-
-export const pagination = ref<pageInfo>({
+export const pagination = ref<any>({
   // 数据总数
   total: 50,
   // 当前页数
@@ -43,7 +30,7 @@ export const pagination = ref<pageInfo>({
   defaultPageSize: 10,
 });
 
-export const columns = [
+export const columns = ref<any>([
   {
     title: "活动id",
     dataIndex: "activityId",
@@ -83,4 +70,4 @@ export const columns = [
     key: "operation",
     width: 200,
   },
-];
+]);

@@ -16,14 +16,14 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="fromSource" label="来源">
-                <a-select ref="select" v-model:value="searchInfo.fromSource" mode="combobox" placeholder="请输入来源"
+                <a-select ref="select" v-model:value="searchInfo.fromSource" placeholder="请输入来源"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="incomeAndExpenses" label="收支类型">
-                <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" mode="combobox" placeholder="请输入收支类型"
+                <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" placeholder="请输入收支类型"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="incomeAndExpensesList"
                   @change="initPage" :allowClear="true"></a-select>
               </a-form-item>
@@ -32,7 +32,7 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="belongTo" label="属于">
-                <a-select ref="select" v-model:value="searchInfo.belongTo" mode="combobox"
+                <a-select ref="select" v-model:value="searchInfo.belongTo"
                   :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="initPage"></a-select>
               </a-form-item>
             </a-col>
@@ -99,18 +99,19 @@
           </template>
           <template v-else-if="column.key === 'fromSource'">
             <div v-for="(fromSource, index) in fromSourceTransferList" :key="index">
-              <svgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
+              <SvgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
                 :name="fromSource.label" class="svg" style="
                     width: 1.5em;
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></svgIcon>
+                    verticle-align: middle;"></SvgIcon>
             </div>
           </template>
         </template>
       </a-table>
-      <FinanceManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <FinanceManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel">
       </FinanceManagerDetail>
     </div>
   </div>
@@ -127,9 +128,8 @@ import {
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import svgIcon from "@v/common/icons/svgIcon.vue";
 import { getUserManagerList } from "@/api/user/userManager";
-import { Dayjs } from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 
 const labelCol = ref({ span: 5 });
@@ -160,20 +160,20 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
   searchInfo.value = {};
-  infoDateStart.value = null;
-  infoDateEnd.value = null;
+  infoDateStart.value = '';
+  infoDateEnd.value = '';
 }
 
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
+let infoDateStart = ref<string | Dayjs>();
+let infoDateEnd = ref<string | Dayjs>();
 
 function query() {
-  searchInfo.value.infoDateStart = infoDateStart.value ? infoDateStart.value.format('YYYY-MM-DD') : null;
-  searchInfo.value.infoDateEnd = infoDateEnd.value ? infoDateEnd.value.format('YYYY-MM-DD') : null;
+  searchInfo.value.infoDateStart = infoDateStart.value ? dayjs(infoDateStart.value).format('YYYY-MM-DD') : null;
+  searchInfo.value.infoDateEnd = infoDateEnd.value ? dayjs(infoDateEnd.value).format('YYYY-MM-DD') : null;
   getFinancePage(searchInfo.value, pagination.value);
 }
 
-function handleTableChange(pagination) {
+function handleTableChange(pagination: any) {
   getFinancePage(searchInfo.value, pagination);
 }
 

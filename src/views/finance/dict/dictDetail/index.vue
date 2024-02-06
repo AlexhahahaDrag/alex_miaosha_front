@@ -2,7 +2,7 @@
   <div>
     <a-modal
       :visible="props.visible"
-      :width="props.modelInfo && props.modelInfo.width ? props.modelInfo : '1000px'"
+      :width="props?.modelInfo?.width || '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       "
@@ -53,7 +53,6 @@
               <a-select
                 ref="select"
                 v-model:value="formState.belongTo"
-                mode="combobox"
                 placeholder="请输入分类"
                 :field-names="{ label: 'belongToName', value: 'belongTo' }"
                 :options="fromSourceList"
@@ -94,7 +93,6 @@
               <a-select
                 ref="select"
                 v-model:value="formState.isValid"
-                mode="combobox"
                 placeholder="请输入有效状态"
                 :field-names="{ label: 'typeName', value: 'typeCode' }"
                 :options="validList"

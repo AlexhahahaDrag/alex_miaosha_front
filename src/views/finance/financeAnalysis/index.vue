@@ -4,7 +4,7 @@
       <div class="search-box">
         <a-space>
           <a-date-picker v-model:value="searchDateTime" picker="month" :locale="locale" @change="changeMonth" />
-          <a-select style="width: 100px" ref="select" v-model:value="searchUser" mode="combobox"
+          <a-select style="width: 100px" ref="select" v-model:value="searchUser"
             :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="changeMonth">
           </a-select>
         </a-space>
@@ -78,7 +78,7 @@ import {
   getDayExpense,
   getMonthExpense,
 } from "@/api/finance/financeAnalysis";
-import { FinanceDetail } from "@/views/finance/financeManager/detail/detail";
+import { FinanceDetail } from "@/views/finance/financeManager/financeManagerDetail/detail";
 import * as math from "mathjs";
 import { ItemInfo } from "./analysis";
 import dayjs, { Dayjs } from "dayjs";

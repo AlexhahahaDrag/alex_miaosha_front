@@ -18,7 +18,7 @@ export interface pageInfo {
   defaultPageSize: number;
 }
 
-export let pagination = ref<pageInfo>({
+export let pagination = ref<any>({
   // 数据总数
   total: 10,
   // 当前页数
@@ -43,7 +43,7 @@ export let pagination = ref<pageInfo>({
   defaultPageSize: 10,
 });
 
-export const columns = [
+export const columns = ref<any>([
   {
     title: "商品名称",
     dataIndex: "name",
@@ -70,7 +70,7 @@ export const columns = [
     fixed: 'right',
     width: '8',
   },
-];
+]);
 
 
 export interface DataItem {

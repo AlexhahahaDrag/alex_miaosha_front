@@ -1,12 +1,9 @@
 import Layout from "@/layout/index.vue";
 import { RouteRecordRaw, createRouter, createWebHashHistory } from "vue-router";
 import { MenuDataItem } from "./typing";
-import Dashboard from '@v/dashboard/index.vue';
-import Login from '@v/login/index.vue';
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
-import Error404 from '@/views/common/error/Error404.vue';
 
 const modules = import.meta.glob("/src/views/**/**.vue");
 
@@ -23,7 +20,7 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/dashboard",
-        component: Dashboard,
+        component: modules['dashboard'],
         name: "dashboard",
         meta: { title: "仪表盘", icon: "dashboard" },
       },
@@ -32,11 +29,11 @@ export const routes: MenuDataItem[] = [
   {
     name: "login",
     path: "/login",
-    component: Login,
+    component: modules['login'],
   },
   {
     path: '/:catchAll(.*)',
-    component: () => import("@/views/common/error/Error404.vue")
+    component: modules['Error404'],
   }
 ];
 
@@ -76,11 +73,16 @@ router.afterEach(() => {
 const addRouter = () => {
   const userStore = useUserStore();
   if (userStore.menuInfo?.length) {
-    
+
     let aa = userStore.getRoleInfo;
     if (!aa?.permissionList?.length) {
       return;
     }
+    let permissionMap = {};
+    aa.permissionList.forEach((permission: any) => {
+      permissionMap[permission.permissionCode] = permission;
+    });
+    console.log(`permissionMap:`, permissionMap);
     userStore.menuInfo.forEach((item: MenuInfo) => {
       if (judgePermission(aa?.permissionList, item?.permissionCode)) {
         let newRouter = getChildren(item, aa.permissionList);
@@ -99,14 +101,14 @@ const judgePermission = (permissionList: any[], permissionCode: string) => {
   }
   for (const item of permissionList) {
     if (item?.permissionCode === permissionCode) {
-        return true;
+      return true;
     }
   }
   return false;
 }
 
 const getChildren = (item: MenuInfo, permissionList: any[]): any => {
-  let component = item.component == null ? Error404 :
+  let component = item.component == null ? modules['Error404'] :
     ("Layout" === item.component ? Layout :
       modules[item.component]);
   let routeInfo: RouteRecordRaw = {

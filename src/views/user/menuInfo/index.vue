@@ -40,7 +40,7 @@
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['hideInMenu'].name" :label="labelMap['hideInMenu'].label">
-                <a-select ref="select" v-model:value="searchInfo.hideInMenu" mode="combobox" :placeholder="'请输入' + labelMap['hideInMenu'].label"
+                <a-select ref="select" v-model:value="searchInfo.hideInMenu" :placeholder="'请输入' + labelMap['hideInMenu'].label"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="hideInMenuList" :allowClear="true">
                 </a-select>
               </a-form-item>
@@ -59,7 +59,7 @@
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-                <a-select ref="select" v-model:value="searchInfo.status" mode="combobox" :placeholder="'请输入' + labelMap['status'].label"
+                <a-select ref="select" v-model:value="searchInfo.status" :placeholder="'请输入' + labelMap['status'].label"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="statusList" :allowClear="true">
                 </a-select>
               </a-form-item>

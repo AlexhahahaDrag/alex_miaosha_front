@@ -31,7 +31,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="source" label="来源">
-              <a-select ref="select" v-model:value="formState.source" mode="combobox" placeholder="请输入来源类型"
+              <a-select ref="select" v-model:value="formState.source" placeholder="请输入来源类型"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList"
                 :allowClear="true"></a-select>
             </a-form-item>

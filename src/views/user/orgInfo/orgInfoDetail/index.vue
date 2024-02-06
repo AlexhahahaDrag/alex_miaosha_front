@@ -42,7 +42,7 @@
           </a-col>
           <a-col :span='12'>
             <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-              <a-select ref="select" v-model:value="formState.status" mode="combobox"
+              <a-select ref="select" v-model:value="formState.status" 
                 :placeholder="'请输入' + labelMap['status'].label" :field-names="{ label: 'typeName', value: 'typeCode' }"
                 :options="statusList" :allowClear="true">
               </a-select>

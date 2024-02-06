@@ -1,14 +1,10 @@
 <template>
   <template v-for="route in p" :key="route.path" :item="route" :base-path="route.path">
     <template v-if="route.children && route.children.length > 0">
-      <a-sub-menu :key="route.name" v-if="!route.meta?.hiedInMenu">
+      <a-sub-menu :key="route.name" :id="route.name" v-if="!route.meta?.hiedInMenu" :title="route?.meta?.title">
         <template #icon>
           <template v-if="route?.meta" style="text-align:center">
-            <svgIcon
-                :name="route?.meta?.icon ||'#icon-home'"
-                class="svg"
-                color="white"
-            ></svgIcon>
+            <MySvgIcon :name="route?.meta?.icon || '#icon-home'" class="svg" color="white"></MySvgIcon>
           </template>
         </template>
         <template #title>{{ route?.meta?.title || "未知" }}</template>
@@ -16,15 +12,12 @@
       </a-sub-menu>
     </template>
     <template v-else>
-      <a-menu-item v-if="!route.meta?.hiedInMenu" :key="route.path" :item="route" :base-path="route.path">
+      <a-menu-item v-if="!route.meta?.hiedInMenu" :id="route.name" :key="route.name" :item="route" :base-path="route.path"
+        :title="route?.meta?.title || '未知'">
         <template #title>{{ route?.meta?.title || "未知" }}</template>
         <template #icon>
           <template v-if="route.meta" style="vertical-align:middle">
-            <svgIcon
-                :name="route?.meta?.icon ||'#icon-home'"
-                class="svg"
-                color="white"
-            ></svgIcon>
+            <MySvgIcon :name="route?.meta?.icon || '#icon-home'" class="svg" color="white"></MySvgIcon>
           </template>
         </template>
         <router-link :to="route.path">

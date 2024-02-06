@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "isolatedModules": true,
     "target": "esnext",
     "useDefineForClassFields": true,
     "module": "esnext",
@@ -13,7 +14,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "vite/client",
+      "vite",
       "src/auto-imports.d.ts",
     ],
     "noLib": false,
@@ -53,9 +54,8 @@
     "build/**/*.d.ts",
     "mock/**/*.ts",
     "vite.config.ts",
-    "env.d.tssrc/main.tsn.ts",
     "components.d.ts",
-    "src/auto-imports.d.ts",
+    "env.d.tssrc/main.tsn.ts",
   ],
   "references": [
     {

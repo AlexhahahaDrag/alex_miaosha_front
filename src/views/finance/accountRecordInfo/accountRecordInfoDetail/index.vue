@@ -20,7 +20,7 @@
           <a-col :span="12">
             <a-form-item name="avliDate" label="有效期">
               <a-date-picker v-model:value="formState.avliDate" :format="dateFormatter"
-                :getPopupContainer="triggerNode => { return triggerNode.parentNode }" />
+                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -32,7 +32,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="" label="账号">
-              <a-select ref="select" v-model:value="formState.account" mode="combobox" placeholder="请填写账号"
+              <a-select ref="select" v-model:value="formState.account" placeholder="请填写账号"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountTypeList" :allowClear="true">
               </a-select>
             </a-form-item>

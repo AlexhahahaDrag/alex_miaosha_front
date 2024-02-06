@@ -25,7 +25,7 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="showStatus" label="显示状态">
-              <a-select ref="select" v-model:value="formState.showStatus" mode="combobox" placeholder="请输入显示状态"
+              <a-select ref="select" v-model:value="formState.showStatus" placeholder="请输入显示状态"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
                 :allowClear="true"></a-select>
             </a-form-item>
@@ -73,7 +73,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const rulesRef = reactive({
+const rulesRef = reactive<any>({
   name: [
     {
       required: true,

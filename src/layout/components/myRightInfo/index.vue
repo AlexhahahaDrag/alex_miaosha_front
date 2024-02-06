@@ -34,7 +34,7 @@ import { UserOutlined } from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
 import { logoutApi } from "@/api/user/login";
 import { useUserStore } from "@/store/modules/user/user";
-import { refreshRouter } from '@/router/index.ts';
+import { refreshRouter } from '@/router/index';
 
 const { userInfo } = useUserStore();
 const newsCount = ref<number>(0);
@@ -53,7 +53,7 @@ const handleMenuClick: MenuProps["onClick"] = (e) => {
       logout();
       // 清空页面缓存
       userStore.setUserInfo(null);
-      userStore.setToken(null);
+      userStore.setToken('');
       userStore.changeRouteStatus(false);
       // 刷新路由，防止动态路由被多余读取
       refreshRouter();

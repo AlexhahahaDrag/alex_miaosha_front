@@ -3,10 +3,10 @@
     <div class="search">
       <div class="search-box">
         <div class="search-box-in">
-          <a-form layout="inline" @keyup.enter.native="searchInfo">
+          <a-form layout="inline">
             <a-space>
               <a-input v-model:value="searchInfo.activityName" placeholder="活动名称" allow-clear />
-              <a-select ref="select" v-model:value="searchInfo.activityStatus" mode="combobox" placeholder="请输入标签名"
+              <a-select ref="select" v-model:value="searchInfo.activityStatus" placeholder="请输入标签名"
                 :field-names="{ label: 'content', value: 'id' }" :options="activityStatusList" @change="initPage" 
                 :allowClear="true"></a-select>
               <a-range-picker v-model:value="times" style="width: 400px" :ranges="ranges" show-time
@@ -20,7 +20,7 @@
     </div>
     <div class="content">
       <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1500 }">
+        :pagination="pagination" :scroll="{ x: 1500 }">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
@@ -89,7 +89,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { SearchInfo, pageInfo, pagination, columns } from "./seckill";
+import { SearchInfo, pagination, columns } from "./seckill";
 import dayjs, { Dayjs } from "dayjs";
 
 type RangeValue = [Dayjs, Dayjs];
@@ -100,12 +100,6 @@ function cancelQuery() {
 }
 
 function query() { }
-
-function handleTableChange(pagination: pageInfo) {
-  searchInfo.value.currentPage = pagination.current;
-  searchInfo.value.pageSize = pagination.pageSize;
-  // blogList(searchInfo.value);
-}
 
 // const confirm = (id: number) => {
 // deleteBlogById(id).then((res) => {

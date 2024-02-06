@@ -29,12 +29,14 @@ const errorHandler = (error: AxiosError): Promise<any> => {
 
 //请求拦截器
 const requestHandler = (
-  config: any
-): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  config: AxiosRequestConfig<any>
+): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
-    config.headers["Authorization"] = token;
+    if (config?.headers) {
+      config.headers["Authorization"] = token;
+    }
   } else {
     router.push('/Login');
   }
@@ -50,13 +52,15 @@ const requestHandler = (
 
 //请求拦截器
 const requestHandlerFile = (
-  config: any
-): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  config: AxiosRequestConfig<any>
+): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
-    config.headers["Authorization"] = token;
-    config.headers['Content-Type'] = 'multipart/form-data';
+    if (config?.headers) {
+      config.headers["Authorization"] = token;
+      config.headers['Content-Type'] = 'multipart/form-data';
+    }
   } else {
     router.push('/Login');
   }

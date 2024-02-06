@@ -11,7 +11,7 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="showStatus" label="显示状态">
-                <a-select ref="select" v-model:value="searchInfo.showStatus" mode="combobox" placeholder="请输入显示状态"
+                <a-select ref="select" v-model:value="searchInfo.showStatus" placeholder="请输入显示状态"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>

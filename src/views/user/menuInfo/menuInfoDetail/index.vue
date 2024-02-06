@@ -50,7 +50,7 @@
         <a-row :gutter='24'>
           <a-col :span='12'>
             <a-form-item :name="labelMap['hideInMenu'].name" :label="labelMap['hideInMenu'].label">
-              <a-select ref="select" v-model:value="formState.hideInMenu" mode="combobox" :placeholder="'请输入' + labelMap['hideInMenu'].label"
+              <a-select ref="select" v-model:value="formState.hideInMenu" :placeholder="'请输入' + labelMap['hideInMenu'].label"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="hideInMenuList" :allowClear="true">
               </a-select>
             </a-form-item>
@@ -69,7 +69,7 @@
           </a-col>
           <a-col :span='12'>
             <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-              <a-select ref="select" v-model:value="formState.status" mode="combobox" :placeholder="'请输入' + labelMap['status'].label"
+              <a-select ref="select" v-model:value="formState.status" :placeholder="'请输入' + labelMap['status'].label"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="statusList" :allowClear="true">
               </a-select>
             </a-form-item>
