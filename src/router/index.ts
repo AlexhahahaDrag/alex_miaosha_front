@@ -72,19 +72,19 @@ router.afterEach(() => {
 const addRouter = () => {
   const userStore = useUserStore();
   if (userStore.menuInfo?.length) {
-
-    let aa = userStore.getRoleInfo;
-    if (!aa?.permissionList?.length) {
+    let roleInfo = userStore.getRoleInfo;
+    if (roleInfo.roleCode !== 'super_super' && !roleInfo?.permissionList?.length) {
       return;
     }
     let permissionMap = {};
-    aa.permissionList.forEach((permission: any) => {
+    if (roleInfo.permissionList?.length) {
+    roleInfo.permissionList.forEach((permission: any) => {
       permissionMap[permission.permissionCode] = permission;
     });
-    console.log(`permissionMap:`, permissionMap);
+  }
     userStore.menuInfo.forEach((item: MenuInfo) => {
-      if (judgePermission(permissionMap, item?.permissionCode)) {
-        let newRouter = getChildren(item, permissionMap);
+      if (judgePermission(permissionMap, item?.permissionCode, roleInfo.roleCode)) {
+        let newRouter = getChildren(item, permissionMap, roleInfo.roleCode);
         router.addRoute(newRouter);
         dynamicRouter.push(newRouter);
         routes.push(newRouter);
@@ -94,14 +94,17 @@ const addRouter = () => {
   }
 };
 
-const judgePermission = (permissionMap: any, permissionCode: string) => {
+const judgePermission = (permissionMap: any, permissionCode: string, roleCode: string) => {
+  if (roleCode === 'super_super') {
+    return true;
+  }
   if (!permissionMap) {
     return false;
   }
   return permissionMap[permissionCode];
 }
 
-const getChildren = (item: MenuInfo, permissionMap: any): any => {
+const getChildren = (item: MenuInfo, permissionMap: any, roleCode: string): any => {
   let component = item.component == null ? modules['Error404'] :
     ("Layout" === item.component ? Layout :
       modules[item.component]);
@@ -121,8 +124,8 @@ const getChildren = (item: MenuInfo, permissionMap: any): any => {
   };
   if (item?.children?.length) {
     item.children.forEach((childItem: any) => {
-      if (judgePermission(permissionMap, childItem?.permissionCode)) {
-        routeInfo.children?.push(getChildren(childItem, permissionMap));
+      if (judgePermission(permissionMap, childItem?.permissionCode, roleCode)) {
+        routeInfo.children?.push(getChildren(childItem, permissionMap, roleCode));
       }
     });
   }

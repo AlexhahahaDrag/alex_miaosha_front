@@ -1,11 +1,13 @@
 <template>
-  <a-tabs v-model:activeKey="activeTabKey" type="editable-card" @edit="handleTabEdit" :hideAdd="true" size="small"
-    :tabBarGutter="2" :tabBarStyle="tabBarStyle" style="margin-top: -5px; margin-bottom: -20px;">
+  <a-tabs v-model:activeKey="activeTabKey" type="editable-card" @change="changeTab" @edit="handleTabEdit" :hideAdd="true"
+    size="small" :tabBarGutter="2" :tabBarStyle="tabBarStyle" style="margin-top: -5px; margin-bottom: -20px;">
     <a-tab-pane v-for="tab in tabs" :key="tab.key || ''" :closable="tab.closable" :tab="tab.tab">
     </a-tab-pane>
   </a-tabs>
 </template>
 <script setup lang="ts">
+import router from '@/router';
+
 
 const route = useRoute();
 let activeTabKey = ref<any>(route.name || "");
@@ -40,7 +42,6 @@ const handleTabEdit = (targetKey, action) => {
 };
 
 const handleMenuClick = (item: any) => {
-  console.log(item);
   let tab = tabs.value.find((tab) => tab.key === item.name);
   if (!tab) {
     tab = {
@@ -52,6 +53,10 @@ const handleMenuClick = (item: any) => {
     tabs.value.push(tab);
   }
   activeTabKey.value = item.name;
+}
+
+const changeTab = (key: string) => {
+  router.push({ name: key });
 }
 
 watch(
