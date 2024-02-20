@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
+    <a-modal :open="props.open" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
       :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
         " :maskClosable="false" @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
@@ -95,7 +95,7 @@ const modelConfig = {
 };
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -190,9 +190,9 @@ function getDictInfoList() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   () => {
-    if (props.visible) {
+    if (props.open) {
       init();
     }
   },
@@ -204,4 +204,6 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>@import "@/style/index.scss";</style>
+<style lang="scss" scoped>
+@import "@/style/index.scss";
+</style>

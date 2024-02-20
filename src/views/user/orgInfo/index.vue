@@ -48,7 +48,7 @@
           </template>
         </template>
       </a-table>
-      <OrgInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <OrgInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></OrgInfoDetail>
     </div>
   </div>

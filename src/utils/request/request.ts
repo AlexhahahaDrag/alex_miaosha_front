@@ -22,6 +22,12 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     if (status === 403) {
       message.warning("请先登录！", 3);
       router.push('/Login');
+      return Promise.reject(error);
+    }
+    const { data } = error.response as any;
+    if (data) {
+      let resData = decrypt(data);
+      error.response.data = resData;
     }
   }
   return Promise.reject(error);

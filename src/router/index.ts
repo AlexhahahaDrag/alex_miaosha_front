@@ -6,7 +6,6 @@ import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
 
 const modules = import.meta.glob("/src/views/**/**.vue");
-
 export const routes: MenuDataItem[] = [
   {
     name: "home",
@@ -20,7 +19,7 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/dashboard",
-        component: modules['dashboard'],
+        component: modules["/src/views/dashboard/index.vue"],
         name: "dashboard",
         meta: { title: "仪表盘", icon: "dashboard" },
       },
@@ -29,11 +28,11 @@ export const routes: MenuDataItem[] = [
   {
     name: "login",
     path: "/login",
-    component: modules['login'],
+    component: modules["/src/views/login/index.vue"],
   },
   {
     path: '/:catchAll(.*)',
-    component: modules['Error404'],
+    component: modules["/src/views/common/error/Error404.vue"],
   }
 ];
 
@@ -84,8 +83,8 @@ const addRouter = () => {
     });
     console.log(`permissionMap:`, permissionMap);
     userStore.menuInfo.forEach((item: MenuInfo) => {
-      if (judgePermission(aa?.permissionList, item?.permissionCode)) {
-        let newRouter = getChildren(item, aa.permissionList);
+      if (judgePermission(permissionMap, item?.permissionCode)) {
+        let newRouter = getChildren(item, permissionMap);
         router.addRoute(newRouter);
         dynamicRouter.push(newRouter);
         routes.push(newRouter);
@@ -95,19 +94,14 @@ const addRouter = () => {
   }
 };
 
-const judgePermission = (permissionList: any[], permissionCode: string) => {
-  if (!permissionList?.length) {
+const judgePermission = (permissionMap: any, permissionCode: string) => {
+  if (!permissionMap) {
     return false;
   }
-  for (const item of permissionList) {
-    if (item?.permissionCode === permissionCode) {
-      return true;
-    }
-  }
-  return false;
+  return permissionMap[permissionCode];
 }
 
-const getChildren = (item: MenuInfo, permissionList: any[]): any => {
+const getChildren = (item: MenuInfo, permissionMap: any): any => {
   let component = item.component == null ? modules['Error404'] :
     ("Layout" === item.component ? Layout :
       modules[item.component]);
@@ -127,8 +121,8 @@ const getChildren = (item: MenuInfo, permissionList: any[]): any => {
   };
   if (item?.children?.length) {
     item.children.forEach((childItem: any) => {
-      if (judgePermission(permissionList, childItem?.permissionCode)) {
-        routeInfo.children?.push(getChildren(childItem, permissionList));
+      if (judgePermission(permissionMap, childItem?.permissionCode)) {
+        routeInfo.children?.push(getChildren(childItem, permissionMap));
       }
     });
   }

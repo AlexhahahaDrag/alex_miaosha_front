@@ -81,7 +81,7 @@
           </template>
         </template>
       </a-table>
-      <PmsCategoryDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <PmsCategoryDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></PmsCategoryDetail>
     </div>
   </div>

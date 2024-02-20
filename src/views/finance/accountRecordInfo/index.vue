@@ -70,7 +70,7 @@
           </template>
         </template>
       </a-table>
-      <AccountRecordInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <AccountRecordInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel">
       </AccountRecordInfoDetail>
     </div>

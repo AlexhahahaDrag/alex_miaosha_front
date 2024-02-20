@@ -66,7 +66,7 @@
           </template>
         </template>
       </a-table>
-      <RoleInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <RoleInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></RoleInfoDetail>
     </div>
   </div>

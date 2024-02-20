@@ -1,6 +1,6 @@
 <template>
   <div id="modalBox">
-    <a-modal :visible="props.visible" :width="props?.modelInfo?.width || '1000px'" :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
+    <a-modal :open="props.open" :width="props?.modelInfo?.width || '1000px'" :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
@@ -106,7 +106,7 @@ import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { FileInfo } from '@/views/components/fileInfo';
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 
@@ -185,10 +185,12 @@ function saveUserManager() {
 
   addOrEditUserManager(method, formState.value)
     .then((res: any) => {
+      console.log(`res:`, res);
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
         emit("handleOk", false);
       } else {
+        console.log(res);
         message.error((res && res.message) || "保存失败！");
       }
       initForm();
@@ -226,8 +228,9 @@ function getDictInfoList() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   (newVal) => {
+    console.log(newVal);
     if (newVal) {
       init();
     }

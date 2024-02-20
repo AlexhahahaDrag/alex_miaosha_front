@@ -104,7 +104,7 @@
           </template>
         </template>
       </a-table>
-      <MenuInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <MenuInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></MenuInfoDetail>
     </div>
   </div>

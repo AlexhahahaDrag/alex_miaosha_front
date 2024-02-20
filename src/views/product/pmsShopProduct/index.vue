@@ -66,13 +66,13 @@
           </template>
           <template v-else-if="column.key === 'source'">
             <div v-for="source in sourceTransferList">
-              <SvgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
+              <MySvgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
                 class="svg" style="
                     width: 1.5em;
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></SvgIcon>
+                    vertical-align: middle;"></MySvgIcon>
             </div>
           </template>
           <template v-else-if="column.key === 'operateTime' && record.operateTime">
@@ -82,7 +82,7 @@
           </template>
         </template>
       </a-table>
-      <PmsShopProductDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <PmsShopProductDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel">
       </PmsShopProductDetail>
     </div>

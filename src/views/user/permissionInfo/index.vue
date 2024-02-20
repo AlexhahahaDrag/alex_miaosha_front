@@ -68,7 +68,7 @@
           </template>
         </template>
       </a-table>
-      <PermissionInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <PermissionInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></PermissionInfoDetail>
     </div>
   </div>

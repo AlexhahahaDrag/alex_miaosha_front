@@ -62,7 +62,7 @@
           </template>
         </template>
       </a-table>
-      <UserManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <UserManagerDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
       </UserManagerDetail>
     </div>
   </div>

@@ -32,8 +32,9 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="belongTo" label="属于">
-                <a-select ref="select" v-model:value="searchInfo.belongTo"
-                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="initPage"></a-select>
+                <a-select ref="select" v-model:value="searchInfo.belongTo" placeholder="请选择归属人"
+                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="initPage"
+                  :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -99,18 +100,18 @@
           </template>
           <template v-else-if="column.key === 'fromSource'">
             <div v-for="(fromSource, index) in fromSourceTransferList" :key="index">
-              <SvgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
+              <MySvgIcon v-if="record.fromSource.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
                 :name="fromSource.label" class="svg" style="
                     width: 1.5em;
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></SvgIcon>
+                    vertical-align: middle;"></MySvgIcon>
             </div>
           </template>
         </template>
       </a-table>
-      <FinanceManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <FinanceManagerDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel">
       </FinanceManagerDetail>
     </div>

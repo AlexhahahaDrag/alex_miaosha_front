@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-modal
-      :visible="props.visible"
+      :open="props.open"
       :width="props?.modelInfo?.width || '1000px'"
       :title="
         props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
@@ -137,7 +137,7 @@ const modelConfig = {
 };
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -217,7 +217,7 @@ function getDictInfoList() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   (newVal) => {
     if (newVal) {
       init();

@@ -59,12 +59,12 @@
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></MySvgIcon>
+                    vertical-align: middle;"></MySvgIcon>
             </div>
           </template>
         </template>
       </a-table>
-      <PmsShopWantProductDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <PmsShopWantProductDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel">
       </PmsShopWantProductDetail>
     </div>
