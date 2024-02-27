@@ -23,6 +23,7 @@ declare module 'vue' {
     AFormItem: typeof import('ant-design-vue/es')['FormItem']
     AImage: typeof import('ant-design-vue/es')['Image']
     AInput: typeof import('ant-design-vue/es')['Input']
+    AInputNumber: typeof import('ant-design-vue/es')['InputNumber']
     AInputPassword: typeof import('ant-design-vue/es')['InputPassword']
     ALayout: typeof import('ant-design-vue/es')['Layout']
     ALayoutContent: typeof import('ant-design-vue/es')['LayoutContent']
@@ -87,6 +88,8 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Seckill: typeof import('./src/views/seckill/seckill/index.vue')['default']
+    ShopFinance: typeof import('./src/views/finance/shopFinance/index.vue')['default']
+    ShopFinanceDetail: typeof import('./src/views/finance/shopFinance/shopFinanceDetail/index.vue')['default']
     UserManager: typeof import('./src/views/user/userManager/index.vue')['default']
     UserManagerDetail: typeof import('./src/views/user/userManager/userManagerDetail/index.vue')['default']
   }

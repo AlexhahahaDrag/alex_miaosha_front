@@ -53,7 +53,7 @@
     "build/**/*.ts",
     "build/**/*.d.ts",
     "mock/**/*.ts",
-    "vite.config.ts",
+    "vite.config.mts",
     "components.d.ts",
     "env.d.tssrc/main.tsn.ts",
   ],
