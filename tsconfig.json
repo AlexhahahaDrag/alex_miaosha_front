@@ -14,7 +14,7 @@
     "baseUrl": ".",
     "types": [
       "vite/client",
-      "src/auto-imports.d.ts", // 添加这一行
+      // "src/auto-imports.d.ts", // 添加这一行
     ],
     "noLib": false,
     "forceConsistentCasingInFileNames": true,
@@ -55,7 +55,7 @@
     "vite.config.ts",
     "env.d.tssrc/main.tsn.ts",
     "components.d.ts",
-    "src/auto-imports.d.ts"
+    // "src/auto-imports.d.ts",
   ],
   "references": [
     {
