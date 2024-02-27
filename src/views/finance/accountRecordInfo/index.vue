@@ -30,7 +30,7 @@
       <a-space>
         <a-button type="primary" @click="editAccountRecordInfo('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelAccountRecordInfo">删除</a-button>
+        <a-button type="primary" danger @click="batchDelAccountRecordInfo">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -76,7 +76,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -87,7 +86,6 @@ import {
 } from "./accountRecordInfoListTs";
 import { getAccountRecordInfoPage, deleteAccountRecordInfo } from "@/api/finance/accountRecordInfo/accountRecordInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/accountRecordInfoDetail.vue";
 import dayjs, { Dayjs } from 'dayjs'
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
@@ -99,8 +97,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
@@ -189,7 +186,6 @@ function getDictInfoList() {
       accountList.value = res.data.filter(
         (item: { belongTo: string }) => item.belongTo == "account_type"
       );
-      console.log(accountList);
     } else {
       message.error((res && res.message) || "查询列表失败！");
     }

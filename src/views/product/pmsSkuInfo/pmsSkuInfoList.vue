@@ -74,7 +74,7 @@
       <a-space>
         <a-button type="primary" @click="editPmsSkuInfo('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelPmsSkuInfo">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsSkuInfo">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -93,13 +93,12 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <PmsSkuInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></PmsSkuInfoDetail>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -110,7 +109,6 @@ import {
 } from "./pmsSkuInfoListTs";
 import { getPmsSkuInfoPage, deletePmsSkuInfo } from "@/api/product/pmsSkuInfo/pmsSkuInfoTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsSkuInfoDetail.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

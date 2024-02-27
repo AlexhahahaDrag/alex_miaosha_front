@@ -24,7 +24,7 @@
       <a-space>
         <a-button type="primary" @click="editUser('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelUserManager">删除</a-button>
+        <a-button type="primary" danger @click="batchDelUserManager">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -62,13 +62,12 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <UserManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </UserManagerDetail>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -80,7 +79,6 @@ import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import Detail from "./detail/index.vue";
 
 let rowIds = [] as any;
 const labelCol = ref({ span: 5 });

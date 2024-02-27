@@ -60,7 +60,7 @@
       <a-space>
         <a-button type="primary" @click="editFinance('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelFinanceManager">删除</a-button>
+        <a-button type="primary" danger @click="batchDelFinanceManager">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -116,7 +116,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -128,8 +127,6 @@ import {
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
-import Detail from "./detail/index.vue";
-import svgIcon from "@v/common/icons/svgIcon.vue";
 import { getUserManagerList } from "@/api/user/userManager";
 import { Dayjs } from 'dayjs'
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
@@ -147,8 +144,7 @@ const incomeAndExpensesList = ref<dictInfo[]>([]);
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {

@@ -64,7 +64,7 @@
       <a-space>
         <a-button type="primary" @click="editPmsAttr('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="danger" @click="batchDelPmsAttr">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsAttr">删除</a-button>
       </a-space>
     </div>
     <div class="content">
@@ -89,7 +89,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import {
   SearchInfo,
   pagination,
@@ -100,7 +99,6 @@ import {
 } from "./pmsAttrListTs";
 import { getPmsAttrPage, deletePmsAttr } from "@/api/product/pmsAttr/pmsAttrTs";
 import { message } from "ant-design-vue";
-import Detail from "./detail/pmsAttrDetail.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

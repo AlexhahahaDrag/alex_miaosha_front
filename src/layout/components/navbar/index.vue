@@ -7,12 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import Menu from "./menu.vue";
 import { MenuDataItem } from "@/router/typing";
+import { Key } from "ant-design-vue/es/_util/type";
 interface Props {
   routes: MenuDataItem[];
-  selectedKeys: String[];
+  selectedKeys: Key[];
 }
 const props = withDefaults(defineProps<Props>(), {
   routes: () => [],

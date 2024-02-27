@@ -71,7 +71,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import { message } from "ant-design-vue";
 import {
   getBalance,
@@ -392,3 +391,4 @@ const tooltip = ref({
 </style>
 
 <style lang="scss" scoped></style>
+@/views/finance/financeManager/financeManagerDetail/detail

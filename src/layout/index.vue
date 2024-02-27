@@ -26,11 +26,6 @@
 </template>
 <script setup lang="ts">
 import { algorithm } from '@/utils/algorithm';
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import Navbar from "./components/navbar/index.vue";
-import Breadcrumb from "./components/breadcrumb/index.vue";
-import RightInfo from "./components/rightInfo/index.vue";
 
 const router = useRouter().options.routes as [];
 const routes = computed(() => algorithm.increaseIndexes(router));

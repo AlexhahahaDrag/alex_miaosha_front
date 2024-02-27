@@ -12,11 +12,11 @@
           />
         </a-form-item>
         <a-form-item name="password">
-          <a-input
+          <a-input-password
             v-model:value="loginForm.password"
             type="password"
             placeholder="请输入密码"
-            autocomplete="off"
+            autocomplete="on"
           />
         </a-form-item>
         <a-form-item>
@@ -27,7 +27,6 @@
   </template>
   
   <script setup lang="ts">
-  import { reactive, UnwrapRef, ref } from "vue";
   import { LoginParams } from "@/api/user/login";
   import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
   import { useRouter } from "vue-router";
