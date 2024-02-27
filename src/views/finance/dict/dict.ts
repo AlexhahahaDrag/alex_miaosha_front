@@ -1,5 +1,3 @@
-import { ref } from "vue";
-
 export interface SearchInfo {
   typeName ?: string;
   belongToName?: string;
@@ -18,7 +16,7 @@ export interface pageInfo {
   defaultPageSize: number;
 }
 
-export let pagination = ref<pageInfo>({
+export let pagination = ref<any>({
   // 数据总数
   total: 50,
   // 当前页数
@@ -43,7 +41,7 @@ export let pagination = ref<pageInfo>({
   defaultPageSize: 10,
 });
 
-export const columns = [
+export const columns = ref<any>([
   // {
   //   title: "id",
   //   dataIndex: "id",
@@ -91,7 +89,7 @@ export const columns = [
     key: "operation",
     width: 200,
   },
-];
+]);
 
 
 export interface DataItem {

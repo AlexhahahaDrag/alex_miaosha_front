@@ -52,8 +52,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <DictDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </DictDetail>
     </div>
   </div>
 </template>

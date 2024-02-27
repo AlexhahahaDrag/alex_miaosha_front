@@ -4,7 +4,7 @@
       <div class="search-box">
         <a-space>
           <a-date-picker v-model:value="searchDateTime" picker="month" :locale="locale" @change="changeMonth" />
-          <a-select style="width: 100px" ref="select" v-model:value="searchUser" mode="combobox"
+          <a-select style="width: 100px" ref="select" v-model:value="searchUser"
             :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="changeMonth">
           </a-select>
         </a-space>
@@ -82,8 +82,6 @@ import { FinanceDetail } from "@/views/finance/financeManager/financeManagerDeta
 import * as math from "mathjs";
 import { ItemInfo } from "./analysis";
 import dayjs, { Dayjs } from "dayjs";
-import barChart from "./chart/barChart.vue";
-import pieChart from "./chart/pieChart.vue";
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { barItem } from "./chart/bar";
 import { getUserManagerList } from "@/api/user/userManager";

@@ -18,6 +18,8 @@ export const useUserStore = defineStore({
     lastUpdateTime: 0,
     menuInfo: null,
     hasMenu: false,
+    orgInfo: null,
+    roleInfo: null,
   }),
 
   getters: {
@@ -40,6 +42,12 @@ export const useUserStore = defineStore({
     getRouteStatus(): Boolean {
       return this.hasMenu;
     },
+    getRoleInfo(): any {
+      return this.roleInfo;
+    },
+    getOrgInfo(): any {
+      return this.orgInfo;
+    },
   },
   actions: {
     setToken(info: string | undefined) {
@@ -56,6 +64,12 @@ export const useUserStore = defineStore({
     setUserInfo(admin: any) {
       this.userInfo = admin;
     },
+    setRoleInfo(roleInfo: any) {
+      this.roleInfo = roleInfo;
+    },
+    setOrgInfo(orgInfo: any) {
+      this.orgInfo = orgInfo;
+    },
     async login(
       params: LoginParams & {
         goHome?: boolean;
@@ -66,12 +80,14 @@ export const useUserStore = defineStore({
         const { goHome = true, ...loginParams } = params;
         const data = await loginApi(loginParams);
         if (data.code == '200') {
-          const { token, admin, menuInfo } = data.data;
+          const { token, admin } = data.data;
           // save userInfo
           this.setUserInfo(admin);
           // save token
           this.setToken(token);
-          this.setMenuInfo(menuInfo);
+          this.setMenuInfo(admin.menuInfoVoList);
+          this.setRoleInfo(admin.roleInfoVo);
+          this.setOrgInfo(admin.orgInfoVo);
           return admin;
         } else {
           message.error((data && data.message) || "删除失败！", 3);

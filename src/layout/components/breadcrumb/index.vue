@@ -1,19 +1,18 @@
 <template>
-  <a-breadcrumb separator=">" >
-    <a-breadcrumb-item v-for="(item, index) in matchList" :to="{path:`${item.path}`}" :key="item.path">
+  <a-breadcrumb separator=">">
+    <a-breadcrumb-item v-for="(item, index) in matchList" :to="{ path: `${item.path}` }" :key="item.path">
       <span v-if="index === matchList.length - 1">
-          {{ item.meta.title }}
-        </span>
-        <router-link v-else :to="item.path">
-          {{ item.meta.title }}
-        </router-link>
+        {{ item.meta.title }}
+      </span>
+      <router-link v-else :to="item.path">
+        {{ item.meta.title }}
+      </router-link>
     </a-breadcrumb-item>
   </a-breadcrumb>
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, toRefs } from "vue";
-import { RouteLocationMatched, useRoute } from "vue-router";
+import { RouteLocationMatched } from 'vue-router';
 
 const Route = useRoute();
 

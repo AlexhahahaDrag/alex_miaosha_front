@@ -22,6 +22,12 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     if (status === 403) {
       message.warning("请先登录！", 3);
       router.push('/Login');
+      return Promise.reject(error);
+    }
+    const { data } = error.response as any;
+    if (data) {
+      let resData = decrypt(data);
+      error.response.data = resData;
     }
   }
   return Promise.reject(error);
@@ -29,12 +35,14 @@ const errorHandler = (error: AxiosError): Promise<any> => {
 
 //请求拦截器
 const requestHandler = (
-  config: any
-): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  config: AxiosRequestConfig<any>
+): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
-    config.headers["Authorization"] = token;
+    if (config?.headers) {
+      config.headers["Authorization"] = token;
+    }
   } else {
     router.push('/Login');
   }
@@ -50,13 +58,15 @@ const requestHandler = (
 
 //请求拦截器
 const requestHandlerFile = (
-  config: any
-): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  config: AxiosRequestConfig<any>
+): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
-    config.headers["Authorization"] = token;
-    config.headers['Content-Type'] = 'multipart/form-data';
+    if (config?.headers) {
+      config.headers["Authorization"] = token;
+      config.headers['Content-Type'] = 'multipart/form-data';
+    }
   } else {
     router.push('/Login');
   }
@@ -77,10 +87,7 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
   response: AxiosResponse<any>
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-  const { data, request } = response;
-  if (request?.responseURL?.indexOf('/user/login') >= 0) {
-    return data;
-  }
+  const { data } = response;
   let resData = decrypt(data);
   if (resData.code == 403) {
     router.push('/Login');

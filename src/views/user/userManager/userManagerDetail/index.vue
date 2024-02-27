@@ -1,10 +1,8 @@
 <template>
   <div id="modalBox">
-    <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo : '1000px'"
-      :title="
-        props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
+    <a-modal :open="props.open" :width="props?.modelInfo?.width || '1000px'" :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
       " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel" :getContainer="getContainer">
+      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
         <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
@@ -19,7 +17,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="gender" label="性别">
-              <a-select ref="select" v-model:value="formState.gender" mode="combobox"
+              <a-select ref="select" v-model:value="formState.gender"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="genderList" :allowClear="true">
               </a-select>
             </a-form-item>
@@ -58,7 +56,7 @@
           <a-col :span="12">
             <a-form-item name="birthday" label="生日">
               <a-date-picker v-model:value="formState.birthday" :format="dateFormatter"
-                :getPopupContainer="triggerNode => { return triggerNode.parentNode }" />
+                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -70,7 +68,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="status" label="状态">
-              <a-select ref="select" v-model:value="formState.status" mode="combobox" placeholder="请输入有效状态"
+              <a-select ref="select" v-model:value="formState.status" placeholder="请输入有效状态"
                 :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" :allowClear="true">
               </a-select>
             </a-form-item>
@@ -85,9 +83,9 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item :label-col="{span: 3}" :wrapperCol="{span: 24}" name="summary" label="个人简介">
-              <a-textarea v-model:value="formState.summary" placeholder="请添加个人简介"
-                :auto-size="{ minRows: 2, maxRows: 5 }" :maxlength="500" show-count />
+            <a-form-item :label-col="{ span: 3 }" :wrapperCol="{ span: 24 }" name="summary" label="个人简介">
+              <a-textarea v-model:value="formState.summary" placeholder="请添加个人简介" :auto-size="{ minRows: 2, maxRows: 5 }"
+                :maxlength="500" show-count />
             </a-form-item>
           </a-col>
         </a-row>
@@ -105,10 +103,10 @@ import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import dayjs from "dayjs";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import {FileInfo} from '@/views/components/fileInfo';
+import { FileInfo } from '@/views/components/fileInfo';
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 
@@ -172,10 +170,6 @@ const customImageRequest = (file: FileInfo) => {
   formState.value.avatar = file.id;
 }
 
-const getContainer = () => {
-  return document.getElementById("modalBox");
-}
-
 const handleCancel = () => {
   emit("handleCancel", false);
 };
@@ -191,10 +185,12 @@ function saveUserManager() {
 
   addOrEditUserManager(method, formState.value)
     .then((res: any) => {
+      console.log(`res:`, res);
       if (res.code == "200") {
         message.success((res && res.message) || "保存成功！");
         emit("handleOk", false);
       } else {
+        console.log(res);
         message.error((res && res.message) || "保存失败！");
       }
       initForm();
@@ -232,8 +228,9 @@ function getDictInfoList() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   (newVal) => {
+    console.log(newVal);
     if (newVal) {
       init();
     }

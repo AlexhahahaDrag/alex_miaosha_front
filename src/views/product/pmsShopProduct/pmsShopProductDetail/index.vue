@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :visible="props.visible" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '3000px'"
+    <a-modal :open="props.open" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '3000px'"
       :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
         " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
       :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
@@ -97,7 +97,6 @@ import { message, FormInstance } from "ant-design-vue";
 import { ModelInfo } from "../pmsShopProductListTs";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { barItem } from "@/views/finance/financeAnalysis/chart/bar";
-// import lineChart from "@/views/finance/financeAnalysis/chart/lineChart.vue";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -114,7 +113,7 @@ const modelConfig = {
 };
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -285,7 +284,7 @@ function init() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   (newVal) => {
     if (newVal) {
       init();

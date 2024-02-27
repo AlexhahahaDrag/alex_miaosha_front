@@ -83,8 +83,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></Detail>
+      <PmsAttrDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel"></PmsAttrDetail>
     </div>
   </div>
 </template>
@@ -107,8 +107,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {

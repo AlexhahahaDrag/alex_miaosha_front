@@ -28,7 +28,7 @@
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record: any) => record.id"
         :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1400 }" :row-selection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
@@ -62,7 +62,7 @@
           </template>
         </template>
       </a-table>
-      <UserManagerDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <UserManagerDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
       </UserManagerDetail>
     </div>
   </div>
@@ -93,8 +93,7 @@ let modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _blankselectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {

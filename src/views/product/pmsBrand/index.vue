@@ -11,7 +11,7 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="showStatus" label="显示状态">
-                <a-select ref="select" v-model:value="searchInfo.showStatus" mode="combobox" placeholder="请输入显示状态"
+                <a-select ref="select" v-model:value="searchInfo.showStatus" placeholder="请输入显示状态"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
@@ -62,8 +62,8 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <PmsBrandDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      </PmsBrandDetail>
     </div>
   </div>
 </template>
@@ -88,8 +88,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {

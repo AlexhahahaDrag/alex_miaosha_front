@@ -11,7 +11,7 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="account" label="账号">
-                <a-select ref="select" v-model:value="searchInfo.account" mode="combobox" placeholder="请输入账号"
+                <a-select ref="select" v-model:value="searchInfo.account" placeholder="请输入账号"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
@@ -34,8 +34,8 @@
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :rowKey="(record: any) => record.id"
+        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :rowSelection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
@@ -70,8 +70,9 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <AccountRecordInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel">
+      </AccountRecordInfoDetail>
     </div>
   </div>
 </template>
@@ -195,7 +196,6 @@ function getDictInfoList() {
 const initPage = () => {
   pagination.value.current = 1;
   pagination.value.pageSize = 10;
-  console.log(pagination.value);
 }
 
 function init() {

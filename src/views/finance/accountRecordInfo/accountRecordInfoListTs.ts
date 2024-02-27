@@ -1,4 +1,3 @@
-import { ref } from "vue";
 import { Dayjs } from 'dayjs';
 export interface SearchInfo {
   name?: string;
@@ -20,7 +19,7 @@ export interface pageInfo {
   defaultPageSize: number;
 }
 
-export let pagination = ref<pageInfo>({
+export let pagination = ref<any>({
   // 数据总数
   total: 0,
   // 当前页数

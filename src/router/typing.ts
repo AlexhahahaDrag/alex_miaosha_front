@@ -10,6 +10,7 @@ export interface MenuRouteMeta {
     target?: '_blank' | '_self' | '_parent' | '_top';
     keepAlive?: boolean;
     lock?: boolean;
+    title?: string;
 }
 
 export type MenuDataItem = {

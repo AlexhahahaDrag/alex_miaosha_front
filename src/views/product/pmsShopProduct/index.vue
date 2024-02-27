@@ -16,8 +16,8 @@
             </a-col>
             <a-col :span="6">
               <a-form-item name="source" label="来源">
-                <a-select ref="select" v-model:value="searchInfo.source" mode="combobox" placeholder="请输入来源类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage" 
+                <a-select ref="select" v-model:value="searchInfo.source" placeholder="请输入来源类型"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage"
                   :allowClear="true"></a-select>
               </a-form-item>
             </a-col>
@@ -66,13 +66,13 @@
           </template>
           <template v-else-if="column.key === 'source'">
             <div v-for="source in sourceTransferList">
-              <svgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
+              <MySvgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
                 class="svg" style="
                     width: 1.5em;
                     height: 1.5em;
                     font-size: 18px;
                     cursor: pointer;
-                    verticle-align: middle;"></svgIcon>
+                    vertical-align: middle;"></MySvgIcon>
             </div>
           </template>
           <template v-else-if="column.key === 'operateTime' && record.operateTime">
@@ -82,8 +82,9 @@
           </template>
         </template>
       </a-table>
-      <Detail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
-      </Detail>
+      <PmsShopProductDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+        @handleCancel="handleCancel">
+      </PmsShopProductDetail>
     </div>
   </div>
 </template>
@@ -110,8 +111,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {

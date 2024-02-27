@@ -6,47 +6,23 @@
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['orgCode'].name" :label="labelMap['orgCode'].label">
-                <a-input v-model:value="searchInfo.orgCode" :placeholder="'请选择' + labelMap['orgCode'].label" allow-clear />
+                <a-input v-model:value="searchInfo.orgCode" :placeholder="'请选择' + labelMap['orgCode'].label"
+                  allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item :name="labelMap['orgName'].name" :label="labelMap['orgName'].label">
-                <a-input v-model:value="searchInfo.orgName" :placeholder="'请选择' + labelMap['orgName'].label" allow-clear />
+                <a-input v-model:value="searchInfo.orgName" :placeholder="'请选择' + labelMap['orgName'].label"
+                  allow-clear />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['orgShortName'].name" :label="labelMap['orgShortName'].label">
-                <a-input v-model:value="searchInfo.orgShortName" :placeholder="'请选择' + labelMap['orgShortName'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['parentId'].name" :label="labelMap['parentId'].label">
-                <a-input v-model:value="searchInfo.parentId" :placeholder="'请选择' + labelMap['parentId'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['summary'].name" :label="labelMap['summary'].label">
-                <a-input v-model:value="searchInfo.summary" :placeholder="'请选择' + labelMap['summary'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-                <a-select ref="select" v-model:value="searchInfo.status" mode="combobox" :placeholder="'请输入' + labelMap['status'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="statusList" :allowClear="true">
-                </a-select>
-              </a-form-item>
+            <a-col :span="8" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
             </a-col>
           </a-row>
-             <a-row :gutter="24">
-                <a-col :span="20" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
         </a-form>
       </div>
     </div>
@@ -64,8 +40,7 @@
           <template v-if="column.key === 'operation'">
             <a-space>
               <a-button type="primary" size="small" @click="editOrgInfo('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delOrgInfo(record.id)"
-                @cancel="cancel">
+              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delOrgInfo(record.id)" @cancel="cancel">
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -73,7 +48,7 @@
           </template>
         </template>
       </a-table>
-      <OrgInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <OrgInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></OrgInfoDetail>
     </div>
   </div>
@@ -99,8 +74,7 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
+  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
@@ -112,14 +86,14 @@ const rowSelection = ref({
 });
 
 const labelMap = ref<any>(
-{
-    orgCode: {name: 'orgCode', label: '机构编码'},
-    orgName: {name: 'orgName', label: '机构名称'},
-    orgShortName: {name: 'orgShortName', label: '机构简称'},
-    parentId: {name: 'parentId', label: '父级机构id'},
-    summary: {name: 'summary', label: '简介最多150字'},
-    status: {name: 'status', label: '状态'},
-});
+  {
+    orgCode: { name: 'orgCode', label: '机构编码' },
+    orgName: { name: 'orgName', label: '机构名称' },
+    orgShortName: { name: 'orgShortName', label: '机构简称' },
+    parentId: { name: 'parentId', label: '父级机构id' },
+    summary: { name: 'summary', label: '简介最多150字' },
+    status: { name: 'status', label: '状态' },
+  });
 
 let searchInfo = ref<SearchInfo>({});
 

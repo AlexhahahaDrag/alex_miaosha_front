@@ -6,49 +6,52 @@
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['roleCode'].name" :label="labelMap['roleCode'].label">
-                <a-input v-model:value="searchInfo.roleCode" :placeholder="'请选择' + labelMap['roleCode'].label" allow-clear />
+                <a-input v-model:value="searchInfo.roleCode" :placeholder="'请选择' + labelMap['roleCode'].label"
+                  allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item :name="labelMap['roleName'].name" :label="labelMap['roleName'].label">
-                <a-input v-model:value="searchInfo.roleName" :placeholder="'请选择' + labelMap['roleName'].label" allow-clear />
+                <a-input v-model:value="searchInfo.roleName" :placeholder="'请选择' + labelMap['roleName'].label"
+                  allow-clear />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item :name="labelMap['summary'].name" :label="labelMap['summary'].label">
-                <a-input v-model:value="searchInfo.summary" :placeholder="'请选择' + labelMap['summary'].label" allow-clear />
+                <a-input v-model:value="searchInfo.summary" :placeholder="'请选择' + labelMap['summary'].label"
+                  allow-clear />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-                <a-select ref="select" v-model:value="searchInfo.status" mode="combobox" :placeholder="'请输入' + labelMap['status'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="statusList" :allowClear="true">
+                <a-select ref="select" v-model:value="searchInfo.status"
+                  :placeholder="'请输入' + labelMap['status'].label" :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="statusList" :allowClear="true">
                 </a-select>
               </a-form-item>
             </a-col>
           </a-row>
-             <a-row :gutter="24">
-                <a-col :span="20" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
+          <a-row :gutter="24">
+            <a-col :span="20" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
         </a-form>
       </div>
     </div>
     <div class="button">
       <a-space>
         <a-button type="primary" @click="editRoleInfo('add')">新增</a-button>
-        <a-button type="primary" @click="query">导入</a-button>
         <a-button type="primary" danger @click="batchDelRoleInfo">删除</a-button>
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
+      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record: any) => record.id"
         :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
@@ -63,7 +66,7 @@
           </template>
         </template>
       </a-table>
-      <RoleInfoDetail ref="editInfo" :visible="visible" :modelInfo="modelInfo" @handleOk="handleOk"
+      <RoleInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
         @handleCancel="handleCancel"></RoleInfoDetail>
     </div>
   </div>
@@ -101,12 +104,14 @@ const rowSelection = ref({
 });
 
 const labelMap = ref<any>(
-{
-    roleCode: {name: 'roleCode', label: '角色编码'},
-    roleName: {name: 'roleName', label: '角色名称'},
-    summary: {name: 'summary', label: '描述'},
-    status: {name: 'status', label: '状态'},
-});
+  {
+    orgId: { name: 'orgId', label: '公司角色id' },
+    userId: { name: 'userId', label: '用户id' },
+    roleCode: { name: 'roleCode', label: '角色编码' },
+    roleName: { name: 'roleName', label: '角色名称' },
+    summary: { name: 'summary', label: '描述' },
+    status: { name: 'status', label: '状态' },
+  });
 
 let searchInfo = ref<SearchInfo>({});
 
@@ -128,11 +133,7 @@ function cancelQuery() {
   searchInfo.value = {};
 }
 
-function query() {
-  getRoleInfoListPage(searchInfo.value, pagination.value);
-}
-
-function handleTableChange(pagination) {
+function handleTableChange(pagination: any) {
   getRoleInfoListPage(searchInfo.value, pagination);
 }
 
@@ -185,6 +186,10 @@ function getRoleInfoListPage(param: SearchInfo, cur: pageInfo) {
     .finally(() => {
       loading.value = false;
     });
+}
+
+function query() {
+  getRoleInfoListPage(searchInfo.value, pagination.value);
 }
 
 function init() {

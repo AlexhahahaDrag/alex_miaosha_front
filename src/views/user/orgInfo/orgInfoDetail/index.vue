@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal :visible='props.visible' :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
+    <a-modal :open='props.open' :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
       :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'" @ok='handleOk' okText='保存'
       :confirmLoading='modelConfig.confirmLoading' :destroyOnClose='modelConfig.destroyOnClose' @cancel='handleCancel'>
       <template #footer>
@@ -42,7 +42,7 @@
           </a-col>
           <a-col :span='12'>
             <a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
-              <a-select ref="select" v-model:value="formState.status" mode="combobox"
+              <a-select ref="select" v-model:value="formState.status" 
                 :placeholder="'请输入' + labelMap['status'].label" :field-names="{ label: 'typeName', value: 'typeCode' }"
                 :options="statusList" :allowClear="true">
               </a-select>
@@ -126,7 +126,7 @@ const modelConfig = {
 };
 
 interface Props {
-  visible?: boolean;
+  open?: boolean;
   modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -227,7 +227,7 @@ function init() {
 }
 
 watch(
-  () => props.visible,
+  () => props.open,
   (newVal) => {
     if (newVal) {
       init();
