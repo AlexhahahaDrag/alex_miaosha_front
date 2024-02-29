@@ -61,6 +61,38 @@
             </a-space>
             <span></span>
           </template>
+          <template v-else-if="column.key === 'saleAmount'">
+            <span>
+              {{
+                String(record.saleAmount.toFixed(2)).replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d)) /g, ','
+                ).replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3') }} </span>
+          </template>
+          <template v-else-if="column.key === 'isValid'">
+            <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
+              {{ record.isValid == 1 ? "有效" : "失效" }}
+            </a-tag>
+          </template>
+          <template v-else-if="column.key === 'incomeAndExpenses'">
+            <a-tag :key="record.incomeAndExpenses" :color="record.incomeAndExpenses == 'income' ? 'green' : 'red'">
+              {{ record.incomeAndExpenses == "income" ? "收入" : "支出" }}
+            </a-tag>
+          </template>
+          <template v-else-if="column.key === 'saleDate'">
+            <span>
+              {{ record.saleDate ? String(record.saleDate).substring(0, 10) : '' }}
+            </span>
+          </template>
+          <template v-else-if="column.key === 'payWay'">
+            <div v-for="(fromSource, index) in fromSourceTransferList" :key="index">
+              <MySvgIcon v-if="record.payWay.indexOf(fromSource.value) >= 0 && fromSource.value != ''"
+                :name="fromSource.label" class="svg" style="
+                    width: 1.5em;
+                    height: 1.5em;
+                    font-size: 18px;
+                    cursor: pointer;
+                    vertical-align: middle;"></MySvgIcon>
+            </div>
+          </template>
         </template>
       </a-table>
       <ShopFinanceDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
@@ -76,6 +108,7 @@ import {
   DataItem,
   ModelInfo,
   pageInfo,
+  fromSourceTransferList,
 } from "./shopFinanceListTs";
 import { getShopFinancePage, deleteShopFinance } from "@/api/finance/shopFinance/shopFinanceTs";
 import { message } from "ant-design-vue";

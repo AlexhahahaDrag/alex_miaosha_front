@@ -7,4 +7,7 @@ export interface ShopFinanceDetail {
   saleAmount?: number;
   isValid?: string;
   saleDate?: Dayjs | string;
+  incomeAndExpenses?: string;
+  payWay?: string;
+  saleNum?: number;
 }

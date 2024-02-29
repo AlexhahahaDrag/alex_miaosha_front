@@ -7,8 +7,8 @@ export interface SearchInfo {
   saleAmountEnd?: number;
   isValid?: string;
   saleDate?: Dayjs | string;
-  saleDateFrom?: Dayjs | string;
-  saleDateEnd?: Dayjs | string;
+  saleDateFrom?: Dayjs | string | null;
+  saleDateEnd?: Dayjs | string | null;
 }
 
 export interface pageInfo {
@@ -66,6 +66,21 @@ export const columns = ref<any>([
     key: 'saleAmount',
   },
   {
+    title: '销售件数',
+    dataIndex: 'saleNum',
+    key: 'saleNum',
+  },
+  {
+    title: '收支类型',
+    dataIndex: 'incomeAndExpenses',
+    key: 'incomeAndExpenses',
+  },
+  {
+    title: '支付方式',
+    dataIndex: 'payWay',
+    key: 'payWay',
+  },
+  {
     title: '是否有效',
     dataIndex: 'isValid',
     key: 'isValid',
@@ -103,3 +118,10 @@ export interface dictInfo {
   typeCode?: string | number | undefined,
   typeName?: string | undefined,
 }
+
+export const fromSourceTransferList = [
+  { value: "xj", label: "cash" },
+  { value: "zfb", label: "zhifubao" },
+  { value: "wx", label: "weChat" },
+  { value: "other", label: "" },
+]
