@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "isolatedModules": true,
     "target": "esnext",
     "useDefineForClassFields": true,
     "module": "esnext",
@@ -14,8 +13,8 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "vite",
-      "src/auto-imports.d.ts",
+      "vite/client",
+      // "src/auto-imports.d.ts", // 添加这一行
     ],
     "noLib": false,
     "forceConsistentCasingInFileNames": true,
@@ -55,7 +54,7 @@
     "mock/**/*.ts",
     "vite.config.mts",
     "components.d.ts",
-    "env.d.tssrc/main.tsn.ts",
+    // "src/auto-imports.d.ts",
   ],
   "references": [
     {
