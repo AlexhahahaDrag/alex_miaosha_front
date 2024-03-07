@@ -45,6 +45,7 @@ let dynamicRouter = [] as any[];
 
 router.beforeEach((to: any, _from: any, next) => {
   const userStore = useUserStore();
+  console.log(`router.beforeEach:` , userStore.getToken, userStore.getRouteStatus)
   NProgress.start();
   if (to.path == '/login') {
     next();
@@ -52,7 +53,8 @@ router.beforeEach((to: any, _from: any, next) => {
     if (!userStore.getRouteStatus) {
       dynamicRouter = [];
       addRouter();
-      next({ ...to, replace: true })
+      next({ ...to, replace: true });
+      console.log(`router`, router.options.routes)
     } else if (routes.length <= 3) {
       dynamicRouter = [];
       addRouter();
