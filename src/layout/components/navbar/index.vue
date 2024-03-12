@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-menu id="menu" mode="inline" theme="dark" v-model:selectedKeys="selectedKeys">
+    <a-menu id="menu" mode="inline" theme="dark" v-model:selectedKeys="selectedKeys" v-model:openKeys="openKeys">
       <Menu :routes="routes"></Menu>
     </a-menu>
   </div>
@@ -9,16 +9,30 @@
 <script setup lang="ts">
 import Menu from "./menu.vue";
 import { MenuDataItem } from "@/router/typing";
-import { Key } from "ant-design-vue/es/_util/type";
+
 interface Props {
   routes: MenuDataItem[];
-  selectedKeys: Key[];
+  selectedKeys: string[];
 }
 
-let selectedKeys = ref<Key[]>(['finance']);
+let selectedKeys = ref<string[]>(['finance']);
+
+let openKeys = ref<string[]>([]);
 
 const props = withDefaults(defineProps<Props>(), {
   routes: () => [],
+});
+
+onMounted(() => {
+  //获取用户信息
+  let route = useRoute();
+  let router = useRouter();
+  console.log(1111111111111111111, route, router.options.routes);
+  let par = route.matched[route.matched.length - 2]
+  let name = route?.name || '';
+  selectedKeys.value = [name];
+  openKeys.value = [par?.name || '',  name];
+  console.log(1111111111111111111, route, selectedKeys.value,  openKeys.value, par);
 });
 
 const routes = ref<MenuDataItem[]>(props.routes);
