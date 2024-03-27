@@ -16,21 +16,21 @@ axios.defaults.headers.post["Content-Type"] =
 
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
+  let response = null;
   if (error.response) {
     const { status } = error.response;
     // 403 无权限
     if (status === 403) {
       message.warning("请先登录！", 3);
-      router.push('/Login');
+      router.push({ name: 'login' });
       return Promise.reject(error);
     }
     const { data } = error.response as any;
     if (data) {
-      let resData = decrypt(data);
-      error.response.data = resData;
+      response = decrypt(data);
     }
   }
-  return Promise.reject(error);
+  return Promise.reject(response);
 };
 
 //请求拦截器
@@ -44,7 +44,7 @@ const requestHandler = (
       config.headers["Authorization"] = token;
     }
   } else {
-    router.push('/Login');
+    router.push({ name: 'login' });
   }
   if (config?.data) {
     for (const k in config.data) {
@@ -68,7 +68,7 @@ const requestHandlerFile = (
       config.headers['Content-Type'] = 'multipart/form-data';
     }
   } else {
-    router.push('/Login');
+    router.push({name: 'login'});
   }
   if (config?.data) {
     for (const k in config.data) {
@@ -89,8 +89,9 @@ const responseHandler = (
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
   const { data } = response;
   let resData = decrypt(data);
+  console.log( `response`, resData)
   if (resData.code == 403) {
-    router.push('/Login');
+    router.push({ name: 'login' });
     return;
   }
   return resData;

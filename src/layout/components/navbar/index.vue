@@ -27,12 +27,10 @@ onMounted(() => {
   //获取用户信息
   let route = useRoute();
   let router = useRouter();
-  console.log(1111111111111111111, route, router.options.routes);
   let par = route.matched[route.matched.length - 2]
   let name = route?.name || '';
   selectedKeys.value = [name];
   openKeys.value = [par?.name || '',  name];
-  console.log(1111111111111111111, route, selectedKeys.value,  openKeys.value, par);
 });
 
 const routes = ref<MenuDataItem[]>(props.routes);

@@ -93,6 +93,8 @@ declare module 'vue' {
     ShopFinanceDetail: typeof import('./src/views/finance/shopFinance/shopFinanceDetail/index.vue')['default']
     ShopLineChart: typeof import('./src/views/finance/shopFinanceAnalysis/chart/shopLineChart.vue')['default']
     ShopPieChart: typeof import('./src/views/finance/shopFinanceAnalysis/chart/shopPieChart.vue')['default']
+    ShopStock: typeof import('./src/views/finance/shopStock/index.vue')['default']
+    ShopStockDetail: typeof import('./src/views/finance/shopStock/shopStockDetail/index.vue')['default']
     UserManager: typeof import('./src/views/user/userManager/index.vue')['default']
     UserManagerDetail: typeof import('./src/views/user/userManager/userManagerDetail/index.vue')['default']
   }

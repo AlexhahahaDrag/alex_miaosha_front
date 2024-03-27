@@ -5,6 +5,7 @@ import type { MenuInfo } from "./typing";
 import { LoginParams } from "@/api/user/login";
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from "ant-design-vue";
+import { refreshRouter } from "@/router";
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -93,6 +94,8 @@ export const useUserStore = defineStore({
           this.setMenuInfo(admin.menuInfoVoList);
           this.setRoleInfo(admin.roleInfoVo);
           this.setOrgInfo(admin.orgInfoVo);
+          this.changeRouteStatus(false);
+          refreshRouter();
           return admin;
         } else {
           message.error((data && data.message) || "删除失败！", 3);
