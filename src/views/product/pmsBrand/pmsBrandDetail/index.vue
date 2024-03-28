@@ -18,7 +18,7 @@
           </a-col>
           <a-col :span="12">
             <a-form-item name="logo" label="品牌logo地址">
-              <myUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @handleRemove="handleRemove" @customImageRequest="customImageRequest"></myUpload>
+              <MyUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @handleRemove="handleRemove" @customImageRequest="customImageRequest"></MyUpload>
             </a-form-item>
           </a-col>
         </a-row>

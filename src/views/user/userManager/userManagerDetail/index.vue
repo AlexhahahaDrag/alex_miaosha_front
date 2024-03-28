@@ -77,7 +77,7 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="avatar" label="头像">
-              <myUpload :fromSystem="fromSystem" :fileInfo="fileInfo" @customImageRequest="customImageRequest"></myUpload>
+              <MyUpload :fromSystem="fromSystem" :fileInfo="fileInfo" @customImageRequest="customImageRequest"></MyUpload>
             </a-form-item>
           </a-col>
         </a-row>

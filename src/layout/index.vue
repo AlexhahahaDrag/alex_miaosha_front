@@ -27,7 +27,6 @@
 </template>
 <script setup lang="ts">
 import { algorithm } from "@/utils/algorithm";
-import MyRightInfo from "@/layout/components/myRightInfo/index.vue";
 
 const router = useRouter();
 const routes = computed(() => algorithm.increaseIndexes(router.options.routes as []));

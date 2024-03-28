@@ -4,9 +4,6 @@ import { MenuDataItem } from "./typing";
 import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
-import Error404 from '@/views/common/error/Error404.vue';
-import Login from '@/views/login/index.vue'
-import Home from '@/views/dashboard/index.vue';
 
 const modules = import.meta.glob('@/views/**/**.vue');
 export const routes: MenuDataItem[] = [
@@ -22,7 +19,7 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/dashboard",
-        component: Home,
+        component: modules['Home'],
         name: "dashboard",
         meta: { title: "仪表盘", icon: "dashboard" },
       },
@@ -31,11 +28,11 @@ export const routes: MenuDataItem[] = [
   {
     name: "login",
     path: "/login",
-    component: Login,
+    component: modules['Login'],
   },
   {
     path: '/:catchAll(.*)',
-    component: Error404,
+    component: modules['Error404'],
   }
 ];
 

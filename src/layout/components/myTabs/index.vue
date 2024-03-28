@@ -8,7 +8,6 @@
 <script setup lang="ts">
 import router from '@/router';
 
-
 const route = useRoute();
 let activeTabKey = ref<any>(route.name || "");
 
