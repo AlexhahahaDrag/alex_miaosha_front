@@ -19,7 +19,7 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/dashboard",
-        component: modules['Home'],
+        component: modules['/src/views/dashboard/index.vue'],
         name: "dashboard",
         meta: { title: "仪表盘", icon: "dashboard" },
       },
@@ -28,11 +28,11 @@ export const routes: MenuDataItem[] = [
   {
     name: "login",
     path: "/login",
-    component: modules['Login'],
+    component: modules['/src/views/login/index.vue'],
   },
   {
     path: '/:catchAll(.*)',
-    component: modules['Error404'],
+    component: modules['/src/views/common/error/Error404.vue'],
   }
 ];
 
@@ -87,7 +87,7 @@ const addRouter = () => {
 };
 
 const getChildren = (item: MenuInfo, permissionList: any[], roleCode: string): any => {
-  let component = item.component == null ? modules['Error404'] :
+  let component = item.component == null ? modules['/src/views/common/error/Error404.vue'] :
     ("Layout" === item.component ? Layout :
       modules[item.component]);
   let routeInfo: RouteRecordRaw = {

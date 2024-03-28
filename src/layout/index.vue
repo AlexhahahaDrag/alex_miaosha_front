@@ -2,12 +2,12 @@
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <div class="logo"></div>
-      <Navbar :routes="routes" :selectedKeys="selectedKeys"></Navbar>
+      <MyNavbar :routes="routes" :selectedKeys="selectedKeys"></MyNavbar>
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0">
         <div class="navbar">
-          <Breadcrumb class="breadcrumb-container"></Breadcrumb>
+          <MyBreadcrumb class="breadcrumb-container"></MyBreadcrumb>
           <div class="right-menu">
             <MyRightInfo></MyRightInfo>
           </div>
