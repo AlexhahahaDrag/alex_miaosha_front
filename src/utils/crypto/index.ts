@@ -15,5 +15,5 @@ export function decrypt(word: string) {
     });
 
     let decryptedStr = CryptoJS.enc.Utf8.stringify(decrypt).toString();
-    return JSON.parse(decryptedStr);
+    return JSON.parse(JSON.parse(decryptedStr));
 }
