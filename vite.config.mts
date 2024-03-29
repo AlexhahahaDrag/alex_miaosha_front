@@ -6,7 +6,10 @@ import { AntDesignVueResolver } from "unplugin-vue-components/resolvers";
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import AutoImport from 'unplugin-auto-import/vite';
 import terser from '@rollup/plugin-terser';
-import { splitVendorChunkPlugin } from 'vite';
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
+
+// import { splitVendorChunkPlugin } from 'vite';
 
 const pathResolve = (dir: string): any => {
   return resolve(__dirname, "./", dir);
@@ -54,7 +57,9 @@ export default defineConfig({
       inject: 'body-last',//body-last|body-first默认body-last
       customDomId: '__svg__icons__dom__', //默认__svg__icons__dom__
     }),
-    splitVendorChunkPlugin(),
+    // splitVendorChunkPlugin(),
+    visualizer(),
+    viteCompression(),
   ],
   css: {
     preprocessorOptions: {
@@ -103,8 +108,8 @@ export default defineConfig({
           //   },
           // },
           // 启用更高级的压缩选项
-          // module: true,
-          // toplevel: true, // 最高级别的变量和函数名也压缩
+          module: true,
+          toplevel: true, // 最高级别的变量和函数名也压缩
         }),
       ]
     }
