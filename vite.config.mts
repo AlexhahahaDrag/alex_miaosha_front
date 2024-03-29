@@ -87,31 +87,20 @@ export default defineConfig({
     },
   },
   build: {
-    emptyOutDir: true,
-    minify: true,
-    target: 'es2015',
+    chunkSizeWarningLimit: 1000, // 调整包的大小
     rollupOptions: {
-      plugins: [
-        terser({
-          format: {
-            comments: false, // 移除注释
-          },
-          compress: {
-            drop_console: true, // 移除console
-            drop_debugger: true, // 移除debugger
-            // pure_funcs: ['console.log'], // 移除特定的函数调用
-          },
-          // mangle: {
-          //   properties: {
-          //     // 压缩属性名（谨慎使用，确保不会压缩到不应该压缩的属性名）
-          //     // regex: /^_/ // 仅作为示例，压缩所有下划线开头的属性名
-          //   },
-          // },
-          // 启用更高级的压缩选项
-          module: true,
-          toplevel: true, // 最高级别的变量和函数名也压缩
-        }),
-      ]
+      output: {
+        // 最小化拆分包
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString()
+          }
+        },
+        // 用于从入口点创建的块的打包输出格式[name]表示文件名,[hash]表示该文件内容hash值
+        entryFileNames: 'assets/js/[name].[hash].js', // 用于命名代码拆分时创建的共享块的输出命名
+        chunkFileNames: 'assets/js/[name].[hash].js', // 用于输出静态资源的命名，[ext]表示文件扩展名
+        assetFileNames: 'assets/[ext]/[name].[hash].[ext]'
+      }
     }
   },
 })
