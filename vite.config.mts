@@ -52,7 +52,7 @@ export default defineConfig({
         createSvgIconsPlugin({
             iconDirs: [
                 pathResolve('src/icons/menu'),
-                pathResolve('src/icons/finance'), 
+                pathResolve('src/icons/finance'),
                 pathResolve('src/icons/soft'),
                 pathResolve('src/icons')
             ],
@@ -96,17 +96,6 @@ export default defineConfig({
             },
         },
         rollupOptions: {
-            plugins: [
-                terser({
-                    format: {
-                        comments: false, // 移除注释
-                    },
-                    compress: {
-                        drop_console: true, // 移除console
-                        drop_debugger: true, // 移除debugger
-                    },
-                }),
-            ],
             output: { //静态资源分类打包
                 chunkFileNames: 'static/js/chunkName-[hash].js',
                 entryFileNames: 'static/js/chunkName-[hash].js',
