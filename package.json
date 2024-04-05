@@ -9,6 +9,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@tsparticles/slim": "^3.3.0",
+    "@tsparticles/vue3": "^3.0.1",
     "ant-design-vue": "^4.1.2",
     "axios": "^1.6.7",
     "bignumber.js": "^9.1.0",
@@ -21,7 +23,6 @@
     "mathjs": "^12.4.1",
     "moment": "^2.29.4",
     "nprogress": "^0.2.0",
-    "particles.vue3": "^1.22.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.0.2",
     "resize-detector": "^0.3.0",

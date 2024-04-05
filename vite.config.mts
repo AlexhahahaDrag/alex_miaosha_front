@@ -5,7 +5,6 @@ import Components from 'unplugin-vue-components/vite';
 import {AntDesignVueResolver} from "unplugin-vue-components/resolvers";
 import {createSvgIconsPlugin} from 'vite-plugin-svg-icons';
 import AutoImport from 'unplugin-auto-import/vite';
-import terser from '@rollup/plugin-terser';
 import {visualizer} from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 
@@ -89,6 +88,7 @@ export default defineConfig({
         },
     },
     build: {
+        minify: 'terser',
         terserOptions: {
             compress: {
                 drop_console: true,
