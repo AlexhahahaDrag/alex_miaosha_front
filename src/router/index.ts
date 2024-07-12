@@ -1,11 +1,14 @@
 import Layout from "@/layout/index.vue";
 import { RouteRecordRaw, createRouter, createWebHashHistory } from "vue-router";
 import { MenuDataItem } from "./typing";
-import NProgress from 'nprogress';
+import NProgress from "nprogress";
 import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
 
-const modules = import.meta.glob(['@/views/**/**.vue', '!@/views/common/icons/**.vue']);
+const modules = import.meta.glob([
+  "@/views/**/**.vue",
+  "!@/views/common/icons/**.vue",
+]);
 export const routes: MenuDataItem[] = [
   {
     name: "home",
@@ -19,7 +22,7 @@ export const routes: MenuDataItem[] = [
     children: [
       {
         path: "/dashboard",
-        component: modules['/src/views/dashboard/index.vue'],
+        component: modules["/src/views/dashboard/index.vue"],
         name: "dashboard",
         meta: { title: "仪表盘", icon: "dashboard" },
       },
@@ -28,12 +31,12 @@ export const routes: MenuDataItem[] = [
   {
     name: "login",
     path: "/login",
-    component: modules['/src/views/login/index.vue'],
+    component: modules["/src/views/login/index.vue"],
   },
   {
-    path: '/:catchAll(.*)',
-    component: modules['/src/views/common/error/Error404.vue'],
-  }
+    path: "/:catchAll(.*)",
+    component: modules["/src/views/common/error/Error404.vue"],
+  },
 ];
 
 const router = createRouter({
@@ -46,7 +49,7 @@ let dynamicRouter = [] as any[];
 router.beforeEach((to: any, _from: any, next) => {
   const userStore = useUserStore();
   NProgress.start();
-  if (to.path == '/login') {
+  if (to.path == "/login") {
     next();
   } else if (userStore.getToken) {
     if (!userStore.getRouteStatus || routes.length <= 3) {
@@ -57,26 +60,37 @@ router.beforeEach((to: any, _from: any, next) => {
       next();
     }
   } else {
-    next({ name: 'login' });
+    next({ name: "login" });
   }
-  console.log(`router`, router.options.routes)
 });
 
 router.afterEach(() => {
-  NProgress.done()
+  NProgress.done();
 });
 
 const addRouter = () => {
   const userStore = useUserStore();
-  console.log(`addRouter`, userStore.getMenuInfo)
   if (userStore.getMenuInfo?.length) {
     let roleInfo = userStore.getRoleInfo;
-    if (roleInfo.roleCode !== 'super_super' && !roleInfo?.permissionList?.length) {
+    if (
+      roleInfo.roleCode !== "super_super" &&
+      !roleInfo?.permissionList?.length
+    ) {
       return;
     }
     userStore.getMenuInfo.forEach((item: MenuInfo) => {
-      if (judgePermission(roleInfo?.permissionList, item?.permissionCode, roleInfo.roleCode)) {
-        let newRouter = getChildren(item, roleInfo?.permissionList, roleInfo.roleCode);
+      if (
+        judgePermission(
+          roleInfo?.permissionList,
+          item?.permissionCode,
+          roleInfo.roleCode
+        )
+      ) {
+        let newRouter = getChildren(
+          item,
+          roleInfo?.permissionList,
+          roleInfo.roleCode
+        );
         router.addRoute(newRouter);
         dynamicRouter.push(newRouter);
         routes.push(newRouter);
@@ -86,10 +100,17 @@ const addRouter = () => {
   }
 };
 
-const getChildren = (item: MenuInfo, permissionList: any[], roleCode: string): any => {
-  let component = item.component == null ? modules['/src/views/common/error/Error404.vue'] :
-    ("Layout" === item.component ? Layout :
-      modules[item.component]);
+const getChildren = (
+  item: MenuInfo,
+  permissionList: any[],
+  roleCode: string
+): any => {
+  let component =
+    item.component == null
+      ? modules["/src/views/common/error/Error404.vue"]
+      : "Layout" === item.component
+      ? Layout
+      : modules[item.component];
   let routeInfo: RouteRecordRaw = {
     path: item.path,
     component: component,
@@ -98,17 +119,19 @@ const getChildren = (item: MenuInfo, permissionList: any[], roleCode: string): a
     meta: {
       title: item.title,
       icon: item.icon,
-      hiedInMenu: item.hideInMenu != '0',
-      showInHome: item.showInHome == '1',
+      hiedInMenu: item.hideInMenu != "0",
+      showInHome: item.showInHome == "1",
       permissionCode: item.permissionCode,
     },
     children: [],
   };
   if (item?.children?.length) {
     item.children.forEach((childItem: any) => {
-      if (judgePermission(permissionList, childItem?.permissionCode, roleCode)) {
+      if (
+        judgePermission(permissionList, childItem?.permissionCode, roleCode)
+      ) {
         let cur = getChildren(childItem, permissionList, roleCode);
-        if (!router.hasRoute(routeInfo?.name || '')) {
+        if (!router.hasRoute(routeInfo?.name || "")) {
           routeInfo.children?.push(cur);
         }
       }
@@ -117,8 +140,12 @@ const getChildren = (item: MenuInfo, permissionList: any[], roleCode: string): a
   return routeInfo;
 };
 
-const judgePermission = (permissionList: any[], permissionCode: string, roleCode: string) => {
-  if (roleCode === 'super_super') {
+const judgePermission = (
+  permissionList: any[],
+  permissionCode: string,
+  roleCode: string
+) => {
+  if (roleCode === "super_super") {
     return true;
   }
   if (!permissionList?.length) {
@@ -130,17 +157,17 @@ const judgePermission = (permissionList: any[], permissionCode: string, roleCode
     }
   }
   return false;
-}
+};
 
 export const refreshRouter = () => {
-  dynamicRouter.forEach(route => {
+  dynamicRouter.forEach((route) => {
     router.removeRoute(route.name);
-    let index = routes.findIndex(item => item.name === route.name);
+    let index = routes.findIndex((item) => item.name === route.name);
     if (index > -1) {
       routes.splice(index);
     }
   });
   dynamicRouter = []; // 清空引用
-}
+};
 
 export default router;

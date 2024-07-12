@@ -9,7 +9,7 @@ export function putData(url: string, params: any): Promise<any> {
   return request.put<Params, any>(url, params);
 }
 
-export function getData(url: string, params: any): Promise<any> {
+export function getData(url: string, params?: any): Promise<any> {
   return request.get<Params, any>(url, params);
 }
 
@@ -31,4 +31,4 @@ export const baseService = {
   mission: "/api/am-mission",
   file: "/api/am-oss",
   product: "/api/am-product",
-}
+};

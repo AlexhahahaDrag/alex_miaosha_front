@@ -2,11 +2,20 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="username" label="用户名">
-                <a-input v-model:value="searchInfo.username" placeholder="用户名" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.username"
+                  placeholder="用户名"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6"></a-col>
@@ -24,18 +33,39 @@
       <a-space>
         <a-button type="primary" @click="editUser('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelUserManager">删除</a-button>
+        <a-button type="primary" danger @click="batchDelUserManager"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record: any) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1400 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record: any) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1400 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editUser('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除用户信息?" ok-text="确认" cancel-text="取消" @confirm="delUser(record.id)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editUser('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除用户信息?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delUser(record.id)"
+                @cancel="cancel"
+                v-if="record.username != 'superman'"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -43,26 +73,40 @@
           </template>
           <template v-else-if="column.key === 'birthday'">
             <span>
-              {{ record.birthday ? String(record.birthday).substring(0, 10) : '' }}
+              {{
+                record.birthday ? String(record.birthday).substring(0, 10) : ""
+              }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
-            <a-tag :key="record.status" :color="record.status == 1 ? '#87d068' : 'grey'">
+            <a-tag
+              :key="record.status"
+              :color="record.status == 1 ? '#87d068' : 'grey'"
+            >
               {{ record.status == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'gender'">
-            <a-tag :key="record.gender" :color="record.gender == 1 ? 'green' : 'red'">
-              {{ record.gender == 0 ? "" : (record.gender == 1 ? "男" : "女") }}
+            <a-tag
+              :key="record.gender"
+              :color="record.gender == 1 ? 'green' : 'red'"
+            >
+              {{ record.gender == 0 ? "" : record.gender == 1 ? "男" : "女" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'avatarUrl' && record.avatarUrl">
-            <image :src=record.avatarUrl></image>
-            <a-image :width="50" :src=record.avatarUrl />
+            <image :src="record.avatarUrl"></image>
+            <a-image :width="50" :src="record.avatarUrl" />
           </template>
         </template>
       </a-table>
-      <UserManagerDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <UserManagerDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      >
       </UserManagerDetail>
     </div>
   </div>
@@ -93,18 +137,23 @@ let modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _blankselectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _blankselectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
-
-
 
 function cancelQuery() {
   searchInfo.value = {};
@@ -122,8 +171,12 @@ function delUser(ids: string) {
   deleteUserManager(ids).then((res) => {
     if (res.code == "200") {
       message.success((res && "删除" + res.message) || "删除成功！", 3);
-      if ((pagination.value.total ? pagination.value.total - 1 : 0) <= (pagination.value.current ? pagination.value.current - 1 : 1) * (pagination.value.pageSize || 10)) {
-        pagination.value.current = pagination.value.current ? pagination.value.current - 1 : 1;
+      if (
+        (pagination.value.total ? pagination.value.total - 1 : 0) <=
+        (pagination.value.current ? pagination.value.current - 1 : 1) *
+          (pagination.value.pageSize || 10)
+      ) {
+        pagination.value.current = pagination.value?.current - 1 || 1;
       }
       getUserPage(searchInfo.value, pagination.value);
     } else {
@@ -154,6 +207,7 @@ function getUserPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
   getUserManagerPage(param, cur.current, cur.pageSize)
     .then((res) => {
+      console.log(`ressssssssssssssss`, res);
       if (res.code == "200") {
         dataSource.value = res.data.records;
         pagination.value.current = res.data.current;
@@ -162,11 +216,13 @@ function getUserPage(param: SearchInfo, cur: pageInfo) {
       } else {
         message.error((res && res.message) || "查询列表失败！");
       }
-    }).catch(() => {
+    })
+    .catch(() => {
       pagination.value.current = 0;
       pagination.value.pageSize = 10;
       pagination.value.total = 0;
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }

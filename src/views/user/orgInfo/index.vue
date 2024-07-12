@@ -1,55 +1,109 @@
 <template>
   <div class="page-info">
-    <div class="search">
-      <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['orgCode'].name" :label="labelMap['orgCode'].label">
-                <a-input v-model:value="searchInfo.orgCode" :placeholder="'请选择' + labelMap['orgCode'].label"
-                  allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['orgName'].name" :label="labelMap['orgName'].label">
-                <a-input v-model:value="searchInfo.orgName" :placeholder="'请选择' + labelMap['orgName'].label"
-                  allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8" style="text-align: right">
-              <a-space>
-                <a-button type="primary" @click="query"> 查找</a-button>
-                <a-button type="primary" @click="cancelQuery">清空</a-button>
-              </a-space>
-            </a-col>
-          </a-row>
-        </a-form>
+    <div class="left-content">
+      <a-tree
+        checkable
+        :tree-data="treeData"
+        v-model:expandedKeys="expandedKeys"
+        v-model:selectedKeys="selectedKeys"
+        v-model:checkedKeys="checkedKeys"
+      >
+      </a-tree>
+    </div>
+    <div class="right-content">
+      <div class="search">
+        <div class="search-box">
+          <a-form
+            :model="searchInfo"
+            :label-col="labelCol"
+            :wrapper-col="wrapperCol"
+          >
+            <a-row :gutter="24">
+              <a-col :span="8">
+                <a-form-item
+                  :name="labelMap['orgCode'].name"
+                  :label="labelMap['orgCode'].label"
+                >
+                  <a-input
+                    v-model:value="searchInfo.orgCode"
+                    :placeholder="'请选择' + labelMap['orgCode'].label"
+                    allow-clear
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8">
+                <a-form-item
+                  :name="labelMap['orgName'].name"
+                  :label="labelMap['orgName'].label"
+                >
+                  <a-input
+                    v-model:value="searchInfo.orgName"
+                    :placeholder="'请选择' + labelMap['orgName'].label"
+                    allow-clear
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="8" style="text-align: right">
+                <a-space>
+                  <a-button type="primary" @click="query"> 查找</a-button>
+                  <a-button type="primary" @click="cancelQuery">清空</a-button>
+                </a-space>
+              </a-col>
+            </a-row>
+          </a-form>
+        </div>
       </div>
-    </div>
-    <div class="button">
-      <a-space>
-        <a-button type="primary" @click="editOrgInfo('add')">新增</a-button>
-        <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelOrgInfo">删除</a-button>
-      </a-space>
-    </div>
-    <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'operation'">
-            <a-space>
-              <a-button type="primary" size="small" @click="editOrgInfo('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delOrgInfo(record.id)" @cancel="cancel">
-                <a-button type="primary" size="small" danger>删除</a-button>
-              </a-popconfirm>
-            </a-space>
-            <span></span>
+      <div class="button">
+        <a-space>
+          <a-button type="primary" @click="editOrgInfo('add')">新增</a-button>
+          <a-button type="primary" @click="query">导入</a-button>
+          <a-button type="primary" danger @click="batchDelOrgInfo"
+            >删除</a-button
+          >
+        </a-space>
+      </div>
+      <div class="content">
+        <a-table
+          :dataSource="dataSource"
+          :columns="columns"
+          :loading="loading"
+          :row-key="(record) => record.id"
+          :pagination="pagination"
+          @change="handleTableChange"
+          :scroll="{ x: 1100 }"
+          :row-selection="rowSelection"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'operation'">
+              <a-space>
+                <a-button
+                  type="primary"
+                  size="small"
+                  @click="editOrgInfo('update', record.id)"
+                  >编辑</a-button
+                >
+                <a-popconfirm
+                  title="确认删除?"
+                  ok-text="确认"
+                  cancel-text="取消"
+                  @confirm="delOrgInfo(record.id)"
+                  @cancel="cancel"
+                >
+                  <a-button type="primary" size="small" danger>删除</a-button>
+                </a-popconfirm>
+              </a-space>
+              <span></span>
+            </template>
           </template>
-        </template>
-      </a-table>
-      <OrgInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></OrgInfoDetail>
+        </a-table>
+      </div>
+      <OrgInfoDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      ></OrgInfoDetail>
     </div>
   </div>
 </template>
@@ -67,6 +121,42 @@ import { message } from "ant-design-vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { dictInfo } from "@/views/finance/dict/dict";
 
+// todo: 修改布局  统一设置 添加树组件 添加查询组件
+const treeData: TreeDataItem[] = [
+  {
+    title: "parent 1",
+    key: "0-0",
+    children: [
+      {
+        title: "parent 1-0",
+        key: "0-0-0",
+        disabled: true,
+        children: [
+          { title: "leaf", key: "0-0-0-0", disableCheckbox: true },
+          { title: "leaf", key: "0-0-0-1" },
+        ],
+      },
+      {
+        title: "parent 1-1",
+        key: "0-0-1",
+        children: [{ key: "0-0-1-0", slots: { title: "title0010" } }],
+      },
+    ],
+  },
+];
+const expandedKeys = ref<string[]>(["0-0-0", "0-0-1"]);
+const selectedKeys = ref<string[]>(["0-0-0", "0-0-1"]);
+const checkedKeys = ref<string[]>(["0-0-0", "0-0-1"]);
+watch(expandedKeys, () => {
+  console.log("expandedKeys", expandedKeys);
+});
+watch(selectedKeys, () => {
+  console.log("selectedKeys", selectedKeys);
+});
+watch(checkedKeys, () => {
+  console.log("checkedKeys", checkedKeys);
+});
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -74,26 +164,32 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
 
-const labelMap = ref<any>(
-  {
-    orgCode: { name: 'orgCode', label: '机构编码' },
-    orgName: { name: 'orgName', label: '机构名称' },
-    orgShortName: { name: 'orgShortName', label: '机构简称' },
-    parentId: { name: 'parentId', label: '父级机构id' },
-    summary: { name: 'summary', label: '简介最多150字' },
-    status: { name: 'status', label: '状态' },
-  });
+const labelMap = ref<any>({
+  orgCode: { name: "orgCode", label: "机构编码" },
+  orgName: { name: "orgName", label: "机构名称" },
+  orgShortName: { name: "orgShortName", label: "机构简称" },
+  parentId: { name: "parentId", label: "父级机构id" },
+  summary: { name: "summary", label: "简介最多150字" },
+  status: { name: "status", label: "状态" },
+});
 
 let searchInfo = ref<SearchInfo>({});
 
@@ -109,7 +205,7 @@ const getDictInfoList = () => {
       message.error((res && res.message) || "查询列表失败！");
     }
   });
-}
+};
 
 function cancelQuery() {
   searchInfo.value = {};
@@ -154,7 +250,7 @@ let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-}
+};
 
 function getOrgInfoListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -210,4 +306,11 @@ const handleCancel = (v: boolean) => {
 </script>
 <style lang="scss" scoped>
 @import "@/style/index.scss";
+.page-info {
+  display: flex;
+  height: 600px;
+  .left-content {
+    width: 50%;
+  }
+}
 </style>

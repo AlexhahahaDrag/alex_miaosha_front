@@ -1,22 +1,46 @@
 <template>
   <div class="login-container">
     <!--引入粒子特效-->
-    <vue-particles id="tsparticles" @particles-loaded="particlesLoaded" :options="options" />
-    <a-form ref="formRef" :model="loginForm" class="login-form" :rules="loginRules">
+    <vue-particles
+      id="tsparticles"
+      @particles-loaded="particlesLoaded"
+      :options="options"
+    />
+    <a-form
+      ref="formRef"
+      :model="loginForm"
+      class="login-form"
+      :rules="loginRules"
+    >
       <h3 class="title">alex管理系统</h3>
       <a-form-item name="username">
-        <a-input v-model:value="loginForm.username" placeholder="请输入账号或手机号" autocomplete="on" />
+        <a-input
+          v-model:value="loginForm.username"
+          placeholder="请输入账号或手机号"
+          autocomplete="on"
+        />
       </a-form-item>
       <a-form-item name="password">
-        <a-input-password v-model:value="loginForm.password" type="password" placeholder="请输入密码" autocomplete="on" />
+        <a-input-password
+          v-model:value="loginForm.password"
+          type="password"
+          placeholder="请输入密码"
+          autocomplete="on"
+        />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" @click="onSubmit" style="width: 100%">登录</a-button>
+        <a-button
+          type="primary"
+          @click="onSubmit"
+          style="width: 100%"
+          :loading="loading"
+          >登录</a-button
+        >
       </a-form-item>
     </a-form>
   </div>
 </template>
-  
+
 <script setup lang="ts">
 import { LoginParams } from "@/api/user/login";
 import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
@@ -36,14 +60,17 @@ const loginForm: UnwrapRef<loginForm> = reactive({
   password: "",
 });
 
-const loginRules = {
+const loginRules: any = {
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
     { min: 5, message: "密码最少五位", trigger: "blur" },
   ],
 };
 
+const loading = ref<boolean>(false);
+
 const onSubmit = () => {
+  loading.value = true;
   formRef.value
     .validate()
     .then(async () => {
@@ -60,10 +87,13 @@ const onSubmit = () => {
     })
     .catch((error: ValidateErrorEntity<loginForm>) => {
       console.log("error", error);
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
-const particlesLoaded = async container => {
+const particlesLoaded = async (container) => {
   console.log("Particles container loaded", container);
 };
 
@@ -145,7 +175,7 @@ const options = {
   detectRetina: true,
 };
 </script>
-  
+
 <style rel="stylesheet/scss" lang="scss">
 $bg: #2d3a4b;
 $light_gray: #eee;
@@ -181,7 +211,7 @@ $light_gray: #eee;
   }
 }
 </style>
-  
+
 <style rel="stylesheet/scss" lang="scss" scoped>
 $bg: #2d3a4b;
 $dark_gray: #889aa4;
@@ -247,4 +277,3 @@ $light_gray: #eee;
   }
 }
 </style>
-

@@ -4,7 +4,9 @@
       :open="props.open"
       :width="props?.modelInfo?.width || '1000px'"
       :title="
-        props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
       "
       @ok="handleOk"
       okText="保存"
@@ -12,6 +14,16 @@
       :destroyOnClose="modelConfig.destroyOnClose"
       @cancel="handleCancel"
     >
+      <template #footer>
+        <a-button key="back" @click="handleCancel">Return</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >Submit</a-button
+        >
+      </template>
       <a-form
         ref="formRef"
         name="dictForm"
@@ -27,7 +39,10 @@
               label="类别编码"
               :rules="[{ required: true, message: '类别编码必填！' }]"
             >
-              <a-input v-model:value="formState.typeCode" placeholder="请填写类别编码"></a-input>
+              <a-input
+                v-model:value="formState.typeCode"
+                placeholder="请填写类别编码"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -44,30 +59,16 @@
           </a-col>
         </a-row>
         <a-row :gutter="24">
-          <!-- <a-col :span="12">
-            <a-form-item
-              name="belongTo"
-              label="分类"
-              :rules="[{ required: true, message: '分类必填' }]"
-            >
-              <a-select
-                ref="select"
-                v-model:value="formState.belongTo"
-                placeholder="请输入分类"
-                :field-names="{ label: 'belongToName', value: 'belongTo' }"
-                :options="fromSourceList"
-                :allowClear="true"
-              >
-              </a-select>
-            </a-form-item>
-          </a-col> -->
           <a-col :span="12">
             <a-form-item
               name="belongTo"
               label="分类编码"
               :rules="[{ required: true, message: '分类编码必填！' }]"
             >
-              <a-input v-model:value="formState.belongTo" placeholder="请填写分类编码"></a-input>
+              <a-input
+                v-model:value="formState.belongTo"
+                placeholder="请填写分类编码"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -127,7 +128,7 @@ import {
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import { ModelInfo, dictInfo } from "../dict";
-import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
+import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
 
 const formRef = ref<any>();
 
@@ -135,6 +136,8 @@ const modelConfig = {
   confirmLoading: true,
   destroyOnClose: true,
 };
+
+const loading = ref<boolean>(false);
 
 interface Props {
   open?: boolean;
@@ -147,14 +150,19 @@ let formState = ref<DictDetail>({});
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
+  loading.value = true;
   formRef.value
-        .validate()
-        .then(() => {
-          saveFinanceManager();
-        })
-        .catch((error: ValidateErrorEntity<DictDetail>) => {
-          console.log('error', error);
-        });
+    .validate()
+    .then(() => {
+      saveFinanceManager();
+    })
+    .catch((error: ValidateErrorEntity<DictDetail>) => {
+      console.log("error", error);
+    })
+    .finally(() => {
+      debugger;
+      loading.value = false;
+    });
 };
 
 const handleCancel = () => {
@@ -233,16 +241,17 @@ function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
       getDictManagerDetail(props.modelInfo.id)
-      .then((res) => {
-        if (res.code == "200") {
-          formState.value = res.data;
-          modelConfig.confirmLoading = false;
-        } else {
-          message.error((res && res.message) || "查询失败！");
-        }
-      }).catch(() => {
-        message.error("系统问题，请联系管理员！");
-      });
+        .then((res) => {
+          if (res.code == "200") {
+            formState.value = res.data;
+            modelConfig.confirmLoading = false;
+          } else {
+            message.error((res && res.message) || "查询失败！");
+          }
+        })
+        .catch(() => {
+          message.error("系统问题，请联系管理员！");
+        });
     } else {
       modelConfig.confirmLoading = false;
       formState.value = {

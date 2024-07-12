@@ -3,16 +3,14 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { ResponseBody } from "@/api/typing";
 import { message } from "ant-design-vue";
 import router from "@/router";
-import { decrypt } from '@/utils/crypto/index';
-import moment from 'moment';
+import { decrypt } from "@/utils/crypto/index";
+import moment from "moment";
 
 const request = axios.create({
-  // baseURL: process.env.VUE_APP_API_BASE_URL,
   timeout: 6000,
 });
 
-axios.defaults.headers.post["Content-Type"] =
-  "application/x-www-form-urlencoded";
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
@@ -22,7 +20,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     // 403 无权限
     if (status === 403) {
       message.warning("请先登录！", 3);
-      router.push({ name: 'login' });
+      router.push({ name: "login" });
       return Promise.reject(error);
     }
     const { data } = error.response as any;
@@ -44,12 +42,12 @@ const requestHandler = (
       config.headers["Authorization"] = token;
     }
   } else {
-    router.push({ name: 'login' });
+    router.push({ name: "login" });
   }
   if (config?.data) {
     for (const k in config.data) {
-      if (config.data[k] && config.data[k].$L == 'zh-cn') {
-        config.data[k] = config.data[k].add(8, 'hours');
+      if (config.data[k] && config.data[k].$L == "zh-cn") {
+        config.data[k] = config.data[k].add(8, "hours");
       }
     }
   }
@@ -65,15 +63,18 @@ const requestHandlerFile = (
   if (token) {
     if (config?.headers) {
       config.headers["Authorization"] = token;
-      config.headers['Content-Type'] = 'multipart/form-data';
+      config.headers["Content-Type"] = "multipart/form-data";
     }
   } else {
-    router.push({name: 'login'});
+    router.push({ name: "login" });
   }
   if (config?.data) {
     for (const k in config.data) {
       if (config.data[k] && config.data[k] instanceof Date) {
-        config.data[k] = moment(config.data[k]).add(8, 'hours').local().toISOString()
+        config.data[k] = moment(config.data[k])
+          .add(8, "hours")
+          .local()
+          .toISOString();
       }
     }
   }
@@ -89,9 +90,8 @@ const responseHandler = (
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
   const { data } = response;
   let resData = decrypt(data);
-  console.log( `response`, resData)
   if (resData.code == 403) {
-    router.push({ name: 'login' });
+    router.push({ name: "login" });
     return;
   }
   return resData;
@@ -106,5 +106,7 @@ const requestFile = axios.create({
 
 // 添加请求拦截器
 requestFile.interceptors.request.use(requestHandlerFile, errorHandler);
+
+requestFile.interceptors.response.use(responseHandler, errorHandler);
 
 export { request as default, requestFile };
