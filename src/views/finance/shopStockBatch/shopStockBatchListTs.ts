@@ -1,10 +1,8 @@
 export interface SearchInfo {
-  orgCode?: string;
-  orgName?: string;
-  orgShortName?: string;
-  parentId?: number;
-  summary?: string;
-  status?: string;
+  batchCode?: string;
+  batchName?: string;
+  isValid?: string;
+  description?: string;
 }
 
 export interface pageInfo {
@@ -32,13 +30,13 @@ export let pagination = ref<any>({
   // 是否可以改变pageSize
   showSizeChanger: true,
   // 设置每页可以展示多少条的选项
-  pageSizeOptions: ["10", "20", "50", "100"],
+  pageSizeOptions: ['10', '20', '50', '100'],
   // 改变pageSize后触发
   showSizeChange: (current: number, pageSize: any) => (
     (pagination.value.current = current), (pagination.value.pageSize = pageSize)
   ),
   // 小尺寸分页
-  size: "small",
+  size: 'small',
   // 是否可以快速跳转至某页
   showQuickJumper: true,
   //默认条数
@@ -47,45 +45,39 @@ export let pagination = ref<any>({
 
 export const columns = ref<any>([
   {
-    title: "机构编码",
-    dataIndex: "orgCode",
-    key: "orgCode",
+    title: '订单编码',
+    dataIndex: 'batchCode',
+    key: 'batchCode',
   },
   {
-    title: "机构名称",
-    dataIndex: "orgName",
-    key: "orgName",
+    title: '订单名称',
+    dataIndex: 'batchName',
+    key: 'batchName',
   },
   {
-    title: "机构简称",
-    dataIndex: "orgShortName",
-    key: "orgShortName",
+    title: '状态',
+    dataIndex: 'isValid',
+    key: 'isValid',
   },
   {
-    title: "父级机构",
-    dataIndex: "parentOrgName",
-    key: "parentOrgName",
+    title: '描述',
+    dataIndex: 'description',
+    key: 'description',
   },
   {
-    title: "状态",
-    dataIndex: "status",
-    key: "status",
-  },
-  {
-    title: "操作",
-    key: "operation",
-    fixed: "right",
-    width: "8",
+    title: '操作',
+    key: 'operation',
+    fixed: 'right',
+    width: '8',
   },
 ]);
 
+
 export interface DataItem {
-  orgCode: string;
-  orgName: string;
-  orgShortName: string;
-  parentId: number;
-  summary: string;
-  status: string;
+  batchCode: string;
+  batchName: string;
+  isValid: string;
+  description: string;
 }
 
 export interface ModelInfo {
@@ -96,6 +88,6 @@ export interface ModelInfo {
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined;
-  typeName?: string | undefined;
+  typeCode?: string | number | undefined,
+  typeName?: string | undefined,
 }

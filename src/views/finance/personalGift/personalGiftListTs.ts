@@ -1,7 +1,12 @@
 import { Dayjs } from "dayjs";
-
 export interface SearchInfo {
-  username?: string;
+  eventName?: string;
+  amount?: number;
+  otherPerson?: string;
+  eventTime?: Dayjs | string;
+  remarks?: string;
+  action?: number;
+  noticeNum?: number;
 }
 
 export interface pageInfo {
@@ -19,7 +24,7 @@ export interface pageInfo {
 
 export let pagination = ref<any>({
   // 数据总数
-  total: 10,
+  total: 0,
   // 当前页数
   current: 1,
   // 每页条数
@@ -43,75 +48,67 @@ export let pagination = ref<any>({
 });
 
 export const columns = ref<any>([
-  // {
-  //   title: "id",
-  //   dataIndex: "id",
-  //   key: "id",
-  // },
   {
-    title: "用户名",
-    dataIndex: "username",
-    key: "username",
+    title: "事件名称",
+    dataIndex: "eventName",
+    key: "eventName",
   },
   {
-    title: "昵称",
-    dataIndex: "nickName",
-    key: "nickName",
+    title: "其他人",
+    dataIndex: "otherPerson",
+    key: "otherPerson",
   },
   {
-    title: "性别",
-    dataIndex: "gender",
-    key: "gender",
+    title: "金额",
+    dataIndex: "amount",
+    key: "amount",
   },
   {
-    title: "个人头像",
-    dataIndex: "avatarUrl",
-    key: "avatarUrl",
+    title: "动作",
+    dataIndex: "action",
+    key: "action",
   },
   {
-    title: "生日",
-    dataIndex: "birthday",
-    key: "birthday",
+    title: "随礼时间",
+    dataIndex: "eventTime",
+    key: "eventTime",
   },
   {
-    title: "手机",
-    dataIndex: "mobile",
-    key: "mobile",
+    title: "备注",
+    dataIndex: "remarks",
+    key: "remarks",
   },
   {
-    title: "职业",
-    dataIndex: "occupation",
-    key: "occupation",
-  },
-  {
-    title: "状态",
-    dataIndex: "status",
-    key: "status",
+    title: "通知次数",
+    dataIndex: "noticeNum",
+    key: "noticeNum",
   },
   {
     title: "操作",
     key: "operation",
     fixed: "right",
-    width: 160,
+    width: "8",
   },
 ]);
 
 export interface DataItem {
-  id?: number;
-  username?: string;
-  password?: string;
-  gender?: number;
-  avatar?: number;
-  email?: string;
-  birthday?: Dayjs | string;
-  mobile?: string;
-  summary?: string;
-  status?: string;
-  nickName?: string;
-  qqNumber?: string;
-  weChat?: string;
-  occupation?: string;
-  github?: string;
-  gitee?: string;
-  person_resume?: string;
+  eventName: string;
+  amount: number;
+  otherPerson: string;
+  eventTime?: Dayjs | string;
+  remarks: string;
+  action: number;
+  noticeNum: number;
+}
+
+export interface ModelInfo {
+  title?: string;
+  width?: string;
+  id?: number | undefined;
+  confirmLoading?: boolean;
+}
+
+export interface dictInfo {
+  typeCode?: string | number | undefined;
+  typeName?: string | undefined;
 }

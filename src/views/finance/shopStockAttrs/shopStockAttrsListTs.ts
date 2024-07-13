@@ -1,10 +1,10 @@
 export interface SearchInfo {
-  orgCode?: string;
-  orgName?: string;
-  orgShortName?: string;
-  parentId?: number;
-  summary?: string;
-  status?: string;
+  stockId?: number;
+  attrCode?: string;
+  attrName?: string;
+  attrValue?: string;
+  isValid?: string;
+  description?: string;
 }
 
 export interface pageInfo {
@@ -32,13 +32,13 @@ export let pagination = ref<any>({
   // 是否可以改变pageSize
   showSizeChanger: true,
   // 设置每页可以展示多少条的选项
-  pageSizeOptions: ["10", "20", "50", "100"],
+  pageSizeOptions: ['10', '20', '50', '100'],
   // 改变pageSize后触发
   showSizeChange: (current: number, pageSize: any) => (
     (pagination.value.current = current), (pagination.value.pageSize = pageSize)
   ),
   // 小尺寸分页
-  size: "small",
+  size: 'small',
   // 是否可以快速跳转至某页
   showQuickJumper: true,
   //默认条数
@@ -47,45 +47,51 @@ export let pagination = ref<any>({
 
 export const columns = ref<any>([
   {
-    title: "机构编码",
-    dataIndex: "orgCode",
-    key: "orgCode",
+    title: '库存id',
+    dataIndex: 'stockId',
+    key: 'stockId',
   },
   {
-    title: "机构名称",
-    dataIndex: "orgName",
-    key: "orgName",
+    title: '商品属性编码',
+    dataIndex: 'attrCode',
+    key: 'attrCode',
   },
   {
-    title: "机构简称",
-    dataIndex: "orgShortName",
-    key: "orgShortName",
+    title: '商品属性名称',
+    dataIndex: 'attrName',
+    key: 'attrName',
   },
   {
-    title: "父级机构",
-    dataIndex: "parentOrgName",
-    key: "parentOrgName",
+    title: '商品属性值',
+    dataIndex: 'attrValue',
+    key: 'attrValue',
   },
   {
-    title: "状态",
-    dataIndex: "status",
-    key: "status",
+    title: '状态',
+    dataIndex: 'isValid',
+    key: 'isValid',
   },
   {
-    title: "操作",
-    key: "operation",
-    fixed: "right",
-    width: "8",
+    title: '描述',
+    dataIndex: 'description',
+    key: 'description',
+  },
+  {
+    title: '操作',
+    key: 'operation',
+    fixed: 'right',
+    width: '8',
   },
 ]);
 
+
 export interface DataItem {
-  orgCode: string;
-  orgName: string;
-  orgShortName: string;
-  parentId: number;
-  summary: string;
-  status: string;
+  stockId: number;
+  attrCode: string;
+  attrName: string;
+  attrValue: string;
+  isValid: string;
+  description: string;
 }
 
 export interface ModelInfo {
@@ -96,6 +102,6 @@ export interface ModelInfo {
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined;
-  typeName?: string | undefined;
+  typeCode?: string | number | undefined,
+  typeName?: string | undefined,
 }
