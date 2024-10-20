@@ -25,7 +25,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
     }
     const { data } = error.response as any;
     if (data) {
-      response = decrypt(data);
+      response = data;
     }
   }
   return Promise.reject(response);

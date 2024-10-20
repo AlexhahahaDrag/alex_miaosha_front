@@ -12,7 +12,6 @@ declare module 'vue' {
     ABreadcrumb: typeof import('ant-design-vue/es')['Breadcrumb']
     ABreadcrumbItem: typeof import('ant-design-vue/es')['BreadcrumbItem']
     AButton: typeof import('ant-design-vue/es')['Button']
-    ACard: typeof import('ant-design-vue/es')['Card']
     AccountRecordInfo: typeof import('./src/views/finance/accountRecordInfo/index.vue')['default']
     AccountRecordInfoDetail: typeof import('./src/views/finance/accountRecordInfo/accountRecordInfoDetail/index.vue')['default']
     ACol: typeof import('ant-design-vue/es')['Col']

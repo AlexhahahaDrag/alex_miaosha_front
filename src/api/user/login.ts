@@ -1,15 +1,12 @@
 import request from "@/utils/request/request";
-import {
-  baseService,
-} from "@/api/common/index";
 
 // 将请求数据转换为form-data格式
 // 这里不用qs，用FormData也可以，不赘述
-let baseUrl = "/api/v1"
+let baseUrl = "/api"
 
 enum Api {
-  login = "/user/login",
-  logout = "/user/logout",
+  login = "/loginCode",
+  logout = "/logout",
 }
 
 export interface LoginParams {
@@ -28,9 +25,9 @@ function transParams(data) {
 }
 
 export function loginApi(params: LoginParams): Promise<any> {
-  return request.post(baseService.user + baseUrl + Api.login, transParams(params));
+  return request.get( baseUrl + Api.login,{params});
 }
 
 export function logoutApi(): Promise<any> {
-  return request.post(baseService.user + baseUrl + Api.logout);
+  return request.post( baseUrl + Api.logout);
 }
