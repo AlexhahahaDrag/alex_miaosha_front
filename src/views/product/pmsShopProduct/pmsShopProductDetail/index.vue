@@ -299,7 +299,7 @@ watch(
 defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
+
 </style>
 <style lang="scss" scoped>
 .mainGrid {

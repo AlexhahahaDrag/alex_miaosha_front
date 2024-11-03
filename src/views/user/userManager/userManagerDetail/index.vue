@@ -283,5 +283,5 @@ const emit = defineEmits(["handleOk", "handleCancel"]);
 defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
+
 </style>

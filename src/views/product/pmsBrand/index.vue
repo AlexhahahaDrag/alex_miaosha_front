@@ -217,5 +217,5 @@ const handleCancel = (v: boolean) => {
 };
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
+
 </style>

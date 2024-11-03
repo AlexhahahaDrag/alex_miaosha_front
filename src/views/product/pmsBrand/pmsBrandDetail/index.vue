@@ -239,5 +239,5 @@ watch(
 defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
+
 </style>

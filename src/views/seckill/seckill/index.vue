@@ -133,7 +133,7 @@ const initPage = () => {
 }
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
+
 // .content-box {
 //   box-sizing: border-box;
 //   padding: 10px 20px 0 0;
