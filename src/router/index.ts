@@ -5,7 +5,7 @@ import NProgress from 'nprogress';
 import { useUserStore } from "@/store/modules/user/user";
 import type { MenuInfo } from "@/store/modules/user/typing";
 
-const modules = import.meta.glob('@/views/**/**.vue');
+const modules = import.meta.glob(['@/views/**/**.vue', '!@/views/common/icons/**.vue']);
 export const routes: MenuDataItem[] = [
   {
     name: "home",
