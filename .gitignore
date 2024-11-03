@@ -25,3 +25,6 @@ dist-ssr
 .vscode
 yarn.lock
 package-lock.json
+stats.html
+*/auto-imports.d.ts
+components.d.ts
