@@ -1,68 +1,150 @@
 <template>
   <div>
-    <a-modal :open='props.open'
-            :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-            :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'"
-            @ok='handleOk' okText='保存' :confirmLoading='modelConfig.confirmLoading'
-            :destroyOnClose='modelConfig.destroyOnClose' @cancel='handleCancel'>
+    <a-modal
+      :open="props.open"
+      :width="
+        props.modelInfo && props.modelInfo.width
+          ? props.modelInfo.width
+          : '1000px'
+      "
+      :title="
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
+      "
+      @ok="handleOk"
+      okText="保存"
+      :confirmLoading="modelConfig.confirmLoading"
+      :destroyOnClose="modelConfig.destroyOnClose"
+      @cancel="handleCancel"
+    >
       <template #footer>
-        <a-button key='back' @click='handleCancel'>取消</a-button>
-        <a-button key='submit' type='primary' :loading='loading' @click='handleOk'>保存</a-button>
+        <a-button key="back" @click="handleCancel">取消</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >保存</a-button
+        >
       </template>
-      <a-form ref='formRef' name='ShopOrderDetailForm' class='ant-advanced-search-form' :model='formState' @finish='onFinish'
-        @finishFailed='onFinishFailed' :rules='rulesRef' :label-col='labelCol' :wrapper-col='wrapperCol'>
-        <a-row :gutter='24'>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['orderId'].name" :label="labelMap['orderId'].label">
-              <a-input v-model:value='formState.orderId' :placeholder="'请填写' + labelMap['orderId'].label"></a-input>
+      <a-form
+        ref="formRef"
+        name="ShopOrderDetailForm"
+        class="ant-advanced-search-form"
+        :model="formState"
+        @finish="onFinish"
+        @finishFailed="onFinishFailed"
+        :rules="rulesRef"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['orderId'].name"
+              :label="labelMap['orderId'].label"
+            >
+              <a-input
+                v-model:value="formState.orderId"
+                :placeholder="'请填写' + labelMap['orderId'].label"
+              ></a-input>
             </a-form-item>
           </a-col>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['shopName'].name" :label="labelMap['shopName'].label">
-              <a-input v-model:value='formState.shopName' :placeholder="'请填写' + labelMap['shopName'].label"></a-input>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter='24'>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['shopCode'].name" :label="labelMap['shopCode'].label">
-              <a-input v-model:value='formState.shopCode' :placeholder="'请填写' + labelMap['shopCode'].label"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['saleAmount'].name" :label="labelMap['saleAmount'].label">
-              <a-input v-model:value='formState.saleAmount' :placeholder="'请填写' + labelMap['saleAmount'].label"></a-input>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter='24'>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['isValid'].name" :label="labelMap['isValid'].label">
-              <a-input v-model:value='formState.isValid' :placeholder="'请填写' + labelMap['isValid'].label"></a-input>
-            </a-form-item>
-          </a-col>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['saleDate'].name" :label="labelMap['saleDate'].label">
-              <a-input v-model:value='formState.saleDate' :placeholder="'请填写' + labelMap['saleDate'].label"></a-input>
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['shopName'].name"
+              :label="labelMap['shopName'].label"
+            >
+              <a-input
+                v-model:value="formState.shopName"
+                :placeholder="'请填写' + labelMap['shopName'].label"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter='24'>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['payWay'].name" :label="labelMap['payWay'].label">
-              <a-input v-model:value='formState.payWay' :placeholder="'请填写' + labelMap['payWay'].label"></a-input>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['shopCode'].name"
+              :label="labelMap['shopCode'].label"
+            >
+              <a-input
+                v-model:value="formState.shopCode"
+                :placeholder="'请填写' + labelMap['shopCode'].label"
+              ></a-input>
             </a-form-item>
           </a-col>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['saleNum'].name" :label="labelMap['saleNum'].label">
-              <a-input v-model:value='formState.saleNum' :placeholder="'请填写' + labelMap['saleNum'].label"></a-input>
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['saleAmount'].name"
+              :label="labelMap['saleAmount'].label"
+            >
+              <a-input
+                v-model:value="formState.saleAmount"
+                :placeholder="'请填写' + labelMap['saleAmount'].label"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
-        <a-row :gutter='24'>
-          <a-col :span='12'>
-            <a-form-item :name="labelMap['shopStockId'].name" :label="labelMap['shopStockId'].label">
-              <a-input v-model:value='formState.shopStockId' :placeholder="'请填写' + labelMap['shopStockId'].label"></a-input>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['isValid'].name"
+              :label="labelMap['isValid'].label"
+            >
+              <a-input
+                v-model:value="formState.isValid"
+                :placeholder="'请填写' + labelMap['isValid'].label"
+              ></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['saleDate'].name"
+              :label="labelMap['saleDate'].label"
+            >
+              <a-input
+                v-model:value="formState.saleDate"
+                :placeholder="'请填写' + labelMap['saleDate'].label"
+              ></a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['payWay'].name"
+              :label="labelMap['payWay'].label"
+            >
+              <a-input
+                v-model:value="formState.payWay"
+                :placeholder="'请填写' + labelMap['payWay'].label"
+              ></a-input>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['saleNum'].name"
+              :label="labelMap['saleNum'].label"
+            >
+              <a-input
+                v-model:value="formState.saleNum"
+                :placeholder="'请填写' + labelMap['saleNum'].label"
+              ></a-input>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :name="labelMap['shopStockId'].name"
+              :label="labelMap['shopStockId'].label"
+            >
+              <a-input
+                v-model:value="formState.shopStockId"
+                :placeholder="'请填写' + labelMap['shopStockId'].label"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
@@ -70,7 +152,7 @@
     </a-modal>
   </div>
 </template>
-<script lang='ts' setup>
+<script lang="ts" setup>
 import { ShopOrderDetailDetail } from './shopOrderDetailDetailTs';
 import {
   getShopOrderDetailDetail,
@@ -86,17 +168,16 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>(
-{
-    orderId: {name: 'orderId', label: '订单id'},
-    shopName: {name: 'shopName', label: '商品名称'},
-    shopCode: {name: 'shopCode', label: '商品编码'},
-    saleAmount: {name: 'saleAmount', label: '售价'},
-    isValid: {name: 'isValid', label: '是否有效'},
-    saleDate: {name: 'saleDate', label: '销售日期'},
-    payWay: {name: 'payWay', label: '支付方式'},
-    saleNum: {name: 'saleNum', label: '个数'},
-    shopStockId: {name: 'shopStockId', label: '商品库存id'},
+const labelMap = ref<any>({
+  orderId: { name: 'orderId', label: '订单id' },
+  shopName: { name: 'shopName', label: '商品名称' },
+  shopCode: { name: 'shopCode', label: '商品编码' },
+  saleAmount: { name: 'saleAmount', label: '售价' },
+  isValid: { name: 'isValid', label: '是否有效' },
+  saleDate: { name: 'saleDate', label: '销售日期' },
+  payWay: { name: 'payWay', label: '支付方式' },
+  saleNum: { name: 'saleNum', label: '个数' },
+  shopStockId: { name: 'shopStockId', label: '商品库存id' },
 });
 
 const rulesRef = reactive({
@@ -169,14 +250,15 @@ const props = defineProps<Props>();
 
 let formState = ref<ShopOrderDetailDetail>({});
 
-
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
 const handleOk = (): void => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(
-      () => saveShopOrderDetailManager()).catch(() => {
+    formRef.value
+      .validateFields()
+      .then(() => saveShopOrderDetailManager())
+      .catch(() => {
         loading.value = false;
       });
   }
@@ -207,12 +289,13 @@ const saveShopOrderDetailManager = (): void => {
     .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error((data?.message) || '保存失败！');
+        message.error(data?.message || '保存失败！');
       }
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
-}
+};
 
 const onFinish = (values: any): void => {
   console.log('Success:', values);
@@ -237,16 +320,15 @@ const init = (): void => {
         .catch((error: any) => {
           let data = error?.response?.data;
           if (data) {
-            message.error((data?.message) || '查询失败！');
+            message.error(data?.message || '查询失败！');
           }
         });
     } else {
       modelConfig.confirmLoading = false;
-      formState.value = {
-      };
+      formState.value = {};
     }
   }
-}
+};
 
 watch(
   () => props.open,
@@ -258,11 +340,9 @@ watch(
   {
     immediate: true,
     deep: true,
-  }
+  },
 );
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang='scss' scoped>
-@import '@/style/index.scss';
-</style>
+<style lang="scss" scoped></style>

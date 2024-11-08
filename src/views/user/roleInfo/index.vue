@@ -32,39 +32,7 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['summary'].name"
-                :label="labelMap['summary'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.summary"
-                  :placeholder="'请选择' + labelMap['summary'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['status'].name"
-                :label="labelMap['status'].label"
-              >
-                <a-select
-                  ref="select"
-                  v-model:value="searchInfo.status"
-                  :placeholder="'请输入' + labelMap['status'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="statusList"
-                  :allowClear="true"
-                >
-                </a-select>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="20" style="text-align: right">
+            <a-col style="text-align: right">
               <a-space>
                 <a-button type="primary" @click="query"> 查找</a-button>
                 <a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -90,7 +58,7 @@
         :row-key="(record: any) => record.id"
         :pagination="pagination"
         @change="handleTableChange"
-        :scroll="{ x: 1100 }"
+        :scroll="{ y: 520 }"
         :row-selection="rowSelection"
       >
         <template #bodyCell="{ column, record }">
@@ -112,7 +80,14 @@
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
-            <span></span>
+          </template>
+          <template v-else-if="column.key === 'status'">
+            <a-tag
+              :key="record.status"
+              :color="record.status == '1' ? '#87d068' : 'grey'"
+            >
+              {{ record.status == '1' ? '有效' : '失效' }}
+            </a-tag>
           </template>
         </template>
       </a-table>
@@ -240,6 +215,9 @@ function getRoleInfoListPage(param: SearchInfo, cur: pageInfo) {
     .then((res) => {
       if (res.code == '200') {
         dataSource.value = res.data.records;
+        for (let i = 0; i < 5; i++) {
+          dataSource.value.push(...dataSource.value);
+        }
         pagination.value.current = res.data.current;
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;

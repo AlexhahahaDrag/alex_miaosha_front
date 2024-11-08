@@ -1,11 +1,11 @@
-import App from "./App.vue";
-import router from "./router";
-import "virtual:svg-icons-register";
+import App from './App.vue';
+import router from './router';
+import 'virtual:svg-icons-register';
 //引入store
-import { setupStore } from "@/store";
-import Particles from "@tsparticles/vue3";
-import { loadSlim } from "@tsparticles/slim";
-import "@/style/index.scss";
+import { setupStore } from '@/store';
+import Particles from '@tsparticles/vue3';
+import { loadSlim } from '@tsparticles/slim';
+import '@/style/index.scss';
 
 const app = createApp(App);
 // Configure store
@@ -18,4 +18,4 @@ app
       await loadSlim(engine); // or you can load the slim version from "@tsparticles/slim" if don't need Shapes or Animations
     },
   })
-  .mount("#app");
+  .mount('#app');
