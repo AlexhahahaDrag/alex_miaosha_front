@@ -74,14 +74,14 @@ export const columns = ref<any>([
     key: "eventTime",
   },
   {
-    title: "通知次数",
-    dataIndex: "noticeNum",
-    key: "noticeNum",
-  },
-  {
     title: "备注",
     dataIndex: "remarks",
     key: "remarks",
+  },
+  {
+    title: "通知次数",
+    dataIndex: "noticeNum",
+    key: "noticeNum",
   },
   {
     title: "操作",
