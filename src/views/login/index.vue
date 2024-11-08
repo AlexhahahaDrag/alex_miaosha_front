@@ -12,7 +12,7 @@
       class="login-form"
       :rules="loginRules"
     >
-      <h3 class="title">婚恋系统</h3>
+      <h3 class="title">alex管理后台</h3>
       <a-form-item name="username">
         <a-input
           v-model:value="loginForm.username"

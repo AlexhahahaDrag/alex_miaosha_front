@@ -2,16 +2,28 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="typeName" label="类别">
-                <a-input v-model:value="searchInfo.typeName" placeholder="类别" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.typeName"
+                  placeholder="类别"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="belongToName" label="分类名称">
-                <a-input v-model:value="searchInfo.belongToName" placeholder="请输入分类名称" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.belongToName"
+                  placeholder="请输入分类名称"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -28,31 +40,60 @@
       <a-space>
         <a-button type="primary" @click="editDict('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelDictManager">删除</a-button>
+        <a-button type="primary" danger @click="batchDelDictManager"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1200 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1200 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editDict('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除字典信息?" ok-text="确认" cancel-text="取消" @confirm="delDict(record.id)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editDict('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除字典信息?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delDict(record.id)"
+                @cancel="cancel"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
           <template v-else-if="column.key === 'isValid'">
-            <a-tag :key="record.isValid" :color="record.isValid == 1 ? '#87d068' : 'grey'">
+            <a-tag
+              :key="record.isValid"
+              :color="record.isValid == 1 ? '#87d068' : 'grey'"
+            >
               {{ record.isValid == 1 ? "有效" : "失效" }}
             </a-tag>
           </template>
         </template>
       </a-table>
-      <DictDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <DictDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      >
       </DictDetail>
     </div>
   </div>
@@ -67,7 +108,10 @@ import {
   dictInfo,
   pageInfo,
 } from "./dict";
-import { getDictManagerPage, deleteDictManager } from "@/api/finance/dict/dictManager";
+import {
+  getDictManagerPage,
+  deleteDictManager,
+} from "@/api/finance/dict/dictManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 
@@ -82,13 +126,20 @@ const wrapperCol = ref({ span: 19 });
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
@@ -108,18 +159,19 @@ function handleTableChange(pagination) {
 }
 
 function delDict(ids: string) {
-  deleteDictManager(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getDictPage(searchInfo.value, pagination.value);
-    } else {
-      message.error((res && res.message) || "删除失败！", 3);
-    }
-  }).catch((e) => {
-    message.error("删除异常，请联系管理员！", 3);
-    console.log(e);
-  }
-  );
+  deleteDictManager(ids)
+    .then((res) => {
+      if (res.code == "200") {
+        message.success((res && "删除" + res.message) || "删除成功！", 3);
+        getDictPage(searchInfo.value, pagination.value);
+      } else {
+        message.error((res && res.message) || "删除失败！", 3);
+      }
+    })
+    .catch((e) => {
+      message.error("删除异常，请联系管理员！", 3);
+      console.log(e);
+    });
 }
 
 function batchDelDictManager() {
@@ -156,11 +208,12 @@ function getDictPage(param: SearchInfo, cur: pageInfo) {
       } else {
         message.error((res && res.message) || "查询列表失败！");
       }
-    }).catch((e) => {
+    })
+    .catch((e) => {
       message.error("获取页面异常，请联系管理员！", 3);
       console.log(e);
-    }
-    ).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -216,6 +269,4 @@ const handleCancel = (v: boolean) => {
   visible.value = v;
 };
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

@@ -1,52 +1,108 @@
 <template>
   <div>
-    <a-modal :open="props.open" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-        " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+    <a-modal
+      :open="props.open"
+      :width="
+        props.modelInfo && props.modelInfo.width
+          ? props.modelInfo.width
+          : '1000px'
+      "
+      :title="
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
+      "
+      @ok="handleOk"
+      okText="保存"
+      :confirmLoading="modelConfig.confirmLoading"
+      :destroyOnClose="modelConfig.destroyOnClose"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >保存</a-button
+        >
       </template>
-      <a-form ref="formRef" name="PmsBrandForm" class="ant-advanced-search-form" :model="formState" @finish="onFinish"
-        @finishFailed="onFinishFailed" :rules="rulesRef" :label-col="labelCol" :wrapper-col="wrapperCol">
+      <a-form
+        ref="formRef"
+        name="PmsBrandForm"
+        class="ant-advanced-search-form"
+        :model="formState"
+        @finish="onFinish"
+        @finishFailed="onFinishFailed"
+        :rules="rulesRef"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="name" label="品牌名">
-              <a-input v-model:value="formState.name" placeholder="请填写品牌名"></a-input>
+              <a-input
+                v-model:value="formState.name"
+                placeholder="请填写品牌名"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="logo" label="品牌logo地址">
-              <MyUpload :fileInfo="fileInfo" :fromSystem="fromSystem" @handleRemove="handleRemove" @customImageRequest="customImageRequest"></MyUpload>
+              <MyUpload
+                :fileInfo="fileInfo"
+                :fromSystem="fromSystem"
+                @handleRemove="handleRemove"
+                @customImageRequest="customImageRequest"
+              ></MyUpload>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="showStatus" label="显示状态">
-              <a-select ref="select" v-model:value="formState.showStatus" placeholder="请输入显示状态"
-                :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList"
-                :allowClear="true"></a-select>
+              <a-select
+                ref="select"
+                v-model:value="formState.showStatus"
+                placeholder="请输入显示状态"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="validList"
+                :allowClear="true"
+              ></a-select>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="firstLetter" label="检索首字母">
-              <a-input v-model:value="formState.firstLetter" placeholder="请填写检索首字母"></a-input>
+              <a-input
+                v-model:value="formState.firstLetter"
+                placeholder="请填写检索首字母"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="sort" label="排序">
-              <a-input v-model:value="formState.sort" placeholder="请填写排序"></a-input>
+              <a-input
+                v-model:value="formState.sort"
+                placeholder="请填写排序"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item name="descript" label="介绍" :label-col="{ span: 3 }" :wrapperCol="{ span: 24 }">
-              <a-textarea v-model:value="formState.descript" placeholder="请填写介绍"></a-textarea>
+            <a-form-item
+              name="descript"
+              label="介绍"
+              :label-col="{ span: 3 }"
+              :wrapperCol="{ span: 24 }"
+            >
+              <a-textarea
+                v-model:value="formState.descript"
+                placeholder="请填写介绍"
+              ></a-textarea>
             </a-form-item>
           </a-col>
         </a-row>
@@ -63,7 +119,7 @@ import {
 import { message, FormInstance } from "ant-design-vue";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
-import { FileInfo } from '@/views/components/fileInfo';
+import { FileInfo } from "@/views/components/fileInfo";
 
 let validList = ref<dictInfo[]>([]);
 const labelCol = ref({ span: 6 });
@@ -77,20 +133,20 @@ const rulesRef = reactive<any>({
   name: [
     {
       required: true,
-      message: '品牌名不能为空！',
+      message: "品牌名不能为空！",
     },
   ],
   logo: [
     {
       required: true,
-      message: '品牌logo地址不能为空！',
-      trigger: 'submit'
+      message: "品牌logo地址不能为空！",
+      trigger: "submit",
     },
   ],
   firstLetter: [
     {
       required: true,
-      message: '检索首字母不能为空！',
+      message: "检索首字母不能为空！",
     },
   ],
 });
@@ -110,15 +166,17 @@ let formState = ref<PmsBrandDetail>({});
 
 let fileInfo = ref<FileInfo>({});
 
-let fromSystem = ref<string>('product');
+let fromSystem = ref<string>("product");
 
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(
-      () => savePmsBrandManager()).catch(() => {
+    formRef.value
+      .validateFields()
+      .then(() => savePmsBrandManager())
+      .catch(() => {
         loading.value = false;
       });
   }
@@ -149,9 +207,10 @@ function savePmsBrandManager() {
     .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error((data?.message) || "保存失败！");
+        message.error(data?.message || "保存失败！");
       }
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -167,9 +226,12 @@ const onFinishFailed = (errorInfo: any) => {
 function getDictInfoList() {
   getDictList("is_valid").then((res) => {
     if (res.code == "200") {
-      res.data.forEach(item => {
+      res.data.forEach((item) => {
         if (item.belongTo == "is_valid") {
-          validList.value.push({ typeCode: Number(item.typeCode), typeName: item.typeName });
+          validList.value.push({
+            typeCode: Number(item.typeCode),
+            typeName: item.typeName,
+          });
         }
       });
     } else {
@@ -180,12 +242,12 @@ function getDictInfoList() {
 
 const customImageRequest = (file: FileInfo) => {
   formState.value.logo = file.id;
-}
+};
 
 const handleRemove = () => {
   formState.value.logo = null;
-  formState.value.logoUrl = '';
-}
+  formState.value.logoUrl = "";
+};
 
 function init() {
   //获取字典值
@@ -210,7 +272,7 @@ function init() {
         .catch((error: any) => {
           let data = error?.response?.data;
           if (data) {
-            message.error((data?.message) || "查询失败！");
+            message.error(data?.message || "查询失败！");
           }
         });
     } else {
@@ -238,6 +300,4 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

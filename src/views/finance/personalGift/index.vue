@@ -344,6 +344,4 @@ const handleCancel = (v: boolean): void => {
   visible.value = v;
 };
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

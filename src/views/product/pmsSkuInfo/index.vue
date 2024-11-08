@@ -2,71 +2,125 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-         <a-row :gutter="24">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
+          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="spuId" label="spuId">
-                <a-input v-model:value="searchInfo.spuId" placeholder="spuId" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.spuId"
+                  placeholder="spuId"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuName" label="sku名称">
-                <a-input v-model:value="searchInfo.skuName" placeholder="sku名称" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.skuName"
+                  placeholder="sku名称"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuDesc" label="sku介绍描述">
-                <a-input v-model:value="searchInfo.skuDesc" placeholder="sku介绍描述" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.skuDesc"
+                  placeholder="sku介绍描述"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="catalogId" label="所属分类id">
-                <a-input v-model:value="searchInfo.catalogId" placeholder="所属分类id" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.catalogId"
+                  placeholder="所属分类id"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
-         <a-row :gutter="24">
+          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="brandId" label="品牌id">
-                <a-input v-model:value="searchInfo.brandId" placeholder="品牌id" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.brandId"
+                  placeholder="品牌id"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuDefaultImg" label="默认图片">
-                <a-input v-model:value="searchInfo.skuDefaultImg" placeholder="默认图片" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.skuDefaultImg"
+                  placeholder="默认图片"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuTitle" label="标题">
-                <a-input v-model:value="searchInfo.skuTitle" placeholder="标题" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.skuTitle"
+                  placeholder="标题"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="skuSubtitle" label="副标题">
-                <a-input v-model:value="searchInfo.skuSubtitle" placeholder="副标题" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.skuSubtitle"
+                  placeholder="副标题"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
-         <a-row :gutter="24">
+          <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="price" label="价格">
-                <a-input v-model:value="searchInfo.price" placeholder="价格" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.price"
+                  placeholder="价格"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="saleCount" label="销量">
-                <a-input v-model:value="searchInfo.saleCount" placeholder="销量" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.saleCount"
+                  placeholder="销量"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
-            <a-row :gutter="24">
-                <a-col :span="6" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
+          <a-row :gutter="24">
+            <a-col :span="6" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
         </a-form>
       </div>
     </div>
@@ -74,18 +128,38 @@
       <a-space>
         <a-button type="primary" @click="editPmsSkuInfo('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelPmsSkuInfo">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsSkuInfo"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1100 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editPmsSkuInfo('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsSkuInfo(record.id)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editPmsSkuInfo('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delPmsSkuInfo(record.id)"
+                @cancel="cancel"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -93,8 +167,13 @@
           </template>
         </template>
       </a-table>
-      <PmsSkuInfoDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></PmsSkuInfoDetail>
+      <PmsSkuInfoDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      ></PmsSkuInfoDetail>
     </div>
   </div>
 </template>
@@ -107,7 +186,10 @@ import {
   ModelInfo,
   pageInfo,
 } from "./pmsSkuInfoListTs";
-import { getPmsSkuInfoPage, deletePmsSkuInfo } from "@/api/product/pmsSkuInfo/pmsSkuInfoTs";
+import {
+  getPmsSkuInfoPage,
+  deletePmsSkuInfo,
+} from "@/api/product/pmsSkuInfo/pmsSkuInfoTs";
 import { message } from "ant-design-vue";
 
 const labelCol = ref({ span: 5 });
@@ -117,16 +199,23 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
-})
+});
 
 let searchInfo = ref<SearchInfo>({});
 
@@ -173,7 +262,7 @@ let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-}
+};
 
 function getPmsSkuInfoListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -229,8 +318,6 @@ const handleCancel = (v: boolean) => {
 const initPage = () => {
   pagination.value.current = 1;
   pagination.value.pageSize = 10;
-}
+};
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

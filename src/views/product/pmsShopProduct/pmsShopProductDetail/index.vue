@@ -1,15 +1,44 @@
 <template>
   <div>
-    <a-modal :open="props.open" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '3000px'"
-      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-        " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+    <a-modal
+      :open="props.open"
+      :width="
+        props.modelInfo && props.modelInfo.width
+          ? props.modelInfo.width
+          : '3000px'
+      "
+      :title="
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
+      "
+      @ok="handleOk"
+      okText="保存"
+      :confirmLoading="modelConfig.confirmLoading"
+      :destroyOnClose="modelConfig.destroyOnClose"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >保存</a-button
+        >
       </template>
-      <a-form ref="formRef" name="PmsShopProductForm" class="ant-advanced-search-form" disabled :model="formState"
-        @finish="onFinish" @finishFailed="onFinishFailed" :label-col="labelCol" :wrapper-col="wrapperCol">
+      <a-form
+        ref="formRef"
+        name="PmsShopProductForm"
+        class="ant-advanced-search-form"
+        disabled
+        :model="formState"
+        @finish="onFinish"
+        @finishFailed="onFinishFailed"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="name" label="name">
@@ -25,9 +54,16 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="price" label="价格">
-              <span v-if="formState.comparePrice && formState.price && formState.price < formState.comparePrice"
-                style="font-weight: 900; font-style: oblique; color: red;">
-                {{ formState.price }}</span>
+              <span
+                v-if="
+                  formState.comparePrice &&
+                  formState.price &&
+                  formState.price < formState.comparePrice
+                "
+                style="font-weight: 900; font-style: oblique; color: red"
+              >
+                {{ formState.price }}</span
+              >
               <span v-else>{{ formState.price }}</span>
             </a-form-item>
           </a-col>
@@ -79,7 +115,13 @@
     </div> -->
       <div class="mainGrid">
         <div class="div1">
-          <line-chart height="100%" width="100%" title="近三十日数据变化" :data="dayData" :config="dayConfig">
+          <line-chart
+            height="100%"
+            width="100%"
+            title="近三十日数据变化"
+            :data="dayData"
+            :config="dayConfig"
+          >
           </line-chart>
         </div>
       </div>
@@ -152,8 +194,10 @@ const emit = defineEmits(["handleOk", "handleCancel"]);
 const handleOk = () => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(
-      () => savePmsShopProductManager()).catch(() => {
+    formRef.value
+      .validateFields()
+      .then(() => savePmsShopProductManager())
+      .catch(() => {
         loading.value = false;
       });
   }
@@ -184,9 +228,10 @@ function savePmsShopProductManager() {
     .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error((data?.message) || "保存失败！");
+        message.error(data?.message || "保存失败！");
       }
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -199,7 +244,7 @@ const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
 };
 
-let sourceName = ref<string>('');
+let sourceName = ref<string>("");
 
 function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
   getProductHisInfo(skuId, dateStr).then(
@@ -235,7 +280,9 @@ function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
                     value: any;
                     seriesName: any;
                   }) => {
-                    tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.00}${unit}</p>`;
+                    tip += `<p style="margin: 0">${element.marker}${name}: ${
+                      element.value ? element.value : 0.0
+                    }${unit}</p>`;
                   }
                 );
                 return tip;
@@ -255,13 +302,18 @@ function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
 function init() {
   if (props.modelInfo) {
     if (props.modelInfo.id) {
-      Promise.all([getDictList("shop_type"), getPmsShopProductDetail(props.modelInfo.id)]).then((res: any[]) => {
+      Promise.all([
+        getDictList("shop_type"),
+        getPmsShopProductDetail(props.modelInfo.id),
+      ]).then((res: any[]) => {
         if (res[0].code == "200" && res[0].data?.length && res[1].data) {
-          res[0].data.forEach((item: { typeCode: string; typeName: Ref<string>; }) => {
-            if (item.typeCode == res[1].data.source) {
-              sourceName = item.typeName;
+          res[0].data.forEach(
+            (item: { typeCode: string; typeName: Ref<string> }) => {
+              if (item.typeCode == res[1].data.source) {
+                sourceName = item.typeName;
+              }
             }
-          });
+          );
         } else {
           message.error((res[0] && res[0].message) || "查询列表失败！");
         }
@@ -274,12 +326,11 @@ function init() {
       });
     } else {
       modelConfig.confirmLoading = false;
-      formState.value = {
-      };
+      formState.value = {};
     }
   }
   if (formState.value?.skuId) {
-    getProductHisDaysInfo(formState.value.skuId, '')
+    getProductHisDaysInfo(formState.value.skuId, "");
   }
 }
 
@@ -298,9 +349,7 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>
 <style lang="scss" scoped>
 .mainGrid {
   width: 100%;

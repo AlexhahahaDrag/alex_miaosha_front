@@ -1,24 +1,56 @@
 <template>
   <div id="modalBox">
-    <a-modal :open="props.open" :width="props?.modelInfo?.width || '1000px'" :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-      " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+    <a-modal
+      :open="props.open"
+      :width="props?.modelInfo?.width || '1000px'"
+      :title="
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
+      "
+      @ok="handleOk"
+      okText="保存"
+      :confirmLoading="modelConfig.confirmLoading"
+      :destroyOnClose="modelConfig.destroyOnClose"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >保存</a-button
+        >
       </template>
-      <a-form ref="formRef" name="financeForm" :rules="rulesRef" :model="formState" @finishFailed="onFinishFailed"
-        :label-col="labelCol" :wrapper-col="wrapperCol">
+      <a-form
+        ref="formRef"
+        name="financeForm"
+        :rules="rulesRef"
+        :model="formState"
+        @finishFailed="onFinishFailed"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="username" label="用户名">
-              <a-input v-model:value="formState.username" placeholder="请填写用户名"></a-input>
+              <a-input
+                v-model:value="formState.username"
+                placeholder="请填写用户名"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="gender" label="性别">
-              <a-select ref="select" v-model:value="formState.gender"
-                :field-names="{ label: 'typeName', value: 'typeCode' }" :options="genderList" :allowClear="true">
+              <a-select
+                ref="select"
+                v-model:value="formState.gender"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="genderList"
+                :allowClear="true"
+              >
               </a-select>
             </a-form-item>
           </a-col>
@@ -26,50 +58,77 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="nickName" label="昵称">
-              <a-input v-model:value="formState.nickName" placeholder="请填写昵称"></a-input>
+              <a-input
+                v-model:value="formState.nickName"
+                placeholder="请填写昵称"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="weChat" label="微信号">
-              <a-input v-model:value="formState.weChat" placeholder="请填写微信号"></a-input>
+              <a-input
+                v-model:value="formState.weChat"
+                placeholder="请填写微信号"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="qqNumber" label="QQ号">
-              <a-input v-model:value="formState.qqNumber" placeholder="请填写QQ号"></a-input>
+              <a-input
+                v-model:value="formState.qqNumber"
+                placeholder="请填写QQ号"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="occupation" label="职业">
-              <a-input v-model:value="formState.occupation" placeholder="请填写职业"></a-input>
+              <a-input
+                v-model:value="formState.occupation"
+                placeholder="请填写职业"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="email" label="邮箱">
-              <a-input v-model:value="formState.email" placeholder="请填写邮箱！" />
+              <a-input
+                v-model:value="formState.email"
+                placeholder="请填写邮箱！"
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="birthday" label="生日">
-              <a-date-picker v-model:value="formState.birthday" :format="dateFormatter"
-                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }" />
+              <a-date-picker
+                v-model:value="formState.birthday"
+                :format="dateFormatter"
+                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }"
+              />
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="mobile" label="电话号">
-              <a-input v-model:value="formState.mobile" placeholder="请填写电话号"></a-input>
+              <a-input
+                v-model:value="formState.mobile"
+                placeholder="请填写电话号"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="status" label="状态">
-              <a-select ref="select" v-model:value="formState.status" placeholder="请输入有效状态"
-                :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" :allowClear="true">
+              <a-select
+                ref="select"
+                v-model:value="formState.status"
+                placeholder="请输入有效状态"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="validList"
+                :allowClear="true"
+              >
               </a-select>
             </a-form-item>
           </a-col>
@@ -77,15 +136,29 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="avatar" label="头像">
-              <MyUpload :fromSystem="fromSystem" :fileInfo="fileInfo" @customImageRequest="customImageRequest"></MyUpload>
+              <MyUpload
+                :fromSystem="fromSystem"
+                :fileInfo="fileInfo"
+                @customImageRequest="customImageRequest"
+              ></MyUpload>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item :label-col="{ span: 3 }" :wrapperCol="{ span: 24 }" name="summary" label="个人简介">
-              <a-textarea v-model:value="formState.summary" placeholder="请添加个人简介" :auto-size="{ minRows: 2, maxRows: 5 }"
-                :maxlength="500" show-count />
+            <a-form-item
+              :label-col="{ span: 3 }"
+              :wrapperCol="{ span: 24 }"
+              name="summary"
+              label="个人简介"
+            >
+              <a-textarea
+                v-model:value="formState.summary"
+                placeholder="请添加个人简介"
+                :auto-size="{ minRows: 2, maxRows: 5 }"
+                :maxlength="500"
+                show-count
+              />
             </a-form-item>
           </a-col>
         </a-row>
@@ -103,7 +176,7 @@ import { getDictList } from "@/api/finance/dict/dictManager";
 import { message, FormInstance } from "ant-design-vue";
 import dayjs from "dayjs";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import { FileInfo } from '@/views/components/fileInfo';
+import { FileInfo } from "@/views/components/fileInfo";
 
 interface Props {
   open?: boolean;
@@ -124,34 +197,34 @@ const formRef = ref<FormInstance>();
 let genderList = ref<dictInfo[]>([]);
 let validList = ref<dictInfo[]>([]);
 let fileInfo = ref<FileInfo>({});
-let fromSystem = ref<string>('user');
+let fromSystem = ref<string>("user");
 
 const rulesRef = reactive({
   username: [
     {
       required: true,
-      message: '用户名称不能为空！',
+      message: "用户名称不能为空！",
     },
   ],
   nickName: [
     {
       required: true,
-      message: '昵称不能为空！',
+      message: "昵称不能为空！",
     },
   ],
   mobile: [
     {
       required: true,
-      message: '电话号不能为空！',
+      message: "电话号不能为空！",
     },
     {
-      message: '输入的电话号不合法！',
+      message: "输入的电话号不合法！",
       pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
     },
   ],
   email: [
     {
-      message: '输入的邮箱不合法！',
+      message: "输入的邮箱不合法！",
       pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.*[a-zA-Z0-9_-]+)+$/,
     },
   ],
@@ -160,15 +233,18 @@ const rulesRef = reactive({
 const handleOk = () => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(() => saveUserManager()).catch(() => {
-      loading.value = false;
-    });
+    formRef.value
+      .validateFields()
+      .then(() => saveUserManager())
+      .catch(() => {
+        loading.value = false;
+      });
   }
 };
 
 const customImageRequest = (file: FileInfo) => {
   formState.value.avatar = file.id;
-}
+};
 
 const handleCancel = () => {
   emit("handleCancel", false);
@@ -194,12 +270,14 @@ function saveUserManager() {
         message.error((res && res.message) || "保存失败！");
       }
       initForm();
-    }).catch((error: any) => {
+    })
+    .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error((data?.message) || "保存失败！");
+        message.error(data?.message || "保存失败！");
       }
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -213,11 +291,16 @@ function getDictInfoList() {
     if (res.code == "200") {
       genderList.value = [];
       genderList.value.push({ typeCode: 0, typeName: "请选择" });
-      res.data.forEach((item: { belongTo: string; typeCode: any; typeName: any; }) => {
-        if (item.belongTo == 'gender') {
-          genderList.value.push({ typeCode: Number(item.typeCode), typeName: item.typeName });
+      res.data.forEach(
+        (item: { belongTo: string; typeCode: any; typeName: any }) => {
+          if (item.belongTo == "gender") {
+            genderList.value.push({
+              typeCode: Number(item.typeCode),
+              typeName: item.typeName,
+            });
+          }
         }
-      });
+      );
       validList.value = res.data.filter(
         (item: { belongTo: string }) => item.belongTo == "is_valid"
       );
@@ -243,7 +326,7 @@ watch(
 
 function initForm() {
   formState.value = {
-    status: '1',
+    status: "1",
     gender: 0,
   };
 }
@@ -282,6 +365,4 @@ function init() {
 const emit = defineEmits(["handleOk", "handleCancel"]);
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

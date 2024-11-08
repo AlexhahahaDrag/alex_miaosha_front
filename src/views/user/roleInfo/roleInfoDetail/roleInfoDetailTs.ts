@@ -1,6 +1,5 @@
-
 export interface RoleInfoDetail {
-  id?: number,
+  id?: number;
   roleCode?: string;
   roleName?: string;
   summary?: string;

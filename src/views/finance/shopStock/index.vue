@@ -2,72 +2,148 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
           <a-row :gutter="24">
             <a-col :span="8">
-              <a-form-item :name="labelMap['shopName'].name" :label="labelMap['shopName'].label">
-                <a-input v-model:value="searchInfo.shopName" :placeholder="'请选择' + labelMap['shopName'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['shopName'].name"
+                :label="labelMap['shopName'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.shopName"
+                  :placeholder="'请选择' + labelMap['shopName'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['shopCode'].name" :label="labelMap['shopCode'].label">
-                <a-input v-model:value="searchInfo.shopCode" :placeholder="'请选择' + labelMap['shopCode'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['shopCode'].name"
+                :label="labelMap['shopCode'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.shopCode"
+                  :placeholder="'请选择' + labelMap['shopCode'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['costAmount'].name" :label="labelMap['costAmount'].label">
-                <a-input v-model:value="searchInfo.costAmount" :placeholder="'请选择' + labelMap['costAmount'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['costAmount'].name"
+                :label="labelMap['costAmount'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.costAmount"
+                  :placeholder="'请选择' + labelMap['costAmount'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="8">
-              <a-form-item :name="labelMap['saleAmount'].name" :label="labelMap['saleAmount'].label">
-                <a-input v-model:value="searchInfo.saleAmount" :placeholder="'请选择' + labelMap['saleAmount'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['saleAmount'].name"
+                :label="labelMap['saleAmount'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.saleAmount"
+                  :placeholder="'请选择' + labelMap['saleAmount'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['isValid'].name" :label="labelMap['isValid'].label">
-                <a-select ref="select" v-model:value="searchInfo.isValid" mode="combobox" :placeholder="'请输入' + labelMap['isValid'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="isValidList" :allowClear="true">
+              <a-form-item
+                :name="labelMap['isValid'].name"
+                :label="labelMap['isValid'].label"
+              >
+                <a-select
+                  ref="select"
+                  v-model:value="searchInfo.isValid"
+                  mode="combobox"
+                  :placeholder="'请输入' + labelMap['isValid'].label"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="isValidList"
+                  :allowClear="true"
+                >
                 </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['saleDate'].name" :label="labelMap['saleDate'].label">
-                <a-input v-model:value="searchInfo.saleDate" :placeholder="'请选择' + labelMap['saleDate'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['saleDate'].name"
+                :label="labelMap['saleDate'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.saleDate"
+                  :placeholder="'请选择' + labelMap['saleDate'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="8">
-              <a-form-item :name="labelMap['category'].name" :label="labelMap['category'].label">
-                <a-select ref="select" v-model:value="searchInfo.category" mode="combobox" :placeholder="'请输入' + labelMap['category'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="categoryList" :allowClear="true">
+              <a-form-item
+                :name="labelMap['category'].name"
+                :label="labelMap['category'].label"
+              >
+                <a-select
+                  ref="select"
+                  v-model:value="searchInfo.category"
+                  mode="combobox"
+                  :placeholder="'请输入' + labelMap['category'].label"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="categoryList"
+                  :allowClear="true"
+                >
                 </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['purchasePlace'].name" :label="labelMap['purchasePlace'].label">
-                <a-select ref="select" v-model:value="searchInfo.purchasePlace" mode="combobox" :placeholder="'请输入' + labelMap['purchasePlace'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="purchasePlaceList" :allowClear="true">
+              <a-form-item
+                :name="labelMap['purchasePlace'].name"
+                :label="labelMap['purchasePlace'].label"
+              >
+                <a-select
+                  ref="select"
+                  v-model:value="searchInfo.purchasePlace"
+                  mode="combobox"
+                  :placeholder="'请输入' + labelMap['purchasePlace'].label"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="purchasePlaceList"
+                  :allowClear="true"
+                >
                 </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item :name="labelMap['saleNum'].name" :label="labelMap['saleNum'].label">
-                <a-input v-model:value="searchInfo.saleNum" :placeholder="'请选择' + labelMap['saleNum'].label" allow-clear />
+              <a-form-item
+                :name="labelMap['saleNum'].name"
+                :label="labelMap['saleNum'].label"
+              >
+                <a-input
+                  v-model:value="searchInfo.saleNum"
+                  :placeholder="'请选择' + labelMap['saleNum'].label"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
-            <a-row :gutter="24">
-                <a-col :span="20" style="text-align: right">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
+          <a-row :gutter="24">
+            <a-col :span="20" style="text-align: right">
+              <a-space>
+                <a-button type="primary" @click="query"> 查找</a-button>
+                <a-button type="primary" @click="cancelQuery">清空</a-button>
+              </a-space>
+            </a-col>
+          </a-row>
         </a-form>
       </div>
     </div>
@@ -75,18 +151,38 @@
       <a-space>
         <a-button type="primary" @click="editShopStock('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelShopStock">删除</a-button>
+        <a-button type="primary" danger @click="batchDelShopStock"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1100 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editShopStock('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delShopStock(record.id)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editShopStock('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delShopStock(record.id)"
+                @cancel="cancel"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -94,8 +190,13 @@
           </template>
         </template>
       </a-table>
-      <ShopStockDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></ShopStockDetail>
+      <ShopStockDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      ></ShopStockDetail>
     </div>
   </div>
 </template>
@@ -108,7 +209,10 @@ import {
   ModelInfo,
   pageInfo,
 } from "./shopStockListTs";
-import { getShopStockPage, deleteShopStock } from "@/api/finance/shopStock/shopStockTs";
+import {
+  getShopStockPage,
+  deleteShopStock,
+} from "@/api/finance/shopStock/shopStockTs";
 import { message } from "ant-design-vue";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { dictInfo } from "@/views/finance/dict/dict";
@@ -120,28 +224,34 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
 
-const labelMap = ref<any>(
-{
-    shopName: {name: 'shopName', label: '商品名称'},
-    shopCode: {name: 'shopCode', label: '商品编码'},
-    costAmount: {name: 'costAmount', label: '成本价'},
-    saleAmount: {name: 'saleAmount', label: '零售价'},
-    isValid: {name: 'isValid', label: '状态'},
-    saleDate: {name: 'saleDate', label: '进货日期'},
-    category: {name: 'category', label: '类别'},
-    purchasePlace: {name: 'purchasePlace', label: '进货地点'},
-    saleNum: {name: 'saleNum', label: '数量'},
+const labelMap = ref<any>({
+  shopName: { name: "shopName", label: "商品名称" },
+  shopCode: { name: "shopCode", label: "商品编码" },
+  costAmount: { name: "costAmount", label: "成本价" },
+  saleAmount: { name: "saleAmount", label: "零售价" },
+  isValid: { name: "isValid", label: "状态" },
+  saleDate: { name: "saleDate", label: "进货日期" },
+  category: { name: "category", label: "类别" },
+  purchasePlace: { name: "purchasePlace", label: "进货地点" },
+  saleNum: { name: "saleNum", label: "数量" },
 });
 
 let searchInfo = ref<SearchInfo>({});
@@ -166,7 +276,7 @@ const getDictInfoList = () => {
       message.error((res && res.message) || "查询列表失败！");
     }
   });
-}
+};
 
 function cancelQuery() {
   searchInfo.value = {};
@@ -211,7 +321,7 @@ let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-}
+};
 
 function getShopStockListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -265,6 +375,4 @@ const handleCancel = (v: boolean) => {
   visible.value = v;
 };
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

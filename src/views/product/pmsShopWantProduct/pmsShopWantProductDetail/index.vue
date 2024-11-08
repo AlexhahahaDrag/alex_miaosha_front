@@ -1,39 +1,81 @@
 <template>
   <div>
-    <a-modal :open="props.open" :width="props.modelInfo && props.modelInfo.width ? props.modelInfo.width : '1000px'"
-      :title="props.modelInfo && props.modelInfo.title ? props.modelInfo.title : 'Basic Modal'
-        " @ok="handleOk" okText="保存" :confirmLoading="modelConfig.confirmLoading"
-      :destroyOnClose="modelConfig.destroyOnClose" @cancel="handleCancel">
+    <a-modal
+      :open="props.open"
+      :width="
+        props.modelInfo && props.modelInfo.width
+          ? props.modelInfo.width
+          : '1000px'
+      "
+      :title="
+        props.modelInfo && props.modelInfo.title
+          ? props.modelInfo.title
+          : 'Basic Modal'
+      "
+      @ok="handleOk"
+      okText="保存"
+      :confirmLoading="modelConfig.confirmLoading"
+      :destroyOnClose="modelConfig.destroyOnClose"
+      @cancel="handleCancel"
+    >
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleOk">保存</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+          >保存</a-button
+        >
       </template>
-      <a-form ref="formRef" name="PmsShopWantProductForm" class="ant-advanced-search-form" :model="formState"
-        @finish="onFinish" @finishFailed="onFinishFailed" :rules="rulesRef" :label-col="labelCol"
-        :wrapper-col="wrapperCol">
+      <a-form
+        ref="formRef"
+        name="PmsShopWantProductForm"
+        class="ant-advanced-search-form"
+        :model="formState"
+        @finish="onFinish"
+        @finishFailed="onFinishFailed"
+        :rules="rulesRef"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="name" label="商品名称">
-              <a-input v-model:value="formState.name" placeholder="请填写商品名称"></a-input>
+              <a-input
+                v-model:value="formState.name"
+                placeholder="请填写商品名称"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="shop" label="商铺">
-              <a-input v-model:value="formState.shop" placeholder="请填写商铺"></a-input>
+              <a-input
+                v-model:value="formState.shop"
+                placeholder="请填写商铺"
+              ></a-input>
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
             <a-form-item name="icons" label="标签">
-              <a-input v-model:value="formState.icons" placeholder="请填写标签"></a-input>
+              <a-input
+                v-model:value="formState.icons"
+                placeholder="请填写标签"
+              ></a-input>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <a-form-item name="source" label="来源">
-              <a-select ref="select" v-model:value="formState.source" placeholder="请输入来源类型"
-                :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList"
-                :allowClear="true"></a-select>
+              <a-select
+                ref="select"
+                v-model:value="formState.source"
+                placeholder="请输入来源类型"
+                :field-names="{ label: 'typeName', value: 'typeCode' }"
+                :options="sourceList"
+                :allowClear="true"
+              ></a-select>
             </a-form-item>
           </a-col>
         </a-row>
@@ -63,13 +105,13 @@ const rulesRef = reactive({
   name: [
     {
       required: true,
-      message: '商品名称不能为空！',
+      message: "商品名称不能为空！",
     },
   ],
   source: [
     {
       required: true,
-      message: '来源不能为空！',
+      message: "来源不能为空！",
     },
   ],
 });
@@ -87,15 +129,17 @@ const props = defineProps<Props>();
 
 let formState = ref<PmsShopWantProductDetail>({});
 
-const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<dictInfo[]>([{ typeName: "请选择", typeCode: "" }]);
 
 const emit = defineEmits(["handleOk", "handleCancel"]);
 
 const handleOk = () => {
   loading.value = true;
   if (formRef.value) {
-    formRef.value.validateFields().then(
-      () => savePmsShopWantProductManager()).catch(() => {
+    formRef.value
+      .validateFields()
+      .then(() => savePmsShopWantProductManager())
+      .catch(() => {
         loading.value = false;
       });
   }
@@ -126,9 +170,10 @@ function savePmsShopWantProductManager() {
     .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error((data?.message) || "保存失败！");
+        message.error(data?.message || "保存失败！");
       }
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false;
     });
 }
@@ -144,9 +189,11 @@ const onFinishFailed = (errorInfo: any) => {
 function getDictInfoList() {
   getDictList("shop_type").then((res) => {
     if (res.code == "200") {
-      sourceList.value = sourceList.value.concat(res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "shop_type"
-      ));
+      sourceList.value = sourceList.value.concat(
+        res.data.filter(
+          (item: { belongTo: string }) => item.belongTo == "shop_type"
+        )
+      );
     } else {
       message.error((res && res.message) || "查询列表失败！");
     }
@@ -165,16 +212,16 @@ function init() {
           } else {
             message.error((res && res.message) || "查询失败！");
           }
-        }).catch((error: any) => {
+        })
+        .catch((error: any) => {
           let data = error?.response?.data;
           if (data) {
-            message.error((data?.message) || "查询失败！");
+            message.error(data?.message || "查询失败！");
           }
         });
     } else {
       modelConfig.confirmLoading = false;
-      formState.value = {
-      };
+      formState.value = {};
     }
   }
 }
@@ -194,6 +241,4 @@ watch(
 
 defineExpose({ handleOk, handleCancel });
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

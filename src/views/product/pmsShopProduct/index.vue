@@ -2,23 +2,43 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="name">
-                <a-input v-model:value="searchInfo.name" placeholder="name" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.name"
+                  placeholder="name"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="shop" label="商铺">
-                <a-input v-model:value="searchInfo.shop" placeholder="商铺" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.shop"
+                  placeholder="商铺"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="source" label="来源">
-                <a-select ref="select" v-model:value="searchInfo.source" placeholder="请输入来源类型"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="sourceList" @change="initPage"
-                  :allowClear="true"></a-select>
+                <a-select
+                  ref="select"
+                  v-model:value="searchInfo.source"
+                  placeholder="请输入来源类型"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="sourceList"
+                  @change="initPage"
+                  :allowClear="true"
+                ></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -33,57 +53,106 @@
     </div>
     <div class="button">
       <a-space>
-        <a-button type="primary" @click="editPmsShopProduct('add')">新增</a-button>
+        <a-button type="primary" @click="editPmsShopProduct('add')"
+          >新增</a-button
+        >
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelPmsShopProduct">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsShopProduct"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1100 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editPmsShopProduct('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsShopProduct(record.id)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editPmsShopProduct('update', record.id)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delPmsShopProduct(record.id)"
+                @cancel="cancel"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
           <template v-else-if="column.key === 'image' && record.image">
-            <a-image :width="80" :src=record.image />
+            <a-image :width="80" :src="record.image" />
           </template>
-          <template v-else-if="column.key === 'productUrl' && record.productUrl">
-            <a :href=record.productUrl target="_blank">查看商城商品信息</a>
+          <template
+            v-else-if="column.key === 'productUrl' && record.productUrl"
+          >
+            <a :href="record.productUrl" target="_blank">查看商城商品信息</a>
           </template>
           <template v-else-if="column.key === 'price' && record.price">
-            <span v-if="record.comparePrice && record.price && record.price < record.comparePrice"
-              style="font-weight: 900; font-style: oblique; color: red;">
-              {{ record.price }}</span>
+            <span
+              v-if="
+                record.comparePrice &&
+                record.price &&
+                record.price < record.comparePrice
+              "
+              style="font-weight: 900; font-style: oblique; color: red"
+            >
+              {{ record.price }}</span
+            >
             <span v-else>{{ record.price }}</span>
           </template>
           <template v-else-if="column.key === 'source'">
             <div v-for="source in sourceTransferList">
-              <MySvgIcon v-if="record.source.indexOf(source.value) >= 0 && source.value != ''" :name="source.label"
-                class="svg" style="
-                    width: 1.5em;
-                    height: 1.5em;
-                    font-size: 18px;
-                    cursor: pointer;
-                    vertical-align: middle;"></MySvgIcon>
+              <MySvgIcon
+                v-if="
+                  record.source.indexOf(source.value) >= 0 && source.value != ''
+                "
+                :name="source.label"
+                class="svg"
+                style="
+                  width: 1.5em;
+                  height: 1.5em;
+                  font-size: 18px;
+                  cursor: pointer;
+                  vertical-align: middle;
+                "
+              ></MySvgIcon>
             </div>
           </template>
-          <template v-else-if="column.key === 'operateTime' && record.operateTime">
+          <template
+            v-else-if="column.key === 'operateTime' && record.operateTime"
+          >
             <span>
-              {{ record.operateTime ? dayjs(record.operateTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
+              {{
+                record.operateTime
+                  ? dayjs(record.operateTime).format("YYYY-MM-DD HH:mm:ss")
+                  : ""
+              }}
             </span>
           </template>
         </template>
       </a-table>
-      <PmsShopProductDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel">
+      <PmsShopProductDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      >
       </PmsShopProductDetail>
     </div>
   </div>
@@ -98,9 +167,12 @@ import {
   pageInfo,
   sourceTransferList,
 } from "./pmsShopProductListTs";
-import { getNewestPmsShopProductPage, deletePmsShopProduct } from "@/api/product/pmsShopProduct/pmsShopProductTs";
+import {
+  getNewestPmsShopProductPage,
+  deletePmsShopProduct,
+} from "@/api/product/pmsShopProduct/pmsShopProductTs";
 import { message } from "ant-design-vue";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 
@@ -111,16 +183,23 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
-})
+});
 
 let searchInfo = ref<SearchInfo>({});
 
@@ -165,11 +244,11 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<dictInfo[]>([{ typeName: "请选择", typeCode: "" }]);
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-}
+};
 
 function getPmsShopProductListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -192,9 +271,11 @@ function getPmsShopProductListPage(param: SearchInfo, cur: pageInfo) {
 function getDictInfoList() {
   getDictList("shop_type").then((res) => {
     if (res.code == "200") {
-      sourceList.value = sourceList.value.concat(res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "shop_type"
-      ));
+      sourceList.value = sourceList.value.concat(
+        res.data.filter(
+          (item: { belongTo: string }) => item.belongTo == "shop_type"
+        )
+      );
     } else {
       message.error((res && res.message) || "查询列表失败！");
     }
@@ -239,8 +320,6 @@ const handleCancel = (v: boolean) => {
 const initPage = () => {
   pagination.value.current = 1;
   pagination.value.pageSize = 10;
-}
+};
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

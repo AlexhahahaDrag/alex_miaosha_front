@@ -1,12 +1,13 @@
-import request from "@/utils/request/request";
+import request from '@/utils/request/request';
+import { baseService } from '@/api/common/index';
 
 // 将请求数据转换为form-data格式
 // 这里不用qs，用FormData也可以，不赘述
-let baseUrl = "/api"
+let baseUrl = '/api/v1';
 
 enum Api {
-  login = "/loginCode",
-  logout = "/logout",
+  login = '/user/login',
+  logout = '/user/logout',
 }
 
 export interface LoginParams {
@@ -16,18 +17,21 @@ export interface LoginParams {
   type?: string;
 }
 
-function transParams(data) {
+function transParams(data: any) {
   let params = new URLSearchParams();
   for (let item in data) {
-    params.append(item, data["" + item + ""]);
+    params.append(item, data['' + item + '']);
   }
   return params;
 }
 
 export function loginApi(params: LoginParams): Promise<any> {
-  return request.get( baseUrl + Api.login,{params});
+  return request.post(
+    baseService.user + baseUrl + Api.login,
+    transParams(params),
+  );
 }
 
 export function logoutApi(): Promise<any> {
-  return request.post( baseUrl + Api.logout);
+  return request.post(baseService.user + baseUrl + Api.logout);
 }

@@ -2,23 +2,43 @@
   <div class="page-info">
     <div class="search">
       <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form
+          :model="searchInfo"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol"
+        >
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="品牌名">
-                <a-input v-model:value="searchInfo.name" placeholder="品牌名" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.name"
+                  placeholder="品牌名"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="showStatus" label="显示状态">
-                <a-select ref="select" v-model:value="searchInfo.showStatus" placeholder="请输入显示状态"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="validList" @change="initPage"
-                  :allowClear="true"></a-select>
+                <a-select
+                  ref="select"
+                  v-model:value="searchInfo.showStatus"
+                  placeholder="请输入显示状态"
+                  :field-names="{ label: 'typeName', value: 'typeCode' }"
+                  :options="validList"
+                  @change="initPage"
+                  :allowClear="true"
+                ></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="firstLetter" label="检索首字母">
-                <a-input v-model:value="searchInfo.firstLetter" placeholder="检索首字母" @change="initPage" allow-clear />
+                <a-input
+                  v-model:value="searchInfo.firstLetter"
+                  placeholder="检索首字母"
+                  @change="initPage"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -35,34 +55,63 @@
       <a-space>
         <a-button type="primary" @click="editPmsBrand('add')">新增</a-button>
         <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelPmsBrand">删除</a-button>
+        <a-button type="primary" danger @click="batchDelPmsBrand"
+          >删除</a-button
+        >
       </a-space>
     </div>
     <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :loading="loading"
+        :row-key="(record) => record.id"
+        :pagination="pagination"
+        @change="handleTableChange"
+        :scroll="{ x: 1100 }"
+        :row-selection="rowSelection"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
-              <a-button type="primary" size="small" @click="editPmsBrand('update', record.brandId)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPmsBrand(record.brandId)"
-                @cancel="cancel">
+              <a-button
+                type="primary"
+                size="small"
+                @click="editPmsBrand('update', record.brandId)"
+                >编辑</a-button
+              >
+              <a-popconfirm
+                title="确认删除?"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="delPmsBrand(record.brandId)"
+                @cancel="cancel"
+              >
                 <a-button type="primary" size="small" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
             <span></span>
           </template>
           <template v-else-if="column.key === 'showStatus'">
-            <a-tag :key="record.showStatus" :color="record.showStatus == '1' ? '#87d068' : 'grey'">
-              {{ record.showStatus == '1' ? "有效" : "失效" }}
+            <a-tag
+              :key="record.showStatus"
+              :color="record.showStatus == '1' ? '#87d068' : 'grey'"
+            >
+              {{ record.showStatus == "1" ? "有效" : "失效" }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'logoUrl' && record.logoUrl">
-              <a-image :width="50" :src= record.logoUrl />
+            <a-image :width="50" :src="record.logoUrl" />
           </template>
         </template>
       </a-table>
-      <PmsBrandDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk" @handleCancel="handleCancel">
+      <PmsBrandDetail
+        ref="editInfo"
+        :open="visible"
+        :modelInfo="modelInfo"
+        @handleOk="handleOk"
+        @handleCancel="handleCancel"
+      >
       </PmsBrandDetail>
     </div>
   </div>
@@ -75,7 +124,10 @@ import {
   DataItem,
   pageInfo,
 } from "./pmsBrandListTs";
-import { getPmsBrandPage, deletePmsBrand } from "@/api/product/pmsBrand/pmsBrandTs";
+import {
+  getPmsBrandPage,
+  deletePmsBrand,
+} from "@/api/product/pmsBrand/pmsBrandTs";
 import { message } from "ant-design-vue";
 import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
@@ -88,16 +140,23 @@ let rowIds = [] as any;
 
 const rowSelection = ref({
   checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], _selectedRows: DataItem[]) => {
+  onChange: (
+    selectedRowKeys: (string | number)[],
+    _selectedRows: DataItem[]
+  ) => {
     rowIds = selectedRowKeys;
   },
   onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
     console.log(record, selected, selectedRows);
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
+  onSelectAll: (
+    selected: boolean,
+    selectedRows: DataItem[],
+    changeRows: DataItem[]
+  ) => {
     console.log(selected, selectedRows, changeRows);
   },
-})
+});
 
 let searchInfo = ref<SearchInfo>({});
 
@@ -144,7 +203,7 @@ let dataSource = ref();
 
 const cancel = (e: MouseEvent) => {
   console.log(e);
-}
+};
 
 function getPmsBrandListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
@@ -210,12 +269,10 @@ const handleOk = (v: boolean) => {
 const initPage = () => {
   pagination.value.current = 1;
   pagination.value.pageSize = 10;
-}
+};
 
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

@@ -280,6 +280,4 @@ const initPage = () => {
 //初始化
 init();
 </script>
-<style lang="scss" scoped>
-@import "@/style/index.scss";
-</style>
+<style lang="scss" scoped></style>

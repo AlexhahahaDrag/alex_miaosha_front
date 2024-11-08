@@ -305,7 +305,6 @@ const handleCancel = (v: boolean) => {
 };
 </script>
 <style lang="scss" scoped>
-@import "@/style/index.scss";
 .page-info {
   display: flex;
   height: 600px;

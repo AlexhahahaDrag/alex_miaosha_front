@@ -24,3 +24,11 @@ export function deleteData(url: string): Promise<any> {
 export function postFileData(url: string, params: any): Promise<any> {
   return requestFile.post<Params, any>(url, params);
 }
+
+export const baseService = {
+  finance: "/api/am-finance",
+  user: "/api/am-user",
+  mission: "/api/am-mission",
+  file: "/api/am-oss",
+  product: "/api/am-product",
+};
