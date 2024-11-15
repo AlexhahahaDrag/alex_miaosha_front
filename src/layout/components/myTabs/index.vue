@@ -1,7 +1,21 @@
 <template>
-  <a-tabs v-model:activeKey="activeTabKey" type="editable-card" @change="changeTab" @edit="handleTabEdit" :hideAdd="true"
-    size="small" :tabBarGutter="2" :tabBarStyle="tabBarStyle" style="margin-top: -5px; margin-bottom: -20px;">
-    <a-tab-pane v-for="tab in tabs" :key="tab.key || ''" :closable="tab.closable" :tab="tab.tab">
+  <a-tabs
+    v-model:activeKey="activeTabKey"
+    type="editable-card"
+    @change="changeTab"
+    @edit="handleTabEdit"
+    :hideAdd="true"
+    size="small"
+    :tabBarGutter="2"
+    :tabBarStyle="tabBarStyle"
+    style="margin-top: -5px; margin-bottom: -20px"
+  >
+    <a-tab-pane
+      v-for="tab in tabs"
+      :key="tab.key || ''"
+      :closable="tab?.key === 'dashboard' ? false : tab.closable"
+      :tab="tab.tab"
+    >
     </a-tab-pane>
   </a-tabs>
 </template>
@@ -9,38 +23,39 @@
 import router from '@/router';
 
 const route = useRoute();
-let activeTabKey = ref<any>(route.name || "");
-
+let activeTabKey = ref<any>(route.name || '');
+console.log(`dddddddddddddddddddddddddddddddd`, activeTabKey, route);
 const tabBarStyle = {
   padding: '10px 0', // 上下内边距，左右无内边距
   color: '#add8e6', // 字体颜色为白色
   fontSize: '10px', // 适中的字体大小
 };
-
 const tabs = ref([
   {
-    tab: route?.meta?.title || "",
+    tab: route?.meta?.title || '',
     key: route.name,
     component: route,
     closable: true,
   },
 ]);
+console.log(`dddddddddddddddddddddddddddddddd`, tabs);
 
-const handleTabEdit = (targetKey, action) => {
-  if (action === "remove") {
+const handleTabEdit = (targetKey: string, action: string) => {
+  if (action === 'remove') {
     const index = tabs.value.findIndex((tab) => tab.key === targetKey);
     tabs.value.splice(index, 1);
     if (activeTabKey.value === targetKey) {
       if (tabs.value.length) {
         activeTabKey.value = tabs.value[Math.max(0, index - 1)].key;
       } else {
-        activeTabKey.value = "";
+        activeTabKey.value = '';
       }
     }
   }
 };
 
 const handleMenuClick = (item: any) => {
+  console.log(`item mmmmmmmmmmmm`, item, tabs);
   let tab = tabs.value.find((tab) => tab.key === item.name);
   if (!tab) {
     tab = {
@@ -52,17 +67,17 @@ const handleMenuClick = (item: any) => {
     tabs.value.push(tab);
   }
   activeTabKey.value = item.name;
-}
+};
 
 const changeTab = (key: string) => {
   router.push({ name: key });
-}
+};
 
 watch(
   () => route.name,
   () => {
     handleMenuClick(route);
-  }
+  },
 );
 </script>
 
@@ -77,14 +92,14 @@ watch(
 }
 
 .ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #4ADE80;
+  color: #4ade80;
   /* 活跃状态的标签颜色 */
   font-weight: 600;
   /* 字体加粗，使活跃标签更显眼 */
 }
 
 .ant-tabs-ink-bar {
-  background-color: #4ADE80 !important;
+  background-color: #4ade80 !important;
   /* 下划线颜色与活跃标签颜色一致 */
 }
 </style>

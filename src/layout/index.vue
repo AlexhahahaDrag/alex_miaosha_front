@@ -15,24 +15,27 @@
       </a-layout-header>
       <a-layout-content>
         <MyTabs></MyTabs>
-        <div :style="{ padding: '4px', background: '#fff', minHeight: '360px' }">
+        <div
+          :style="{ padding: '4px', background: '#fff', minHeight: '360px' }"
+        >
           <router-view />
         </div>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
-        alex-miaosha
+        alex管理后台
       </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>
 <script setup lang="ts">
-import { algorithm } from "@/utils/algorithm";
+import { algorithm } from '@/utils/algorithm';
 
 const router = useRouter();
-const routes = computed(() => algorithm.increaseIndexes(router.options.routes as []));
+const routes = computed(() =>
+  algorithm.increaseIndexes(router.options.routes as []),
+);
 let collapsed = ref<boolean>(false);
-let selectedKeys = ref<string[]>(["1"]);
-
+let selectedKeys = ref<string[]>(['1']);
 </script>
 <style lang="scss" scoped>
 .navbar {

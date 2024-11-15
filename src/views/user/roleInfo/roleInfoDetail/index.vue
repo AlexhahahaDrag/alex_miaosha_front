@@ -3,14 +3,14 @@
     <a-modal
       :open="props.open"
       :width="
-        props.modelInfo && props.modelInfo.width
-          ? props.modelInfo.width
-          : '1000px'
+        props.modelInfo && props.modelInfo.width ?
+          props.modelInfo.width
+        : '1000px'
       "
       :title="
-        props.modelInfo && props.modelInfo.title
-          ? props.modelInfo.title
-          : 'Basic Modal'
+        props.modelInfo && props.modelInfo.title ?
+          props.modelInfo.title
+        : 'Basic Modal'
       "
       @ok="handleOk"
       okText="保存"
@@ -93,6 +93,13 @@
           </a-col>
         </a-row>
       </a-form>
+      <div>菜单权限</div>
+      <div>
+        <menu-tree
+          :treeData="permissionTree"
+          :selectedKeys="selectPermission"
+        ></menu-tree>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -162,6 +169,10 @@ const props = defineProps<Props>();
 let formState = ref<RoleInfoDetail>({});
 
 let statusList = ref<dictInfo[]>([]);
+
+const permissionTree = ref<any[]>();
+
+const selectPermission = ref<string[]>();
 
 const getDictInfoList = () => {
   getDictList('is_valid').then((res) => {
@@ -238,6 +249,10 @@ function init() {
         .then((res) => {
           if (res.code == '200') {
             formState.value = res.data;
+            permissionTree.value = res?.data?.permissionList || [];
+            selectPermission.value = res?.data?.rolePermissionInfoVoList?.map(
+              (item: any) => item.id,
+            );
             modelConfig.confirmLoading = false;
           } else {
             message.error((res && res.message) || '查询失败！');
