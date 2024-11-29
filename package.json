@@ -51,7 +51,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "rollup": "^4.9.6",
     "unplugin-auto-import": "^0.17.5",
-    "vite": "^5.0.12",
+    "vite": "^5.4.10",
     "vue-tsc": "^1.8.27"
   },
   "lint-staged": {

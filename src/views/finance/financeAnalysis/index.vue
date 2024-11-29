@@ -389,4 +389,3 @@ const tooltip = ref({
 </style>
 
 <style lang="scss" scoped></style>
-@/views/finance/financeManager/financeManagerDetail/detail

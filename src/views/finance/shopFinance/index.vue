@@ -255,6 +255,7 @@ const handleCancel = (v: boolean) => {
 };
 </script>
 <style lang="scss" scoped>
+
 .button{
   padding-left: 10px;
 }
