@@ -24,21 +24,40 @@ import router from '@/router';
 
 const route = useRoute();
 let activeTabKey = ref<any>(route.name || '');
-console.log(`dddddddddddddddddddddddddddddddd`, activeTabKey, route);
+
 const tabBarStyle = {
   padding: '10px 0', // 上下内边距，左右无内边距
   color: '#add8e6', // 字体颜色为白色
   fontSize: '10px', // 适中的字体大小
 };
-const tabs = ref([
-  {
-    tab: route?.meta?.title || '',
-    key: route.name,
-    component: route,
-    closable: true,
-  },
-]);
-console.log(`dddddddddddddddddddddddddddddddd`, tabs);
+
+const tabs = ref<any[]>([]);
+
+if (activeTabKey.value === 'home' || activeTabKey.value === 'dashboard') {
+  tabs.value = [
+    {
+      tab: route?.meta?.title || '',
+      key: route.name,
+      component: route,
+      closable: true,
+    },
+  ];
+} else {
+  tabs.value = [
+    {
+      tab: '首页',
+      key: 'home',
+      component: route,
+      closable: false,
+    },
+    {
+      tab: route?.meta?.title || '',
+      key: route.name,
+      component: route,
+      closable: true,
+    },
+  ];
+}
 
 const handleTabEdit = (targetKey: string, action: string) => {
   if (action === 'remove') {
@@ -55,7 +74,6 @@ const handleTabEdit = (targetKey: string, action: string) => {
 };
 
 const handleMenuClick = (item: any) => {
-  console.log(`item mmmmmmmmmmmm`, item, tabs);
   let tab = tabs.value.find((tab) => tab.key === item.name);
   if (!tab) {
     tab = {
