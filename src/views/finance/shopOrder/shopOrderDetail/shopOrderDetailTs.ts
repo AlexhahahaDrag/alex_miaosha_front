@@ -1,7 +1,7 @@
 import { Dayjs } from 'dayjs';
 
 export interface ShopOrderDetail {
-  id?: number,
+  id?: number;
   saleOrderCode?: string;
   saleOrderName?: string;
   saleAmount?: number;

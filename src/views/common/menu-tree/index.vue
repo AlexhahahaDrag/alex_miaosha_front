@@ -37,7 +37,6 @@ watch(
   () => {
     treeData.value = props.treeData || [];
     checkedKeys.value = props.selectedKeys || [];
-    console.log(`tree eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee:`, treeData.value);
   },
   {
     deep: true,

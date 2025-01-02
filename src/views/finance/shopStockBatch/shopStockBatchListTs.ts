@@ -72,7 +72,6 @@ export const columns = ref<any>([
   },
 ]);
 
-
 export interface DataItem {
   batchCode: string;
   batchName: string;
@@ -88,6 +87,6 @@ export interface ModelInfo {
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
+  typeCode?: string | number | undefined;
+  typeName?: string | undefined;
 }

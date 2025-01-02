@@ -22,6 +22,7 @@ module.exports = {
     defineProps: 'readonly',
   },
   rules: {
+    indent: ['error', 4, { SwitchCase: 1 }],
     'vue/script-setup-uses-vars': 'error',
     'import/no-named-as-default': 'off',
     'import/namespace': [2, { allowComputed: true }],

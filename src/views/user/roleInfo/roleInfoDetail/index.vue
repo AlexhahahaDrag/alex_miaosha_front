@@ -170,9 +170,9 @@ let formState = ref<RoleInfoDetail>({});
 
 let statusList = ref<dictInfo[]>([]);
 
-const permissionTree = ref<any[]>();
+const permissionTree = ref<any[]>([]);
 
-const selectPermission = ref<string[]>();
+const selectPermission = ref<string[]>([]);
 
 const getDictInfoList = () => {
   getDictList('is_valid').then((res) => {

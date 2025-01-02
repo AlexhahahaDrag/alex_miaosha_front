@@ -1,5 +1,5 @@
 export interface SearchInfo {
-  typeName ?: string;
+  typeName?: string;
   belongToName?: string;
 }
 
@@ -28,13 +28,13 @@ export let pagination = ref<any>({
   // 是否可以改变pageSize
   showSizeChanger: true,
   // 设置每页可以展示多少条的选项
-  pageSizeOptions: ["10", "20", "50", "100"],
+  pageSizeOptions: ['10', '20', '50', '100'],
   // 改变pageSize后触发
   showSizeChange: (current: number, pageSize: any) => (
     (pagination.value.current = current), (pagination.value.pageSize = pageSize)
   ),
   // 小尺寸分页
-  size: "small",
+  size: 'small',
   // 是否可以快速跳转至某页
   showQuickJumper: true,
   //默认条数
@@ -48,49 +48,48 @@ export const columns = ref<any>([
   //   key: "id",
   // },
   {
-    title: "类别编码",
-    dataIndex: "typeCode",
-    key: "typeCode",
+    title: '类别编码',
+    dataIndex: 'typeCode',
+    key: 'typeCode',
   },
   {
-    title: "类别",
-    dataIndex: "typeName",
-    key: "typeName",
+    title: '类别',
+    dataIndex: 'typeName',
+    key: 'typeName',
   },
   {
-    title: "分类编码",
-    dataIndex: "belongTo",
-    key: "belongTo",
+    title: '分类编码',
+    dataIndex: 'belongTo',
+    key: 'belongTo',
   },
   {
-    title: "分类",
-    dataIndex: "belongToName",
-    key: "belongToName",
+    title: '分类',
+    dataIndex: 'belongToName',
+    key: 'belongToName',
   },
   {
-    title: "排序",
-    dataIndex: "orderBy",
+    title: '排序',
+    dataIndex: 'orderBy',
     align: 'center',
-    key: "orderBy",
+    key: 'orderBy',
   },
   {
-    title: "状态",
-    dataIndex: "isValid",
+    title: '状态',
+    dataIndex: 'isValid',
     align: 'center',
-    key: "isValid",
+    key: 'isValid',
   },
   {
-    title: "业务时间",
-    dataIndex: "operateTime",
-    key: "operateTime",
+    title: '业务时间',
+    dataIndex: 'operateTime',
+    key: 'operateTime',
   },
   {
-    title: "操作",
-    key: "operation",
+    title: '操作',
+    key: 'operation',
     width: 200,
   },
 ]);
-
 
 export interface DataItem {
   name: string;
@@ -105,11 +104,11 @@ export interface DataItem {
 export interface ModelInfo {
   title?: string;
   width?: string;
-  id?: number | undefined;
-  confirmLoading ?: boolean;
+  id?: number | null | undefined;
+  confirmLoading?: boolean;
 }
 
 export interface dictInfo {
-  typeCode?: string|number|undefined,
-  typeName?: string|undefined,
+  typeCode?: string | number | undefined;
+  typeName?: string | undefined;
 }

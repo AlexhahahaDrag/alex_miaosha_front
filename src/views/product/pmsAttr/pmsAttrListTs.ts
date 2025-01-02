@@ -96,7 +96,6 @@ export const columns = ref<any>([
   },
 ]);
 
-
 export interface DataItem {
   attrName: string;
   searchType: number;
@@ -116,6 +115,6 @@ export interface ModelInfo {
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
+  typeCode?: string | number | undefined;
+  typeName?: string | undefined;
 }

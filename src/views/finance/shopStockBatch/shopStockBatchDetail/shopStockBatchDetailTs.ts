@@ -1,6 +1,5 @@
-
 export interface ShopStockBatchDetail {
-  id?: number,
+  id?: number;
   batchCode?: string;
   batchName?: string;
   isValid?: string;

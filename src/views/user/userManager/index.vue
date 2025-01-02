@@ -74,7 +74,7 @@
           <template v-else-if="column.key === 'birthday'">
             <span>
               {{
-                record.birthday ? String(record.birthday).substring(0, 10) : ""
+                record.birthday ? String(record.birthday).substring(0, 10) : ''
               }}
             </span>
           </template>
@@ -83,7 +83,7 @@
               :key="record.status"
               :color="record.status == 1 ? '#87d068' : 'grey'"
             >
-              {{ record.status == 1 ? "有效" : "失效" }}
+              {{ record.status == 1 ? '有效' : '失效' }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'gender'">
@@ -91,7 +91,11 @@
               :key="record.gender"
               :color="record.gender == 1 ? 'green' : 'red'"
             >
-              {{ record.gender == 0 ? "" : record.gender == 1 ? "男" : "女" }}
+              {{
+                record.gender == 0 ? '男'
+                : record.gender == 1 ? '女'
+                : ''
+              }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'avatarUrl' && record.avatarUrl">
@@ -118,11 +122,11 @@ import {
   columns,
   DataItem,
   pageInfo,
-} from "./userManager";
-import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import { getUserManagerPage, deleteUserManager } from "@/api/user/userManager";
-import { getDictList } from "@/api/finance/dict/dictManager";
-import { message } from "ant-design-vue";
+} from './userManager';
+import { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import { getUserManagerPage, deleteUserManager } from '@/api/user/userManager';
+import { getDictList } from '@/api/finance/dict/dictManager';
+import { message } from 'ant-design-vue';
 
 let rowIds = [] as any;
 const labelCol = ref({ span: 5 });
@@ -139,7 +143,7 @@ const rowSelection = ref({
   checkStrictly: false,
   onChange: (
     selectedRowKeys: (string | number)[],
-    _blankselectedRows: DataItem[]
+    _blankSelectedRows: DataItem[],
   ) => {
     rowIds = selectedRowKeys;
   },
@@ -149,7 +153,7 @@ const rowSelection = ref({
   onSelectAll: (
     selected: boolean,
     selectedRows: DataItem[],
-    changeRows: DataItem[]
+    changeRows: DataItem[],
   ) => {
     console.log(selected, selectedRows, changeRows);
   },
@@ -169,8 +173,8 @@ function handleTableChange(pagination) {
 
 function delUser(ids: string) {
   deleteUserManager(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
+    if (res.code == '200') {
+      message.success((res && '删除' + res.message) || '删除成功！', 3);
       if (
         (pagination.value.total ? pagination.value.total - 1 : 0) <=
         (pagination.value.current ? pagination.value.current - 1 : 1) *
@@ -180,20 +184,20 @@ function delUser(ids: string) {
       }
       getUserPage(searchInfo.value, pagination.value);
     } else {
-      message.error((res && res.message) || "删除失败！", 3);
+      message.error((res && res.message) || '删除失败！', 3);
     }
   });
 }
 
 function batchDelUserManager() {
-  let ids = "";
+  let ids = '';
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
-      ids += item + ",";
+      ids += item + ',';
     });
     ids = ids.substring(0, ids.length - 1);
   } else {
-    message.warning("请先选择数据！", 3);
+    message.warning('请先选择数据！', 3);
     return;
   }
   delUser(ids);
@@ -207,14 +211,13 @@ function getUserPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
   getUserManagerPage(param, cur.current, cur.pageSize)
     .then((res) => {
-      console.log(`ressssssssssssssss`, res);
-      if (res.code == "200") {
+      if (res.code == '200') {
         dataSource.value = res.data.records;
         pagination.value.current = res.data.current;
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;
       } else {
-        message.error((res && res.message) || "查询列表失败！");
+        message.error((res && res.message) || '查询列表失败！');
       }
     })
     .catch(() => {
@@ -229,16 +232,16 @@ function getUserPage(param: SearchInfo, cur: pageInfo) {
 
 function getDictInfoList() {
   loading.value = true;
-  getDictList("pay_way,income_expense_type").then((res) => {
-    if (res.code == "200") {
+  getDictList('pay_way,income_expense_type').then((res) => {
+    if (res.code == '200') {
       fromSourceList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "pay_way"
+        (item: { belongTo: string }) => item.belongTo == 'pay_way',
       );
       incomeAndExpensesList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "income_expense_type"
+        (item: { belongTo: string }) => item.belongTo == 'income_expense_type',
       );
     } else {
-      message.error((res && res.message) || "查询列表失败！");
+      message.error((res && res.message) || '查询列表失败！');
     }
   });
 }
@@ -252,11 +255,11 @@ function init() {
 
 //新增和修改弹窗
 function editUser(type: string, id?: number) {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
-    modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
+  if (type == 'add') {
+    modelInfo.value.title = '新增明细';
+    modelInfo.value.id = null;
+  } else if (type == 'update') {
+    modelInfo.value.title = '修改明细';
     modelInfo.value.id = id;
   }
   modelInfo.value.confirmLoading = true;
