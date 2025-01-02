@@ -34,63 +34,6 @@
             </a-col>
             <a-col :span="8">
               <a-form-item
-                :name="labelMap['costAmount'].name"
-                :label="labelMap['costAmount'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.costAmount"
-                  :placeholder="'请选择' + labelMap['costAmount'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['saleAmount'].name"
-                :label="labelMap['saleAmount'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.saleAmount"
-                  :placeholder="'请选择' + labelMap['saleAmount'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['isValid'].name"
-                :label="labelMap['isValid'].label"
-              >
-                <a-select
-                  ref="select"
-                  v-model:value="searchInfo.isValid"
-                  mode="combobox"
-                  :placeholder="'请输入' + labelMap['isValid'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="isValidList"
-                  :allowClear="true"
-                >
-                </a-select>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['saleDate'].name"
-                :label="labelMap['saleDate'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.saleDate"
-                  :placeholder="'请选择' + labelMap['saleDate'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item
                 :name="labelMap['category'].name"
                 :label="labelMap['category'].label"
               >
@@ -106,6 +49,8 @@
                 </a-select>
               </a-form-item>
             </a-col>
+          </a-row>
+          <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item
                 :name="labelMap['purchasePlace'].name"
@@ -123,21 +68,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['saleNum'].name"
-                :label="labelMap['saleNum'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.saleNum"
-                  :placeholder="'请选择' + labelMap['saleNum'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="20" style="text-align: right">
+            <a-col style="text-align: right">
               <a-space>
                 <a-button type="primary" @click="query"> 查找</a-button>
                 <a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -163,9 +94,9 @@
         :loading="loading"
         :row-key="(record) => record.id"
         :pagination="pagination"
-        @change="handleTableChange"
-        :scroll="{ x: 1100 }"
+        :scroll="{ x: 1100, y: 420 }"
         :row-selection="rowSelection"
+        @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
@@ -208,14 +139,14 @@ import {
   DataItem,
   ModelInfo,
   pageInfo,
-} from "./shopStockListTs";
+} from './shopStockListTs';
 import {
   getShopStockPage,
   deleteShopStock,
-} from "@/api/finance/shopStock/shopStockTs";
-import { message } from "ant-design-vue";
-import { getDictList } from "@/api/finance/dict/dictManager";
-import { dictInfo } from "@/views/finance/dict/dict";
+} from '@/api/finance/shopStock/shopStockTs';
+import { message } from 'ant-design-vue';
+import { getDictList } from '@/api/finance/dict/dictManager';
+import { dictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -226,7 +157,7 @@ const rowSelection = ref({
   checkStrictly: false,
   onChange: (
     selectedRowKeys: (string | number)[],
-    selectedRows: DataItem[]
+    _selectedRows: DataItem[],
   ) => {
     rowIds = selectedRowKeys;
   },
@@ -236,22 +167,22 @@ const rowSelection = ref({
   onSelectAll: (
     selected: boolean,
     selectedRows: DataItem[],
-    changeRows: DataItem[]
+    changeRows: DataItem[],
   ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
 
 const labelMap = ref<any>({
-  shopName: { name: "shopName", label: "商品名称" },
-  shopCode: { name: "shopCode", label: "商品编码" },
-  costAmount: { name: "costAmount", label: "成本价" },
-  saleAmount: { name: "saleAmount", label: "零售价" },
-  isValid: { name: "isValid", label: "状态" },
-  saleDate: { name: "saleDate", label: "进货日期" },
-  category: { name: "category", label: "类别" },
-  purchasePlace: { name: "purchasePlace", label: "进货地点" },
-  saleNum: { name: "saleNum", label: "数量" },
+  shopName: { name: 'shopName', label: '商品名称' },
+  shopCode: { name: 'shopCode', label: '商品编码' },
+  costAmount: { name: 'costAmount', label: '成本价' },
+  saleAmount: { name: 'saleAmount', label: '零售价' },
+  isValid: { name: 'isValid', label: '状态' },
+  saleDate: { name: 'saleDate', label: '进货日期' },
+  category: { name: 'category', label: '类别' },
+  purchasePlace: { name: 'purchasePlace', label: '进货地点' },
+  saleNum: { name: 'saleNum', label: '数量' },
 });
 
 let searchInfo = ref<SearchInfo>({});
@@ -261,19 +192,19 @@ let categoryList = ref<dictInfo[]>([]);
 let purchasePlaceList = ref<dictInfo[]>([]);
 
 const getDictInfoList = () => {
-  getDictList("is_valid,shop_category,stock_place").then((res) => {
-    if (res.code == "200") {
+  getDictList('is_valid,shop_category,stock_place').then((res) => {
+    if (res.code == '200') {
       isValidList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "is_valid"
+        (item: { belongTo: string }) => item.belongTo == 'is_valid',
       );
       categoryList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "shop_category"
+        (item: { belongTo: string }) => item.belongTo == 'shop_category',
       );
       purchasePlaceList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "stock_place"
+        (item: { belongTo: string }) => item.belongTo == 'stock_place',
       );
     } else {
-      message.error((res && res.message) || "查询列表失败！");
+      message.error((res && res.message) || '查询列表失败！');
     }
   });
 };
@@ -292,24 +223,24 @@ function handleTableChange(pagination) {
 
 function delShopStock(ids: string) {
   deleteShopStock(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
+    if (res.code == '200') {
+      message.success((res && '删除' + res.message) || '删除成功！', 3);
       getShopStockListPage(searchInfo.value, pagination.value);
     } else {
-      message.error((res && res.message) || "删除失败！", 3);
+      message.error((res && res.message) || '删除失败！', 3);
     }
   });
 }
 
 function batchDelShopStock() {
-  let ids = "";
+  let ids = '';
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
-      ids += item + ",";
+      ids += item + ',';
     });
     ids = ids.substring(0, ids.length - 1);
   } else {
-    message.warning("请先选择数据！", 3);
+    message.warning('请先选择数据！', 3);
     return;
   }
   delShopStock(ids);
@@ -327,13 +258,13 @@ function getShopStockListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
   getShopStockPage(param, cur.current, cur.pageSize)
     .then((res) => {
-      if (res.code == "200") {
+      if (res.code == '200') {
         dataSource.value = res.data.records;
         pagination.value.current = res.data.current;
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;
       } else {
-        message.error((res && res.message) || "查询列表失败！");
+        message.error((res && res.message) || '查询列表失败！');
       }
     })
     .finally(() => {
@@ -355,11 +286,11 @@ let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editShopStock(type: string, id?: number) {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
+  if (type == 'add') {
+    modelInfo.value.title = '新增明细';
     modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
+  } else if (type == 'update') {
+    modelInfo.value.title = '修改明细';
     modelInfo.value.id = id;
   }
   modelInfo.value.confirmLoading = true;

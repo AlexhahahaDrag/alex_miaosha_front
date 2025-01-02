@@ -1,11 +1,11 @@
-import { loginApi } from "@/api/user/login";
-import { defineStore } from "pinia";
-import { UserState, getAuthInfo } from "./typing";
-import type { MenuInfo } from "./typing";
-import { LoginParams } from "@/api/user/login";
+import { loginApi } from '@/api/user/login';
+import { defineStore } from 'pinia';
+import { UserState, getAuthInfo } from './typing';
+import type { MenuInfo } from './typing';
+import { LoginParams } from '@/api/user/login';
 import { piniaPersistConfig } from '@/config/piniaPersist';
-import { message } from "ant-design-vue";
-import { refreshRouter } from "@/router";
+import { message } from 'ant-design-vue';
+import { refreshRouter } from '@/router';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -29,7 +29,7 @@ export const useUserStore = defineStore({
     },
     getToken(): string {
       let localStorage = window.localStorage;
-      return this.token || localStorage.getItem("token") || "";
+      return this.token || localStorage.getItem('token') || '';
     },
     getMenuInfo(): MenuInfo[] | null {
       return this.menuInfo || getAuthInfo('menuInfo');
@@ -52,34 +52,34 @@ export const useUserStore = defineStore({
   },
   actions: {
     setToken(info: string | undefined) {
-      this.token = info ? info : "";
-      localStorage.setItem("token", this.token);
+      this.token = info ? info : '';
+      localStorage.setItem('token', this.token);
     },
     setMenuInfo(info: MenuInfo[]) {
       this.menuInfo = info ? info : null;
-      localStorage.setItem("menuInfo", JSON.stringify(this.menuInfo));
+      localStorage.setItem('menuInfo', JSON.stringify(this.menuInfo));
     },
     changeRouteStatus(state: any) {
-      this.hasMenu = state
-      localStorage.setItem("hasRoute", state)
+      this.hasMenu = state;
+      localStorage.setItem('hasRoute', state);
     },
     //设置用户信息
     setUserInfo(admin: any) {
       this.userInfo = admin;
-      localStorage.setItem("userInfo", JSON.stringify(this.userInfo));
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
     },
     setRoleInfo(roleInfo: any) {
       this.roleInfo = roleInfo;
-      localStorage.setItem("roleInfo", JSON.stringify(this.roleInfo));
+      localStorage.setItem('roleInfo', JSON.stringify(this.roleInfo));
     },
     setOrgInfo(orgInfo: any) {
       this.orgInfo = orgInfo;
-      localStorage.setItem("orgInfo", JSON.stringify(this.orgInfo));
+      localStorage.setItem('orgInfo', JSON.stringify(this.orgInfo));
     },
     async login(
       params: LoginParams & {
         goHome?: boolean;
-      }
+      },
     ) {
       //  ): Promise<GetUserInfoModel | null> {
       try {
@@ -98,10 +98,10 @@ export const useUserStore = defineStore({
           refreshRouter();
           return admin;
         } else {
-          message.error((data && data.message) || "删除失败！", 3);
+          message.error((data && data.message) || '删除失败！', 3);
         }
       } catch (error) {
-        message.error("系统错误，请联系管理员！", 3);
+        message.error('系统错误，请联系管理员！', 3);
         return Promise.reject(error);
       }
     },

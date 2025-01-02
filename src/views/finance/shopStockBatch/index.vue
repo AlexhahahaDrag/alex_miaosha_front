@@ -32,40 +32,7 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['isValid'].name"
-                :label="labelMap['isValid'].label"
-              >
-                <a-select
-                  ref="select"
-                  v-model:value="searchInfo.isValid"
-                  mode="combobox"
-                  :placeholder="'请输入' + labelMap['isValid'].label"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }"
-                  :options="isValidList"
-                  :allowClear="true"
-                >
-                </a-select>
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item
-                :name="labelMap['description'].name"
-                :label="labelMap['description'].label"
-              >
-                <a-input
-                  v-model:value="searchInfo.description"
-                  :placeholder="'请选择' + labelMap['description'].label"
-                  allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="20" style="text-align: right">
+            <a-col style="text-align: right">
               <a-space>
                 <a-button type="primary" @click="query"> 查找</a-button>
                 <a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -75,12 +42,11 @@
         </a-form>
       </div>
     </div>
-    <div class="button">
+    <div class="button" style="margin-left: 10px">
       <a-space>
         <a-button type="primary" @click="editShopStockBatch('add')"
           >新增</a-button
         >
-        <a-button type="primary" @click="query">导入</a-button>
         <a-button type="primary" danger @click="batchDelShopStockBatch"
           >删除</a-button
         >
@@ -93,9 +59,9 @@
         :loading="loading"
         :row-key="(record) => record.id"
         :pagination="pagination"
-        @change="handleTableChange"
-        :scroll="{ x: 1100 }"
+        :scroll="{ x: 1100, y: 470 }"
         :row-selection="rowSelection"
+        @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
@@ -117,6 +83,14 @@
               </a-popconfirm>
             </a-space>
             <span></span>
+          </template>
+          <template v-else-if="column.key === 'isValid'">
+            <a-tag
+              :key="record.isValid"
+              :color="record.isValid == 1 ? '#87d068' : 'grey'"
+            >
+              {{ record.isValid == 1 ? '有效' : '失效' }}
+            </a-tag>
           </template>
         </template>
       </a-table>
@@ -156,7 +130,7 @@ const rowSelection = ref({
   checkStrictly: false,
   onChange: (
     selectedRowKeys: (string | number)[],
-    selectedRows: DataItem[],
+    _selectedRows: DataItem[],
   ) => {
     rowIds = selectedRowKeys;
   },
