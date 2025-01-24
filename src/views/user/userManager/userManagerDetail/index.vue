@@ -4,9 +4,9 @@
       :open="props.open"
       :width="props?.modelInfo?.width || '1000px'"
       :title="
-        props.modelInfo && props.modelInfo.title
-          ? props.modelInfo.title
-          : 'Basic Modal'
+        props.modelInfo && props.modelInfo.title ?
+          props.modelInfo.title
+        : 'Basic Modal'
       "
       @ok="handleOk"
       okText="保存"
@@ -105,7 +105,11 @@
               <a-date-picker
                 v-model:value="formState.birthday"
                 :format="dateFormatter"
-                :getPopupContainer="(triggerNode: any) => { return triggerNode.parentNode }"
+                :getPopupContainer="
+                  (triggerNode: any) => {
+                    return triggerNode.parentNode;
+                  }
+                "
               />
             </a-form-item>
           </a-col>
@@ -167,16 +171,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { UserDetail } from "./detail";
+import { UserDetail } from './detail';
 import {
   getUserManagerDetail,
   addOrEditUserManager,
-} from "@/api/user/userManager";
-import { getDictList } from "@/api/finance/dict/dictManager";
-import { message, FormInstance } from "ant-design-vue";
-import dayjs from "dayjs";
-import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
-import { FileInfo } from "@/views/components/fileInfo";
+} from '@/api/user/userManager';
+import { getDictList } from '@/api/finance/dict/dictManager';
+import { message, FormInstance } from 'ant-design-vue';
+import dayjs from 'dayjs';
+import { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import { FileInfo } from '@/views/components/fileInfo';
 
 interface Props {
   open?: boolean;
@@ -186,7 +190,7 @@ interface Props {
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });
 let loading = ref<boolean>(false);
-const dateFormatter = "YYYY-MM-DD";
+const dateFormatter = 'YYYY-MM-DD';
 const modelConfig = {
   confirmLoading: true,
   destroyOnClose: true,
@@ -197,34 +201,34 @@ const formRef = ref<FormInstance>();
 let genderList = ref<dictInfo[]>([]);
 let validList = ref<dictInfo[]>([]);
 let fileInfo = ref<FileInfo>({});
-let fromSystem = ref<string>("user");
+let fromSystem = ref<string>('user');
 
 const rulesRef = reactive({
   username: [
     {
       required: true,
-      message: "用户名称不能为空！",
+      message: '用户名称不能为空！',
     },
   ],
   nickName: [
     {
       required: true,
-      message: "昵称不能为空！",
+      message: '昵称不能为空！',
     },
   ],
   mobile: [
     {
       required: true,
-      message: "电话号不能为空！",
+      message: '电话号不能为空！',
     },
     {
-      message: "输入的电话号不合法！",
+      message: '输入的电话号不合法！',
       pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
     },
   ],
   email: [
     {
-      message: "输入的邮箱不合法！",
+      message: '输入的邮箱不合法！',
       pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.*[a-zA-Z0-9_-]+)+$/,
     },
   ],
@@ -243,38 +247,39 @@ const handleOk = () => {
 };
 
 const customImageRequest = (file: FileInfo) => {
+  console.log(`ddddddddddddddddddddddddddddddddddd customImageRequest`, file);
   formState.value.avatar = file.id;
 };
 
 const handleCancel = () => {
-  emit("handleCancel", false);
+  emit('handleCancel', false);
 };
 
 //保存财务信息
 function saveUserManager() {
-  let method = "";
+  let method = '';
   if (formState.value.id) {
-    method = "put";
+    method = 'put';
   } else {
-    method = "post";
+    method = 'post';
   }
 
   addOrEditUserManager(method, formState.value)
     .then((res: any) => {
       console.log(`res:`, res);
-      if (res.code == "200") {
-        message.success((res && res.message) || "保存成功！");
-        emit("handleOk", false);
+      if (res.code == '200') {
+        message.success((res && res.message) || '保存成功！');
+        emit('handleOk', false);
       } else {
         console.log(res);
-        message.error((res && res.message) || "保存失败！");
+        message.error((res && res.message) || '保存失败！');
       }
       initForm();
     })
     .catch((error: any) => {
       let data = error?.response?.data;
       if (data) {
-        message.error(data?.message || "保存失败！");
+        message.error(data?.message || '保存失败！');
       }
     })
     .finally(() => {
@@ -283,29 +288,29 @@ function saveUserManager() {
 }
 
 const onFinishFailed = (errorInfo: any) => {
-  console.log("Failed:", errorInfo);
+  console.log('Failed:', errorInfo);
 };
 
 function getDictInfoList() {
-  getDictList("is_valid,gender").then((res) => {
-    if (res.code == "200") {
+  getDictList('is_valid,gender').then((res) => {
+    if (res.code == '200') {
       genderList.value = [];
-      genderList.value.push({ typeCode: 0, typeName: "请选择" });
+      genderList.value.push({ typeCode: 0, typeName: '请选择' });
       res.data.forEach(
         (item: { belongTo: string; typeCode: any; typeName: any }) => {
-          if (item.belongTo == "gender") {
+          if (item.belongTo == 'gender') {
             genderList.value.push({
               typeCode: Number(item.typeCode),
               typeName: item.typeName,
             });
           }
-        }
+        },
       );
       validList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "is_valid"
+        (item: { belongTo: string }) => item.belongTo == 'is_valid',
       );
     } else {
-      message.error((res && res.message) || "查询列表失败！");
+      message.error((res && res.message) || '查询列表失败！');
     }
   });
 }
@@ -321,12 +326,12 @@ watch(
   {
     immediate: true,
     deep: true,
-  }
+  },
 );
 
 function initForm() {
   formState.value = {
-    status: "1",
+    status: '1',
     gender: 0,
   };
 }
@@ -336,7 +341,7 @@ function init() {
     if (props.modelInfo.id) {
       getUserManagerDetail(props.modelInfo.id)
         .then((res) => {
-          if (res.code == "200") {
+          if (res.code == '200') {
             formState.value = res.data;
             formState.value.birthday = dayjs(formState.value.birthday);
             modelConfig.confirmLoading = false;
@@ -347,11 +352,11 @@ function init() {
               fileInfo.value = {};
             }
           } else {
-            message.error((res && res.message) || "查询失败！");
+            message.error((res && res.message) || '查询失败！');
           }
         })
         .catch(() => {
-          message.error("系统问题，请联系管理员！");
+          message.error('系统问题，请联系管理员！');
         });
     } else {
       modelConfig.confirmLoading = false;
@@ -362,7 +367,7 @@ function init() {
   getDictInfoList();
 }
 
-const emit = defineEmits(["handleOk", "handleCancel"]);
+const emit = defineEmits(['handleOk', 'handleCancel']);
 defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

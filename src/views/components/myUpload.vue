@@ -1,71 +1,94 @@
 <template>
-    <div class="clearfix">
-        <a-upload v-model:file-list="fileList" name="avatar" list-type="picture-card" class="avatar-uploader"
-            :show-upload-list="true" @change="handleChange" @remove="handleRemove" :customRequest="customImageRequest" @preview="handlePreview">
-            <div v-if="fileList && fileList.length < 1">
-                <plus-outlined />
-                <div style="margin-top: 8px">Upload</div>
-            </div>
-        </a-upload>
-        <a-modal :open="previewVisible" :title="previewTitle" :footer="null" @cancel="handleCancel">
-            <img alt="example" style="width: 100%" :src="previewImage" />
-        </a-modal>
-    </div>
+  <div class="clearfix">
+    <a-upload
+      v-model:file-list="fileList"
+      name="avatar"
+      list-type="picture-card"
+      class="avatar-uploader"
+      :show-upload-list="true"
+      @change="handleChange"
+      @remove="handleRemove"
+      :customRequest="customImageRequest"
+      @preview="handlePreview"
+    >
+      <div v-if="fileList && fileList.length < 1">
+        <plus-outlined />
+        <div style="margin-top: 8px">Upload</div>
+      </div>
+    </a-upload>
+    <a-modal
+      :open="previewVisible"
+      :title="previewTitle"
+      :footer="null"
+      @cancel="handleCancel"
+    >
+      <img alt="example" style="width: 100%" :src="previewImage" />
+    </a-modal>
+  </div>
 </template>
 <script setup lang="ts">
 import { message, UploadProps } from 'ant-design-vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { addOrEditFileManager } from '@/api/file/index'
+import { addOrEditFileManager } from '@/api/file/index';
 import { FileInfo } from './fileInfo';
 
-const emit = defineEmits(["customImageRequest", "handleRemove"]);
+const emit = defineEmits(['customImageRequest', 'handleRemove']);
 
 interface Props {
-    fileInfo?: FileInfo;
-    fromSystem?: string;
+  fileInfo?: FileInfo;
+  fromSystem?: string;
 }
 
 // 通过覆盖默认的上传行为,可以自定义自己的上传实现(只写了前端没有写请求)
 const customImageRequest = (info: any) => {
-    const formData = new FormData() as any;
-    formData.append("file", info.file);
-    let method = "";
-    let id = '';
-    if (id) {
-        method = "put";
+  const formData = new FormData() as any;
+  formData.append('file', info.file);
+  let method = '';
+  let id = '';
+  if (id) {
+    method = 'put';
+  } else {
+    method = 'post';
+  }
+  addOrEditFileManager(
+    method,
+    props.fromSystem ? props.fromSystem : 'common',
+    formData,
+  ).then((res) => {
+    console.log(`res sssssssssssssssssss`, res);
+    if (res?.code == '200') {
+      console.log(`3333333333333333333333333`);
+      info.onSuccess(res.data, info.file);
+      console.log(`res sssssssssssssssssssssssssssss`, res.data);
+      emit('customImageRequest', res.data);
     } else {
-        method = "post";
+      message.error(res?.message || '上传错误，请联系管理员！');
     }
-    addOrEditFileManager(method, props.fromSystem ? props.fromSystem : 'common', formData).then(res => {
-        if (res.data && res.data.code == "200") {
-            info.onSuccess(res.data, info.file);
-            emit("customImageRequest", res.data.data);
-        }
-    });
+  });
 };
 
 const loading = ref<boolean>(false);
 
 const handleChange = (info: UploadChangeParam) => {
-    if (info.file.status === 'uploading') {
-        loading.value = true;
-        return;
-    }
-    if (info.file.status === 'done') {
-        loading.value = false;
-        return;
-    }
-    if (info.file.status === 'error') {
-        message.error('upload error');
-    }
+  if (info.file.status === 'uploading') {
+    loading.value = true;
+    return;
+  }
+  if (info.file.status === 'done') {
+    loading.value = false;
+    return;
+  }
+  if (info.file.status === 'error') {
+    message.error('upload error');
+  }
 };
 
 const handleRemove = () => {
-    fileList.value = [];
-    emit("handleRemove");
-}
- 
+  fileList.value = [];
+  emit('handleRemove');
+};
+
 // const beforeUpload = (file: UploadProps['fileList'][number]) => {
 //     if(!file) {
 //         return;
@@ -82,12 +105,12 @@ const handleRemove = () => {
 // };
 
 function getBase6412(file: File) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
 }
 
 const previewVisible = ref(false);
@@ -98,60 +121,58 @@ const props = defineProps<Props>();
 const fileList = ref<UploadProps['fileList']>([]);
 
 const handleCancel = () => {
-    previewVisible.value = false;
-    previewTitle.value = '';
+  previewVisible.value = false;
+  previewTitle.value = '';
 };
 const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-        file.preview = (await getBase6412(file.originFileObj)) as string;
-    }
-    previewImage.value = file.url || file.preview;
-    previewVisible.value = true;
-    previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
+  if (!file.url && !file.preview) {
+    file.preview = (await getBase6412(file.originFileObj)) as string;
+  }
+  previewImage.value = file.url || file.preview;
+  previewVisible.value = true;
+  previewTitle.value =
+    file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
 };
 
 function init() {
-    fileList.value = [];
-    if (props.fileInfo) {
-        if (props.fileInfo.id) {
-            fileList.value?.push(
-                {
-                    uid: props.fileInfo.id + '',
-                    name: 'test.png',
-                    status: 'done',
-                    url: props.fileInfo.url,
-                }
-            );
-        }
+  fileList.value = [];
+  if (props.fileInfo) {
+    if (props.fileInfo.id) {
+      fileList.value?.push({
+        uid: props.fileInfo.id + '',
+        name: 'test.png',
+        status: 'done',
+        url: props.fileInfo.url,
+      });
     }
+  }
 }
 
 watch(
-    () => props.fileInfo,
-    () => {
-        init()
-    },
-    { deep: true, flush: "post" }
+  () => props.fileInfo,
+  () => {
+    init();
+  },
+  { deep: true, flush: 'post' },
 );
 
 onMounted(() => {
-    init()
+  init();
 });
-
 </script>
 <style>
-.avatar-uploader>.ant-upload {
-    width: 128px;
-    height: 128px;
+.avatar-uploader > .ant-upload {
+  width: 128px;
+  height: 128px;
 }
 
 .ant-upload-select-picture-card i {
-    font-size: 32px;
-    color: #999;
+  font-size: 32px;
+  color: #999;
 }
 
 .ant-upload-select-picture-card .ant-upload-text {
-    margin-top: 8px;
-    color: #666;
+  margin-top: 8px;
+  color: #666;
 }
 </style>
