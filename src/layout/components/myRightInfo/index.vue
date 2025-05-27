@@ -1,11 +1,11 @@
 <template>
   <a-badge :count="newsCount">
     欢迎你，{{
-      userInfo
-        ? userInfo.nickName
-          ? userInfo.nickName
-          : userInfo.username
-        : ""
+      userInfo ?
+        userInfo.nickName ?
+          userInfo.nickName
+        : userInfo.username
+      : ''
     }}
     <a-dropdown>
       <a class="ant-dropdown-link" @click.prevent>
@@ -30,30 +30,30 @@
   </a-badge>
 </template>
 <script setup lang="ts">
-import { UserOutlined } from "@ant-design/icons-vue";
-import type { MenuProps } from "ant-design-vue";
-import { logoutApi } from "@/api/user/login";
-import { useUserStore } from "@/store/modules/user/user";
-import { refreshRouter } from "@/router/index";
+import { UserOutlined } from '@ant-design/icons-vue';
+import type { MenuProps } from 'ant-design-vue';
+import { logoutApi } from '@/api/user/login';
+import { useUserStore } from '@/store/modules/user/user';
+import { refreshRouter } from '@/router/index';
 
 const { userInfo } = useUserStore();
 const newsCount = ref<number>(0);
 const router = useRouter();
 const userStore = useUserStore();
 
-const handleMenuClick: MenuProps["onClick"] = async (e) => {
+const handleMenuClick: MenuProps['onClick'] = async (e) => {
   switch (e.key) {
-    case "home":
-      router.push("/");
+    case 'home':
+      router.push('/');
       break;
-    case "github":
-      window.open("https://github.com/AlexhahahaDrag/alex_miaosha_front");
+    case 'github':
+      window.open('https://github.com/AlexhahahaDrag/alex_miaosha_front');
       break;
-    case "logout":
+    case 'logout':
       await logout();
       // 清空页面缓存
       userStore.setUserInfo(null);
-      userStore.setToken("");
+      userStore.setToken('');
       userStore.changeRouteStatus(false);
       // 刷新路由，防止动态路由被多余读取
       refreshRouter();
@@ -64,7 +64,7 @@ const handleMenuClick: MenuProps["onClick"] = async (e) => {
 const logout = async () => {
   await logoutApi();
   //跳转到登录页面
-  router.push("/login");
+  router.push('/login');
   return;
 };
 </script>

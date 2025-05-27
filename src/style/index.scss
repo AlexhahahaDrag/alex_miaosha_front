@@ -1,34 +1,44 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .page-info {
-    width: 100%;
+  width: 100%;
+  height: 100%;
+  background-color: #f6f9fb;
+  .search {
+    background: #ffffff;
+    border-radius: 10px;
+    margin: 8px;
+  }
 
-    .search {
-        background: rgb(237, 240, 237);
-        border-radius: 10px 10px 10px 10px;
-    }
+  .search-box {
+    padding: 24px 24px 0 24px;
+  }
 
-    .search-box {
-        padding-top: 24px;
-        padding-right: 25px;
-    }
+  .button {
+    margin-top: 10px;
+    border-radius: 10px;
+  }
 
-    .button {
-        margin-top: 10px;
-        border-radius: 10px;
-    }
-
-    .content {
-        margin-top: 10px;
-        background: rgb(237, 240, 237);
-        padding: 10px 10px 10px 10px;
-    }
+  .content {
+    margin-top: 10px;
+    background: #ffffff;
+    padding: 10px 10px 10px 10px;
+    margin: 8px;
+    border-radius: 10px;
+  }
 }
 
 .ant-form {
-    .ant-picker {
-        width: 100%;
-    }
+  .ant-picker {
+    width: 100%;
+  }
 
-    .ant-select {
-        width: 100%;
-    }
+  .ant-select {
+    width: 100%;
+  }
 }

@@ -179,9 +179,9 @@ import {
   DataItem,
   ModelInfo,
   pageInfo,
-} from "./pmsAttrListTs";
-import { getPmsAttrPage, deletePmsAttr } from "@/api/product/pmsAttr/pmsAttrTs";
-import { message } from "ant-design-vue";
+} from './pmsAttrListTs';
+import { getPmsAttrPage, deletePmsAttr } from '@/api/product/pmsAttr/pmsAttrTs';
+import { message } from 'ant-design-vue';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -192,7 +192,7 @@ const rowSelection = ref({
   checkStrictly: false,
   onChange: (
     selectedRowKeys: (string | number)[],
-    _selectedRows: DataItem[]
+    _selectedRows: DataItem[],
   ) => {
     rowIds = selectedRowKeys;
   },
@@ -202,26 +202,26 @@ const rowSelection = ref({
   onSelectAll: (
     selected: boolean,
     selectedRows: DataItem[],
-    changeRows: DataItem[]
+    changeRows: DataItem[],
   ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
 
 const labelMap = ref<any>({
-  attrName: { name: "attrName", label: "属性名" },
-  searchType: { name: "searchType", label: "是否需要检索[0-不需要，1-需要]" },
-  icon: { name: "icon", label: "属性图标" },
-  valueSelect: { name: "valueSelect", label: "可选值列表[用逗号分隔]" },
+  attrName: { name: 'attrName', label: '属性名' },
+  searchType: { name: 'searchType', label: '是否需要检索[0-不需要，1-需要]' },
+  icon: { name: 'icon', label: '属性图标' },
+  valueSelect: { name: 'valueSelect', label: '可选值列表[用逗号分隔]' },
   attrType: {
-    name: "attrType",
-    label: "属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]",
+    name: 'attrType',
+    label: '属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]',
   },
-  enable: { name: "enable", label: "启用状态[0 - 禁用，1 - 启用]" },
-  catelogId: { name: "catelogId", label: "所属分类" },
+  enable: { name: 'enable', label: '启用状态[0 - 禁用，1 - 启用]' },
+  catelogId: { name: 'catelogId', label: '所属分类' },
   showDesc: {
-    name: "showDesc",
-    label: "快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整",
+    name: 'showDesc',
+    label: '快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整',
   },
 });
 
@@ -241,24 +241,24 @@ function handleTableChange(pagination) {
 
 function delPmsAttr(ids: string) {
   deletePmsAttr(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
+    if (res.code == '200') {
+      message.success((res && '删除' + res.message) || '删除成功！', 3);
       getPmsAttrListPage(searchInfo.value, pagination.value);
     } else {
-      message.error((res && res.message) || "删除失败！", 3);
+      message.error((res && res.message) || '删除失败！', 3);
     }
   });
 }
 
 function batchDelPmsAttr() {
-  let ids = "";
+  let ids = '';
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
-      ids += item + ",";
+      ids += item + ',';
     });
     ids = ids.substring(0, ids.length - 1);
   } else {
-    message.warning("请先选择数据！", 3);
+    message.warning('请先选择数据！', 3);
     return;
   }
   delPmsAttr(ids);
@@ -276,13 +276,13 @@ function getPmsAttrListPage(param: SearchInfo, cur: pageInfo) {
   loading.value = true;
   getPmsAttrPage(param, cur.current, cur.pageSize)
     .then((res) => {
-      if (res.code == "200") {
+      if (res.code == '200') {
         dataSource.value = res.data.records;
         pagination.value.current = res.data.current;
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;
       } else {
-        message.error((res && res.message) || "查询列表失败！");
+        message.error((res && res.message) || '查询列表失败！');
       }
     })
     .finally(() => {
@@ -303,11 +303,11 @@ let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsAttr(type: string, id?: number) {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
+  if (type == 'add') {
+    modelInfo.value.title = '新增明细';
     modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
+  } else if (type == 'update') {
+    modelInfo.value.title = '修改明细';
     modelInfo.value.id = id;
   }
   modelInfo.value.confirmLoading = true;

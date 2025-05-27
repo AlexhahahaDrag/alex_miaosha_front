@@ -1,16 +1,16 @@
-import { useUserStore } from "@/store/modules/user/user";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ResponseBody } from "@/api/typing";
-import { message } from "ant-design-vue";
-import router from "@/router";
-import { decrypt } from "@/utils/crypto/index";
-import moment from "moment";
+import { useUserStore } from '@/store/modules/user/user';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ResponseBody } from '@/api/typing';
+import { message } from 'ant-design-vue';
+import router from '@/router';
+import { decrypt } from '@/utils/crypto/index';
+import moment from 'moment';
 
 const request = axios.create({
   timeout: 6000,
 });
 
-axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
@@ -34,21 +34,21 @@ const errorHandler = (error: AxiosError): Promise<any> => {
 
 //请求拦截器
 const requestHandler = (
-  config: AxiosRequestConfig<any>
+  config: AxiosRequestConfig<any>,
 ): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
     if (config?.headers) {
-      config.headers["Authorization"] = token;
+      config.headers['Authorization'] = token;
     }
   } else {
-    router.push({ name: "login" });
+    router.push({ name: 'login' });
   }
   if (config?.data) {
     for (const k in config.data) {
-      if (config.data[k] && config.data[k].$L == "zh-cn") {
-        config.data[k] = config.data[k].add(8, "hours");
+      if (config.data[k] && config.data[k].$L == 'zh-cn') {
+        config.data[k] = config.data[k].add(8, 'hours');
       }
     }
   }
@@ -57,23 +57,23 @@ const requestHandler = (
 
 //请求拦截器
 const requestHandlerFile = (
-  config: AxiosRequestConfig<any>
+  config: AxiosRequestConfig<any>,
 ): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
   const userStore = useUserStore();
   const token = userStore.getToken;
   if (token) {
     if (config?.headers) {
-      config.headers["Authorization"] = token;
-      config.headers["Content-Type"] = "multipart/form-data";
+      config.headers['Authorization'] = token;
+      config.headers['Content-Type'] = 'multipart/form-data';
     }
   } else {
-    router.push({ name: "login" });
+    router.push({ name: 'login' });
   }
   if (config?.data) {
     for (const k in config.data) {
       if (config.data[k] && config.data[k] instanceof Date) {
         config.data[k] = moment(config.data[k])
-          .add(8, "hours")
+          .add(8, 'hours')
           .local()
           .toISOString();
       }
@@ -87,13 +87,13 @@ request.interceptors.request.use(requestHandler, errorHandler);
 
 //响应拦截器
 const responseHandler = (
-  response: AxiosResponse<any>
+  response: AxiosResponse<any>,
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
   const { data } = response;
   console.log(`response data aaaaaaaaaaaaaaaaaaaaaaaaa`, data);
   let resData = decrypt(data);
   if (resData.code == 403) {
-    router.push({ name: "login" });
+    router.push({ name: 'login' });
     return;
   }
   return resData;

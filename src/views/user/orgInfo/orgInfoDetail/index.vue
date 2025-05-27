@@ -3,14 +3,14 @@
     <a-modal
       :open="props.open"
       :width="
-        props.modelInfo && props.modelInfo.width
-          ? props.modelInfo.width
-          : '1000px'
+        props.modelInfo && props.modelInfo.width ?
+          props.modelInfo.width
+        : '1000px'
       "
       :title="
-        props.modelInfo && props.modelInfo.title
-          ? props.modelInfo.title
-          : 'Basic Modal'
+        props.modelInfo && props.modelInfo.title ?
+          props.modelInfo.title
+        : 'Basic Modal'
       "
       @ok="handleOk"
       okText="保存"

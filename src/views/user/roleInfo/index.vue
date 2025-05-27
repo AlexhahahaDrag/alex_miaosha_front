@@ -70,6 +70,12 @@
                 @click="editRoleInfo('update', record.id)"
                 >编辑</a-button
               >
+              <a-button
+                type="primary"
+                size="small"
+                @click="roleAuthorizationInfo(record.id)"
+                >授权</a-button
+              >
               <a-popconfirm
                 title="确认删除?"
                 ok-text="确认"
@@ -98,6 +104,13 @@
         @handleOk="handleOk"
         @handleCancel="handleCancel"
       ></RoleInfoDetail>
+      <AuthorizationDetail
+        ref="authorizationInfo"
+        :open="authorizationModal.open"
+        :data="authorizationModal"
+        @handleOk="handleOk"
+        @handleCancel="handleAuthorizationCancel"
+      ></AuthorizationDetail>
     </div>
   </div>
 </template>
@@ -209,39 +222,6 @@ const cancel = (e: MouseEvent) => {
   console.log(e);
 };
 
-function getRoleInfoListPage(param: SearchInfo, cur: pageInfo) {
-  loading.value = true;
-  getRoleInfoPage(param, cur.current, cur.pageSize)
-    .then((res) => {
-      if (res.code == '200') {
-        dataSource.value = res.data.records;
-        for (let i = 0; i < 5; i++) {
-          dataSource.value.push(...dataSource.value);
-        }
-        pagination.value.current = res.data.current;
-        pagination.value.pageSize = res.data.size;
-        pagination.value.total = res.data.total;
-      } else {
-        message.error((res && res.message) || '查询列表失败！');
-      }
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
-
-function query() {
-  getRoleInfoListPage(searchInfo.value, pagination.value);
-}
-
-function init() {
-  getDictInfoList();
-  //获取角色信息表页面数据
-  getRoleInfoListPage(searchInfo.value, pagination.value);
-}
-
-init();
-
 let visible = ref<boolean>(false);
 
 let modelInfo = ref<ModelInfo>({});
@@ -267,5 +247,47 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
   visible.value = v;
 };
+
+const authorizationModal = ref<any>({ open: false });
+
+const roleAuthorizationInfo = (id: number) => {
+  authorizationModal.value.open = true;
+  authorizationModal.value.id = id;
+};
+
+const handleAuthorizationCancel = () => {
+  authorizationModal.value.open = false;
+};
+
+function getRoleInfoListPage(param: SearchInfo, cur: pageInfo) {
+  loading.value = true;
+  getRoleInfoPage(param, cur.current, cur.pageSize)
+    .then((res) => {
+      if (res.code == '200') {
+        dataSource.value = res.data.records;
+        pagination.value.current = res.data.current;
+        pagination.value.pageSize = res.data.size;
+        pagination.value.total = res.data.total;
+      } else {
+        message.error((res && res.message) || '查询列表失败！');
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function query() {
+  getRoleInfoListPage(searchInfo.value, pagination.value);
+}
+
+function init() {
+  authorizationModal.value = { open: false };
+  getDictInfoList();
+  //获取角色信息表页面数据
+  getRoleInfoListPage(searchInfo.value, pagination.value);
+}
+
+init();
 </script>
 <style lang="scss" scoped></style>

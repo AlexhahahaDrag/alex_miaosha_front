@@ -5,7 +5,7 @@ export interface SearchInfo {
   costAmount?: number;
   saleAmount?: number;
   isValid?: string;
-    saleDate?: Dayjs | string;
+  saleDate?: Dayjs | string;
   category?: string;
   purchasePlace?: string;
   saleNum?: number;
@@ -99,10 +99,9 @@ export const columns = ref<any>([
     title: '操作',
     key: 'operation',
     fixed: 'right',
-    width: '8',
+    width: 160,
   },
 ]);
-
 
 export interface DataItem {
   shopName: string;
@@ -124,6 +123,6 @@ export interface ModelInfo {
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
+  typeCode?: string | number | undefined;
+  typeName?: string | undefined;
 }

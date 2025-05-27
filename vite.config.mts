@@ -84,6 +84,7 @@ export default defineConfig({
       // 选项写法
       '/api': {
         target: 'http://localhost:30001',
+        // target: 'http://81.70.158.140:30001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

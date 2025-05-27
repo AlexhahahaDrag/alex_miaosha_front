@@ -186,14 +186,14 @@ import {
   DataItem,
   ModelInfo,
   pageInfo,
-} from "./shopOrderListTs";
+} from './shopOrderListTs';
 import {
   getShopOrderPage,
   deleteShopOrder,
-} from "@/api/finance/shopOrder/shopOrderTs";
-import { message } from "ant-design-vue";
-import { getDictList } from "@/api/finance/dict/dictManager";
-import { dictInfo } from "@/views/finance/dict/dict";
+} from '@/api/finance/shopOrder/shopOrderTs';
+import { message } from 'ant-design-vue';
+import { getDictList } from '@/api/finance/dict/dictManager';
+import { dictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -204,7 +204,7 @@ const rowSelection = ref({
   checkStrictly: false,
   onChange: (
     selectedRowKeys: (string | number)[],
-    selectedRows: DataItem[]
+    _selectedRows: DataItem[],
   ) => {
     rowIds = selectedRowKeys;
   },
@@ -214,21 +214,21 @@ const rowSelection = ref({
   onSelectAll: (
     selected: boolean,
     selectedRows: DataItem[],
-    changeRows: DataItem[]
+    changeRows: DataItem[],
   ) => {
     console.log(selected, selectedRows, changeRows);
   },
 });
 
 const labelMap = ref<any>({
-  saleOrderCode: { name: "saleOrderCode", label: "订单编码" },
-  saleOrderName: { name: "saleOrderName", label: "订单名称" },
-  saleAmount: { name: "saleAmount", label: "总销售金额" },
-  isValid: { name: "isValid", label: "状态" },
-  saleDate: { name: "saleDate", label: "销售日期" },
-  description: { name: "description", label: "描述" },
-  payWay: { name: "payWay", label: "支付方式" },
-  saleCount: { name: "saleCount", label: "销售数量" },
+  saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
+  saleOrderName: { name: 'saleOrderName', label: '订单名称' },
+  saleAmount: { name: 'saleAmount', label: '总销售金额' },
+  isValid: { name: 'isValid', label: '状态' },
+  saleDate: { name: 'saleDate', label: '销售日期' },
+  description: { name: 'description', label: '描述' },
+  payWay: { name: 'payWay', label: '支付方式' },
+  saleCount: { name: 'saleCount', label: '销售数量' },
 });
 
 let searchInfo = ref<SearchInfo>({});
@@ -236,13 +236,13 @@ let searchInfo = ref<SearchInfo>({});
 let isValidList = ref<dictInfo[]>([]);
 
 const getDictInfoList = (): void => {
-  getDictList("is_valid").then((res) => {
-    if (res.code == "200") {
+  getDictList('is_valid').then((res) => {
+    if (res.code == '200') {
       isValidList.value = res.data.filter(
-        (item: { belongTo: string }) => item.belongTo == "is_valid"
+        (item: { belongTo: string }) => item.belongTo == 'is_valid',
       );
     } else {
-      message.error((res && res.message) || "查询列表失败！");
+      message.error((res && res.message) || '查询列表失败！');
     }
   });
 };
@@ -261,24 +261,24 @@ const handleTableChange = (pagination): void => {
 
 const delShopOrder = (ids: string): void => {
   deleteShopOrder(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
+    if (res.code == '200') {
+      message.success((res && '删除' + res.message) || '删除成功！', 3);
       getShopOrderListPage(searchInfo.value, pagination.value);
     } else {
-      message.error((res && res.message) || "删除失败！", 3);
+      message.error((res && res.message) || '删除失败！', 3);
     }
   });
 };
 
 const batchDelShopOrder = (): void => {
-  let ids = "";
+  let ids = '';
   if (rowIds && rowIds.length > 0) {
     rowIds.forEach((item: string) => {
-      ids += item + ",";
+      ids += item + ',';
     });
     ids = ids.substring(0, ids.length - 1);
   } else {
-    message.warning("请先选择数据！", 3);
+    message.warning('请先选择数据！', 3);
     return;
   }
   delShopOrder(ids);
@@ -296,13 +296,13 @@ const getShopOrderListPage = (param: SearchInfo, cur: pageInfo): void => {
   loading.value = true;
   getShopOrderPage(param, cur.current, cur.pageSize)
     .then((res) => {
-      if (res.code == "200") {
+      if (res.code == '200') {
         dataSource.value = res.data.records;
         pagination.value.current = res.data.current;
         pagination.value.pageSize = res.data.size;
         pagination.value.total = res.data.total;
       } else {
-        message.error((res && res.message) || "查询列表失败！");
+        message.error((res && res.message) || '查询列表失败！');
       }
     })
     .finally(() => {
@@ -324,11 +324,11 @@ let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopOrder = (type: string, id?: number): void => {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
+  if (type == 'add') {
+    modelInfo.value.title = '新增明细';
     modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
+  } else if (type == 'update') {
+    modelInfo.value.title = '修改明细';
     modelInfo.value.id = id;
   }
   modelInfo.value.confirmLoading = true;

@@ -1,14 +1,21 @@
 <template>
-  <a-layout style="min-height: 100vh">
+  <a-layout style="height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <div class="logo"></div>
       <MyNavbar :routes="routes" :selectedKeys="selectedKeys"></MyNavbar>
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0">
-        <div class="navbar">
+        <div
+          class="navbar"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
           <MyBreadcrumb class="breadcrumb-container"></MyBreadcrumb>
-          <div class="right-menu">
+          <div class="right-menu" style="display: flex; align-items: center">
             <MyRightInfo></MyRightInfo>
           </div>
         </div>
@@ -16,13 +23,27 @@
       <a-layout-content>
         <MyTabs></MyTabs>
         <div
-          :style="{ padding: '4px', background: '#fff', minHeight: '360px' }"
+          :style="{
+            padding: '4px',
+            background: '#fff',
+            minHeight: '360px',
+            height: 'calc(100% - 60px)',
+          }"
         >
           <router-view />
         </div>
       </a-layout-content>
-      <a-layout-footer style="text-align: center">
-        alex管理后台
+      <a-layout-footer style="height: 40px; background-color: #ffffff">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+          "
+        >
+          alex管理后台
+        </div>
       </a-layout-footer>
     </a-layout>
   </a-layout>

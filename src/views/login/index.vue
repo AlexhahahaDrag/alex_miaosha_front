@@ -42,11 +42,11 @@
 </template>
 
 <script setup lang="ts">
-import { LoginParams } from "@/api/user/login";
-import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/modules/user/user";
-import { UnwrapRef } from "vue";
+import { LoginParams } from '@/api/user/login';
+import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/modules/user/user';
+import { UnwrapRef } from 'vue';
 
 interface loginForm {
   username: string;
@@ -56,14 +56,14 @@ const formRef = ref();
 const router = useRouter();
 const userStore = useUserStore();
 const loginForm: UnwrapRef<loginForm> = reactive({
-  username: "",
-  password: "",
+  username: '',
+  password: '',
 });
 
 const loginRules: any = {
   password: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-    { min: 5, message: "密码最少五位", trigger: "blur" },
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 5, message: '密码最少五位', trigger: 'blur' },
   ],
 };
 
@@ -80,25 +80,25 @@ const onSubmit = () => {
       };
       const res = await userStore.login(param);
       if (res) {
-        router.push("/");
+        router.push('/');
       }
     })
     .catch((error: ValidateErrorEntity<loginForm>) => {
-      console.log("error", error);
+      console.log('error', error);
     })
     .finally(() => {
       loading.value = false;
     });
 };
 
-const particlesLoaded = async (container) => {
-  console.log("Particles container loaded", container);
+const particlesLoaded = async (container: any) => {
+  console.log('Particles container loaded', container);
 };
 
 const options = {
   background: {
     color: {
-      value: "#000", //粒子颜色
+      value: '#000', //粒子颜色
     },
   },
   fpsLimit: 60,
@@ -106,11 +106,11 @@ const options = {
     events: {
       onClick: {
         enable: true,
-        mode: "push", //可用的click模式有: "push", "remove", "repulse", "bubble"。
+        mode: 'push', //可用的click模式有: "push", "remove", "repulse", "bubble"。
       },
       onHover: {
         enable: true,
-        mode: "grab", //可用的hover模式有: "grab", "repulse", "bubble"。
+        mode: 'grab', //可用的hover模式有: "grab", "repulse", "bubble"。
       },
       resize: true,
     },
@@ -132,10 +132,10 @@ const options = {
   },
   particles: {
     color: {
-      value: "#ffffff",
+      value: '#ffffff',
     },
     links: {
-      color: "#ffffff", //'#dedede'。线条颜色。
+      color: '#ffffff', //'#dedede'。线条颜色。
       distance: 150, //线条长度
       enable: true, //是否有线条
       opacity: 0.5, //线条透明度。
@@ -145,9 +145,9 @@ const options = {
       enable: false,
     },
     move: {
-      direction: "none",
+      direction: 'none',
       enable: true,
-      outMode: "bounce",
+      outMode: 'bounce',
       random: false,
       speed: 2, //粒子运动速度。
       straight: false,
@@ -163,7 +163,7 @@ const options = {
       value: 0.5, //粒子透明度。
     },
     shape: {
-      type: "circle", //可用的粒子外观类型有："circle","edge","triangle", "polygon","star"
+      type: 'circle', //可用的粒子外观类型有："circle","edge","triangle", "polygon","star"
     },
     size: {
       random: true,
