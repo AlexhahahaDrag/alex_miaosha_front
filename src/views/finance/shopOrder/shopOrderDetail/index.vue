@@ -83,7 +83,6 @@
               <a-select
                 ref="select"
                 v-model:value="formState.isValid"
-                mode="combobox"
                 :placeholder="'请输入' + labelMap['isValid'].label"
                 :field-names="{ label: 'typeName', value: 'typeCode' }"
                 :options="isValidList"

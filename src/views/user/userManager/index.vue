@@ -217,10 +217,11 @@ function getUserPage(param: SearchInfo, cur: pageInfo) {
         message.error((res && res.message) || "查询列表失败！");
       }
     })
-    .catch(() => {
+    .catch((error: any) => {
       pagination.value.current = 0;
       pagination.value.pageSize = 10;
       pagination.value.total = 0;
+      message.warn(error?.message || '查询列表失败！')
     })
     .finally(() => {
       loading.value = false;

@@ -14,18 +14,19 @@ axios.defaults.headers.post["Content-Type"] = "application/json";
 
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
-  let response = null;
+  let response = null as any;
+  console.log(`response data error rrrrrrrrrrrrrrr aaaaaaaaaaaaaaaaaaaaaaaaa`, error);
   if (error.response) {
     const { status } = error.response;
     // 403 无权限
     if (status === 403) {
       message.warning("请先登录！", 3);
       router.push({ name: "login" });
-      return Promise.reject(error);
+      return Promise.resolve(error);
     }
     const { data } = error.response as any;
     if (data) {
-      response = data;
+      response = decrypt(data);
     }
   }
   return Promise.reject(response);
@@ -89,6 +90,7 @@ const responseHandler = (
   response: AxiosResponse<any>
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
   const { data } = response;
+  console.log(`response data aaaaaaaaaaaaaaaaaaaaaaaaa`, data);
   let resData = decrypt(data);
   if (resData.code == 403) {
     router.push({ name: "login" });

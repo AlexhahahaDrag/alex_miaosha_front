@@ -100,8 +100,8 @@ export const useUserStore = defineStore({
         } else {
           message.error((data && data.message) || "删除失败！", 3);
         }
-      } catch (error) {
-        message.error("系统错误，请联系管理员！", 3);
+      } catch (error: any) {
+        message.error(error?.message || "系统错误，请联系管理员！", 3);
         return Promise.reject(error);
       }
     },
