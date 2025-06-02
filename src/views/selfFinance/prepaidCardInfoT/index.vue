@@ -1,232 +1,197 @@
 <template>
-  <div class="page-info">
-    <div class="search">
-      <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['cardId'].name" :label="labelMap['cardId'].label">
-                <a-input v-model:value="searchInfo.cardId" :placeholder="'请选择' + labelMap['cardId'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['cardName'].name" :label="labelMap['cardName'].label">
-                <a-input v-model:value="searchInfo.cardName" :placeholder="'请选择' + labelMap['cardName'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['userId'].name" :label="labelMap['userId'].label">
-                <a-input v-model:value="searchInfo.userId" :placeholder="'请选择' + labelMap['userId'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['initialBalance'].name" :label="labelMap['initialBalance'].label">
-                <a-input v-model:value="searchInfo.initialBalance" :placeholder="'请选择' + labelMap['initialBalance'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['currentBalance'].name" :label="labelMap['currentBalance'].label">
-                <a-input v-model:value="searchInfo.currentBalance" :placeholder="'请选择' + labelMap['currentBalance'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['expireDate'].name" :label="labelMap['expireDate'].label">
-                <a-input v-model:value="searchInfo.expireDate" :placeholder="'请选择' + labelMap['expireDate'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['cardStatus'].name" :label="labelMap['cardStatus'].label">
-                <a-input v-model:value="searchInfo.cardStatus" :placeholder="'请选择' + labelMap['cardStatus'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['version'].name" :label="labelMap['version'].label">
-                <a-input v-model:value="searchInfo.version" :placeholder="'请选择' + labelMap['version'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-            <a-row :gutter="24">
-                <a-col :span="20" style="text-align: right; margin-bottom: 20px;">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
-        </a-form>
+  <div class="card-management">
+    <!-- 消费卡列表 -->
+    <div class="card-list">
+      <div style="display: flex; justify-content: start; align-items: center; ">
+        <h2>我的消费卡</h2>
+        <a-button type="primary" style="margin-left: 10px;" @click="handleRecharge('recharge')">新增消费记录</a-button>
       </div>
+      <a-row :gutter="24">
+        <a-col :span="4" v-for="card in cards" :key="card.id">
+          <a-card class="card-item" :class="{ 'card-item-active': selectedCardId === card.id }"
+            @click="handleCardClick(card)">
+            <div class="card-info">
+              <h3>{{ card.cardName }}</h3>
+              <p class="balance">余额: ¥{{ card.currentBalance }}</p>
+            </div>
+            <div class="card-actions">
+              <a-button type="primary" @click="handleRecharge('recharge', card)">充值</a-button>
+              <a-button type="primary" @click="handleRecharge('consume', card)">消费</a-button>
+            </div>
+          </a-card>
+        </a-col>
+      </a-row>
     </div>
-    <div class="button" style="margin-left: 10px;">
-      <a-space>
-        <a-button type="primary" @click="editPrepaidCardInfoT('add')">新增</a-button>
-        <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelPrepaidCardInfoT">删除</a-button>
-      </a-space>
-    </div>
-    <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+
+    <!-- 交易记录 -->
+    <div class="transaction-records">
+      <h2>交易记录</h2>
+      <div class="record-header">
+        <span v-if="selectedCardId">当前查看: {{ getSelectedCardName() }} 的交易记录</span>
+        <a-button v-if="selectedCardId" type="link" @click="clearCardSelection">查看全部记录</a-button>
+      </div>
+      <a-table :columns="columns" :data-source="transactions" :pagination="paginationInfo">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'operation'">
-            <a-space>
-              <a-button type="primary" size="small" @click="editPrepaidCardInfoT('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPrepaidCardInfoT(record.id)"
-                @cancel="cancel">
-                <a-button type="primary" size="small" danger>删除</a-button>
-              </a-popconfirm>
-            </a-space>
+          <template v-if="column.key === 'type'">
+            <a-tag :color="record.type === '充值' ? 'success' : 'warning'">
+              {{ record.type }}
+            </a-tag>
+          </template>
+          <template v-if="column.key === 'operateTime'">
+            {{ record.operateTime ? dayjs(record.operateTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
           </template>
         </template>
       </a-table>
-      <PrepaidCardInfoTDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></PrepaidCardInfoTDetail>
     </div>
   </div>
+  <recharge-info-modal v-model:open="rechargeDialogOpen" :data="currentCard" @ok="confirmRecharge"
+    @cancel="cancelRecharge" />
 </template>
+
 <script setup lang="ts">
-import {
-  SearchInfo,
-  pagination,
-  columns,
-  DataItem,
-  ModelInfo,
-  pageInfo,
-} from "./prepaidCardInfoTListTs";
-import { getPrepaidCardInfoTPage, deletePrepaidCardInfoT } from "@/api/selfFinance/prepaidCardInfoT/prepaidCardInfoTTs";
-import { message } from "ant-design-vue";
+import { message } from 'ant-design-vue';
+import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';
+import { getPrepaidCardInfoList } from './api/index';
+import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api/index';
+import dayjs from 'dayjs';
+import { IRechargeForm, columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
+// 消费卡数据
+const cards = ref<any[]>([]);
 
-let rowIds = [] as any;
+// 交易记录数据
+const transactions = ref<any[]>([
 
-const rowSelection = ref({
-  checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    rowIds = selectedRowKeys;
-  },
-  onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
-    console.log(selected, selectedRows, changeRows);
-  },
+])
+
+const selectedCardId = ref<string | number | null>(null)
+
+const paginationInfo = ref<any>({
+  pageNo: 1,
+  pageSize: 10,
+  total: 0,
 });
 
-const labelMap = ref<any>(
-{
-    cardId: {name: 'cardId', label: '卡号（业务唯一标识）123'},
-    cardName: {name: 'cardName', label: '卡名称111'},
-    userId: {name: 'userId', label: '持卡人ID'},
-    initialBalance: {name: 'initialBalance', label: '初始金额'},
-    currentBalance: {name: 'currentBalance', label: '当前余额'},
-    expireDate: {name: 'expireDate', label: '过期日期'},
-    cardStatus: {name: 'cardStatus', label: '状态（正常/冻结/挂失/过期）'},
-    version: {name: 'version', label: '版本'},
-});
+// 充值相关
+const rechargeDialogOpen = ref<boolean>(false)
+const currentCard = ref<IRechargeForm | null>(null)
 
-let searchInfo = ref<SearchInfo>({});
-
-
-const cancelQuery = (): void => {
-  searchInfo.value = {};
+// 处理充值
+const handleRecharge = (type: string, card?: any) => {
+  currentCard.value = card ?? {};
+  currentCard.value.type = type;
+  rechargeDialogOpen.value = true;
 }
 
-const query = (): void => {
-  getPrepaidCardInfoTListPage(searchInfo.value, pagination.value);
+const handleCardClick = (card: any) => {
+  selectedCardId.value = card.id
+  getPrepaidConsumeRecordTPageInfo()
 }
 
-const handleTableChange = (pagination): void => {
-  getPrepaidCardInfoTListPage(searchInfo.value, pagination);
+// 清除卡片选择
+const clearCardSelection = () => {
+  selectedCardId.value = null
 }
 
-const delPrepaidCardInfoT = (ids: string): void => {
-  deletePrepaidCardInfoT(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getPrepaidCardInfoTListPage(searchInfo.value, pagination.value);
-    } else {
-      message.error((res && res.message) || "删除失败！", 3);
-    }
-  });
+// 获取选中卡片的名称
+const getSelectedCardName = () => {
+  const card = cards.value.find(c => c.id === selectedCardId.value)
+  return card ? card.cardName : ''
 }
 
-const batchDelPrepaidCardInfoT = (): void => {
-  let ids = "";
-  if (rowIds && rowIds.length > 0) {
-    rowIds.forEach((item: string) => {
-      ids += item + ",";
-    });
-    ids = ids.substring(0, ids.length - 1);
+// 获取消费卡列表
+const getPrepaidCardInfoListInfo = async () => {
+  const { code, data, message: messageInfo } = await getPrepaidCardInfoList({});
+  if (code === '200') {
+    cards.value = data;
   } else {
-    message.warning("请先选择数据！", 3);
-    return;
+    message.error(messageInfo);
   }
-  delPrepaidCardInfoT(ids);
 }
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
-
-const cancel = (e: MouseEvent): void => {
-  console.log(e);
+// 获取消费记录列表
+const getPrepaidConsumeRecordTPageInfo = async () => {
+  const { code, data, message: messageInfo } = await getPrepaidConsumeRecordTPage({ cardId: selectedCardId.value }, paginationInfo.value.pageNo, paginationInfo.value.pageSize);
+  console.log(data, code, messageInfo);
+  if (code === '200') {
+    transactions.value = data?.records || [];
+    paginationInfo.value.total = data.total;
+  } else {
+    message.error(messageInfo);
+  }
 }
 
-const getPrepaidCardInfoTListPage = (param: SearchInfo, cur: pageInfo): void => {
-  loading.value = true;
-  getPrepaidCardInfoTPage(param, cur.current, cur.pageSize)
-    .then((res) => {
-      if (res.code == "200") {
-        dataSource.value = res.data.records;
-        pagination.value.current = res.data.current;
-        pagination.value.pageSize = res.data.size;
-        pagination.value.total = res.data.total;
-      } else {
-        message.error((res && res.message) || "查询列表失败！");
-      }
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+// 确认充值
+const confirmRecharge = () => {
+  rechargeDialogOpen.value = false
+  // 获取消费卡列表
+  getPrepaidCardInfoListInfo();
+  // 获取消费记录列表
+  getPrepaidConsumeRecordTPageInfo();
 }
 
-const init = (): void => {
-  //获取消费卡信息表页面数据
-  getPrepaidCardInfoTListPage(searchInfo.value, pagination.value);
+// 取消充值
+const cancelRecharge = () => {
+  rechargeDialogOpen.value = false
+}
+
+const init = () => {
+  selectedCardId.value = null;
+  // 获取消费卡列表
+  getPrepaidCardInfoListInfo();
+  // 获取消费记录列表
+  getPrepaidConsumeRecordTPageInfo();
 }
 
 init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
-//新增和修改弹窗
-const editPrepaidCardInfoT = (type: string, id?: number): void => {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
-    modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
-    modelInfo.value.id = id;
-  }
-  modelInfo.value.confirmLoading = true;
-  visible.value = true;
-}
-
-const handleOk = (v: boolean): void => {
-  visible.value = v;
-  getPrepaidCardInfoTListPage(searchInfo.value, pagination.value);
-};
-
-const handleCancel = (v: boolean): void => {
-  visible.value = v;
-};
 </script>
-<style lang="scss" scoped>
+
+<style lang="less" scoped>
+  .card-management {
+    padding: 24px;
+  }
+
+  .card-list {
+    margin-bottom: 30px;
+  }
+
+  .card-item {
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .card-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  }
+
+  .card-item-active {
+    border: 2px solid #1890ff;
+  }
+
+  .card-info h3 {
+    margin: 0 0 10px 0;
+  }
+
+  .balance {
+    font-size: 18px;
+    color: #1890ff;
+    margin: 0;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .transaction-records {
+    margin-top: 30px;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+  }
 </style>

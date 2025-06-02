@@ -1,226 +1,207 @@
 <template>
-  <div class="page-info">
-    <div class="search">
-      <div class="search-box">
-        <a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['cardId'].name" :label="labelMap['cardId'].label">
-                <a-input v-model:value="searchInfo.cardId" :placeholder="'请选择' + labelMap['cardId'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['orderNo'].name" :label="labelMap['orderNo'].label">
-                <a-input v-model:value="searchInfo.orderNo" :placeholder="'请选择' + labelMap['orderNo'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['amount'].name" :label="labelMap['amount'].label">
-                <a-input v-model:value="searchInfo.amount" :placeholder="'请选择' + labelMap['amount'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['balanceAfter'].name" :label="labelMap['balanceAfter'].label">
-                <a-input v-model:value="searchInfo.balanceAfter" :placeholder="'请选择' + labelMap['balanceAfter'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['merchantName'].name" :label="labelMap['merchantName'].label">
-                <a-input v-model:value="searchInfo.merchantName" :placeholder="'请选择' + labelMap['merchantName'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item :name="labelMap['consumeTime'].name" :label="labelMap['consumeTime'].label">
-                <a-input v-model:value="searchInfo.consumeTime" :placeholder="'请选择' + labelMap['consumeTime'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item :name="labelMap['description'].name" :label="labelMap['description'].label">
-                <a-input v-model:value="searchInfo.description" :placeholder="'请选择' + labelMap['description'].label" allow-clear />
-              </a-form-item>
-            </a-col>
-          </a-row>
-            <a-row :gutter="24">
-                <a-col :span="20" style="text-align: right; margin-bottom: 20px;">
-                  <a-space>
-                    <a-button type="primary" @click="query"> 查找</a-button>
-                    <a-button type="primary" @click="cancelQuery">清空</a-button>
-                  </a-space>
-                </a-col>
-            </a-row>
-        </a-form>
-      </div>
+  <div class="card-management">
+    <!-- 消费卡列表 -->
+    <div class="card-list">
+      <h2>我的消费卡</h2>
+      <a-row :gutter="16">
+        <a-col :span="8" v-for="card in cards" :key="card.id">
+          <a-card class="card-item">
+            <div class="card-info">
+              <h3>{{ card.name }}</h3>
+              <p class="balance">余额: ¥{{ card.balance }}</p>
+            </div>
+            <div class="card-actions">
+              <a-button type="primary" @click="handleRecharge(card)">充值</a-button>
+              <a-button type="primary" @click="handleConsume(card)">消费</a-button>
+            </div>
+          </a-card>
+        </a-col>
+      </a-row>
     </div>
-    <div class="button" style="margin-left: 10px;">
-      <a-space>
-        <a-button type="primary" @click="editPrepaidConsumeRecordT('add')">新增</a-button>
-        <a-button type="primary" @click="query">导入</a-button>
-        <a-button type="primary" danger @click="batchDelPrepaidConsumeRecordT">删除</a-button>
-      </a-space>
-    </div>
-    <div class="content">
-      <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+
+    <!-- 交易记录 -->
+    <div class="transaction-records">
+      <h2>交易记录</h2>
+      <a-table :columns="columns" :data-source="transactions" :pagination="{ pageSize: 10 }">
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'operation'">
-            <a-space>
-              <a-button type="primary" size="small" @click="editPrepaidConsumeRecordT('update', record.id)">编辑</a-button>
-              <a-popconfirm title="确认删除?" ok-text="确认" cancel-text="取消" @confirm="delPrepaidConsumeRecordT(record.id)"
-                @cancel="cancel">
-                <a-button type="primary" size="small" danger>删除</a-button>
-              </a-popconfirm>
-            </a-space>
+          <template v-if="column.key === 'type'">
+            <a-tag :color="record.type === '充值' ? 'success' : 'warning'">
+              {{ record.type }}
+            </a-tag>
           </template>
         </template>
       </a-table>
-      <PrepaidConsumeRecordTDetail ref="editInfo" :open="visible" :modelInfo="modelInfo" @handleOk="handleOk"
-        @handleCancel="handleCancel"></PrepaidConsumeRecordTDetail>
     </div>
+
+    <!-- 充值对话框 -->
+    <a-modal v-model:visible="rechargeDialogVisible" title="充值" @ok="confirmRecharge"
+      @cancel="rechargeDialogVisible = false">
+      <a-form :model="rechargeForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-form-item label="充值金额">
+          <a-input-number v-model:value="rechargeForm.amount" :min="1" style="width: 100%" />
+        </a-form-item>
+        <a-form-item label="支付方式">
+          <a-select v-model:value="rechargeForm.paymentMethod">
+            <a-select-option value="wechat">微信支付</a-select-option>
+            <a-select-option value="alipay">支付宝</a-select-option>
+            <a-select-option value="bank">银行卡</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 消费对话框 -->
+    <a-modal v-model:visible="consumeDialogVisible" title="消费" @ok="confirmConsume"
+      @cancel="consumeDialogVisible = false">
+      <a-form :model="consumeForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-form-item label="消费金额">
+          <a-input-number v-model:value="consumeForm.amount" :min="1" style="width: 100%" />
+        </a-form-item>
+        <a-form-item label="消费说明">
+          <a-textarea v-model:value="consumeForm.description" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
-<script setup lang="ts">
-import {
-  SearchInfo,
-  pagination,
-  columns,
-  DataItem,
-  ModelInfo,
-  pageInfo,
-} from "./prepaidConsumeRecordTListTs";
-import { getPrepaidConsumeRecordTPage, deletePrepaidConsumeRecordT } from "@/api/selfFinance/prepaidConsumeRecordT/prepaidConsumeRecordTTs";
-import { message } from "ant-design-vue";
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
+<script setup>
+import { ref, reactive } from 'vue'
+import { message } from 'ant-design-vue'
 
-let rowIds = [] as any;
-
-const rowSelection = ref({
-  checkStrictly: false,
-  onChange: (selectedRowKeys: (string | number)[], selectedRows: DataItem[]) => {
-    rowIds = selectedRowKeys;
+// 表格列定义
+const columns = [
+  {
+    title: '日期',
+    dataIndex: 'date',
+    key: 'date',
+    width: 180,
   },
-  onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-    console.log(record, selected, selectedRows);
+  {
+    title: '卡名称',
+    dataIndex: 'cardName',
+    key: 'cardName',
+    width: 180,
   },
-  onSelectAll: (selected: boolean, selectedRows: DataItem[], changeRows: DataItem[]) => {
-    console.log(selected, selectedRows, changeRows);
+  {
+    title: '类型',
+    dataIndex: 'type',
+    key: 'type',
   },
-});
+  {
+    title: '金额',
+    dataIndex: 'amount',
+    key: 'amount',
+  },
+  {
+    title: '描述',
+    dataIndex: 'description',
+    key: 'description',
+  },
+]
 
-const labelMap = ref<any>(
-{
-    cardId: {name: 'cardId', label: '卡号（关联prepaid_card_info_t.card_id）'},
-    orderNo: {name: 'orderNo', label: '交易流水号（业务唯一）'},
-    amount: {name: 'amount', label: '交易金额（正消费，负充值）'},
-    balanceAfter: {name: 'balanceAfter', label: '交易后余额'},
-    merchantName: {name: 'merchantName', label: '商户名称'},
-    consumeTime: {name: 'consumeTime', label: '交易时间'},
-    description: {name: 'description', label: '交易描述'},
-});
+// 消费卡数据
+const cards = ref([
+  { id: 1, name: '会员卡', balance: 1000 },
+  { id: 2, name: '储值卡', balance: 500 },
+])
 
-let searchInfo = ref<SearchInfo>({});
-
-
-const cancelQuery = (): void => {
-  searchInfo.value = {};
-}
-
-const query = (): void => {
-  getPrepaidConsumeRecordTListPage(searchInfo.value, pagination.value);
-}
-
-const handleTableChange = (pagination): void => {
-  getPrepaidConsumeRecordTListPage(searchInfo.value, pagination);
-}
-
-const delPrepaidConsumeRecordT = (ids: string): void => {
-  deletePrepaidConsumeRecordT(ids).then((res) => {
-    if (res.code == "200") {
-      message.success((res && "删除" + res.message) || "删除成功！", 3);
-      getPrepaidConsumeRecordTListPage(searchInfo.value, pagination.value);
-    } else {
-      message.error((res && res.message) || "删除失败！", 3);
-    }
-  });
-}
-
-const batchDelPrepaidConsumeRecordT = (): void => {
-  let ids = "";
-  if (rowIds && rowIds.length > 0) {
-    rowIds.forEach((item: string) => {
-      ids += item + ",";
-    });
-    ids = ids.substring(0, ids.length - 1);
-  } else {
-    message.warning("请先选择数据！", 3);
-    return;
+// 交易记录数据
+const transactions = ref([
+  {
+    key: '1',
+    date: '2024-03-20',
+    cardName: '会员卡',
+    type: '充值',
+    amount: 500,
+    description: '微信充值'
+  },
+  {
+    key: '2',
+    date: '2024-03-19',
+    cardName: '储值卡',
+    type: '消费',
+    amount: 100,
+    description: '购买商品'
   }
-  delPrepaidConsumeRecordT(ids);
+])
+
+// 充值相关
+const rechargeDialogVisible = ref(false)
+const currentCard = ref(null)
+const rechargeForm = reactive({
+  amount: 100,
+  paymentMethod: 'wechat'
+})
+
+// 消费相关
+const consumeDialogVisible = ref(false)
+const consumeForm = reactive({
+  amount: 0,
+  description: ''
+})
+
+// 处理充值
+const handleRecharge = (card) => {
+  currentCard.value = card
+  rechargeDialogVisible.value = true
 }
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
-
-const cancel = (e: MouseEvent): void => {
-  console.log(e);
+// 确认充值
+const confirmRecharge = () => {
+  message.success('充值成功')
+  rechargeDialogVisible.value = false
 }
 
-const getPrepaidConsumeRecordTListPage = (param: SearchInfo, cur: pageInfo): void => {
-  loading.value = true;
-  getPrepaidConsumeRecordTPage(param, cur.current, cur.pageSize)
-    .then((res) => {
-      if (res.code == "200") {
-        dataSource.value = res.data.records;
-        pagination.value.current = res.data.current;
-        pagination.value.pageSize = res.data.size;
-        pagination.value.total = res.data.total;
-      } else {
-        message.error((res && res.message) || "查询列表失败！");
-      }
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+// 处理消费
+const handleConsume = (card) => {
+  currentCard.value = card
+  consumeDialogVisible.value = true
 }
 
-const init = (): void => {
-  //获取消费卡交易记录表页面数据
-  getPrepaidConsumeRecordTListPage(searchInfo.value, pagination.value);
+// 确认消费
+const confirmConsume = () => {
+  message.success('消费成功')
+  consumeDialogVisible.value = false
 }
-
-init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
-//新增和修改弹窗
-const editPrepaidConsumeRecordT = (type: string, id?: number): void => {
-  if (type == "add") {
-    modelInfo.value.title = "新增明细";
-    modelInfo.value.id = undefined;
-  } else if (type == "update") {
-    modelInfo.value.title = "修改明细";
-    modelInfo.value.id = id;
-  }
-  modelInfo.value.confirmLoading = true;
-  visible.value = true;
-}
-
-const handleOk = (v: boolean): void => {
-  visible.value = v;
-  getPrepaidConsumeRecordTListPage(searchInfo.value, pagination.value);
-};
-
-const handleCancel = (v: boolean): void => {
-  visible.value = v;
-};
 </script>
-<style lang="scss" scoped>
+
+<style scoped>
+  .card-management {
+    padding: 24px;
+  }
+
+  .card-list {
+    margin-bottom: 30px;
+  }
+
+  .card-item {
+    margin-bottom: 16px;
+  }
+
+  .card-info h3 {
+    margin: 0 0 10px 0;
+  }
+
+  .balance {
+    font-size: 18px;
+    color: #1890ff;
+    margin: 0;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .transaction-records {
+    margin-top: 30px;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+  }
 </style>

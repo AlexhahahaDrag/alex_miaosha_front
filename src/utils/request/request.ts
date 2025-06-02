@@ -16,6 +16,10 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 const errorHandler = (error: AxiosError): Promise<any> => {
   let response = null as any;
   console.log(`response data error rrrrrrrrrrrrrrr aaaaaaaaaaaaaaaaaaaaaaaaa`, error);
+  if ("ECONNABORTED" == error.code) {
+    message.warning("请求超时，请稍后再试！", 3);
+    return Promise.reject(error);
+  }
   if (error.response) {
     const { status } = error.response;
     // 403 无权限
@@ -29,7 +33,7 @@ const errorHandler = (error: AxiosError): Promise<any> => {
       response = decrypt(data);
     }
   }
-  return Promise.reject(response);
+  return Promise.resolve(response);
 };
 
 //请求拦截器
