@@ -56,11 +56,8 @@ const customImageRequest = (info: any) => {
     props.fromSystem ? props.fromSystem : 'common',
     formData,
   ).then((res) => {
-    console.log(`res sssssssssssssssssss`, res);
     if (res?.code == '200') {
-      console.log(`3333333333333333333333333`);
       info.onSuccess(res.data, info.file);
-      console.log(`res sssssssssssssssssssssssssssss`, res.data);
       emit('customImageRequest', res.data);
     } else {
       message.error(res?.message || '上传错误，请联系管理员！');
