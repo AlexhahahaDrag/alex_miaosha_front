@@ -5,6 +5,7 @@ export interface ResponseBody<T = any> {
     data?: T | T[];
 }
 
+
 //分页
 export interface PageResult<T = any> {
     data: T[];
