@@ -35,18 +35,18 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 
 	return {
 		define: {
-    __VUE_OPTIONS_API__: JSON.stringify(true), // 启用或禁用 Vue 2 的 Options API
-    __VUE_PROD_DEVTOOLS__: JSON.stringify(false), // 生产环境下启用或禁用 Vue Devtools
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(true), // 生产环境下，当水合错误发生时提供额外的信息
+			__VUE_OPTIONS_API__: JSON.stringify(true), // 启用或禁用 Vue 2 的 Options API
+			__VUE_PROD_DEVTOOLS__: JSON.stringify(false), // 生产环境下启用或禁用 Vue Devtools
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(true), // 生产环境下，当水合错误发生时提供额外的信息
 		},
 		plugins: [
 			vue(),
 			AutoImport({
-      // 指定需要自动导入的库
+				// 指定需要自动导入的库
 				imports: ['vue', 'vue-router', 'pinia'],
-      // Vite特定的配置
-      dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
-      // 其他配置...
+				// Vite特定的配置
+				dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
+				// 其他配置...
 				eslintrc: {
 					enabled: true,
 				},
@@ -109,12 +109,12 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			outDir: env.VITE_OUTPUT_DIR || 'dist',
 			rollupOptions: {
 				output: {
-        //静态资源分类打包
+					//静态资源分类打包
 					chunkFileNames: 'static/js/chunkName-[hash].js',
 					entryFileNames: 'static/js/chunkName-[hash].js',
 					assetFileNames: 'static/[ext]/chunkName-[hash].[ext]',
 					manualChunks(id: string) {
-          //静态资源分拆打包
+						//静态资源分拆打包
 						if (id.includes('node_modules')) {
 							return id
 								.toString()
