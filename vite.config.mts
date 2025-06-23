@@ -9,6 +9,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import type { ConfigEnv, UserConfig } from 'vite';
 import * as dotenv from 'dotenv';
+import AutoPinia from 'vite-auto-pinia';
 
 const pathResolve = (dir: string): any => {
 	return resolve(__dirname, './', dir);
@@ -43,7 +44,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			vue(),
 			AutoImport({
 				// 指定需要自动导入的库
-				imports: ['vue', 'vue-router', 'pinia'],
+				imports: ['vue', 'vue-router'],
 				// Vite特定的配置
 				dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
 				// 其他配置...

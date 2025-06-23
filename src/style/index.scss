@@ -1,44 +1,50 @@
 html,
 body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#app {
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 .page-info {
-  width: 100%;
-  height: 100%;
-  background-color: #f6f9fb;
-  .search {
-    background: #ffffff;
-    border-radius: 10px;
-    margin: 8px;
-  }
+	width: 100%;
+	height: 100%;
+	background-color: #f6f9fb;
+	.search {
+		background: #ffffff;
+		border-radius: 10px;
+		margin: 8px;
+	}
 
-  .search-box {
-    padding: 24px 24px 0 24px;
-  }
+	.search-box {
+		padding: 24px 24px 0 24px;
+	}
 
-  .button {
-    margin-top: 10px;
-    border-radius: 10px;
-  }
+	.button {
+		margin-top: 10px;
+		border-radius: 10px;
+	}
 
-  .content {
-    margin-top: 10px;
-    background: #ffffff;
-    padding: 10px 10px 10px 10px;
-    margin: 8px;
-    border-radius: 10px;
-  }
+	.content {
+		margin-top: 10px;
+		background: #ffffff;
+		padding: 10px 10px 10px 10px;
+		margin: 8px;
+		border-radius: 10px;
+	}
 }
 
 .ant-form {
-  .ant-picker {
-    width: 100%;
-  }
+	.ant-picker {
+		width: 100%;
+	}
 
-  .ant-select {
-    width: 100%;
-  }
+	.ant-select {
+		width: 100%;
+	}
 }
