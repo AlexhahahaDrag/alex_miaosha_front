@@ -50,6 +50,7 @@
 				:columns="columns"
 				:data-source="transactions"
 				:pagination="paginationInfo"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'type'">
@@ -60,7 +61,7 @@
 					<template v-if="column.key === 'operateTime'">
 						{{
 							record.operateTime ?
-								dayjs(record.operateTime).format('YYYY-MM-DD HH:mm:ss')
+								dayjs(record.operateTime).format('YYYY-MM-DD HH:mm')
 							:	''
 						}}
 					</template>
@@ -97,6 +98,7 @@ const selectedCardId = ref<string | number | null>(null);
 
 const paginationInfo = ref<any>({
 	pageNo: 1,
+  current: 1,
 	pageSize: 10,
 	total: 0,
 });
@@ -114,12 +116,23 @@ const handleRecharge = (type: string, card?: any) => {
 
 const handleCardClick = (card: any) => {
 	selectedCardId.value = card.id;
+  transactions.value = [];
+	paginationInfo.value.pageNo = 1;
+  paginationInfo.value.current = 1;
+	paginationInfo.value.pageSize = 10;
+	paginationInfo.value.total = 0;
 	getPrepaidConsumeRecordTPageInfo();
 };
 
 // 清除卡片选择
 const clearCardSelection = () => {
 	selectedCardId.value = null;
+	transactions.value = [];
+	paginationInfo.value.pageNo = 1;
+  paginationInfo.value.current = 1;
+	paginationInfo.value.pageSize = 10;
+	paginationInfo.value.total = 0;
+  getPrepaidConsumeRecordTPageInfo();
 };
 
 // 获取选中卡片的名称
@@ -172,6 +185,14 @@ const cancelRecharge = () => {
 	rechargeDialogOpen.value = false;
 };
 
+// 分页
+const handleTableChange = (pagination: any) => {
+	paginationInfo.value.pageNo = pagination.current;
+  paginationInfo.value.current = pagination.current;
+	paginationInfo.value.pageSize = pagination.pageSize;
+	getPrepaidConsumeRecordTPageInfo();
+};
+
 const init = () => {
 	selectedCardId.value = null;
 	// 获取消费卡列表
@@ -184,10 +205,6 @@ init();
 </script>
 
 <style lang="less" scoped>
-.card-management {
-	padding: 24px;
-}
-
 .card-list {
 	margin-bottom: 30px;
 }
