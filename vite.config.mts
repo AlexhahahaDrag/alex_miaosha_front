@@ -9,7 +9,6 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import type { ConfigEnv, UserConfig } from 'vite';
 import * as dotenv from 'dotenv';
-import AutoPinia from 'vite-auto-pinia';
 
 const pathResolve = (dir: string): any => {
 	return resolve(__dirname, './', dir);
