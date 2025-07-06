@@ -4,7 +4,7 @@ import {
     putData,
     deleteData,
     baseService,
-  } from "@/api/common/index";
+  } from "@/api/common";
   
   const basePrepaidConsumeRecordT = "/api/v1//prepaid-consume-record-t";
   
