@@ -9,7 +9,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import type { ConfigEnv, UserConfig } from 'vite';
 import * as dotenv from 'dotenv';
-import AutoPinia from 'vite-auto-pinia';
+import Icons from 'unplugin-icons/vite';
+import { FileSystemIconLoader } from 'unplugin-icons/loaders';
+import IconsResolver from 'unplugin-icons/resolver';
 
 const pathResolve = (dir: string): any => {
 	return resolve(__dirname, './', dir);
@@ -52,25 +54,46 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 					enabled: true,
 				},
 			}),
+			Icons({
+				autoInstall: true, // 自动安装图标库
+				customCollections: {
+					'my-i-menu': FileSystemIconLoader(
+						'./icons/assets',
+						(svg: any) => svg,
+					),
+					'my-i-finance': FileSystemIconLoader(
+						'./icons/finance',
+						(svg: any) => svg,
+					),
+				},
+				compiler: 'vue3',
+			}),
 			Components({
 				resolvers: [
 					AntDesignVueResolver({
 						importStyle: 'less',
 					}),
+					IconsResolver({
+						alias: {
+							'my-i-menu': 'my-i-menu',
+							'my-i-finance': 'my-i-finance',
+						},
+						customCollections: ['my-i-menu', 'my-i-finance'],
+					}),
 				],
 				dirs: ['src/views', 'src/layout', 'src/router'],
 			}),
-			createSvgIconsPlugin({
-				iconDirs: [
-					pathResolve('src/icons/menu'),
-					pathResolve('src/icons/finance'),
-					pathResolve('src/icons/soft'),
-					pathResolve('src/icons'),
-				],
-				symbolId: 'icon-[dir]-[name]',
-				inject: 'body-last',
-				customDomId: '__svg__icons__dom__',
-			}),
+			// createSvgIconsPlugin({
+			// 	iconDirs: [
+			// 		pathResolve('src/icons/menu'),
+			// 		pathResolve('src/icons/finance'),
+			// 		pathResolve('src/icons/soft'),
+			// 		pathResolve('src/icons'),
+			// 	],
+			// 	symbolId: 'icon-[dir]-[name]',
+			// 	inject: 'body-last',
+			// 	customDomId: '__svg__icons__dom__',
+			// }),
 			visualizer(),
 			viteCompression(),
 		],

@@ -1,6 +1,5 @@
 import App from './App.vue';
 import router from './router';
-import 'virtual:svg-icons-register';
 //引入store
 import { setupStore } from '@/store';
 import Particles from '@tsparticles/vue3';
