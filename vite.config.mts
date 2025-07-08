@@ -36,6 +36,9 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 
 	console.log('Environment variables:', env);
 
+	const isProduction = mode === 'production';
+	const isBuild = command === 'build';
+
 	return {
 		define: {
 			__VUE_OPTIONS_API__: JSON.stringify(true), // 启用或禁用 Vue 2 的 Options API
@@ -83,20 +86,25 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 				],
 				dirs: ['src/views', 'src/layout', 'src/router'],
 			}),
-			// createSvgIconsPlugin({
-			// 	iconDirs: [
-			// 		pathResolve('src/icons/menu'),
-			// 		pathResolve('src/icons/finance'),
-			// 		pathResolve('src/icons/soft'),
-			// 		pathResolve('src/icons'),
-			// 	],
-			// 	symbolId: 'icon-[dir]-[name]',
-			// 	inject: 'body-last',
-			// 	customDomId: '__svg__icons__dom__',
-			// }),
-			visualizer(),
-			viteCompression(),
-		],
+			createSvgIconsPlugin({
+				iconDirs: [
+					pathResolve('src/icons/menu'),
+					pathResolve('src/icons/finance'),
+					pathResolve('src/icons/soft'),
+					pathResolve('src/icons'),
+				],
+				symbolId: 'icon-[dir]-[name]',
+				inject: 'body-last',
+				customDomId: '__svg__icons__dom__',
+			}),
+			// 只在开发环境或需要分析时启用 visualizer
+			!isBuild && visualizer(),
+			// 条件性启用压缩插件
+			isProduction && viteCompression({
+				algorithm: 'gzip',
+				threshold: 10240, // 只压缩大于10kb的文件
+			}),
+		].filter(Boolean),
 		css: {
 			preprocessorOptions: {
 				less: {
@@ -123,33 +131,47 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			},
 		},
 		build: {
-			minify: 'terser',
-			terserOptions: {
-				compress: {
-					drop_console: env.VITE_MODE === 'production',
-					drop_debugger: true,
+			// 使用 esbuild 替代 terser 来减少内存使用
+			minify: isProduction ? 'esbuild' : false,
+			// 增加构建内存限制
+			rollupOptions: {
+				// 限制并行处理的文件数
+				maxParallelFileOps: 3,
+				output: {
+					//静态资源分类打包
+					chunkFileNames: 'static/js/[name]-[hash].js',
+					entryFileNames: 'static/js/[name]-[hash].js',
+					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+					// 优化代码分割策略，减少chunk数量
+					manualChunks: {
+						// 将 Vue 相关库打包在一起
+						vue: ['vue', 'vue-router'],
+						// 将 Ant Design Vue 单独打包
+						'ant-design': ['ant-design-vue'],
+						// 将工具库打包在一起
+						utils: ['lodash', 'moment', 'dayjs', 'axios'],
+						// 将图表库打包在一起
+						charts: ['echarts'],
+						// 将其他第三方库打包在一起
+						vendor: ['crypto-js', 'mathjs', 'bignumber.js'],
+					},
+				},
+				// 优化构建性能
+				treeshake: {
+					preset: 'smallest',
 				},
 			},
 			outDir: env.VITE_OUTPUT_DIR || 'dist',
-			rollupOptions: {
-				output: {
-					//静态资源分类打包
-					chunkFileNames: 'static/js/chunkName-[hash].js',
-					entryFileNames: 'static/js/chunkName-[hash].js',
-					assetFileNames: 'static/[ext]/chunkName-[hash].[ext]',
-					manualChunks(id: string) {
-						//静态资源分拆打包
-						if (id.includes('node_modules')) {
-							return id
-								.toString()
-								.split('node_modules/')[1]
-								.split('/')[0]
-								.toString();
-						}
-					},
-				},
-			},
+			// 增加构建超时时间
+			chunkSizeWarningLimit: 1500,
+			// 启用源码映射（可选，会增加构建时间和内存使用）
+			sourcemap: false,
 		},
 		envPrefix: 'VITE_',
+		// 优化依赖处理
+		optimizeDeps: {
+			include: ['vue', 'vue-router', 'ant-design-vue'],
+			exclude: ['@tsparticles/slim'],
+		},
 	};
 });
