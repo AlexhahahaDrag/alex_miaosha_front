@@ -17,13 +17,12 @@
 				<template #title>{{ route?.meta?.title || '未知' }}</template>
 				<template #icon>
 					<template v-if="route.meta" style="vertical-align: middle">
-						1232222222222222222222{{ route.meta }}
-						<my-i-menu-financeAnalysis
+						<component
+							:is="getIconComponent(`home`)"
+							class="my-svg"
+							:color="currentColor"
 							:name="route?.meta?.icon || '#icon-home'"
-						></my-i-menu-financeAnalysis>
-						<my-i-finance
-							:name="route?.meta?.icon || '#icon-home'"
-						></my-i-finance>
+						></component>
 					</template>
 				</template>
 				<router-link :to="route.path">
@@ -40,15 +39,12 @@
 			>
 				<template #icon>
 					<template v-if="route?.meta" style="text-align: center">
-						2222222222222222222222222{{ route.meta }}
-						<my-i-menu-financeAnalysis
+						<component
+							:is="getIconComponent(route?.meta?.icon)"
+							class="my-svg"
+							:color="currentColor"
 							:name="route?.meta?.icon || '#icon-home'"
-						></my-i-menu-financeAnalysis>
-						<MySvgIcon
-							:name="route?.meta?.icon || '#icon-home'"
-							class="svg"
-							color="white"
-						></MySvgIcon>
+						></component>
 					</template>
 				</template>
 				<template #title>{{ route?.meta?.title || '未知' }}</template>
@@ -67,15 +63,12 @@
 				<template #title>{{ route?.meta?.title || '未知' }}</template>
 				<template #icon>
 					<template v-if="route.meta" style="vertical-align: middle">
-						3333333333333333333333{{ route.meta }}
-						<my-i-menu-financeAnalysis
+						<component
+							:is="getIconComponent(route?.meta?.icon)"
+							:color="currentColor"
+							class="my-svg"
 							:name="route?.meta?.icon || '#icon-home'"
-						></my-i-menu-financeAnalysis>
-						<MySvgIcon
-							:name="route?.meta?.icon || '#icon-home'"
-							class="svg"
-							color="white"
-						></MySvgIcon>
+						></component>
 					</template>
 				</template>
 				<router-link :to="route.path">
@@ -87,21 +80,38 @@
 </template>
 <script setup lang="ts">
 import { MenuDataItem } from '@/router/typing';
+import { iconComponentMap } from '@/views/common/config';
 
 interface Props {
 	routes: MenuDataItem[];
 }
+
+const currentColor = ref<string>('#ffffff');
+
 const props = withDefaults(defineProps<Props>(), {
 	routes: () => [],
 });
 
 const p = ref<MenuDataItem[]>(props.routes);
+
+// 根据icon名称获取对应的组件
+const getIconComponent = (iconName?: string) => {
+	if (!iconName) {
+		console.log(`iconName 为空，使用默认图标`);
+		return null;
+	}
+	// 从映射表中获取组件
+	const component = iconComponentMap[`menu-${iconName}`];
+	if (component) {
+		console.log(`找到图标组件: ${iconName}`);
+		return component;
+	} else {
+		console.warn(
+			`未找到图标组件: ${iconName}，可用的图标:`,
+			Object.keys(iconComponentMap),
+		);
+		return null;
+	}
+};
 </script>
-<style lang="less" scoped>
-.svg {
-	width: 1em;
-	height: 1em;
-	font-size: 18px;
-	cursor: pointer;
-}
-</style>
+<style lang="less" scoped></style>

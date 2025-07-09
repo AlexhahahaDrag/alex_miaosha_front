@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import AutoImport from 'unplugin-auto-import/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
@@ -58,16 +57,24 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 				},
 			}),
 			Icons({
-				autoInstall: true, // 自动安装图标库
+				autoInstall: false, // 自动安装图标库
 				customCollections: {
-					'my-i-menu': FileSystemIconLoader(
-						'./icons/assets',
+					'my-menu-svg': FileSystemIconLoader(
+						'src/assets/menu',
 						(svg: any) => svg,
 					),
-					'my-i-finance': FileSystemIconLoader(
-						'./icons/finance',
+					'my-finance-svg': FileSystemIconLoader(
+						'src/icons/finance',
 						(svg: any) => svg,
 					),
+					'my-soft-svg': FileSystemIconLoader(
+						'src/assets/soft',
+						(svg: any) => svg,
+					),
+				},
+				transform(svg) {
+					// apply fill to this icon on this collection
+					return svg.replace(/^<svg /, '<svg fill="currentColor" ');
 				},
 				compiler: 'vue3',
 			}),
@@ -77,33 +84,25 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 						importStyle: 'less',
 					}),
 					IconsResolver({
+						prefix: 'my-i',
 						alias: {
-							'my-i-menu': 'my-i-menu',
-							'my-i-finance': 'my-i-finance',
+							menu: 'my-menu-svg',
+							finance: 'my-finance-svg',
+							soft: 'my-soft-svg',
 						},
-						customCollections: ['my-i-menu', 'my-i-finance'],
+						customCollections: ['my-menu-svg', 'my-finance-svg', 'my-soft-svg'],
 					}),
 				],
 				dirs: ['src/views', 'src/layout', 'src/router'],
 			}),
-			createSvgIconsPlugin({
-				iconDirs: [
-					pathResolve('src/icons/menu'),
-					pathResolve('src/icons/finance'),
-					pathResolve('src/icons/soft'),
-					pathResolve('src/icons'),
-				],
-				symbolId: 'icon-[dir]-[name]',
-				inject: 'body-last',
-				customDomId: '__svg__icons__dom__',
-			}),
 			// 只在开发环境或需要分析时启用 visualizer
 			!isBuild && visualizer(),
 			// 条件性启用压缩插件
-			isProduction && viteCompression({
-				algorithm: 'gzip',
-				threshold: 10240, // 只压缩大于10kb的文件
-			}),
+			isProduction &&
+				viteCompression({
+					algorithm: 'gzip',
+					threshold: 10240, // 只压缩大于10kb的文件
+				}),
 		].filter(Boolean),
 		css: {
 			preprocessorOptions: {

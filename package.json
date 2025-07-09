@@ -40,7 +40,6 @@
 		"typescript": "^5.3.3",
 		"unplugin-vue-components": "^0.26.0",
 		"vite-plugin-compression": "^0.5.1",
-		"vite-plugin-svg-icons": "^2.0.1",
 		"vue": "^3.4.15",
 		"vue-eslint-parser": "^9.4.2",
 		"vue-router": "^4.2.5",
