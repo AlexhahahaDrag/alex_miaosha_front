@@ -32,9 +32,9 @@
 		</template>
 		<template v-else-if="route.children && route.children.length > 0">
 			<a-sub-menu
-				:key="route.name"
-				:id="route.name"
 				v-if="!route.meta?.hiedInMenu"
+				:id="route.name"
+				:key="route.name"
 				:title="route?.meta?.title"
 			>
 				<template #icon>
@@ -79,7 +79,7 @@
 	</template>
 </template>
 <script setup lang="ts">
-import { MenuDataItem } from '@/router/typing';
+import type { MenuDataItem } from '@/router/typing';
 import { iconComponentMap } from '@/views/common/config';
 
 interface Props {

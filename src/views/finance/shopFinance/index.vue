@@ -49,7 +49,7 @@
     </div>
     <div class="content">
       <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+        :pagination="pagination" :scroll="{ x: 1100 }" :row-selection="rowSelection" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
@@ -101,18 +101,20 @@
   </div>
 </template>
 <script setup lang="ts">
-import {
+import type {
   SearchInfo,
-  pagination,
-  columns,
   DataItem,
   ModelInfo,
-  pageInfo,
+  pageInfo} from "./shopFinanceListTs";
+import {
+  pagination,
+  columns,
   fromSourceTransferList,
 } from "./shopFinanceListTs";
 import { getShopFinancePage, deleteShopFinance } from "@/api/finance/shopFinance/shopFinanceTs";
 import { message } from "ant-design-vue";
-import dayjs, { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

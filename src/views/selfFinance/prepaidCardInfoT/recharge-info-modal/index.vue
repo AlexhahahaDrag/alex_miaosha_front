@@ -23,7 +23,7 @@
 			>
 				<a-input-number
 					v-model:value="rechargeForm.consumeAmount"
-					:min="1"
+					:min="0.01"
 					style="width: 100%"
 				/>
 			</a-form-item>
@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { consumeAndRecharge } from '@/views/selfFinance/prepaidCardInfoT/api/index';
-import { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
+import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 import { useUserStore } from '@/store/modules/user/user';
 
 const { userInfo } = useUserStore();

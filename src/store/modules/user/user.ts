@@ -1,8 +1,8 @@
 import { loginApi } from '@/api/user/login';
-import { defineStore, storeToRefs } from 'pinia';
-import { UserState, getAuthInfo } from './typing';
-import type { MenuInfo } from './typing';
-import { LoginParams } from '@/api/user/login';
+import { defineStore } from 'pinia';
+import { getAuthInfo } from './typing';
+import type { MenuInfo, UserState } from './typing';
+import type { LoginParams } from '@/api/user/login';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
@@ -75,14 +75,9 @@ export const useUserStore = defineStore('app-user', {
 			this.orgInfo = orgInfo;
 			localStorage.setItem('orgInfo', JSON.stringify(this.orgInfo));
 		},
-		async login(
-			params: LoginParams & {
-				goHome?: boolean;
-			},
-		) {
+		async login(params: LoginParams) {
 			try {
-				const { goHome = true, ...loginParams } = params;
-				const data = await loginApi(loginParams);
+				const data = await loginApi(params);
 				if (data.code == '200') {
 					const { token, admin } = data.data;
 					// save userInfo

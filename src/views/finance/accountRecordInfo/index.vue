@@ -6,14 +6,14 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="名称">
-                <a-input v-model:value="searchInfo.name" placeholder="名称" @change="initPage" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear @change="initPage" />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="account" label="账号">
                 <a-select ref="select" v-model:value="searchInfo.account" placeholder="请输入账号"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList" @change="initPage"
-                  :allowClear="true"></a-select>
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="accountList" :allowClear="true"
+                  @change="initPage"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6" style="text-align: right">
@@ -35,7 +35,7 @@
     </div>
     <div class="content">
       <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :rowKey="(record: any) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :rowSelection="rowSelection">
+        :pagination="pagination" :scroll="{ x: 1100 }" :rowSelection="rowSelection" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
@@ -77,18 +77,20 @@
   </div>
 </template>
 <script setup lang="ts">
-import {
+import type {
   SearchInfo,
-  pagination,
-  columns,
   DataItem,
   ModelInfo,
-  pageInfo,
+  pageInfo} from "./accountRecordInfoListTs";
+import {
+  pagination,
+  columns
 } from "./accountRecordInfoListTs";
 import { getAccountRecordInfoPage, deleteAccountRecordInfo } from "@/api/finance/accountRecordInfo/accountRecordInfoTs";
 import { message } from "ant-design-vue";
-import dayjs, { Dayjs } from 'dayjs'
-import { dictInfo } from "@/views/finance/dict/dict";
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs'
+import type { dictInfo } from "@/views/finance/dict/dict";
 import { getDictList } from "@/api/finance/dict/dictManager";
 
 const labelCol = ref({ span: 5 });

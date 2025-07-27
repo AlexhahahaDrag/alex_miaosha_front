@@ -6,26 +6,26 @@
           <a-row :gutter="24">
             <a-col :span="6">
               <a-form-item name="name" label="名称">
-                <a-input v-model:value="searchInfo.name" placeholder="名称" @change="initPage" allow-clear />
+                <a-input v-model:value="searchInfo.name" placeholder="名称" allow-clear @change="initPage" />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="typeCode" label="类别">
-                <a-input v-model:value="searchInfo.typeCode" placeholder="请输入类别" @change="initPage" allow-clear />
+                <a-input v-model:value="searchInfo.typeCode" placeholder="请输入类别" allow-clear @change="initPage" />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="fromSource" label="来源">
                 <a-select ref="select" v-model:value="searchInfo.fromSource" placeholder="请输入来源"
-                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList" @change="initPage"
-                  :allowClear="true"></a-select>
+                  :field-names="{ label: 'typeName', value: 'typeCode' }" :options="fromSourceList" :allowClear="true"
+                  @change="initPage"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item name="incomeAndExpenses" label="收支类型">
                 <a-select ref="select" v-model:value="searchInfo.incomeAndExpenses" placeholder="请输入收支类型"
                   :field-names="{ label: 'typeName', value: 'typeCode' }" :options="incomeAndExpensesList"
-                  @change="initPage" :allowClear="true"></a-select>
+                  :allowClear="true" @change="initPage"></a-select>
               </a-form-item>
             </a-col>
           </a-row>
@@ -33,8 +33,8 @@
             <a-col :span="6">
               <a-form-item name="belongTo" label="属于">
                 <a-select ref="select" v-model:value="searchInfo.belongTo" placeholder="请选择归属人"
-                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList" @change="initPage"
-                  :allowClear="true"></a-select>
+                  :field-names="{ label: 'nickName', value: 'id' }" :options="userList" :allowClear="true"
+                  @change="initPage"></a-select>
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -66,7 +66,7 @@
     </div>
     <div class="content">
       <a-table :dataSource="dataSource" :columns="columns" :loading="loading" :row-key="(record) => record.id"
-        :pagination="pagination" @change="handleTableChange" :scroll="{ x: 1100 }" :row-selection="rowSelection">
+        :pagination="pagination" :scroll="{ x: 1100 }" :row-selection="rowSelection" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'operation'">
             <a-space>
@@ -118,20 +118,22 @@
   </div>
 </template>
 <script setup lang="ts">
-import {
+import type {
   SearchInfo,
+  DataItem,
+  pageInfo} from "./financeManager";
+import {
   pagination,
   columns,
-  DataItem,
-  fromSourceTransferList,
-  pageInfo,
+  fromSourceTransferList
 } from "./financeManager";
 import { getFinanceMangerPage, deleteFinanceManger } from "@/api/finance/financeManager";
 import { getDictList } from "@/api/finance/dict/dictManager";
 import { message } from "ant-design-vue";
 import { getUserManagerList } from "@/api/user/userManager";
-import dayjs, { Dayjs } from 'dayjs'
-import { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs'
+import type { dictInfo, ModelInfo } from "@/views/finance/dict/dict";
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

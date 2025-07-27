@@ -11,7 +11,7 @@
 					<div class="welcome-image">
 						<a-avatar :size="64" style="background-color: #1890ff">
 							<template #icon>
-								<UserOutlined />
+								<user-outlined />
 							</template>
 						</a-avatar>
 					</div>
@@ -30,7 +30,7 @@
 							:value-style="{ color: '#3f8600' }"
 						>
 							<template #prefix>
-								<ShoppingCartOutlined />
+								<shopping-cart-outlined />
 							</template>
 						</a-statistic>
 						<div class="stat-trend">
@@ -59,7 +59,7 @@
 							:value-style="{ color: '#52c41a' }"
 						>
 							<template #prefix>
-								<TeamOutlined />
+								<team-outlined />
 							</template>
 						</a-statistic>
 						<div class="stat-trend">
@@ -75,7 +75,7 @@
 							:value-style="{ color: '#722ed1' }"
 						>
 							<template #prefix>
-								<AppstoreOutlined />
+								<appstore-outlined />
 							</template>
 						</a-statistic>
 						<div class="stat-trend">
@@ -107,7 +107,7 @@
 								class="action-btn"
 								@click="navigateTo('/product')"
 							>
-								<PlusOutlined />
+								<plus-outlined />
 								添加商品
 							</a-button>
 							<a-button
@@ -116,7 +116,7 @@
 								class="action-btn"
 								@click="navigateTo('/seckill')"
 							>
-								<ThunderboltOutlined />
+								<thunderbolt-outlined />
 								秒杀管理
 							</a-button>
 							<a-button
@@ -125,7 +125,7 @@
 								class="action-btn"
 								@click="navigateTo('/order')"
 							>
-								<FileTextOutlined />
+								<file-text-outlined />
 								订单管理
 							</a-button>
 							<a-button
@@ -134,7 +134,7 @@
 								class="action-btn"
 								@click="navigateTo('/user')"
 							>
-								<UserOutlined />
+								<user-outlined />
 								用户管理
 							</a-button>
 						</div>

@@ -1,9 +1,9 @@
-import { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 
 export interface AccountRecordInfoDetail {
-  id?:number;
-  name?: string;
-  avliDate?: Dayjs | string;
-  amount?: number;
-  account?: string;
+	id?: number;
+	name?: string;
+	avliDate?: Dayjs | string;
+	amount?: number;
+	account?: string;
 }

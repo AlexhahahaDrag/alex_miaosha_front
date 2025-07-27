@@ -2,13 +2,13 @@
 	<a-tabs
 		v-model:activeKey="activeTabKey"
 		type="editable-card"
-		@change="changeTab"
-		@edit="handleTabEdit"
 		:hideAdd="true"
 		size="small"
 		:tabBarGutter="10"
 		:tabBarStyle="tabBarStyle"
 		style="margin-top: -5px; margin-bottom: -20px"
+		@change="changeTab"
+		@edit="handleTabEdit"
 	>
 		<a-tab-pane
 			v-for="tab in tabs"

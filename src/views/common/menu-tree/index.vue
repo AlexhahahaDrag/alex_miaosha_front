@@ -9,7 +9,8 @@
 	</a-tree>
 </template>
 <script lang="ts" setup>
-import { Ref, ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { TreeProps } from 'ant-design-vue';
 
 interface Props {

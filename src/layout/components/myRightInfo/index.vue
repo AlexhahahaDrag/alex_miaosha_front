@@ -5,9 +5,9 @@
 		</a-badge>
 
 		<a-dropdown
+			v-model:open="dropdownVisible"
 			placement="bottomRight"
 			:trigger="['hover', 'click']"
-			v-model:open="dropdownVisible"
 		>
 			<div class="avatar-wrapper" @click.prevent>
 				<a-avatar
@@ -17,33 +17,33 @@
 					class="user-avatar"
 				>
 					<template #icon>
-						<UserOutlined />
+						<user-outlined />
 					</template>
 				</a-avatar>
-				<DownOutlined class="dropdown-icon" />
+				<down-outlined class="dropdown-icon" />
 			</div>
 
 			<template #overlay>
-				<a-menu @click="handleMenuClick" class="user-dropdown-menu">
+				<a-menu class="user-dropdown-menu" @click="handleMenuClick">
 					<a-menu-item key="home" class="menu-item">
-						<HomeOutlined />
+						<home-outlined />
 						<span>首页</span>
 					</a-menu-item>
 					<a-menu-item key="profile" class="menu-item">
-						<UserOutlined />
+						<user-outlined />
 						<span>个人资料</span>
 					</a-menu-item>
 					<a-menu-item key="github" class="menu-item">
-						<GithubOutlined />
+						<github-outlined />
 						<span>GitHub</span>
 					</a-menu-item>
 					<a-menu-divider />
 					<a-menu-item key="resetPwd" class="menu-item">
-						<LockOutlined />
+						<lock-outlined />
 						<span>重置密码</span>
 					</a-menu-item>
 					<a-menu-item key="logout" class="menu-item logout-item">
-						<LogoutOutlined />
+						<logout-outlined />
 						<span>注销</span>
 					</a-menu-item>
 				</a-menu>
@@ -110,7 +110,7 @@ const navigateToHome = async () => {
 	try {
 		await router.push('/');
 		message.success('已跳转到首页');
-	} catch (error) {
+	} catch {
 		message.error('跳转失败，请重试');
 	}
 };
@@ -119,7 +119,7 @@ const navigateToHome = async () => {
 const navigateToProfile = async () => {
 	try {
 		await router.push('/profile');
-	} catch (error) {
+	} catch {
 		message.error('跳转失败，请重试');
 	}
 };

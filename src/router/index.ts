@@ -1,6 +1,7 @@
 import Layout from '@/layout/index.vue';
-import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router';
-import { MenuDataItem } from './typing';
+import type { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import type { MenuDataItem } from './typing';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
 import type { MenuInfo } from '@/store/modules/user/typing';

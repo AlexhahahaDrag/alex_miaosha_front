@@ -1,6 +1,7 @@
 import { useUserStore } from '@/store/modules/user/user';
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ResponseBody } from '@/api/typing';
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { ResponseBody } from '@/api/typing';
 import { message } from 'ant-design-vue';
 import router from '@/router';
 import { decrypt } from '@/utils/crypto/index';

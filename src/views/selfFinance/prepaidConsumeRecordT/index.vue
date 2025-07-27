@@ -4,17 +4,23 @@
 		<div class="card-list">
 			<h2>我的消费卡</h2>
 			<a-row :gutter="16">
-				<a-col :span="8" v-for="card in cards" :key="card.id">
+				<a-col v-for="card in cards" :key="card.id" :span="8">
 					<a-card class="card-item">
 						<div class="card-info">
 							<h3>{{ card.name }}</h3>
 							<p class="balance">余额: ¥{{ card.balance }}</p>
 						</div>
 						<div class="card-actions">
-							<a-button type="primary" :size="small" @click="handleRecharge(card)"
+							<a-button
+								type="primary"
+								:size="small"
+								@click="handleRecharge(card)"
 								>充值</a-button
 							>
-							<a-button type="primary" :size="small" @click="handleConsume(card)"
+							<a-button
+								type="primary"
+								:size="small"
+								@click="handleConsume(card)"
 								>消费</a-button
 							>
 						</div>

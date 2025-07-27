@@ -1,10 +1,9 @@
-
 export interface OrgInfoDetail {
-  id?: number,
-  orgCode?: string;
-  orgName?: string;
-  orgShortName?: string;
-  parentId?: number;
-  summary?: string;
-  status?: string;
+	id?: number;
+	orgCode?: string;
+	orgName?: string;
+	orgShortName?: string;
+	parentId?: number;
+	summary?: string;
+	status?: string;
 }

@@ -2,10 +2,10 @@
 	<div class="navbar-info">
 		<a-menu
 			id="menu"
-			mode="inline"
-			theme="dark"
 			v-model:selectedKeys="selectedKeys"
 			v-model:openKeys="openKeys"
+			mode="inline"
+			theme="dark"
 		>
 			<my-menu :routes="routes"></my-menu>
 		</a-menu>
