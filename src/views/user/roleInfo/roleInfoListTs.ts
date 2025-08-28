@@ -1,93 +1,63 @@
 export interface SearchInfo {
-  roleCode?: string;
-  roleName?: string;
-  summary?: string;
-  status?: string;
+	roleCode?: string;
+	roleName?: string;
+	summary?: string;
+	status?: string;
 }
-
-export interface pageInfo {
-  current?: number;
-  pageSize?: number;
-  total?: number;
-  showTotal: Function;
-  showSizeChanger: boolean;
-  pageSizeOptions: string[];
-  showSizeChange: Function;
-  size: string;
-  showQuickJumper: boolean;
-  defaultPageSize: number;
-}
-
-export let pagination = ref<any>({
-  // 数据总数
-  total: 0,
-  // 当前页数
-  current: 1,
-  // 每页条数
-  pageSize: 10,
-  // 展示总数
-  showTotal: (total: number) => `共 ${total} 条`,
-  // 是否可以改变pageSize
-  showSizeChanger: true,
-  // 设置每页可以展示多少条的选项
-  pageSizeOptions: ['10', '20', '50', '100'],
-  // 改变pageSize后触发
-  showSizeChange: (current: number, pageSize: any) => (
-    (pagination.value.current = current), (pagination.value.pageSize = pageSize)
-  ),
-  // 小尺寸分页
-  size: 'small',
-  // 是否可以快速跳转至某页
-  showQuickJumper: true,
-  //默认条数
-  defaultPageSize: 10,
-});
 
 export const columns = ref<any>([
-  {
-    title: '角色编码',
-    dataIndex: 'roleCode',
-    key: 'roleCode',
-  },
-  {
-    title: '角色名称',
-    dataIndex: 'roleName',
-    key: 'roleName',
-  },
-  {
-    title: '描述',
-    dataIndex: 'summary',
-    key: 'summary',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-  },
-  {
-    title: '操作',
-    key: 'operation',
-    fixed: 'right',
-    width: '8',
-  },
+	{
+		title: '角色编码',
+		dataIndex: 'roleCode',
+		key: 'roleCode',
+	},
+	{
+		title: '角色名称',
+		dataIndex: 'roleName',
+		key: 'roleName',
+	},
+	{
+		title: '描述',
+		dataIndex: 'summary',
+		key: 'summary',
+	},
+	{
+		title: '状态',
+		dataIndex: 'status',
+		key: 'status',
+	},
+	{
+		title: '操作',
+		key: 'operation',
+		fixed: 'right',
+		width: '8',
+	},
 ]);
 
+export const labelMap = ref<any>({
+	orgId: { name: 'orgId', label: '公司角色id' },
+	userId: { name: 'userId', label: '用户id' },
+	roleCode: { name: 'roleCode', label: '角色编码' },
+	roleName: { name: 'roleName', label: '角色名称' },
+	summary: { name: 'summary', label: '描述' },
+	status: { name: 'status', label: '状态' },
+});
 
 export interface DataItem {
-  roleCode: string;
-  roleName: string;
-  summary: string;
-  status: string;
+	roleCode: string;
+	roleName: string;
+	summary: string;
+	status: string;
 }
 
 export interface ModelInfo {
-  title?: string;
-  width?: string;
-  id?: number | undefined;
-  confirmLoading?: boolean;
+	title?: string;
+	width?: string;
+	id?: number | undefined;
+	confirmLoading?: boolean;
 }
 
 export interface dictInfo {
-  typeCode?: string | number | undefined,
-  typeName?: string | undefined,
+	typeCode?: string | number | undefined;
+	typeName?: string | undefined;
 }

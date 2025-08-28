@@ -11,10 +11,16 @@
 							<p class="balance">余额: ¥{{ card.balance }}</p>
 						</div>
 						<div class="card-actions">
-							<a-button type="primary" :size="small" @click="handleRecharge(card)"
+							<a-button
+								type="primary"
+								:size="'small'"
+								@click="handleRecharge(card)"
 								>充值</a-button
 							>
-							<a-button type="primary" :size="small" @click="handleConsume(card)"
+							<a-button
+								type="primary"
+								:size="'small'"
+								@click="handleConsume(card)"
 								>消费</a-button
 							>
 						</div>
@@ -97,7 +103,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { message } from 'ant-design-vue';
 

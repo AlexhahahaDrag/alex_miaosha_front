@@ -1,8 +1,9 @@
 ---
-description: 
+description: Alex Miaosha Front 项目规则
 globs: 
 alwaysApply: true
 ---
+
 # Alex Miaosha Front - Cursor 规则配置
 
 ## 项目概述
@@ -128,16 +129,10 @@ alwaysApply: true
 
 ### API 调用示例
 ```typescript
-import request from '@/utils/request/request';
-import type { ResponseBody, PageResult } from '@/api/typing';
+import { getData, deleteData, baseService } from "@/api/common/index";
 
-export interface UserInfo {
-  id: string;
-  name: string;
-}
-
-export const getUserList = (params: any): Promise<ResponseBody<PageResult<UserInfo>>> => {
-  return request.post('/user/list', params);
+export const getUserList = (params: any): Promise<any> => {
+  return getData('/user/list', params);
 };
 ```
 
@@ -217,10 +212,9 @@ export const useUserStore = defineStore('user', {
 - Vite 构建优化配置
 
 ## 注意事项
-1. 严格遵循 TypeScript 类型检查
-2. 组件必须使用 Composition API
-3. 所有 API 调用必须进行错误处理
-4. 新增页面需要添加相应的路由和权限配置
-5. 样式使用 Less 预处理器并保持 scoped
-
-6. 遵循项目现有的文件结构和命名规范 
+1. 严格遵循 TypeScript 类型检查  
+2. 组件必须使用 Composition API  
+3. 所有 API 调用必须进行错误处理  
+4. 新增页面需要添加相应的路由和权限配置  
+5. 样式使用 Less 预处理器并保持 scoped  
+6. 遵循项目现有的文件结构和命名规范  

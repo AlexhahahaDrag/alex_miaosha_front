@@ -83,10 +83,8 @@ import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-inf
 import { getPrepaidCardInfoList } from './api/index';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api/index';
 import dayjs from 'dayjs';
-import {
-	IRechargeForm,
-	columns,
-} from '@/views/selfFinance/prepaidCardInfoT/config/index';
+import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
+import { columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 
 // 消费卡数据
 const cards = ref<any[]>([]);
@@ -98,7 +96,7 @@ const selectedCardId = ref<string | number | null>(null);
 
 const paginationInfo = ref<any>({
 	pageNo: 1,
-  current: 1,
+	current: 1,
 	pageSize: 10,
 	total: 0,
 });
@@ -110,15 +108,15 @@ const currentCard = ref<IRechargeForm | null>(null);
 // 处理充值
 const handleRecharge = (type: string, card?: any) => {
 	currentCard.value = card ?? {};
-	currentCard.value.type = type;
+	currentCard.value!.type = type;
 	rechargeDialogOpen.value = true;
 };
 
 const handleCardClick = (card: any) => {
 	selectedCardId.value = card.id;
-  transactions.value = [];
+	transactions.value = [];
 	paginationInfo.value.pageNo = 1;
-  paginationInfo.value.current = 1;
+	paginationInfo.value.current = 1;
 	paginationInfo.value.pageSize = 10;
 	paginationInfo.value.total = 0;
 	getPrepaidConsumeRecordTPageInfo();
@@ -129,10 +127,10 @@ const clearCardSelection = () => {
 	selectedCardId.value = null;
 	transactions.value = [];
 	paginationInfo.value.pageNo = 1;
-  paginationInfo.value.current = 1;
+	paginationInfo.value.current = 1;
 	paginationInfo.value.pageSize = 10;
 	paginationInfo.value.total = 0;
-  getPrepaidConsumeRecordTPageInfo();
+	getPrepaidConsumeRecordTPageInfo();
 };
 
 // 获取选中卡片的名称
@@ -188,7 +186,7 @@ const cancelRecharge = () => {
 // 分页
 const handleTableChange = (pagination: any) => {
 	paginationInfo.value.pageNo = pagination.current;
-  paginationInfo.value.current = pagination.current;
+	paginationInfo.value.current = pagination.current;
 	paginationInfo.value.pageSize = pagination.pageSize;
 	getPrepaidConsumeRecordTPageInfo();
 };

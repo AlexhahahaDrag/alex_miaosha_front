@@ -3,13 +3,12 @@
 		v-model:expandedKeys="expandedKeys"
 		v-model:checkedKeys="checkedKeys"
 		checkable
-		:tree-data="treeData"
+		:tree-data="curTreeData"
 		:field-names="fieldNames"
 	>
 	</a-tree>
 </template>
 <script lang="ts" setup>
-import { Ref, ref, watch } from 'vue';
 import type { TreeProps } from 'ant-design-vue';
 
 interface Props {
@@ -30,12 +29,12 @@ const fieldNames: TreeProps['fieldNames'] = {
 	key: 'id',
 };
 
-const treeData: Ref<TreeProps['treeData']> = ref([]);
+const curTreeData = ref<any[]>([]);
 
 watch(
 	() => [props.treeData, props.selectedKeys],
 	() => {
-		treeData.value = props.treeData || [];
+		curTreeData.value = props.treeData || [];
 		checkedKeys.value = props.selectedKeys || [];
 	},
 	{

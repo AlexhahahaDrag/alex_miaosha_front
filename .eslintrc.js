@@ -4,18 +4,20 @@ module.exports = {
 		node: true,
 	},
 	extends: [
-		// 检查.vue文件的校验规则，需要安装eslint-plugin-vue
 		'plugin:vue/vue3-essential',
 		'eslint:recommended',
 		'@vue/typescript/recommended',
+		'plugin:@typescript-eslint/recommended-requiring-type-checking', // ✅ 新增：启用强类型检查规则
 		'@vue/prettier',
 		'@vue/prettier/@typescript-eslint',
 		'plugin:import/recommended',
 		'plugin:import/typescript',
 	],
-	plugins: ['import'],
+	plugins: ['import', '@typescript-eslint'],
 	parserOptions: {
 		ecmaVersion: 2020,
+		project: './tsconfig.json', // ✅ 确保 ESLint 能读取 TS 类型信息
+		tsconfigRootDir: __dirname,
 	},
 	globals: {
 		defineEmits: 'readonly',
@@ -29,24 +31,15 @@ module.exports = {
 		'import/no-named-as-default-member': 'off',
 		'import/no-unresolved': [2, { ignore: ['^@'] }],
 		'@typescript-eslint/consistent-type-imports': 'error',
-		// enUS: all rules docs https://eslint.org/docs/rules/
-		// zhCN: 所有规则文档 https://eslint.bootcss.com/docs/rules/
-		// 基础规则 全部 ES 项目通用
 		'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 		'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 		'quote-props': 'off',
-		// 结尾必须有逗号(主要缓解增加一行对象属性，导致 git 变更记录是两行的情况)
 		'comma-dangle': ['error', 'always-multiline'],
-		// 逗号必须在一行的结尾
 		'comma-style': ['error', 'last'],
-		// 禁止混合使用不同的操作符 'error','off'
 		'no-mixed-operators': 'off',
-		// 禁止未使用过的变量 default: ['error', { vars: 'local' }]
 		'no-unused-vars': ['off'],
-		// 强制在代码块中开括号前和闭括号后有空格
 		'block-spacing': ['error', 'always'],
 		'object-curly-spacing': ['error', 'always'],
-		// 要求使用分号代替 ASI (semi)
 		semi: ['error', 'always'],
 		quotes: [
 			2,
@@ -56,11 +49,9 @@ module.exports = {
 				allowTemplateLiterals: true,
 			},
 		],
-
 		/* vue 项目专用 */
 		'vue/require-default-prop': 'on',
 		'vue/singleline-html-element-content-newline': ['on'],
-		// 模板中组件名称使用 kebab-case 模式
 		'vue/component-name-in-template-casing': [
 			'error',
 			'kebab-case',
@@ -70,11 +61,14 @@ module.exports = {
 			},
 		],
 		'vue/custom-event-name-casing': 'off',
+
 		/* typescript */
 		'@typescript-eslint/ban-ts-ignore': 'off',
 		'@typescript-eslint/no-var-requires': 'off',
-		'@typescript-eslint/no-explicit-any': 'off',
-		// disable `function-return` the rule for all files
+
+		// ✅ 修改这里：禁止使用 any
+		'@typescript-eslint/no-explicit-any': 'error',
+
 		'@typescript-eslint/explicit-function-return-type': 'off',
 		'@typescript-eslint/no-empty-function': 'off',
 		'@typescript-eslint/no-non-null-assertion': 'off',
@@ -82,7 +76,24 @@ module.exports = {
 			'error',
 			{ vars: 'all', args: 'after-used', ignoreRestSiblings: true },
 		],
-		// bug fix
+
+		// ✅ 强化 any 检查：禁止不安全操作
+		'@typescript-eslint/no-unsafe-assignment': 'error',
+		'@typescript-eslint/no-unsafe-call': 'error',
+		'@typescript-eslint/no-unsafe-member-access': 'error',
+		'@typescript-eslint/no-unsafe-return': 'error',
+
+		'@typescript-eslint/typedef': [
+			'error',
+			{
+				parameter: true,
+				arrayDestructuring: false,
+				objectDestructuring: false,
+				variableDeclaration: false,
+				memberVariableDeclaration: false,
+				propertyDeclaration: false,
+			},
+		],
 		'template-curly-spacing': 'off',
 		'vue/experimental-script-setup-vars': 'off',
 		'@typescript-eslint/explicit-module-boundary-types': 'off',

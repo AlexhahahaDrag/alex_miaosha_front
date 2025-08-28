@@ -1,12 +1,12 @@
-import { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 
 export interface PrepaidConsumeRecordTDetail {
-  id?: number,
-  cardId?: number;
-  orderNo?: string;
-  amount?: number;
-  balanceAfter?: number;
-  merchantName?: string;
-  consumeTime?: Dayjs | string;
-  description?: string;
+	id?: number;
+	cardId?: number;
+	orderNo?: string;
+	amount?: number;
+	balanceAfter?: number;
+	merchantName?: string;
+	consumeTime?: Dayjs | string;
+	description?: string;
 }
