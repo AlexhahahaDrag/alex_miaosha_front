@@ -62,10 +62,3 @@ export interface DataItem {
 	consumeTime?: Dayjs | string;
 	description: string;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

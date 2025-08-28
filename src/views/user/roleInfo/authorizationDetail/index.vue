@@ -29,7 +29,7 @@ import {
 } from '@/api/user/roleInfo/roleInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 
 let loading = ref<boolean>(false);
@@ -49,7 +49,7 @@ const props = defineProps<Props>();
 
 let formState = ref<RoleInfoDetail>({});
 
-let statusList = ref<dictInfo[]>([]);
+let statusList = ref<DictInfo[]>([]);
 
 const permissionTree = ref<any[]>([]);
 

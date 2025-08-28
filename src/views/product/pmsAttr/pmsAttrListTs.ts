@@ -68,10 +68,3 @@ export interface DataItem {
 	catelogId: number;
 	showDesc: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

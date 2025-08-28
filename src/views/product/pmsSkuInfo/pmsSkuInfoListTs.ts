@@ -83,10 +83,3 @@ export interface DataItem {
 	price: number;
 	saleCount: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

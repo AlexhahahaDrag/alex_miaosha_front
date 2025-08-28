@@ -137,9 +137,9 @@ import {
 } from '@/api/product/pmsShopProduct/pmsShopProductTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '../pmsShopProductListTs';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
+import type { ModelInfo } from '@/views/common/config/index';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

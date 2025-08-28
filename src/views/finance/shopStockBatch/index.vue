@@ -105,9 +105,9 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './shopStockBatchListTs';
+import type { SearchInfo, DataItem } from './shopStockBatchListTs';
 import { columns } from './shopStockBatchListTs';
 import {
 	getShopStockBatchPage,
@@ -115,7 +115,7 @@ import {
 } from '@/api/finance/shopStockBatch/shopStockBatchTs';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -148,7 +148,7 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let isValidList = ref<dictInfo[]>([]);
+let isValidList = ref<DictInfo[]>([]);
 
 const getDictInfoList = (): void => {
 	getDictList('is_valid').then((res) => {

@@ -98,17 +98,17 @@ import {
 } from '@/api/finance/accountRecordInfo/accountRecordInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '../accountRecordInfoListTs';
+import type { ModelInfo } from '@/views/common/config';
 import dayjs from 'dayjs';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 
 const dateFormatter = 'YYYY-MM-DD HH:mm:ss';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
 let loading = ref<boolean>(false);
-let accountTypeList = ref<dictInfo[]>([]);
+let accountTypeList = ref<DictInfo[]>([]);
 const formRef = ref<FormInstance>();
 
 const rulesRef = reactive({

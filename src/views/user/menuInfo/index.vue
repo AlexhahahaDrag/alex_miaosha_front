@@ -208,13 +208,12 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
 import {
 	type SearchInfo,
 	columns,
 	type DataItem,
-	type ModelInfo,
 	labelMap,
 } from './menuInfoListTs';
 import {
@@ -223,7 +222,7 @@ import {
 } from '@/api/user/menuInfo/menuInfoTs';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { debounce } from 'lodash-es';
 
 const labelCol = ref({ span: 5 });
@@ -233,8 +232,8 @@ let rowIds: (string | number)[] = [];
 
 let searchInfo = ref<SearchInfo>({});
 
-let hideInMenuList = ref<dictInfo[]>([]);
-let statusList = ref<dictInfo[]>([]);
+let hideInMenuList = ref<DictInfo[]>([]);
+let statusList = ref<DictInfo[]>([]);
 
 let loading = ref<boolean>(false);
 

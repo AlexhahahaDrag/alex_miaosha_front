@@ -125,20 +125,16 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { PageInfo, ModelInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type {
-	SearchInfo,
-	DataItem,
-	ModelInfo,
-} from './pmsShopWantProductListTs';
+import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
 import { columns, sourceTransferList } from './pmsShopWantProductListTs';
 import {
 	getPmsShopWantProductPage,
 	deletePmsShopWantProduct,
 } from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
 import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 
 const labelCol = ref({ span: 5 });
@@ -164,7 +160,7 @@ const rowSelection = ref({
 });
 
 let searchInfo = ref<SearchInfo>({});
-const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 function cancelQuery() {
 	searchInfo.value = {};

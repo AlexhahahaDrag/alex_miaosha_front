@@ -118,11 +118,12 @@ import {
 } from '@/api/product/pmsBrand/pmsBrandTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { FileInfo } from '@/views/components/fileInfo';
+import type { ModelInfo } from '@/views/common/config/index';
 
-let validList = ref<dictInfo[]>([]);
+let validList = ref<DictInfo[]>([]);
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });
 

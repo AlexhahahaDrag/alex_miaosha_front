@@ -197,8 +197,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
-import { pagination, formatAmount } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config';
+import { pagination, formatAmount } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './financeManager';
 import { columns, fromSourceTransferList } from './financeManager';
 import {
@@ -210,7 +210,7 @@ import { message } from 'ant-design-vue';
 import { getUserManagerList } from '@/api/user/userManager';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import type { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -219,9 +219,9 @@ let userList = ref([]);
 
 let rowIds: (string | number)[] = [];
 
-const fromSourceList = ref<dictInfo[]>([]);
+const fromSourceList = ref<DictInfo[]>([]);
 
-const incomeAndExpensesList = ref<dictInfo[]>([]);
+const incomeAndExpensesList = ref<DictInfo[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,

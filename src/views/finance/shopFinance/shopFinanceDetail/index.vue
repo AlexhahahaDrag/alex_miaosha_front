@@ -167,10 +167,10 @@ import {
 } from '@/api/finance/shopFinance/shopFinanceTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '../shopFinanceListTs';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import dayjs from 'dayjs';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
+import type { ModelInfo } from '@/views/common/config/index';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -301,9 +301,9 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-let validList = ref<dictInfo[]>([]);
-let payWayList = ref<dictInfo[]>([]);
-let incomeAndExpenseList = ref<dictInfo[]>([]);
+let validList = ref<DictInfo[]>([]);
+let payWayList = ref<DictInfo[]>([]);
+let incomeAndExpenseList = ref<DictInfo[]>([]);
 
 function getDictInfoList() {
 	getDictList('shop_pay_way,income_expense_type,is_valid').then((res) => {

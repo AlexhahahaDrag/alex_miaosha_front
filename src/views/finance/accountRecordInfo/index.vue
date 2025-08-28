@@ -136,14 +136,10 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination, formatAmount } from '@/views/common/config/index';
 import type { DictInfo } from '@/views/finance/dict/dict';
-import type {
-	SearchInfo,
-	DataItem,
-	ModelInfo,
-} from './accountRecordInfoListTs';
+import type { SearchInfo, DataItem } from './accountRecordInfoListTs';
 import { columns } from './accountRecordInfoListTs';
 import {
 	getAccountRecordInfoPage,

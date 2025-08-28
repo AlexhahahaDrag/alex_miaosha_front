@@ -130,9 +130,9 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './shopStockListTs';
+import type { SearchInfo, DataItem } from './shopStockListTs';
 import { columns } from './shopStockListTs';
 import {
 	getShopStockPage,
@@ -140,7 +140,7 @@ import {
 } from '@/api/finance/shopStock/shopStockTs';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -178,9 +178,9 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let isValidList = ref<dictInfo[]>([]);
-let categoryList = ref<dictInfo[]>([]);
-let purchasePlaceList = ref<dictInfo[]>([]);
+let isValidList = ref<DictInfo[]>([]);
+let categoryList = ref<DictInfo[]>([]);
+let purchasePlaceList = ref<DictInfo[]>([]);
 
 const getDictInfoList = () => {
 	getDictList('is_valid,shop_category,stock_place').then((res) => {

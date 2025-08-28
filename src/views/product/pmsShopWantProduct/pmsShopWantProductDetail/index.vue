@@ -91,9 +91,9 @@ import {
 } from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '../pmsShopWantProductListTs';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
+import type { ModelInfo } from '@/views/common/config/index';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -130,7 +130,7 @@ const props = defineProps<Props>();
 
 let formState = ref<PmsShopWantProductDetail>({});
 
-const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 

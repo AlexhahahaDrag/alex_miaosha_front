@@ -146,9 +146,9 @@ import {
 } from '@/api/finance/personalGift/personalGiftTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { ModelInfo } from '../personalGiftListTs';
+import type { ModelInfo } from '@/views/common/config/index';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -215,7 +215,7 @@ const props = defineProps<Props>();
 
 let formState = ref<PersonalGiftDetail>({});
 
-let actionList = ref<dictInfo[]>([]);
+let actionList = ref<DictInfo[]>([]);
 
 const getDictInfoList = () => {
 	getDictList('gift_action').then((res) => {

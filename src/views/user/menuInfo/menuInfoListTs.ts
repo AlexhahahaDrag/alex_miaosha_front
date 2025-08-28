@@ -90,13 +90,6 @@ export interface DataItem {
 	orderBy: number;
 }
 
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}
-
 export const labelMap = ref<any>({
 	name: { name: 'name', label: '菜单名称' },
 	path: { name: 'path', label: '菜单路径' },

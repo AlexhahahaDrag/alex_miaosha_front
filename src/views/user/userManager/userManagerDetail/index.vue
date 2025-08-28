@@ -180,8 +180,9 @@ import { getDictList } from '@/api/finance/dict/dictManager';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import type { FileInfo } from '@/views/components/fileInfo';
+import type { ModelInfo } from '@/views/common/config';
 
 interface Props {
 	open?: boolean;
@@ -199,8 +200,8 @@ const modelConfig = {
 const props = defineProps<Props>();
 let formState = ref<UserDetail>({});
 const formRef = ref<FormInstance>();
-let genderList = ref<dictInfo[]>([]);
-let validList = ref<dictInfo[]>([]);
+let genderList = ref<DictInfo[]>([]);
+let validList = ref<DictInfo[]>([]);
 let fileInfo = ref<FileInfo>({});
 let fromSystem = ref<string>('user');
 
@@ -298,7 +299,7 @@ function getDictInfoList() {
 			genderList.value = [];
 			genderList.value.push({ typeCode: 0, typeName: '请选择' });
 			res.data.forEach(
-				(item: { belongTo: string; typeCode: any; typeName: any }) => {
+				(item: { belongTo: string; typeCode: string; typeName: string }) => {
 					if (item.belongTo == 'gender') {
 						genderList.value.push({
 							typeCode: Number(item.typeCode),

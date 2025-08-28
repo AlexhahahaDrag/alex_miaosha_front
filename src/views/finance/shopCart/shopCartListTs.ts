@@ -47,10 +47,3 @@ export interface DataItem {
 	isValid: string;
 	saleNum: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

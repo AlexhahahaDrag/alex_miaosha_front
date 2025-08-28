@@ -98,3 +98,11 @@ export function formatAmount(amount: number): string {
 		.replace(/(?<!\.\d*)\B(?=(\d{3})+(?!\d))/g, ',')
 		.replace(/^(-)*(\d+)\.(\d\d).*$/, '$1$2.$3');
 }
+
+// 弹窗信息
+export interface ModelInfo {
+	title?: string;
+	width?: string;
+	id?: number | undefined | null;
+	confirmLoading?: boolean;
+}

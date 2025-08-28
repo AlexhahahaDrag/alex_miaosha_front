@@ -194,9 +194,9 @@ import {
 } from '@/api/user/menuInfo/menuInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { ModelInfo } from '../menuInfoListTs';
+import type { ModelInfo } from '@/views/common/config/index';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -301,8 +301,8 @@ const props = defineProps<Props>();
 
 let formState = ref<MenuInfoDetail>({});
 
-let hideInMenuList = ref<dictInfo[]>([]);
-let statusList = ref<dictInfo[]>([]);
+let hideInMenuList = ref<DictInfo[]>([]);
+let statusList = ref<DictInfo[]>([]);
 
 const getDictInfoList = () => {
 	getDictList('true_or_false,is_valid').then((res) => {

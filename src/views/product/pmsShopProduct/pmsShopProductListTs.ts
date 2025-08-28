@@ -70,13 +70,6 @@ export interface DataItem {
 	source: string;
 }
 
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}
-
 export const sourceTransferList = [
 	{ value: 'jd', label: 'jingdong' },
 	{ value: 'tb', label: 'taobao' },

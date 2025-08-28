@@ -68,13 +68,6 @@ export interface DataItem {
 	saleDate?: Dayjs | string;
 }
 
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}
-
 export const fromSourceTransferList = [
 	{ value: 'xj', label: 'cash' },
 	{ value: 'zfb', label: 'zhifubao' },

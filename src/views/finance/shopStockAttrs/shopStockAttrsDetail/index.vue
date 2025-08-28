@@ -96,7 +96,6 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.isValid"
-								mode="combobox"
 								:placeholder="'请输入' + labelMap['isValid'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="isValidList"
@@ -129,10 +128,9 @@ import {
 } from '@/api/finance/shopStockAttrs/shopStockAttrsTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { ModelInfo } from '../shopStockAttrsListTs';
-
+import type { ModelInfo } from '@/views/common/config/index';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -201,7 +199,7 @@ const props = defineProps<Props>();
 
 let formState = ref<ShopStockAttrsDetail>({});
 
-let isValidList = ref<dictInfo[]>([]);
+let isValidList = ref<DictInfo[]>([]);
 
 const getDictInfoList = () => {
 	getDictList('is_valid').then((res) => {

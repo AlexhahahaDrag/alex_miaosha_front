@@ -48,10 +48,3 @@ export interface DataItem {
 	account: string;
 	isSend: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

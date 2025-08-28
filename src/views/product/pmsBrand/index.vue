@@ -117,7 +117,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
 import type { SearchInfo, DataItem } from './pmsBrandListTs';
 import { columns } from './pmsBrandListTs';
@@ -126,10 +126,10 @@ import {
 	deletePmsBrand,
 } from '@/api/product/pmsBrand/pmsBrandTs';
 import { message } from 'ant-design-vue';
-import type { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 
-let validList = ref<dictInfo[]>([]);
+let validList = ref<DictInfo[]>([]);
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 

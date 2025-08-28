@@ -158,9 +158,9 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './pmsShopProductListTs';
+import type { SearchInfo, DataItem } from './pmsShopProductListTs';
 import { columns, sourceTransferList } from './pmsShopProductListTs';
 import {
 	getNewestPmsShopProductPage,
@@ -168,7 +168,7 @@ import {
 } from '@/api/product/pmsShopProduct/pmsShopProductTs';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 
 const labelCol = ref({ span: 5 });
@@ -236,7 +236,7 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const sourceList = ref<dictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);

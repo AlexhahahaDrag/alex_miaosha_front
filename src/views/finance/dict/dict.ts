@@ -63,13 +63,6 @@ export interface DataItem {
 	isValid: number;
 }
 
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | null | undefined;
-	confirmLoading?: boolean;
-}
-
 export interface DictInfo {
 	typeCode?: string | number | undefined;
 	typeName?: string | undefined;

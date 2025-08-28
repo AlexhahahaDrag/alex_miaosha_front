@@ -116,10 +116,10 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
 import { type SearchInfo, columns, type DataItem } from './userManager';
-import type { dictInfo, ModelInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { getUserManagerPage, deleteUserManager } from '@/api/user/userManager';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import { message } from 'ant-design-vue';
@@ -128,8 +128,8 @@ import { debounce } from 'lodash-es';
 let rowIds: (string | number)[] = [];
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-const fromSourceList = ref<dictInfo[]>([]);
-const incomeAndExpensesList = ref<dictInfo[]>([]);
+const fromSourceList = ref<DictInfo[]>([]);
+const incomeAndExpensesList = ref<DictInfo[]>([]);
 let searchInfo = ref<SearchInfo>({});
 let loading = ref<boolean>(false);
 let dataSource = ref();

@@ -172,8 +172,9 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config/index';
 import { pagination, formatAmount } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './shopFinanceListTs';
+import type { SearchInfo, DataItem } from './shopFinanceListTs';
 import { columns, fromSourceTransferList } from './shopFinanceListTs';
 import {
 	getShopFinancePage,

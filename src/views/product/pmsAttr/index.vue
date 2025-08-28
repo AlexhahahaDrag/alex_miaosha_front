@@ -172,9 +172,9 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './pmsAttrListTs';
+import type { SearchInfo, DataItem } from './pmsAttrListTs';
 import { columns } from './pmsAttrListTs';
 import { getPmsAttrPage, deletePmsAttr } from '@/api/product/pmsAttr/pmsAttrTs';
 import { message } from 'ant-design-vue';

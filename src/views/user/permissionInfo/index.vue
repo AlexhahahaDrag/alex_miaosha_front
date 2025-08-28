@@ -142,13 +142,12 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
 import {
 	type SearchInfo,
 	columns,
 	type DataItem,
-	type ModelInfo,
 	labelMap,
 } from './permissionInfoListTs';
 import {
@@ -157,7 +156,7 @@ import {
 } from '@/api/user/permissionInfo/permissionInfoTs';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -166,7 +165,7 @@ let rowIds: (string | number)[] = [];
 
 let searchInfo = ref<SearchInfo>({});
 
-let statusList = ref<dictInfo[]>([]);
+let statusList = ref<DictInfo[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,

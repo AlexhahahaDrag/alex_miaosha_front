@@ -76,10 +76,3 @@ export interface DataItem {
 	saleNum: number;
 	shopStockId: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

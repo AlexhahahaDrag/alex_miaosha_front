@@ -69,10 +69,3 @@ export interface DataItem {
 	productUnit: string;
 	productCount: number;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

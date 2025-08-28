@@ -49,10 +49,3 @@ export interface DataItem {
 	summary: string;
 	status: string;
 }
-
-export interface ModelInfo {
-	title?: string;
-	width?: string;
-	id?: number | undefined;
-	confirmLoading?: boolean;
-}

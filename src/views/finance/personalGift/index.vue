@@ -149,9 +149,9 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config/index';
 import { pagination } from '@/views/common/config/index';
-import type { SearchInfo, DataItem, ModelInfo } from './personalGiftListTs';
+import type { SearchInfo, DataItem } from './personalGiftListTs';
 import { columns } from './personalGiftListTs';
 import {
 	getPersonalGiftPage,
@@ -161,7 +161,7 @@ import {
 } from '@/api/finance/personalGift/personalGiftTs';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { dictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { UploadOutlined } from '@ant-design/icons-vue';
 
 const labelCol = ref({ span: 5 });
@@ -198,7 +198,7 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let actionList = ref<dictInfo[]>([]);
+let actionList = ref<DictInfo[]>([]);
 
 const getDictInfoList = (): void => {
 	getDictList('gift_action').then((res) => {
