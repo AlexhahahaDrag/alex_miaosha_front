@@ -123,7 +123,7 @@ import {
 } from '@/api/product/pmsCategory/pmsCategoryTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 

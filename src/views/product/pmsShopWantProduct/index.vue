@@ -125,8 +125,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo, ModelInfo } from '@/views/common/config/index';
-import { pagination } from '@/views/common/config/index';
+import type { PageInfo, ModelInfo } from '@/views/common/config';
+import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
 import { columns, sourceTransferList } from './pmsShopWantProductListTs';
 import {

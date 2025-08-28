@@ -121,7 +121,7 @@ import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { FileInfo } from '@/views/components/fileInfo';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 
 let validList = ref<DictInfo[]>([]);
 const labelCol = ref({ span: 6 });

@@ -154,7 +154,7 @@ import type { DictInfo } from '@/views/finance/dict/dict';
 import dayjs from 'dayjs';
 import { getUserManagerList } from '@/api/user/userManager';
 import { useUserStore } from '@/store/modules/user/user';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

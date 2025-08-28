@@ -188,8 +188,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config/index';
-import { pagination } from '@/views/common/config/index';
+import type { PageInfo } from '@/views/common/config';
+import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem, ModelInfo } from './shopOrderDetailListTs';
 import { columns } from './shopOrderDetailListTs';
 import {

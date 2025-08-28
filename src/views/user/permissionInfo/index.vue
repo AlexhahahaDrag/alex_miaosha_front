@@ -142,8 +142,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config/index';
-import { pagination } from '@/views/common/config/index';
+import type { ModelInfo, PageInfo } from '@/views/common/config';
+import { pagination } from '@/views/common/config';
 import {
 	type SearchInfo,
 	columns,

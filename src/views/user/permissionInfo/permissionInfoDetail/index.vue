@@ -119,7 +119,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { dictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 

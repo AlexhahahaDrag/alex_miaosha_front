@@ -170,7 +170,7 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import dayjs from 'dayjs';
 import type { DictInfo } from '@/views/finance/dict/dict';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

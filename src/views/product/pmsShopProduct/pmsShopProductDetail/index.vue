@@ -139,7 +139,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
-import type { ModelInfo } from '@/views/common/config/index';
+import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
