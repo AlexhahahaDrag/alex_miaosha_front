@@ -62,8 +62,3 @@ export interface ModelInfo {
 	id?: number | undefined;
 	confirmLoading?: boolean;
 }
-
-export interface dictInfo {
-	typeCode?: string | number | undefined;
-	typeName?: string | undefined;
-}

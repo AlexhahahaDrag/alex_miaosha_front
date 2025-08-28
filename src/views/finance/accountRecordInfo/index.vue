@@ -138,6 +138,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/views/common/config/index';
 import { pagination, formatAmount } from '@/views/common/config/index';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import type {
 	SearchInfo,
 	DataItem,
@@ -151,7 +152,6 @@ import {
 import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import type { dictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
 
 const labelCol = ref({ span: 5 });
@@ -246,7 +246,7 @@ function getAccountRecordInfoListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-const accountList = ref<dictInfo[]>([]);
+const accountList = ref<DictInfo[]>([]);
 
 function getDictInfoList() {
 	getDictList('account_type').then((res) => {
@@ -264,15 +264,6 @@ const initPage = () => {
 	pagination.value.current = 1;
 	pagination.value.pageSize = 10;
 };
-
-function init() {
-	initPage();
-	//获取页面数据
-	getAccountRecordInfoListPage(searchInfo.value, pagination.value);
-	getDictInfoList();
-}
-
-init();
 
 let visible = ref<boolean>(false);
 
@@ -299,5 +290,14 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
 	visible.value = v;
 };
+
+function init() {
+	initPage();
+	//获取页面数据
+	getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+	getDictInfoList();
+}
+
+init();
 </script>
 <style lang="scss" scoped></style>

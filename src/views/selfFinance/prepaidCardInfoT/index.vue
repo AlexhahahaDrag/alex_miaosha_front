@@ -78,13 +78,14 @@
 </template>
 
 <script setup lang="ts">
-import { message } from 'ant-design-vue';
-import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';
+import type { PageInfo } from '@/views/common/config';
+import { columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 import { getPrepaidCardInfoList } from './api/index';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api/index';
+import { message } from 'ant-design-vue';
+import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';
 import dayjs from 'dayjs';
 import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
-import { columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 
 // 消费卡数据
 const cards = ref<any[]>([]);
@@ -184,7 +185,7 @@ const cancelRecharge = () => {
 };
 
 // 分页
-const handleTableChange = (pagination: any) => {
+const handleTableChange = (pagination: PageInfo) => {
 	paginationInfo.value.pageNo = pagination.current;
 	paginationInfo.value.current = pagination.current;
 	paginationInfo.value.pageSize = pagination.pageSize;

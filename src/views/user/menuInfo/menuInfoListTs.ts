@@ -97,11 +97,6 @@ export interface ModelInfo {
 	confirmLoading?: boolean;
 }
 
-export interface dictInfo {
-	typeCode?: string | number | undefined;
-	typeName?: string | undefined;
-}
-
 export const labelMap = ref<any>({
 	name: { name: 'name', label: '菜单名称' },
 	path: { name: 'path', label: '菜单路径' },

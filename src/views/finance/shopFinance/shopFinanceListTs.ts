@@ -75,11 +75,6 @@ export interface ModelInfo {
 	confirmLoading?: boolean;
 }
 
-export interface dictInfo {
-	typeCode?: string | number | undefined;
-	typeName?: string | undefined;
-}
-
 export const fromSourceTransferList = [
 	{ value: 'xj', label: 'cash' },
 	{ value: 'zfb', label: 'zhifubao' },

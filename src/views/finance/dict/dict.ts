@@ -70,7 +70,7 @@ export interface ModelInfo {
 	confirmLoading?: boolean;
 }
 
-export interface dictInfo {
+export interface DictInfo {
 	typeCode?: string | number | undefined;
 	typeName?: string | undefined;
 }

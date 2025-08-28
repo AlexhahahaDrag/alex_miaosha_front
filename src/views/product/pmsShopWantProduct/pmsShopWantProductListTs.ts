@@ -48,11 +48,6 @@ export interface ModelInfo {
 	confirmLoading?: boolean;
 }
 
-export interface dictInfo {
-	typeCode?: string | number | undefined;
-	typeName?: string | undefined;
-}
-
 export const sourceTransferList = [
 	{ value: 'jd', label: 'jingdong' },
 	{ value: 'tb', label: 'taobao' },
