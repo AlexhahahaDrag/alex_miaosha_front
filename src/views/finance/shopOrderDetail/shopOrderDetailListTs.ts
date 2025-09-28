@@ -1,4 +1,6 @@
 import type { Dayjs } from 'dayjs';
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	orderId?: number;
 	shopName?: string;
@@ -11,7 +13,7 @@ export interface SearchInfo {
 	shopStockId?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '订单id',
 		dataIndex: 'orderId',

@@ -23,7 +23,7 @@
 import router from '@/router';
 
 const route = useRoute();
-let activeTabKey = ref<any>(route.name || '');
+let activeTabKey = ref<string>((route?.name as string) || '');
 
 const tabBarStyle = {
 	padding: '10px 0', // 上下内边距，左右无内边距

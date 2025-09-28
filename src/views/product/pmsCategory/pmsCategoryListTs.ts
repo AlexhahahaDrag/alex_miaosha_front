@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	name?: string;
 	parentCid?: number;
@@ -9,7 +11,7 @@ export interface SearchInfo {
 	productCount?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '分类名称',
 		dataIndex: 'name',

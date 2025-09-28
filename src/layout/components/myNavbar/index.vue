@@ -4,7 +4,7 @@
 			id="menu"
 			mode="inline"
 			theme="dark"
-			v-model:selectedKeys="selectedKeys"
+			v-model:selectedKeys="curSelectedKeys"
 			v-model:openKeys="openKeys"
 		>
 			<my-menu :routes="routes"></my-menu>
@@ -20,7 +20,7 @@ interface Props {
 	selectedKeys: string[];
 }
 
-let selectedKeys = ref<string[]>(['finance']);
+let curSelectedKeys = ref<string[]>(['finance']);
 
 let openKeys = ref<string[]>([]);
 
@@ -34,7 +34,7 @@ onMounted(() => {
 	let par = route.matched[route.matched.length - 2];
 	console.log(`route.matched`, route.matched, route);
 	let name: any = route?.name || 'home';
-	selectedKeys.value = [name === 'dashboard' ? 'home' : name];
+	curSelectedKeys.value = [name === 'dashboard' ? 'home' : name];
 	openKeys.value = [par?.name || '', name];
 });
 

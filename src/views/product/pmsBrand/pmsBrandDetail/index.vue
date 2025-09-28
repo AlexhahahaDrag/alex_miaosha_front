@@ -120,7 +120,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
-import type { FileInfo } from '@/views/components/fileInfo';
+import type { FileInfo } from '@/compoments/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 
 let validList = ref<DictInfo[]>([]);

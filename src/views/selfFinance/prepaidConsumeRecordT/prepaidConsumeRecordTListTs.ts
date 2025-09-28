@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs';
+import type { TableColumnsType } from 'ant-design-vue';
 export interface SearchInfo {
 	cardId?: number;
 	orderNo?: string;
@@ -9,7 +10,7 @@ export interface SearchInfo {
 	description?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '卡号（关联prepaid_card_info_t.card_id）',
 		dataIndex: 'cardId',

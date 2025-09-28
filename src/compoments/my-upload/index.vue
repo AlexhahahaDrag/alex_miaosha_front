@@ -31,7 +31,7 @@ import { message } from 'ant-design-vue';
 import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { addOrEditFileManager } from '@/api/file/index';
-import type { FileInfo } from './fileInfo';
+import type { FileInfo } from './config';
 
 const emit = defineEmits(['customImageRequest', 'handleRemove']);
 

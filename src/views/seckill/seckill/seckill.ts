@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	activityName?: string;
 	activityStatus?: string;
@@ -31,7 +33,7 @@ export const pagination = ref<any>({
 	defaultPageSize: 10,
 });
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '活动id',
 		dataIndex: 'activityId',

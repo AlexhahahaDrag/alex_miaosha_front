@@ -121,7 +121,7 @@ import {
 	getDayExpense,
 	getMonthExpense,
 } from '@/api/finance/financeAnalysis';
-import type { FinanceDetail } from '@/views/finance/financeManager/financeManagerDetail/detail';
+import type { FinanceDetail } from '@/views/finance/financeManager/detail/detail';
 import * as math from 'mathjs';
 import type { ItemInfo } from './analysis';
 import type { Dayjs } from 'dayjs';

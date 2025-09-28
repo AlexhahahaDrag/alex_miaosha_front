@@ -1,6 +1,7 @@
 import { useUserStore } from '@/store/modules/user/user';
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ResponseBody } from '@/api/typing';
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
+import type { ResponseBody } from '@/api/typing';
 import { message } from 'ant-design-vue';
 import router from '@/router';
 import { decrypt } from '@/utils/crypto/index';
@@ -14,11 +15,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 //异常拦截处理器
 const errorHandler = (error: AxiosError): Promise<any> => {
-	let response = null as any;
-	console.log(
-		`response data error rrrrrrrrrrrrrrr aaaaaaaaaaaaaaaaaaaaaaaaa`,
-		error,
-	);
+	let response = null;
 	if ('ECONNABORTED' == error.code) {
 		message.warning('请求超时，请稍后再试！', 3);
 		return Promise.reject(error);
@@ -31,9 +28,9 @@ const errorHandler = (error: AxiosError): Promise<any> => {
 			router.push({ name: 'login' });
 			return Promise.resolve(error);
 		}
-		const { data } = error.response as any;
+		const { data } = error.response;
 		if (data) {
-			response = decrypt(data);
+			response = decrypt(data as string);
 		}
 	}
 	return Promise.resolve(response);

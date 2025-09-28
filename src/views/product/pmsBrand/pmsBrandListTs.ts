@@ -7,7 +7,7 @@ export interface SearchInfo {
 	sort?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '品牌名',
 		dataIndex: 'name',

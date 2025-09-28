@@ -181,7 +181,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import type { DictInfo } from '@/views/finance/dict/dict';
-import type { FileInfo } from '@/views/components/fileInfo';
+import type { FileInfo } from '@/compoments/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 
 interface Props {

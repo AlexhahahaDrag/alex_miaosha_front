@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	attrName?: string;
 	searchType?: number;
@@ -9,7 +11,7 @@ export interface SearchInfo {
 	showDesc?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '属性名',
 		dataIndex: 'attrName',

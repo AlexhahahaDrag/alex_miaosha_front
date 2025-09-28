@@ -17,33 +17,33 @@
 					class="user-avatar"
 				>
 					<template #icon>
-						<UserOutlined />
+						<user-outlined />
 					</template>
 				</a-avatar>
-				<DownOutlined class="dropdown-icon" />
+				<down-outlined class="dropdown-icon" />
 			</div>
 
 			<template #overlay>
 				<a-menu @click="handleMenuClick" class="user-dropdown-menu">
 					<a-menu-item key="home" class="menu-item">
-						<HomeOutlined />
+						<home-outlined />
 						<span>首页</span>
 					</a-menu-item>
 					<a-menu-item key="profile" class="menu-item">
-						<UserOutlined />
+						<user-outlined />
 						<span>个人资料</span>
 					</a-menu-item>
 					<a-menu-item key="github" class="menu-item">
-						<GithubOutlined />
+						<github-outlined />
 						<span>GitHub</span>
 					</a-menu-item>
 					<a-menu-divider />
 					<a-menu-item key="resetPwd" class="menu-item">
-						<LockOutlined />
+						<lock-outlined />
 						<span>重置密码</span>
 					</a-menu-item>
 					<a-menu-item key="logout" class="menu-item logout-item">
-						<LogoutOutlined />
+						<logout-outlined />
 						<span>注销</span>
 					</a-menu-item>
 				</a-menu>
@@ -65,7 +65,7 @@ import {
 	LogoutOutlined,
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
-import { logoutApi } from '@/api/user/login';
+import { logoutApi } from '@/views/login/api';
 import { useUserStore } from '@/store/modules/user/user';
 import { refreshRouter } from '@/router/index';
 import { storeToRefs } from 'pinia';
@@ -110,8 +110,8 @@ const navigateToHome = async () => {
 	try {
 		await router.push('/');
 		message.success('已跳转到首页');
-	} catch (error) {
-		message.error('跳转失败，请重试');
+	} catch (error: any) {
+		message.error('跳转失败，请重试', error);
 	}
 };
 
@@ -119,8 +119,8 @@ const navigateToHome = async () => {
 const navigateToProfile = async () => {
 	try {
 		await router.push('/profile');
-	} catch (error) {
-		message.error('跳转失败，请重试');
+	} catch (error: any) {
+		message.error('跳转失败，请重试', error);
 	}
 };
 

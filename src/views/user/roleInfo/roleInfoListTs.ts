@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	roleCode?: string;
 	roleName?: string;
@@ -5,7 +7,7 @@ export interface SearchInfo {
 	status?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '角色编码',
 		dataIndex: 'roleCode',

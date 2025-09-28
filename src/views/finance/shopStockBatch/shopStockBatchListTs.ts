@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	batchCode?: string;
 	batchName?: string;
@@ -5,7 +7,7 @@ export interface SearchInfo {
 	description?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '订单编码',
 		dataIndex: 'batchCode',

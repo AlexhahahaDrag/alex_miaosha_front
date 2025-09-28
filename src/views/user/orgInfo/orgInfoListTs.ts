@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	orgCode?: string;
 	orgName?: string;
@@ -7,7 +9,7 @@ export interface SearchInfo {
 	status?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '机构编码',
 		dataIndex: 'orgCode',

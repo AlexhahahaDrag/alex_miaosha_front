@@ -1,8 +1,8 @@
-import { loginApi } from '@/api/user/login';
-import { defineStore, storeToRefs } from 'pinia';
-import { UserState, getAuthInfo } from './typing';
-import type { MenuInfo } from './typing';
-import { LoginParams } from '@/api/user/login';
+import { loginApi } from '@/views/login/api';
+import { defineStore } from 'pinia';
+import { getAuthInfo } from './typing';
+import type { MenuInfo, UserState } from './typing';
+import type { LoginParams } from '@/views/login/api';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
@@ -39,7 +39,7 @@ export const useUserStore = defineStore('app-user', {
 		getLastUpdateTime(): number {
 			return this.lastUpdateTime;
 		},
-		getRouteStatus(): Boolean {
+		getRouteStatus(): boolean {
 			return this.hasMenu || localStorage.getItem('hasRoute') === 'true';
 		},
 		getRoleInfo(): any {
@@ -81,10 +81,14 @@ export const useUserStore = defineStore('app-user', {
 			},
 		) {
 			try {
-				const { goHome = true, ...loginParams } = params;
-				const data = await loginApi(loginParams);
-				if (data.code == '200') {
-					const { token, admin } = data.data;
+				const { ...loginParams } = params;
+				const {
+					code,
+					data,
+					message: messageInfo,
+				} = await loginApi(loginParams);
+				if (code == '200') {
+					const { token, admin } = data;
 					// save userInfo
 					this.setUserInfo(admin);
 					// save token
@@ -96,7 +100,7 @@ export const useUserStore = defineStore('app-user', {
 					refreshRouter();
 					return admin;
 				} else {
-					message.error((data && data.message) || '删除失败！', 3);
+					message.error(messageInfo || '删除失败！', 3);
 				}
 			} catch (error: any) {
 				message.error(error?.message || '系统错误，请联系管理员！', 3);

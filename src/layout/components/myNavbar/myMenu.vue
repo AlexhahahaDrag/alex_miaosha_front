@@ -1,10 +1,5 @@
 <template>
-	<template
-		v-for="route in p"
-		:key="route.path"
-		:item="route"
-		:base-path="route.path"
-	>
+	<template v-for="route in p" :key="route.path">
 		<template v-if="route?.name === 'home'"
 			><a-menu-item
 				v-if="!route.meta?.hiedInMenu"
@@ -16,7 +11,7 @@
 			>
 				<template #title>{{ route?.meta?.title || '未知' }}</template>
 				<template #icon>
-					<template v-if="route.meta" style="vertical-align: middle">
+					<template v-if="route.meta">
 						<component
 							:is="getIconComponent(`home`)"
 							class="my-svg"
@@ -38,7 +33,7 @@
 				:title="route?.meta?.title"
 			>
 				<template #icon>
-					<template v-if="route?.meta" style="text-align: center">
+					<template v-if="route?.meta">
 						<component
 							:is="getIconComponent(route?.meta?.icon)"
 							class="my-svg"
@@ -62,7 +57,7 @@
 			>
 				<template #title>{{ route?.meta?.title || '未知' }}</template>
 				<template #icon>
-					<template v-if="route.meta" style="vertical-align: middle">
+					<template v-if="route.meta">
 						<component
 							:is="getIconComponent(route?.meta?.icon)"
 							:color="currentColor"
@@ -79,7 +74,7 @@
 	</template>
 </template>
 <script setup lang="ts">
-import { MenuDataItem } from '@/router/typing';
+import type { MenuDataItem } from '@/router/typing';
 import { iconComponentMap } from '@/views/common/config';
 
 interface Props {

@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs';
+import type { TableColumnsType } from 'ant-design-vue';
 export interface SearchInfo {
 	eventName?: string;
 	amount?: number;
@@ -9,7 +10,7 @@ export interface SearchInfo {
 	noticeNum?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '事件名称',
 		dataIndex: 'eventName',

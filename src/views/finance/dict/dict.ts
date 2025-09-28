@@ -1,9 +1,11 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	typeName?: string;
 	belongToName?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	// {
 	//   title: "id",
 	//   dataIndex: "id",

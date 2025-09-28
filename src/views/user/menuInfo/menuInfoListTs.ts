@@ -1,3 +1,4 @@
+import type { TableColumnsType } from 'ant-design-vue';
 export interface SearchInfo {
 	name?: string;
 	path?: string;
@@ -12,7 +13,7 @@ export interface SearchInfo {
 	orderBy?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '菜单名称',
 		dataIndex: 'name',

@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	stockId?: number;
 	attrCode?: string;
@@ -7,7 +9,7 @@ export interface SearchInfo {
 	description?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '库存id',
 		dataIndex: 'stockId',

@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	permissionCode?: string;
 	permissionName?: string;
@@ -6,7 +8,7 @@ export interface SearchInfo {
 	options?: string;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '权限编码',
 		dataIndex: 'permissionCode',

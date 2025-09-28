@@ -1,3 +1,6 @@
+import type { TableColumnsType } from 'ant-design-vue';
+import type { Dayjs } from 'dayjs';
+
 export interface SearchInfo {
 	name?: string;
 	typeCode?: string;
@@ -11,23 +14,16 @@ export interface SearchInfo {
 	infoDateEnd?: string | null;
 }
 
-export const columns = ref<any>([
-	// {
-	//   title: "id",
-	//   dataIndex: "id",
-	//   key: "id",
-	// },
+export const columns = ref<TableColumnsType>([
 	{
 		title: '名称',
 		dataIndex: 'name',
 		key: 'name',
-		// width: '6',
 	},
 	{
 		title: '类别',
 		dataIndex: 'typeCode',
 		key: 'typeCode',
-		// width: '4',
 	},
 	{
 		title: '金额',
@@ -40,34 +36,29 @@ export const columns = ref<any>([
 		title: '支付方式',
 		dataIndex: 'fromSource',
 		align: 'center',
-		// width: '4',
 		key: 'fromSource',
 	},
 	{
 		title: '收支类型',
 		dataIndex: 'incomeAndExpenses',
 		align: 'center',
-		// width: '4',
 		key: 'incomeAndExpenses',
 	},
 	{
 		title: '属于',
 		dataIndex: 'belongToName',
-		// width: '4',
 		key: 'belongToName',
 	},
 	{
 		title: '状态',
 		dataIndex: 'isValid',
 		align: 'center',
-		// width: '4',
 		key: 'isValid',
 	},
 	{
 		title: '业务时间',
 		dataIndex: 'infoDate',
 		key: 'infoDate',
-		// width: '15',
 	},
 	{
 		title: '操作',
@@ -78,13 +69,17 @@ export const columns = ref<any>([
 ]);
 
 export interface DataItem {
-	name: string;
-	typeCode: string;
-	typeName: string;
-	amount: number;
-	fromSource: string;
-	fromSourceName: string;
-	isValid: number;
+	id?: number;
+	name?: string;
+	typeCode?: string;
+	typeName?: string;
+	amount?: number;
+	fromSource?: string;
+	fromSourceName?: string;
+	isValid?: string;
+	infoDate?: Dayjs | string;
+	incomeAndExpenses?: string;
+	belongTo?: string;
 }
 
 export const fromSourceTransferList = [
@@ -102,3 +97,6 @@ export const fromSourceTransferList = [
 	{ value: 'jd', label: 'jingdong' },
 	{ value: 'other', label: '' },
 ];
+
+export const labelCol: { span: number } = { span: 5 };
+export const wrapperCol: { span: number } = { span: 19 };

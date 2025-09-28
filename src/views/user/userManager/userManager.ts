@@ -1,15 +1,11 @@
+import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 
 export interface SearchInfo {
 	username?: string;
 }
 
-export const columns = ref<any>([
-	// {
-	//   title: "id",
-	//   dataIndex: "id",
-	//   key: "id",
-	// },
+export const columns = ref<TableColumnsType>([
 	{
 		title: '用户名',
 		dataIndex: 'username',

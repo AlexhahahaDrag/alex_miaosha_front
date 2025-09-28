@@ -1,6 +1,7 @@
 import Layout from '@/layout/index.vue';
-import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router';
-import { MenuDataItem } from './typing';
+import type { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import type { MenuDataItem } from './typing';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
 import type { MenuInfo } from '@/store/modules/user/typing';
@@ -100,15 +101,26 @@ const addRouter = () => {
 	}
 };
 
+// 根据组件路径获取组件
+const getComponent = (item: MenuInfo) => {
+	console.log(`getComp`, item);
+	if (item.component) {
+		if (item.component === 'Layout') {
+			return Layout;
+		} else {
+			return modules[item.component];
+		}
+	} else {
+		return modules['/src/views/common/error/Error404.vue'];
+	}
+};
+
 const getChildren = (
 	item: MenuInfo,
 	permissionList: any[],
 	roleCode: string,
 ): any => {
-	let component =
-		item.component == null ? modules['/src/views/common/error/Error404.vue']
-		: 'Layout' === item.component ? Layout
-		: modules[item.component];
+	let component = getComponent(item);
 	let routeInfo: RouteRecordRaw = {
 		path: item.path,
 		component: component,

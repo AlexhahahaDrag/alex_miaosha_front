@@ -1,101 +1,13 @@
 <template>
 	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item name="name" label="名称">
-								<a-input
-									v-model:value="searchInfo.name"
-									placeholder="名称"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="typeCode" label="类别">
-								<a-input
-									v-model:value="searchInfo.typeCode"
-									placeholder="请输入类别"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="fromSource" label="来源">
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.fromSource"
-									placeholder="请输入来源"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="fromSourceList"
-									@change="initPage"
-									:allowClear="true"
-								></a-select>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="incomeAndExpenses" label="收支类型">
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.incomeAndExpenses"
-									placeholder="请输入收支类型"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="incomeAndExpensesList"
-									@change="initPage"
-									:allowClear="true"
-								></a-select>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item name="belongTo" label="属于">
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.belongTo"
-									placeholder="请选择归属人"
-									:field-names="{ label: 'nickName', value: 'id' }"
-									:options="userList"
-									@change="initPage"
-									:allowClear="true"
-								></a-select>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="infoDateStart" label="业务时间从">
-								<a-date-picker
-									v-model:value="infoDateStart"
-									@change="initPage"
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="infoDateEnd" label="至">
-								<a-date-picker v-model:value="infoDateEnd" @change="initPage" />
-							</a-form-item>
-						</a-col>
-						<a-col :span="6" style="text-align: right">
-							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
-			</div>
-		</div>
+		<FinanceManagerFilter
+			v-model:searchInfo="searchInfo"
+			@query="query"
+			@cancelQuery="cancelQuery"
+		/>
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editFinance('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
 				<a-button type="primary" danger @click="batchDelFinanceManager"
 					>删除</a-button
 				>
@@ -106,10 +18,10 @@
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record: DataItem) => record.id || 0"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -156,9 +68,7 @@
 					</template>
 					<template v-else-if="column.key === 'infoDate'">
 						<span>
-							{{
-								record.infoDate ? String(record.infoDate).substring(0, 10) : ''
-							}}
+							{{ record.infoDate ? formatTime(record.infoDate) : '' }}
 						</span>
 					</template>
 					<template v-else-if="column.key === 'fromSource'">
@@ -191,37 +101,23 @@
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
-			>
-			</FinanceManagerDetail>
+			/>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
+import { message } from 'ant-design-vue';
+import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo, PageInfo } from '@/views/common/config';
 import { pagination, formatAmount } from '@/views/common/config';
-import type { SearchInfo, DataItem } from './financeManager';
-import { columns, fromSourceTransferList } from './financeManager';
+import type { SearchInfo, DataItem } from './config';
+import { columns, fromSourceTransferList } from './config';
 import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
 } from '@/api/finance/financeManager';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import { message } from 'ant-design-vue';
-import { getUserManagerList } from '@/api/user/userManager';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
-import type { DictInfo } from '@/views/finance/dict/dict';
-
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
-let userList = ref([]);
 
 let rowIds: (string | number)[] = [];
-
-const fromSourceList = ref<DictInfo[]>([]);
-
-const incomeAndExpensesList = ref<DictInfo[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -242,41 +138,42 @@ const rowSelection = ref({
 
 let searchInfo = ref<SearchInfo>({});
 
-function cancelQuery() {
+let loading = ref<boolean>(false);
+
+let dataSource = ref<DataItem[]>([]);
+
+// 查看详情弹窗
+let visible = ref<boolean>(false);
+
+let modelInfo = ref<ModelInfo>({});
+
+const cancelQuery = () => {
 	searchInfo.value = {};
-	infoDateStart.value = '';
-	infoDateEnd.value = '';
-}
+	query();
+};
 
-let infoDateStart = ref<string | Dayjs>();
-let infoDateEnd = ref<string | Dayjs>();
-
-function query() {
-	searchInfo.value.infoDateStart =
-		infoDateStart.value ?
-			dayjs(infoDateStart.value).format('YYYY-MM-DD')
-		:	null;
-	searchInfo.value.infoDateEnd =
-		infoDateEnd.value ? dayjs(infoDateEnd.value).format('YYYY-MM-DD') : null;
+const query = () => {
 	getFinancePage(searchInfo.value, pagination.value);
-}
+};
 
-function handleTableChange(pagination: PageInfo) {
+// 获取分页数据
+const handleTableChange = (pagination: PageInfo) => {
 	getFinancePage(searchInfo.value, pagination);
-}
+};
 
-function delFinance(ids: string) {
-	deleteFinanceManger(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getFinancePage(searchInfo.value, pagination.value);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
+// 删除
+const delFinance = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteFinanceManger(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getFinancePage(searchInfo.value, pagination.value);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
 
-function batchDelFinanceManager() {
+//批量删除
+const batchDelFinanceManager = () => {
 	let ids = '';
 	if (rowIds && rowIds.length > 0) {
 		rowIds.forEach((item: string) => {
@@ -288,82 +185,35 @@ function batchDelFinanceManager() {
 		return;
 	}
 	delFinance(ids);
-}
-
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
+};
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getFinancePage(param: SearchInfo, cur: PageInfo) {
+const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getFinanceMangerPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getFinanceMangerPage(param, cur.current, cur.pageSize).finally(
+		() => {
 			loading.value = false;
-		});
-}
-
-function getDictInfoList() {
-	getDictList('pay_way,income_expense_type').then((res) => {
-		if (res.code == '200') {
-			fromSourceList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'pay_way',
-			);
-			incomeAndExpensesList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'income_expense_type',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
-function getUserInfoList() {
-	getUserManagerList({}).then((res) => {
-		if (res.code == '200') {
-			userList.value = res.data;
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
-const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+		},
+	);
+	if (code == '200') {
+		dataSource.value = data.records;
+		pagination.value.current = data.current;
+		pagination.value.pageSize = data.size;
+		pagination.value.total = data.total;
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
 };
 
-function init() {
-	initPage();
-	//获取字典列表
-	getDictInfoList();
-	//获取财务管理页面数据
-	getFinancePage(searchInfo.value, pagination.value);
-	//获取用户信息
-	getUserInfoList();
-}
-
-init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
-function editFinance(type: string, id?: number) {
+const editFinance = (type: string, id?: number) => {
 	if (type == 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -373,7 +223,7 @@ function editFinance(type: string, id?: number) {
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
-}
+};
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
@@ -383,5 +233,30 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
 	visible.value = v;
 };
+
+const initPage = () => {
+	pagination.value.current = 1;
+	pagination.value.pageSize = 10;
+};
+
+function init() {
+	initPage();
+	//获取财务管理页面数据
+	getFinancePage(searchInfo.value, pagination.value);
+}
+
+init();
+
+watch(
+	() => [searchInfo.value],
+	() => {
+		console.log(`searchInfo.value:`, searchInfo.value);
+		getFinancePage(searchInfo.value, pagination.value);
+	},
+	{
+		deep: true,
+		immediate: true,
+	},
+);
 </script>
 <style lang="scss" scoped></style>

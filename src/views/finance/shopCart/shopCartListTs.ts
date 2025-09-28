@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	shopId?: number;
 	userId?: number;
@@ -6,7 +8,7 @@ export interface SearchInfo {
 	saleNum?: number;
 }
 
-export const columns = ref<any>([
+export const columns = ref<TableColumnsType>([
 	{
 		title: '商品id',
 		dataIndex: 'shopId',
