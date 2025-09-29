@@ -128,7 +128,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.status"
-								placeholder="请输入有效状态"
+								placeholder="请选择有效状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="validList"
 								:allowClear="true"

@@ -58,7 +58,7 @@
               <a-select
                 ref="select"
                 v-model:value="formState.belongTo"
-                placeholder="请输入分类"
+                placeholder="请选择分类"
                 :field-names="{ label: 'belongToName', value: 'belongTo' }"
                 :options="fromSourceList"
                 :allowClear="true"
@@ -101,7 +101,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.isValid"
-								placeholder="请输入有效状态"
+								placeholder="请选择有效状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="validList"
 								:allowClear="true"

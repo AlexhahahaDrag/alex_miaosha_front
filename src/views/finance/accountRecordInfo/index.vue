@@ -23,7 +23,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.account"
-									placeholder="请输入账号"
+									placeholder="请选择账号"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="accountList"
 									@change="initPage"
@@ -138,7 +138,8 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination, formatAmount } from '@/views/common/config';
+import { formatAmount } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import type { SearchInfo, DataItem } from './accountRecordInfoListTs';
 import { columns } from './accountRecordInfoListTs';
@@ -150,6 +151,13 @@ import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { getDictList } from '@/api/finance/dict/dictManager';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -185,10 +193,11 @@ let infoDateStart = ref<Dayjs | null>();
 let infoDateEnd = ref<Dayjs | null>();
 
 function query() {
-	getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+	getAccountRecordInfoListPage(searchInfo.value, pagination);
 }
 
 function handleTableChange(pagination: PageInfo) {
+	paginationChange(pagination);
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
 }
 
@@ -196,7 +205,7 @@ function delAccountRecordInfo(ids: string) {
 	deleteAccountRecordInfo(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+			getAccountRecordInfoListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -231,9 +240,7 @@ function getAccountRecordInfoListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -258,8 +265,8 @@ function getDictInfoList() {
 }
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 
 let visible = ref<boolean>(false);
@@ -281,7 +288,7 @@ function editAccountRecordInfo(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+	getAccountRecordInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -291,7 +298,7 @@ const handleCancel = (v: boolean) => {
 function init() {
 	initPage();
 	//获取页面数据
-	getAccountRecordInfoListPage(searchInfo.value, pagination.value);
+	getAccountRecordInfoListPage(searchInfo.value, pagination);
 	getDictInfoList();
 }
 

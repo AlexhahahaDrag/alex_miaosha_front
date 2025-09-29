@@ -31,10 +31,7 @@ export const usePagination = (initialConfig?: Partial<PageInfo>) => {
 	});
 
 	// 分页变化处理
-	const handleTableChange = (pagination: {
-		current: number;
-		pageSize: number;
-	}) => {
+	const handleTableChange = (pagination: PageInfo) => {
 		paginationConfig.current = pagination.current;
 		paginationConfig.pageSize = pagination.pageSize;
 	};

@@ -13,7 +13,7 @@
 							<a-select
 								ref="select"
 								v-model:value="searchInfo.activityStatus"
-								placeholder="请输入标签名"
+								placeholder="请选择标签名"
 								:field-names="{ label: 'content', value: 'id' }"
 								:options="activityStatusList"
 								@change="initPage"

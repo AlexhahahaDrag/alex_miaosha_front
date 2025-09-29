@@ -174,11 +174,18 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsAttrListTs';
 import { columns } from './pmsAttrListTs';
 import { getPmsAttrPage, deletePmsAttr } from '@/api/product/pmsAttr/pmsAttrTs';
 import { message } from 'ant-design-vue';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -226,10 +233,11 @@ function cancelQuery() {
 }
 
 function query() {
-	getPmsAttrListPage(searchInfo.value, pagination.value);
+	getPmsAttrListPage(searchInfo.value, pagination);
 }
 
 function handleTableChange(pagination: PageInfo) {
+	paginationChange(pagination);
 	getPmsAttrListPage(searchInfo.value, pagination);
 }
 
@@ -237,7 +245,7 @@ function delPmsAttr(ids: string) {
 	deletePmsAttr(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsAttrListPage(searchInfo.value, pagination.value);
+			getPmsAttrListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -272,9 +280,7 @@ function getPmsAttrListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -286,7 +292,7 @@ function getPmsAttrListPage(param: SearchInfo, cur: PageInfo) {
 
 function init() {
 	//获取商品属性页面数据
-	getPmsAttrListPage(searchInfo.value, pagination.value);
+	getPmsAttrListPage(searchInfo.value, pagination);
 }
 
 init();
@@ -310,7 +316,7 @@ function editPmsAttr(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getPmsAttrListPage(searchInfo.value, pagination.value);
+	getPmsAttrListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {

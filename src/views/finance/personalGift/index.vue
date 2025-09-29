@@ -151,7 +151,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './personalGiftListTs';
 import { columns } from './personalGiftListTs';
 import {
@@ -164,6 +164,13 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { UploadOutlined } from '@ant-design/icons-vue';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -218,10 +225,11 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getPersonalGiftListPage(searchInfo.value, pagination.value);
+	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (pagination): void => {
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
@@ -230,7 +238,7 @@ const noticePersonalInfo = (id: number) => {
 		.then((res: any) => {
 			console.log(`res:`, res);
 			if (res.code === '200') {
-				getPersonalGiftListPage(searchInfo.value, pagination.value);
+				getPersonalGiftListPage(searchInfo.value, pagination);
 			} else {
 				message.error(res?.message?.description || '失败，请联系管理员！');
 			}
@@ -244,7 +252,7 @@ const delPersonalGift = (ids: string): void => {
 	deletePersonalGift(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPersonalGiftListPage(searchInfo.value, pagination.value);
+			getPersonalGiftListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -273,7 +281,7 @@ const customImageRequest = (info: any) => {
 		if (res.code == '200') {
 			console.log(`res:`, res);
 			info.onSuccess(res.data, info.file);
-			getPersonalGiftListPage(searchInfo.value, pagination.value);
+			getPersonalGiftListPage(searchInfo.value, pagination);
 		}
 	});
 };
@@ -292,9 +300,7 @@ const getPersonalGiftListPage = (param: SearchInfo, cur: PageInfo): void => {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -307,7 +313,7 @@ const getPersonalGiftListPage = (param: SearchInfo, cur: PageInfo): void => {
 const init = (): void => {
 	getDictInfoList();
 	//获取个人随礼信息表页面数据
-	getPersonalGiftListPage(searchInfo.value, pagination.value);
+	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
 init();
@@ -331,7 +337,7 @@ const editPersonalGift = (type: string, id?: number): void => {
 
 const handleOk = (v: boolean): void => {
 	visible.value = v;
-	getPersonalGiftListPage(searchInfo.value, pagination.value);
+	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {

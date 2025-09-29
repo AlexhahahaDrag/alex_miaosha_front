@@ -137,14 +137,22 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
-import type { SearchInfo, DataItem, ModelInfo } from './shopCartListTs';
+import { usePagination } from '@/composables/usePagination';
+import type { SearchInfo, DataItem } from './shopCartListTs';
+import type { ModelInfo } from '@/views/common/config';
 import { columns } from './shopCartListTs';
 import {
 	getShopCartPage,
 	deleteShopCart,
 } from '@/api/finance/shopCart/shopCartTs';
 import { message } from 'ant-design-vue';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -183,10 +191,11 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getShopCartListPage(searchInfo.value, pagination.value);
+	getShopCartListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (pagination): void => {
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
 	getShopCartListPage(searchInfo.value, pagination);
 };
 
@@ -194,7 +203,7 @@ const delShopCart = (ids: string): void => {
 	deleteShopCart(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopCartListPage(searchInfo.value, pagination.value);
+			getShopCartListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -229,9 +238,7 @@ const getShopCartListPage = (param: SearchInfo, cur: PageInfo): void => {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -243,7 +250,7 @@ const getShopCartListPage = (param: SearchInfo, cur: PageInfo): void => {
 
 const init = (): void => {
 	//获取购物车表页面数据
-	getShopCartListPage(searchInfo.value, pagination.value);
+	getShopCartListPage(searchInfo.value, pagination);
 };
 
 init();
@@ -267,7 +274,7 @@ const editShopCart = (type: string, id?: number): void => {
 
 const handleOk = (v: boolean): void => {
 	visible.value = v;
-	getShopCartListPage(searchInfo.value, pagination.value);
+	getShopCartListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {

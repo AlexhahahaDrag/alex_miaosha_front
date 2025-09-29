@@ -107,7 +107,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopStockBatchListTs';
 import { columns } from './shopStockBatchListTs';
 import {
@@ -117,6 +117,13 @@ import {
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -168,10 +175,11 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getShopStockBatchListPage(searchInfo.value, pagination.value);
+	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
 const handleTableChange = (pagination: PageInfo): void => {
+	paginationChange(pagination);
 	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
@@ -179,7 +187,7 @@ const delShopStockBatch = (ids: string): void => {
 	deleteShopStockBatch(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopStockBatchListPage(searchInfo.value, pagination.value);
+			getShopStockBatchListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -214,9 +222,7 @@ const getShopStockBatchListPage = (param: SearchInfo, cur: PageInfo): void => {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -229,7 +235,7 @@ const getShopStockBatchListPage = (param: SearchInfo, cur: PageInfo): void => {
 const init = (): void => {
 	getDictInfoList();
 	//获取商店库存批次表页面数据
-	getShopStockBatchListPage(searchInfo.value, pagination.value);
+	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
 init();
@@ -253,7 +259,7 @@ const editShopStockBatch = (type: string, id?: number): void => {
 
 const handleOk = (v: boolean): void => {
 	visible.value = v;
-	getShopStockBatchListPage(searchInfo.value, pagination.value);
+	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {

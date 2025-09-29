@@ -65,7 +65,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.showStatus"
-								placeholder="请输入显示状态"
+								placeholder="请选择显示状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="validList"
 								:allowClear="true"

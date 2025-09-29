@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import {
 	type SearchInfo,
 	columns,
@@ -131,6 +131,13 @@ import {
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -182,15 +189,16 @@ function cancelQuery() {
 	searchInfo.value = {};
 }
 
-function handleTableChange(paginationInfo: PageInfo) {
-	getRoleInfoListPage(searchInfo.value, paginationInfo);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getRoleInfoListPage(searchInfo.value, pagination);
+};
 
 function delRoleInfo(ids: string) {
 	deleteRoleInfo(ids).then((res: any) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getRoleInfoListPage(searchInfo.value, pagination.value);
+			getRoleInfoListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -230,7 +238,7 @@ function editRoleInfo(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getRoleInfoListPage(searchInfo.value, pagination.value);
+	getRoleInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -254,9 +262,7 @@ function getRoleInfoListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res: any) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -267,14 +273,14 @@ function getRoleInfoListPage(param: SearchInfo, cur: PageInfo) {
 }
 
 function query() {
-	getRoleInfoListPage(searchInfo.value, pagination.value);
+	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
 function init() {
 	authorizationModal.value = { open: false };
 	getDictInfoList();
 	//获取角色信息表页面数据
-	getRoleInfoListPage(searchInfo.value, pagination.value);
+	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
 init();

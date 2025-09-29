@@ -189,14 +189,22 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
-import type { SearchInfo, DataItem, ModelInfo } from './shopOrderDetailListTs';
+import { usePagination } from '@/composables/usePagination';
+import type { SearchInfo, DataItem } from './shopOrderDetailListTs';
+import type { ModelInfo } from '@/views/common/config';
 import { columns } from './shopOrderDetailListTs';
 import {
 	getShopOrderDetailPage,
 	deleteShopOrderDetail,
 } from '@/api/finance/shopOrderDetail/shopOrderDetailTs';
 import { message } from 'ant-design-vue';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -239,10 +247,11 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getShopOrderDetailListPage(searchInfo.value, pagination.value);
+	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
 const handleTableChange = (pagination: PageInfo): void => {
+	paginationChange(pagination);
 	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
@@ -250,7 +259,7 @@ const delShopOrderDetail = (ids: string): void => {
 	deleteShopOrderDetail(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopOrderDetailListPage(searchInfo.value, pagination.value);
+			getShopOrderDetailListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -285,9 +294,7 @@ const getShopOrderDetailListPage = (param: SearchInfo, cur: PageInfo): void => {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -299,7 +306,7 @@ const getShopOrderDetailListPage = (param: SearchInfo, cur: PageInfo): void => {
 
 const init = (): void => {
 	//获取商店订单明细表页面数据
-	getShopOrderDetailListPage(searchInfo.value, pagination.value);
+	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
 init();
@@ -323,7 +330,7 @@ const editShopOrderDetail = (type: string, id?: number): void => {
 
 const handleOk = (v: boolean): void => {
 	visible.value = v;
-	getShopOrderDetailListPage(searchInfo.value, pagination.value);
+	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {

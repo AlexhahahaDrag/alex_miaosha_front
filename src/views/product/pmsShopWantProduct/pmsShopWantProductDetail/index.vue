@@ -71,7 +71,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.source"
-								placeholder="请输入来源类型"
+								placeholder="请选择来源类型"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="sourceList"
 								:allowClear="true"

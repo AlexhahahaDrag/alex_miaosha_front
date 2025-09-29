@@ -75,7 +75,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.fromSource"
-								placeholder="请输入来源"
+								placeholder="请选择来源"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="fromSourceList"
 								:allowClear="true"
@@ -90,7 +90,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.incomeAndExpenses"
-								placeholder="请输入收支类型"
+								placeholder="请选择收支类型"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="incomeAndExpensesList"
 								:allowClear="true"
@@ -102,7 +102,7 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.isValid"
-								placeholder="请输入有效状态"
+								placeholder="请选择有效状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="validList"
 								:allowClear="true"

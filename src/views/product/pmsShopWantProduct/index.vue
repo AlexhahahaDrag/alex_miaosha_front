@@ -33,7 +33,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.source"
-									placeholder="请输入来源类型"
+									placeholder="请选择来源类型"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="sourceList"
 									@change="initPage"
@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
 import { columns, sourceTransferList } from './pmsShopWantProductListTs';
 import {
@@ -137,6 +137,13 @@ import {
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -168,10 +175,11 @@ function cancelQuery() {
 }
 
 function query() {
-	getPmsShopWantProductListPage(searchInfo.value, pagination.value);
+	getPmsShopWantProductListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(paginationInfo: any) {
+function handleTableChange(paginationInfo: PageInfo) {
+	paginationChange(paginationInfo);
 	getPmsShopWantProductListPage(searchInfo.value, paginationInfo);
 }
 
@@ -179,7 +187,7 @@ function delPmsShopWantProduct(ids: string) {
 	deletePmsShopWantProduct(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsShopWantProductListPage(searchInfo.value, pagination.value);
+			getPmsShopWantProductListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -214,9 +222,7 @@ function getPmsShopWantProductListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -243,7 +249,7 @@ function getDictInfoList() {
 function init() {
 	getDictInfoList();
 	//获取商品想买网上商品信息页面数据
-	getPmsShopWantProductListPage(searchInfo.value, pagination.value);
+	getPmsShopWantProductListPage(searchInfo.value, pagination);
 }
 
 init();
@@ -267,7 +273,7 @@ function editPmsShopWantProduct(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getPmsShopWantProductListPage(searchInfo.value, pagination.value);
+	getPmsShopWantProductListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -275,8 +281,8 @@ const handleCancel = (v: boolean) => {
 };
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 </script>
 <style lang="scss" scoped></style>

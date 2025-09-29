@@ -11,7 +11,7 @@
 						<a-form-item name="name" label="名称">
 							<a-input
 								v-model:value="searchInfo.name"
-								placeholder="名称"
+								placeholder="请输入名称"
 								@change="handleSearchChange"
 								allow-clear
 							/>
@@ -32,7 +32,7 @@
 							<a-select
 								ref="select"
 								v-model:value="searchInfo.fromSource"
-								placeholder="请输入来源"
+								placeholder="请选择来源"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="fromSourceList"
 								@change="handleSearchChange"
@@ -45,7 +45,7 @@
 							<a-select
 								ref="select"
 								v-model:value="searchInfo.incomeAndExpenses"
-								placeholder="请输入收支类型"
+								placeholder="请选择收支类型"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="incomeAndExpensesList"
 								@change="handleSearchChange"
@@ -100,7 +100,6 @@
 
 <script setup lang="ts">
 import type { SearchInfo } from './config';
-import type { Dayjs } from 'dayjs';
 import { labelCol, wrapperCol } from './config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
@@ -108,7 +107,8 @@ import { debounce } from 'lodash-es';
 
 // 使用组合式函数
 const { userList } = useUserInfo();
-const { getDictInfoList, getDictByType } = useDictInfo();
+
+const { getDictByType } = useDictInfo('pay_way,income_expense_type');
 
 // Props
 interface Props {
@@ -138,9 +138,6 @@ const incomeAndExpensesList = computed(() =>
 	getDictByType('income_expense_type'),
 );
 
-const infoDateStart = ref<string | Dayjs>();
-const infoDateEnd = ref<string | Dayjs>();
-
 // 使用 lodash 防抖
 const debouncedQuery = debounce(() => {
 	emit('query');
@@ -153,25 +150,14 @@ const handleSearchChange = () => {
 };
 
 const handleQuery = () => {
-	// 取消防抖，立即查询
-	debouncedQuery.cancel();
 	emit('query');
 };
 
 const handleCancelQuery = () => {
 	// 清空搜索信息
 	searchInfo.value = {};
-	infoDateStart.value = '';
-	infoDateEnd.value = '';
-	emit('cancelQuery');
+	emit('query');
 };
-
-// 初始化
-onMounted(() => {
-	// 获取字典数据
-	getDictInfoList('pay_way,income_expense_type');
-	// 用户数据由 useUserInfo 组合式函数自动处理
-});
 </script>
 
 <style lang="scss" scoped>

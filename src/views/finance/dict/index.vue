@@ -100,8 +100,10 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
-import type { SearchInfo, DataItem, ModelInfo, dictInfo } from './dict';
+import { usePagination } from '@/composables/usePagination';
+import type { SearchInfo, DataItem } from './dict';
+import type { ModelInfo } from '@/views/common/config';
+import type { DictInfo } from '@/views/finance/dict/dict';
 import { columns } from './dict';
 import {
 	getDictManagerPage,
@@ -112,9 +114,16 @@ import { message } from 'ant-design-vue';
 
 let rowIds: (string | number)[] = [];
 
-const fromSourceList = ref<dictInfo[]>([]);
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
-const incomeAndExpensesList = ref<dictInfo[]>([]);
+const fromSourceList = ref<DictInfo[]>([]);
+
+const incomeAndExpensesList = ref<DictInfo[]>([]);
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -143,10 +152,11 @@ function cancelQuery() {
 }
 
 function query() {
-	getDictPage(searchInfo.value, pagination.value);
+	getDictPage(searchInfo.value, pagination);
 }
 
 function handleTableChange(pagination: PageInfo) {
+	paginationChange(pagination);
 	getDictPage(searchInfo.value, pagination);
 }
 
@@ -155,7 +165,7 @@ function delDict(ids: string) {
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && '删除' + res.message) || '删除成功！', 3);
-				getDictPage(searchInfo.value, pagination.value);
+				getDictPage(searchInfo.value, pagination);
 			} else {
 				message.error((res && res.message) || '删除失败！', 3);
 			}
@@ -194,9 +204,7 @@ function getDictPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -230,7 +238,7 @@ function init() {
 	//获取字典列表
 	getDictInfoList();
 	//获取财务管理页面数据
-	getDictPage(searchInfo.value, pagination.value);
+	getDictPage(searchInfo.value, pagination);
 }
 
 init();
@@ -254,7 +262,7 @@ function editDict(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getDictPage(searchInfo.value, pagination.value);
+	getDictPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {

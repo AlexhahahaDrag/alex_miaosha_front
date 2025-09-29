@@ -210,7 +210,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import {
 	type SearchInfo,
 	columns,
@@ -225,6 +225,13 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { debounce } from 'lodash-es';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -279,24 +286,25 @@ const getDictInfoList = () => {
 function cancelQuery() {
 	searchInfo.value = {};
 	triggerDebouncedQuery.cancel();
-	pagination.value.current = 1;
-	getMenuInfoListPage(searchInfo.value, pagination.value);
+	pagination.current = 1;
+	getMenuInfoListPage(searchInfo.value, pagination);
 }
 
 function query() {
 	triggerDebouncedQuery.cancel();
-	getMenuInfoListPage(searchInfo.value, pagination.value);
+	getMenuInfoListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(paginationInfo: PageInfo) {
-	getMenuInfoListPage(searchInfo.value, paginationInfo);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getDataList();
+};
 
 function delMenuInfo(ids: string) {
 	deleteMenuInfo(ids).then((res: any) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getMenuInfoListPage(searchInfo.value, pagination.value);
+			getMenuInfoListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -327,9 +335,7 @@ function getMenuInfoListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res: any) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -342,7 +348,7 @@ function getMenuInfoListPage(param: SearchInfo, cur: PageInfo) {
 function init() {
 	getDictInfoList();
 	//获取菜单管理表页面数据
-	getMenuInfoListPage(searchInfo.value, pagination.value);
+	getMenuInfoListPage(searchInfo.value, pagination);
 }
 
 //新增和修改弹窗
@@ -360,7 +366,7 @@ function editMenuInfo(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getMenuInfoListPage(searchInfo.value, pagination.value);
+	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -369,8 +375,8 @@ const handleCancel = (v: boolean) => {
 
 // 查询条件防抖：任意查询条件变化时，300ms 内只触发一次请求，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {
-	pagination.value.current = 1;
-	getMenuInfoListPage(searchInfo.value, pagination.value);
+	pagination.current = 1;
+	getMenuInfoListPage(searchInfo.value, pagination);
 }, 300);
 
 //初始化

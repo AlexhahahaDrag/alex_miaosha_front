@@ -2,7 +2,7 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
 
-export function useDictInfo() {
+export function useDictInfo(initialDictTypes?: string) {
 	const loading = ref(false);
 	const dictMap = ref<Map<string, DictInfo[]>>(new Map());
 
@@ -24,8 +24,9 @@ export function useDictInfo() {
 			} else {
 				message.error(messageInfo || '查询字典数据失败！');
 			}
-		} catch (error: any) {
-			message.error('获取字典数据时发生错误', error);
+		} catch (error: unknown) {
+			console.log(`获取字典数据时发生错误:`, error);
+			message.error('获取字典数据时发生错误');
 		} finally {
 			loading.value = false;
 		}
@@ -45,6 +46,9 @@ export function useDictInfo() {
 	const hasDictType = (type: string): boolean => {
 		return dictMap.value.has(type);
 	};
+
+	// 如果传入了初始字典类型，则自动调用接口
+	getDictInfoList(initialDictTypes || '');
 
 	return {
 		loading,

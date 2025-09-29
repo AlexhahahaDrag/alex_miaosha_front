@@ -23,7 +23,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.showStatus"
-									placeholder="请输入显示状态"
+									placeholder="请选择显示状态"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="validList"
 									@change="initPage"
@@ -119,7 +119,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsBrandListTs';
 import { columns } from './pmsBrandListTs';
 import {
@@ -129,6 +129,13 @@ import {
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { getDictList } from '@/api/finance/dict/dictManager';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 let validList = ref<DictInfo[]>([]);
 const labelCol = ref({ span: 5 });
@@ -160,18 +167,19 @@ function cancelQuery() {
 }
 
 function query() {
-	getPmsBrandListPage(searchInfo.value, pagination.value);
+	getPmsBrandListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(paginationInfo: PageInfo) {
-	getPmsBrandListPage(searchInfo.value, paginationInfo);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getPmsBrandListPage(searchInfo.value, pagination);
+};
 
 function delPmsBrand(ids: string) {
 	deletePmsBrand(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsBrandListPage(searchInfo.value, pagination.value);
+			getPmsBrandListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -206,9 +214,7 @@ function getPmsBrandListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -234,7 +240,7 @@ function init() {
 	//获取字典值
 	getDictInfoList();
 	//获取品牌页面数据
-	getPmsBrandListPage(searchInfo.value, pagination.value);
+	getPmsBrandListPage(searchInfo.value, pagination);
 }
 
 init();
@@ -258,12 +264,12 @@ function editPmsBrand(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getPmsBrandListPage(searchInfo.value, pagination.value);
+	getPmsBrandListPage(searchInfo.value, pagination);
 };
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 
 const handleCancel = (v: boolean) => {

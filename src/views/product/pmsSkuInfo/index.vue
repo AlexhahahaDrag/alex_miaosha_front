@@ -180,7 +180,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsSkuInfoListTs';
 import { columns } from './pmsSkuInfoListTs';
 import {
@@ -188,6 +188,13 @@ import {
 	deletePmsSkuInfo,
 } from '@/api/product/pmsSkuInfo/pmsSkuInfoTs';
 import { message } from 'ant-design-vue';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -218,18 +225,19 @@ function cancelQuery() {
 }
 
 function query() {
-	getPmsSkuInfoListPage(searchInfo.value, pagination.value);
+	getPmsSkuInfoListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(paginationInfo: PageInfo) {
-	getPmsSkuInfoListPage(searchInfo.value, paginationInfo);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getPmsSkuInfoListPage(searchInfo.value, pagination);
+};
 
 function delPmsSkuInfo(ids: string) {
 	deletePmsSkuInfo(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsSkuInfoListPage(searchInfo.value, pagination.value);
+			getPmsSkuInfoListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -264,9 +272,7 @@ function getPmsSkuInfoListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -278,7 +284,7 @@ function getPmsSkuInfoListPage(param: SearchInfo, cur: PageInfo) {
 
 function init() {
 	//获取sku信息页面数据
-	getPmsSkuInfoListPage(searchInfo.value, pagination.value);
+	getPmsSkuInfoListPage(searchInfo.value, pagination);
 }
 
 init();
@@ -302,7 +308,7 @@ function editPmsSkuInfo(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getPmsSkuInfoListPage(searchInfo.value, pagination.value);
+	getPmsSkuInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -310,8 +316,8 @@ const handleCancel = (v: boolean) => {
 };
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 </script>
 <style lang="scss" scoped></style>

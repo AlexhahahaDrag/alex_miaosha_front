@@ -7,7 +7,7 @@ export interface SearchInfo {
 	shopCode?: string;
 	saleAmount?: number;
 	isValid?: string;
-	saleDate?: Dayjs | string;
+	saleDate?: Dayjs | string | undefined;
 	payWay?: string;
 	saleNum?: number;
 	shopStockId?: number;

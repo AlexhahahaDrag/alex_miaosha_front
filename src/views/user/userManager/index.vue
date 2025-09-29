@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import { type SearchInfo, columns, type DataItem } from './userManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import { getUserManagerPage, deleteUserManager } from '@/api/user/userManager';
@@ -127,6 +127,13 @@ import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
 let rowIds: (string | number)[] = [];
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 const fromSourceList = ref<DictInfo[]>([]);
@@ -157,31 +164,32 @@ const rowSelection = ref({
 function cancelQuery() {
 	searchInfo.value = {};
 	triggerDebouncedQuery.cancel();
-	pagination.value.current = 1;
-	getUserPage(searchInfo.value, pagination.value);
+	pagination.current = 1;
+	getUserPage(searchInfo.value, pagination);
 }
 
 function query() {
 	triggerDebouncedQuery.cancel();
-	getUserPage(searchInfo.value, pagination.value);
+	getUserPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(paginationInfo: PageInfo) {
-	getUserPage(searchInfo.value, paginationInfo);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getUserPage(searchInfo.value, pagination);
+};
 
 function delUser(ids: string) {
 	deleteUserManager(ids).then((res: any) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			if (
-				(pagination.value.total ? pagination.value.total - 1 : 0) <=
-				(pagination.value.current ? pagination.value.current - 1 : 1) *
-					(pagination.value.pageSize || 10)
+				(pagination.total ? pagination.total - 1 : 0) <=
+				(pagination.current ? pagination.current - 1 : 1) *
+					(pagination.pageSize || 10)
 			) {
-				pagination.value.current = (pagination.value?.current || 2) - 1;
+				pagination.current = (pagination?.current || 2) - 1;
 			}
-			getUserPage(searchInfo.value, pagination.value);
+			getUserPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -212,17 +220,15 @@ function getUserPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
 		})
 		.catch((error: any) => {
-			pagination.value.current = 0;
-			pagination.value.pageSize = 10;
-			pagination.value.total = 0;
+			pagination.current = 0;
+			pagination.pageSize = 10;
+			pagination.total = 0;
 			message.warn(error?.message || '查询列表失败！');
 		})
 		.finally(() => {
@@ -250,7 +256,7 @@ function init() {
 	//获取字典列表
 	getDictInfoList();
 	//获取财务管理页面数据
-	getUserPage(searchInfo.value, pagination.value);
+	getUserPage(searchInfo.value, pagination);
 }
 
 //新增和修改弹窗
@@ -268,7 +274,7 @@ function editUser(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getUserPage(searchInfo.value, pagination.value);
+	getUserPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -276,8 +282,8 @@ const handleCancel = (v: boolean) => {
 };
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 
 //初始化
@@ -285,8 +291,8 @@ init();
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {
-	pagination.value.current = 1;
-	getUserPage(searchInfo.value, pagination.value);
+	pagination.current = 1;
+	getUserPage(searchInfo.value, pagination);
 }, 300);
 
 watch(

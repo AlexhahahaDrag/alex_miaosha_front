@@ -173,10 +173,7 @@ const query = () => {
 
 // 获取分页数据
 const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange({
-		current: paginationInfo.current || 1,
-		pageSize: paginationInfo.pageSize || 10,
-	});
+	paginationChange(paginationInfo);
 	getFinancePage(searchInfo.value, paginationInfo);
 };
 
@@ -216,7 +213,7 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 		...param,
 		infoDateStart:
 			param.infoDateStart ?
-				dayjs(param.infoDateStart).format('YYYY-MM-DD')
+				dayjs(param.infoDateStart).format('YYYY-MM-DD ')
 			:	null,
 		infoDateEnd:
 			param.infoDateEnd ? dayjs(param.infoDateEnd).format('YYYY-MM-DD') : null,
@@ -274,17 +271,5 @@ function init() {
 }
 
 init();
-
-watch(
-	() => [searchInfo.value],
-	() => {
-		console.log(`searchInfo.value:`, searchInfo.value);
-		getFinancePage(searchInfo.value, pagination);
-	},
-	{
-		deep: true,
-		immediate: true,
-	},
-);
 </script>
 <style lang="scss" scoped></style>

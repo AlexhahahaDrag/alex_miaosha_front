@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { pagination } from '@/views/common/config';
+import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopStockListTs';
 import { columns } from './shopStockListTs';
 import {
@@ -142,6 +142,13 @@ import {
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import type { DictInfo } from '@/views/finance/dict/dict';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -206,10 +213,11 @@ function cancelQuery() {
 }
 
 function query() {
-	getShopStockListPage(searchInfo.value, pagination.value);
+	getShopStockListPage(searchInfo.value, pagination);
 }
 
 function handleTableChange(pagination: PageInfo) {
+	paginationChange(pagination);
 	getShopStockListPage(searchInfo.value, pagination);
 }
 
@@ -217,7 +225,7 @@ function delShopStock(ids: string) {
 	deleteShopStock(ids).then((res) => {
 		if (res.code == '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopStockListPage(searchInfo.value, pagination.value);
+			getShopStockListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -252,9 +260,7 @@ function getShopStockListPage(param: SearchInfo, cur: PageInfo) {
 		.then((res) => {
 			if (res.code == '200') {
 				dataSource.value = res.data.records;
-				pagination.value.current = res.data.current;
-				pagination.value.pageSize = res.data.size;
-				pagination.value.total = res.data.total;
+				setTotal(res.data.total);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}
@@ -267,7 +273,7 @@ function getShopStockListPage(param: SearchInfo, cur: PageInfo) {
 function init() {
 	getDictInfoList();
 	//获取商店库存表页面数据
-	getShopStockListPage(searchInfo.value, pagination.value);
+	getShopStockListPage(searchInfo.value, pagination);
 }
 
 init();
@@ -291,7 +297,7 @@ function editShopStock(type: string, id?: number) {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getShopStockListPage(searchInfo.value, pagination.value);
+	getShopStockListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {

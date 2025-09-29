@@ -29,7 +29,7 @@ export function getDictManagerPage(
 	);
 }
 
-export function getDictList(belongTo: string): Promise<any> {
+export function getDictList(belongTo?: string): Promise<any> {
 	return getDataOne(
 		baseService.finance +
 			baseDictManager +

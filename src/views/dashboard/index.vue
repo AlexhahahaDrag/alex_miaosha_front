@@ -206,10 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/modules/user/user';
-import { storeToRefs } from 'pinia';
 import * as echarts from 'echarts';
 import moment from 'moment';
 import {
