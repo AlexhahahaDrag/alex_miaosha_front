@@ -104,9 +104,10 @@ import {
 } from '@/api/finance/shopStockBatch/shopStockBatchTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -115,7 +116,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	batchCode: { name: 'batchCode', label: '订单编码' },
 	batchName: { name: 'batchName', label: '订单名称' },
 	isValid: { name: 'isValid', label: '状态' },
@@ -162,19 +163,8 @@ const props = defineProps<Props>();
 
 let formState = ref<ShopStockBatchDetail>({});
 
-let isValidList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const isValidList = computed(() => getDictByType('is_valid'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -232,7 +222,6 @@ const onFinishFailed = (errorInfo: any): void => {
 };
 
 const init = (): void => {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getShopStockBatchDetail(props.modelInfo.id)

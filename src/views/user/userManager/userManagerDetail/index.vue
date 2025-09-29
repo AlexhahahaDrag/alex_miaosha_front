@@ -172,15 +172,16 @@
 </template>
 <script lang="ts" setup>
 import type { UserDetail } from './detail';
+
+const { getDictByType } = useDictInfo('is_valid');
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getUserManagerDetail,
 	addOrEditUserManager,
 } from '@/api/user/userManager';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import type { FileInfo } from '@/compoments/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 
@@ -200,8 +201,10 @@ const modelConfig = {
 const props = defineProps<Props>();
 let formState = ref<UserDetail>({});
 const formRef = ref<FormInstance>();
-let genderList = ref<DictInfo[]>([]);
-let validList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
+const genderList = computed(() => getDictByType('is_valid'));
+// 字典数据已通过 useDictInfo 自动加载
+const validList = computed(() => getDictByType('is_valid'));
 let fileInfo = ref<FileInfo>({});
 let fromSystem = ref<string>('user');
 
@@ -293,30 +296,6 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function getDictInfoList() {
-	getDictList('is_valid,gender').then((res) => {
-		if (res.code == '200') {
-			genderList.value = [];
-			genderList.value.push({ typeCode: 0, typeName: '请选择' });
-			res.data.forEach(
-				(item: { belongTo: string; typeCode: string; typeName: string }) => {
-					if (item.belongTo == 'gender') {
-						genderList.value.push({
-							typeCode: Number(item.typeCode),
-							typeName: item.typeName,
-						});
-					}
-				},
-			);
-			validList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 watch(
 	() => props.open,
 	(newVal) => {
@@ -366,7 +345,6 @@ function init() {
 			initForm();
 		}
 	}
-	getDictInfoList();
 }
 
 const emit = defineEmits(['handleOk', 'handleCancel']);

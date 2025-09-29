@@ -218,6 +218,7 @@ import {
 	ThunderboltOutlined,
 	FileTextOutlined,
 } from '@ant-design/icons-vue';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
 
@@ -226,9 +227,7 @@ const { userInfo } = storeToRefs(useUserStore());
 const chartContainer = ref<HTMLElement>();
 
 // 当前日期
-const currentDate = computed(() => {
-	return moment().format('YYYY年MM月DD日 dddd');
-});
+const currentDate = computed(() => moment().format('YYYY年MM月DD日 dddd'));
 
 // 统计数据
 const statsData = ref({
@@ -365,7 +364,7 @@ const initChart = () => {
 
 	// 响应式调整
 	window.addEventListener('resize', () => {
-		chart.resize();
+		chart?.resize();
 	});
 };
 

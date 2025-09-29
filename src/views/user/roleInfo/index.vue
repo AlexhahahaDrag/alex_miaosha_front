@@ -129,8 +129,6 @@ import {
 	deleteRoleInfo,
 } from '@/api/user/roleInfo/roleInfoTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
 
 // 使用分页组合式函数
 const {
@@ -145,8 +143,6 @@ const wrapperCol = ref({ span: 19 });
 let rowIds: (string | number)[] = [];
 
 let searchInfo = ref<SearchInfo>({});
-
-let statusList = ref<DictInfo[]>([]);
 
 let loading = ref<boolean>(false);
 
@@ -173,17 +169,7 @@ const rowSelection = ref({
 	},
 });
 
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -278,7 +264,6 @@ function query() {
 
 function init() {
 	authorizationModal.value = { open: false };
-	getDictInfoList();
 	//获取角色信息表页面数据
 	getRoleInfoListPage(searchInfo.value, pagination);
 }

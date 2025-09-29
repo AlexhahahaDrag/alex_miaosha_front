@@ -23,15 +23,14 @@
 </template>
 <script lang="ts" setup>
 import type { RoleInfoDetail } from './roleInfoDetailTs';
+
+// 字典数据已通过 useDictInfo 自动加载
 import {
 	getRoleInfoDetail,
 	addOrEditRoleInfo,
 } from '@/api/user/roleInfo/roleInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
-
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
@@ -43,29 +42,17 @@ const modelConfig = {
 
 interface Props {
 	open?: boolean;
-	data?: any;
+	data?: unknown;
 }
 const props = defineProps<Props>();
 
 let formState = ref<RoleInfoDetail>({});
 
-let statusList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
 
-const permissionTree = ref<any[]>([]);
+const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -103,8 +90,9 @@ function saveRoleInfoManager() {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
+		.catch((error: unknown) => {
+			const data = (error as { response?: { data?: { message?: string } } })
+				?.response?.data;
 			if (data) {
 				message.error(data?.message || '保存失败！');
 			}
@@ -115,32 +103,40 @@ function saveRoleInfoManager() {
 }
 
 function init() {
-	getDictInfoList();
-	if (props.data) {
-		if (props.data.id) {
-			getRoleInfoDetail(props.data.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						permissionTree.value = res?.data?.permissionList || [];
-						selectPermission.value = res?.data?.rolePermissionInfoVoList?.map(
-							(item: any) => item.id,
-						);
+	if (props.data && typeof props.data === 'object' && 'id' in props.data) {
+		if ((props.data as { id: string }).id) {
+			getRoleInfoDetail(Number((props.data as { id: string }).id))
+				.then((res: unknown) => {
+					if ((res as { code: string }).code == '200') {
+						formState.value = (res as { data: unknown }).data as RoleInfoDetail;
+						permissionTree.value =
+							(res as { data?: { permissionList?: unknown[] } })?.data
+								?.permissionList || [];
+						selectPermission.value =
+							(
+								res as {
+									data?: { rolePermissionInfoVoList?: { id: string }[] };
+								}
+							)?.data?.rolePermissionInfoVoList?.map(
+								(item: { id: string }) => item.id,
+							) || [];
 						modelConfig.confirmLoading = false;
 					} else {
-						message.error((res && res.message) || '查询失败！');
+						message.error(
+							(res as { message?: string })?.message || '查询失败！',
+						);
 					}
 				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
+				.catch((error: unknown) => {
+					const data = (error as { response?: { data?: { message?: string } } })
+						?.response?.data;
 					if (data) {
-						message.error(data?.message || '查询失败！');
+						message.error(data?.message || '保存失败！');
 					}
+					modelConfig.confirmLoading = false;
+					formState.value = {};
+					permissionTree.value = [];
 				});
-		} else {
-			modelConfig.confirmLoading = false;
-			formState.value = {};
-			permissionTree.value = [];
 		}
 	}
 }

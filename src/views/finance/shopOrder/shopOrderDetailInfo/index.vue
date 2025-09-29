@@ -146,15 +146,17 @@
 </template>
 <script lang="ts" setup>
 import type { ShopOrderDetail } from './shopOrderDetailTs';
+import { useDictInfo } from '@/composables/useDictInfo';
+
 import {
 	getShopOrderDetail,
 	addOrEditShopOrder,
 } from '@/api/finance/shopOrder/shopOrderTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
+
+const { getDictByType } = useDictInfo('is_valid');
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -163,7 +165,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
 	saleOrderName: { name: 'saleOrderName', label: '订单名称' },
 	saleAmount: { name: 'saleAmount', label: '总销售金额' },
@@ -238,19 +240,8 @@ const props = defineProps<Props>();
 
 let formState = ref<ShopOrderDetail>({});
 
-let isValidList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const isValidList = computed(() => getDictByType('is_valid'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -288,8 +279,9 @@ const saveShopOrderManager = (): void => {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
+		.catch((error: unknown) => {
+			const data = (error as { response?: { data?: { message?: string } } })
+				?.response?.data;
 			if (data) {
 				message.error(data?.message || '保存失败！');
 			}
@@ -299,16 +291,15 @@ const saveShopOrderManager = (): void => {
 		});
 };
 
-const onFinish = (values: any): void => {
+const onFinish = (values: unknown): void => {
 	console.log('Success:', values);
 };
 
-const onFinishFailed = (errorInfo: any): void => {
+const onFinishFailed = (errorInfo: unknown): void => {
 	console.log('Failed:', errorInfo);
 };
 
 const init = (): void => {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getShopOrderDetail(props.modelInfo.id)
@@ -320,8 +311,9 @@ const init = (): void => {
 						message.error((res && res.message) || '查询失败！');
 					}
 				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
+				.catch((error: unknown) => {
+					const data = (error as { response?: { data?: { message?: string } } })
+						?.response?.data;
 					if (data) {
 						message.error(data?.message || '查询失败！');
 					}

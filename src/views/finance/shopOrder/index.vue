@@ -179,6 +179,7 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopOrderListTs';
@@ -188,8 +189,11 @@ import {
 	deleteShopOrder,
 } from '@/api/finance/shopOrder/shopOrderTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
+
+const { getDictByType } = useDictInfo('is_valid');
+
+// 字典数据已通过 useDictInfo 自动加载
+const isValidList = computed(() => getDictByType('is_valid'));
 
 // 使用分页组合式函数
 const {
@@ -220,7 +224,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
 	saleOrderName: { name: 'saleOrderName', label: '订单名称' },
 	saleAmount: { name: 'saleAmount', label: '总销售金额' },
@@ -232,20 +236,6 @@ const labelMap = ref<any>({
 });
 
 let searchInfo = ref<SearchInfo>({});
-
-let isValidList = ref<DictInfo[]>([]);
-
-const getDictInfoList = (): void => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -310,7 +300,6 @@ const getShopOrderListPage = (param: SearchInfo, cur: PageInfo): void => {
 };
 
 const init = (): void => {
-	getDictInfoList();
 	//获取商店订单表页面数据
 	getShopOrderListPage(searchInfo.value, pagination);
 };

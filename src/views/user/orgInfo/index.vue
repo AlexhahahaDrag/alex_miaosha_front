@@ -124,6 +124,8 @@
 	</div>
 </template>
 <script setup lang="ts">
+// 字典数据已通过 useDictInfo 自动加载
+
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
@@ -131,9 +133,7 @@ import type { SearchInfo, DataItem } from './orgInfoListTs';
 import { columns } from './orgInfoListTs';
 import { getOrgInfoPage, deleteOrgInfo } from '@/api/user/orgInfo/orgInfoTs';
 import { message } from 'ant-design-vue';
-import type { TreeDataItem } from 'ant-design-vue/es/tree/interface';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
+import type { TreeDataItem } from 'ant-design-vue/es/tree';
 
 // todo: 修改布局  统一设置 添加树组件 添加查询组件
 const treeData: TreeDataItem[] = [
@@ -211,19 +211,9 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let statusList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
 
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -288,7 +278,6 @@ function getOrgInfoListPage(param: SearchInfo, cur: PageInfo) {
 }
 
 function init() {
-	getDictInfoList();
 	//获取机构表页面数据
 	getOrgInfoListPage(searchInfo.value, pagination);
 }

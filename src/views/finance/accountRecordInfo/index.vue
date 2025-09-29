@@ -140,7 +140,6 @@ import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { formatAmount } from '@/views/common/config';
 import { usePagination } from '@/composables/usePagination';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import type { SearchInfo, DataItem } from './accountRecordInfoListTs';
 import { columns } from './accountRecordInfoListTs';
 import {
@@ -150,7 +149,11 @@ import {
 import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { getDictList } from '@/api/finance/dict/dictManager';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('account_type');
+
+const accountList = computed(() => getDictByType('account_type'));
 
 // 使用分页组合式函数
 const {
@@ -250,20 +253,6 @@ function getAccountRecordInfoListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-const accountList = ref<DictInfo[]>([]);
-
-function getDictInfoList() {
-	getDictList('account_type').then((res) => {
-		if (res.code == '200') {
-			accountList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'account_type',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 const initPage = () => {
 	pagination.current = 1;
 	pagination.pageSize = 10;
@@ -299,7 +288,6 @@ function init() {
 	initPage();
 	//获取页面数据
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
-	getDictInfoList();
 }
 
 init();

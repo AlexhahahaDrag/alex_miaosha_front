@@ -110,6 +110,13 @@ const { userList } = useUserInfo();
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type');
 
+// 使用计算属性从 map 中获取字典数据
+const fromSourceList = computed(() => getDictByType('pay_way'));
+
+const incomeAndExpensesList = computed(() =>
+	getDictByType('income_expense_type'),
+);
+
 // Props
 interface Props {
 	searchInfo: SearchInfo;
@@ -130,13 +137,6 @@ const searchInfo = computed({
 	get: () => props.searchInfo,
 	set: (value) => emit('update:searchInfo', value),
 });
-
-// 使用计算属性从 map 中获取字典数据
-const fromSourceList = computed(() => getDictByType('pay_way'));
-
-const incomeAndExpensesList = computed(() =>
-	getDictByType('income_expense_type'),
-);
 
 // 使用 lodash 防抖
 const debouncedQuery = debounce(() => {

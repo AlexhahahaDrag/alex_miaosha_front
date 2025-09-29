@@ -160,7 +160,7 @@ import {
 } from '@/api/finance/shopOrderDetail/shopOrderDetailTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '../shopOrderDetailListTs';
+import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -169,7 +169,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orderId: { name: 'orderId', label: '订单id' },
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },

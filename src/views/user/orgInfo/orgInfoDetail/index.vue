@@ -122,14 +122,15 @@
 </template>
 <script lang="ts" setup>
 import type { OrgInfoDetail } from './orgInfoDetailTs';
+
+const { getDictByType } = useDictInfo('is_valid');
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getOrgInfoDetail,
 	addOrEditOrgInfo,
 } from '@/api/user/orgInfo/orgInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
@@ -139,7 +140,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orgCode: { name: 'orgCode', label: '机构编码' },
 	orgName: { name: 'orgName', label: '机构名称' },
 	orgShortName: { name: 'orgShortName', label: '机构简称' },
@@ -200,14 +201,8 @@ const props = defineProps<Props>();
 
 let formState = ref<OrgInfoDetail>({});
 
-let statusList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
+// 字典数据已通过 useDictInfo 自动加载
+const statusList = computed(() => getDictByType('is_valid')););
 		} else {
 			message.error((res && res.message) || '查询列表失败！');
 		}
@@ -270,7 +265,6 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getOrgInfoDetail(props.modelInfo.id)
@@ -284,11 +278,7 @@ function init() {
 				})
 				.catch((error: any) => {
 					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+					if (data) { else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}

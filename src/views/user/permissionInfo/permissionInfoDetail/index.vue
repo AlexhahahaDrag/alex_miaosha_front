@@ -111,6 +111,9 @@
 </template>
 <script lang="ts" setup>
 import type { PermissionInfoDetail } from './permissionInfoDetailTs';
+
+const { getDictByType } = useDictInfo('is_valid');
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getPermissionInfoDetail,
 	addOrEditPermissionInfo,
@@ -118,7 +121,6 @@ import {
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { dictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -127,7 +129,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	permissionCode: { name: 'permissionCode', label: '权限编码' },
 	permissionName: { name: 'permissionName', label: '权限名称' },
 	summary: { name: 'summary', label: '描述' },
@@ -181,14 +183,7 @@ const props = defineProps<Props>();
 
 let formState = ref<PermissionInfoDetail>({});
 
-let statusList = ref<dictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
+let statusList = ref<dictInfo[]>([]););
 		} else {
 			message.error((res && res.message) || '查询列表失败！');
 		}
@@ -251,7 +246,6 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getPermissionInfoDetail(props.modelInfo.id)
@@ -265,11 +259,7 @@ function init() {
 				})
 				.catch((error: any) => {
 					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+					if (data) { else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}

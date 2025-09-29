@@ -154,18 +154,19 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopStockAttrsListTs';
 import { columns } from './shopStockAttrsListTs';
 import {
 	getShopStockAttrsPage,
 	deleteShopStockAttrs,
 } from '@/api/finance/shopStockAttrs/shopStockAttrsTs';
-import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
+import type { PageInfo } from '@/composables/usePagination';
+import { usePagination } from '@/composables/usePagination';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
 
 // 使用分页组合式函数
 const {
@@ -196,7 +197,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	stockId: { name: 'stockId', label: '库存id' },
 	attrCode: { name: 'attrCode', label: '商品属性编码' },
 	attrName: { name: 'attrName', label: '商品属性名称' },
@@ -207,19 +208,8 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let isValidList = ref<DictInfo[]>([]);
-
-const getDictInfoList = (): void => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const isValidList = computed(() => getDictByType('is_valid'));
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -284,7 +274,6 @@ const getShopStockAttrsListPage = (param: SearchInfo, cur: PageInfo): void => {
 };
 
 const init = (): void => {
-	getDictInfoList();
 	//获取商店库存属性表页面数据
 	getShopStockAttrsListPage(searchInfo.value, pagination);
 };

@@ -159,8 +159,6 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsShopProductListTs';
 import { columns, sourceTransferList } from './pmsShopProductListTs';
 import {
@@ -169,8 +167,14 @@ import {
 } from '@/api/product/pmsShopProduct/pmsShopProductTs';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
+import type { PageInfo } from '@/composables/usePagination';
+import { usePagination } from '@/composables/usePagination';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
+// 字典数据已通过 useDictInfo 自动加载
+const sourceList = computed(() => getDictByType('is_valid'));
 
 // 使用分页组合式函数
 const {
@@ -245,8 +249,6 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const sourceList = ref<DictInfo[]>([{ typeName: '请填写', typeCode: '' }]);
-
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
@@ -267,25 +269,10 @@ function getPmsShopProductListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-function getDictInfoList() {
-	getDictList('shop_type').then((res) => {
-		if (res.code == '200') {
-			sourceList.value = sourceList.value.concat(
-				res.data.filter(
-					(item: { belongTo: string }) => item.belongTo == 'shop_type',
-				),
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 function init() {
 	//获取商品网上商品信息页面数据
 	getPmsShopProductListPage(searchInfo.value, pagination);
 	//获取字典信息
-	getDictInfoList();
 }
 
 init();

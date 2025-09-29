@@ -112,18 +112,20 @@
 </template>
 <script lang="ts" setup>
 import type { PmsBrandDetail } from './pmsBrandDetailTs';
+
+const { getDictByType } = useDictInfo('is_valid');
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getPmsBrandDetail,
 	addOrEditPmsBrand,
 } from '@/api/product/pmsBrand/pmsBrandTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { FileInfo } from '@/compoments/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 
-let validList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
+const validList = computed(() => getDictByType('is_valid'));
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });
 
@@ -225,15 +227,7 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function getDictInfoList() {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			res.data.forEach((item) => {
-				if (item.belongTo == 'is_valid') {
-					validList.value.push({
-						typeCode: Number(item.typeCode),
-						typeName: item.typeName,
-					});
+);
 				}
 			});
 		} else {
@@ -253,7 +247,6 @@ const handleRemove = () => {
 
 function init() {
 	//获取字典值
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getPmsBrandDetail(props.modelInfo.id)

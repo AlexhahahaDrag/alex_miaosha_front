@@ -32,10 +32,10 @@ onMounted(() => {
 	//获取用户信息
 	let route = useRoute();
 	let par = route.matched[route.matched.length - 2];
-	console.log(`route.matched`, route.matched, route);
-	let name: any = route?.name || 'home';
+	let name: string = (route?.name as string) || 'home';
 	curSelectedKeys.value = [name === 'dashboard' ? 'home' : name];
-	openKeys.value = [par?.name || '', name];
+	openKeys.value = [(par?.name as string) || '', name];
+	console.log(`openKeys.value eeeeeeeeeeeeeeeeeeeeeeeeeee`, props.routes);
 });
 
 const routes = ref<MenuDataItem[]>(props.routes);

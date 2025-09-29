@@ -126,6 +126,8 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+
+// 字典数据已通过 useDictInfo 自动加载
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
@@ -136,7 +138,6 @@ import {
 } from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 
 // 使用分页组合式函数
 const {
@@ -232,22 +233,9 @@ function getPmsShopWantProductListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-function getDictInfoList() {
-	getDictList('shop_type').then((res) => {
-		if (res.code == '200') {
-			sourceList.value = sourceList.value.concat(
-				res.data.filter(
-					(item: { belongTo: string }) => item.belongTo == 'shop_type',
-				),
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
+// 字典数据已通过 useDictInfo 自动加载
 
 function init() {
-	getDictInfoList();
 	//获取商品想买网上商品信息页面数据
 	getPmsShopWantProductListPage(searchInfo.value, pagination);
 }

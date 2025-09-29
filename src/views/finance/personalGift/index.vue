@@ -150,6 +150,7 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './personalGiftListTs';
@@ -161,9 +162,12 @@ import {
 	importPersonalGift,
 } from '@/api/finance/personalGift/personalGiftTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import { UploadOutlined } from '@ant-design/icons-vue';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('action');
+
+const actionList = computed(() => getDictByType('action'));
 
 // 使用分页组合式函数
 const {
@@ -194,7 +198,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	eventName: { name: 'eventName', label: '事件名称' },
 	amount: { name: 'amount', label: '金额' },
 	otherPerson: { name: 'otherPerson', label: '其他人' },
@@ -206,19 +210,7 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let actionList = ref<DictInfo[]>([]);
-
-const getDictInfoList = (): void => {
-	getDictList('gift_action').then((res) => {
-		if (res.code == '200') {
-			actionList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'gift_action',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -235,16 +227,22 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const noticePersonalInfo = (id: number) => {
 	noticePersonalGift(id)
-		.then((res: any) => {
+		.then((res: unknown) => {
 			console.log(`res:`, res);
-			if (res.code === '200') {
+			if ((res as { code: string }).code === '200') {
 				getPersonalGiftListPage(searchInfo.value, pagination);
 			} else {
-				message.error(res?.message?.description || '失败，请联系管理员！');
+				message.error(
+					(res as { message?: { description?: string } })?.message
+						?.description || '失败，请联系管理员！',
+				);
 			}
 		})
-		.catch((error: any) => {
-			message.error(error?.description || '失败，请联系管理员！');
+		.catch((error: unknown) => {
+			message.error(
+				(error as { description?: string })?.description ||
+					'失败，请联系管理员！',
+			);
 		});
 };
 
@@ -273,14 +271,17 @@ const batchDelPersonalGift = (): void => {
 	delPersonalGift(ids);
 };
 
-const customImageRequest = (info: any) => {
-	const formData = new FormData() as any;
-	formData.append('file', info.file);
+const customImageRequest = (info: unknown) => {
+	const formData = new FormData();
+	formData.append('file', (info as { file: File }).file);
 	importPersonalGift(formData).then((res) => {
 		console.log(`res:`, res);
 		if (res.code == '200') {
 			console.log(`res:`, res);
-			info.onSuccess(res.data, info.file);
+			(info as { onSuccess: (data: unknown, file: File) => void }).onSuccess(
+				res.data,
+				(info as { file: File }).file,
+			);
 			getPersonalGiftListPage(searchInfo.value, pagination);
 		}
 	});
@@ -311,7 +312,6 @@ const getPersonalGiftListPage = (param: SearchInfo, cur: PageInfo): void => {
 };
 
 const init = (): void => {
-	getDictInfoList();
 	//获取个人随礼信息表页面数据
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };

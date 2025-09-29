@@ -32,7 +32,7 @@ const style = ref({
 	height: props.height,
 	width: props.width,
 });
-let chart: any = null;
+let chart: echarts.ECharts | null = null;
 const initEcharts = () => {
 	disposeChart();
 	if (!chart) {
@@ -43,14 +43,14 @@ const initEcharts = () => {
 	if (!props.options) return;
 	chart.setOption(props.options);
 	window.addEventListener('resize', function () {
-		chart.resize();
+		chart?.resize();
 	});
 };
 
 const disposeChart = () => {
 	if (chart) {
 		window.addEventListener('resize', function () {
-			chart.resize();
+			chart?.resize();
 		});
 	}
 	chart?.dispose();

@@ -1,5 +1,3 @@
-import type { Dayjs } from 'dayjs';
-
 export interface ShopOrderDetailDetail {
 	id?: number;
 	orderId?: number;
@@ -7,7 +5,7 @@ export interface ShopOrderDetailDetail {
 	shopCode?: string;
 	saleAmount?: number;
 	isValid?: string;
-	saleDate?: Dayjs | string;
+	saleDate?: string;
 	payWay?: string;
 	saleNum?: number;
 	shopStockId?: number;

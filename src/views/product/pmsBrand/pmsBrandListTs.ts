@@ -1,3 +1,5 @@
+import type { TableColumnsType } from 'ant-design-vue';
+
 export interface SearchInfo {
 	name?: string;
 	logo?: string;

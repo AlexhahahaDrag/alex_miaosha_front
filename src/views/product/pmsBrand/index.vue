@@ -118,6 +118,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsBrandListTs';
@@ -127,8 +130,6 @@ import {
 	deletePmsBrand,
 } from '@/api/product/pmsBrand/pmsBrandTs';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 
 // 使用分页组合式函数
 const {
@@ -137,7 +138,8 @@ const {
 	setTotal,
 } = usePagination();
 
-let validList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
+const validList = computed(() => getDictByType('is_valid'));
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -224,21 +226,8 @@ function getPmsBrandListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-function getDictInfoList() {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			validList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 function init() {
 	//获取字典值
-	getDictInfoList();
 	//获取品牌页面数据
 	getPmsBrandListPage(searchInfo.value, pagination);
 }

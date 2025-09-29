@@ -131,6 +131,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopStockListTs';
@@ -140,8 +143,6 @@ import {
 	deleteShopStock,
 } from '@/api/finance/shopStock/shopStockTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
 
 // 使用分页组合式函数
 const {
@@ -172,7 +173,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },
 	costAmount: { name: 'costAmount', label: '成本价' },
@@ -186,27 +187,9 @@ const labelMap = ref<any>({
 
 let searchInfo = ref<SearchInfo>({});
 
-let isValidList = ref<DictInfo[]>([]);
-let categoryList = ref<DictInfo[]>([]);
-let purchasePlaceList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid,shop_category,stock_place').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-			categoryList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'shop_category',
-			);
-			purchasePlaceList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'stock_place',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const categoryList = computed(() => getDictByType('category'));
+const purchasePlaceList = computed(() => getDictByType('purchase_place'));
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -271,7 +254,6 @@ function getShopStockListPage(param: SearchInfo, cur: PageInfo) {
 }
 
 function init() {
-	getDictInfoList();
 	//获取商店库存表页面数据
 	getShopStockListPage(searchInfo.value, pagination);
 }

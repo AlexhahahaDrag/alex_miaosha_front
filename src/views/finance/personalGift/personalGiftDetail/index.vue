@@ -146,9 +146,12 @@ import {
 } from '@/api/finance/personalGift/personalGiftTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('gift_action');
+
+const actionList = computed(() => getDictByType('gift_action'));
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -159,7 +162,7 @@ const dateFormatter = 'YYYY-MM-DD';
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	eventName: { name: 'eventName', label: '事件名称' },
 	amount: { name: 'amount', label: '金额' },
 	otherPerson: { name: 'otherPerson', label: '其他人' },
@@ -215,20 +218,6 @@ const props = defineProps<Props>();
 
 let formState = ref<PersonalGiftDetail>({});
 
-let actionList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('gift_action').then((res) => {
-		if (res.code == '200') {
-			actionList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'gift_action',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
-
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
 const handleOk = (): void => {
@@ -265,8 +254,9 @@ const savePersonalGiftManager = (): void => {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
+		.catch((error: unknown) => {
+			const data = (error as { response?: { data?: { message?: string } } })
+				?.response?.data;
 			if (data) {
 				message.error(data?.message || '保存失败！');
 			}
@@ -276,16 +266,15 @@ const savePersonalGiftManager = (): void => {
 		});
 };
 
-const onFinish = (values: any): void => {
+const onFinish = (values: unknown): void => {
 	console.log('Success:', values);
 };
 
-const onFinishFailed = (errorInfo: any): void => {
+const onFinishFailed = (errorInfo: unknown): void => {
 	console.log('Failed:', errorInfo);
 };
 
 const init = (): void => {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getPersonalGiftDetail(props.modelInfo.id)
@@ -297,8 +286,9 @@ const init = (): void => {
 						message.error((res && res.message) || '查询失败！');
 					}
 				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
+				.catch((error: unknown) => {
+					const data = (error as { response?: { data?: { message?: string } } })
+						?.response?.data;
 					if (data) {
 						message.error(data?.message || '查询失败！');
 					}

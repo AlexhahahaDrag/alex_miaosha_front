@@ -6,7 +6,7 @@ export interface SearchInfo {
 	saleOrderName?: string;
 	saleAmount?: number;
 	isValid?: string;
-	saleDate?: Dayjs | string;
+	saleDate?: string;
 	description?: string;
 	payWay?: string;
 	saleCount?: number;

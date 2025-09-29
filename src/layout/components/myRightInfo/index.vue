@@ -76,9 +76,9 @@ const router = useRouter();
 const userStore = useUserStore();
 
 // 计算属性
-const displayName = computed(() => {
-	return userInfo.value?.nickName || userInfo.value?.username || '未知用户';
-});
+const displayName = computed(
+	() => userInfo.value?.nickName || userInfo.value?.username || '未知用户',
+);
 
 // 菜单点击处理
 const handleMenuClick: MenuProps['onClick'] = async (e) => {

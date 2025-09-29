@@ -96,7 +96,6 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.isValid"
-								mode="combobox"
 								:placeholder="'请输入' + labelMap['isValid'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="isValidList"
@@ -126,7 +125,6 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.category"
-								mode="combobox"
 								:placeholder="'请输入' + labelMap['category'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="categoryList"
@@ -143,7 +141,6 @@
 							<a-select
 								ref="select"
 								v-model:value="formState.purchasePlace"
-								mode="combobox"
 								:placeholder="'请输入' + labelMap['purchasePlace'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="purchasePlaceList"
@@ -178,9 +175,11 @@ import {
 } from '@/api/finance/shopStock/shopStockTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -188,7 +187,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },
 	costAmount: { name: 'costAmount', label: '成本价' },
@@ -270,27 +269,12 @@ const props = defineProps<Props>();
 
 let formState = ref<ShopStockDetail>({});
 
-let isValidList = ref<DictInfo[]>([]);
-let categoryList = ref<DictInfo[]>([]);
-let purchasePlaceList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid,shop_category,stock_place').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-			categoryList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'shop_category',
-			);
-			purchasePlaceList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'stock_place',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const isValidList = computed(() => getDictByType('is_valid'));
+// 字典数据已通过 useDictInfo 自动加载
+const categoryList = computed(() => getDictByType('shop_category'));
+// 字典数据已通过 useDictInfo 自动加载
+const purchasePlaceList = computed(() => getDictByType('stock_place'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -348,7 +332,6 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getShopStockDetail(props.modelInfo.id)

@@ -103,13 +103,11 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './dict';
 import type { ModelInfo } from '@/views/common/config';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import { columns } from './dict';
 import {
 	getDictManagerPage,
 	deleteDictManager,
 } from '@/api/finance/dict/dictManager';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import { message } from 'ant-design-vue';
 
 let rowIds: (string | number)[] = [];
@@ -120,10 +118,6 @@ const {
 	handleTableChange: paginationChange,
 	setTotal,
 } = usePagination();
-
-const fromSourceList = ref<DictInfo[]>([]);
-
-const incomeAndExpensesList = ref<DictInfo[]>([]);
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -218,25 +212,7 @@ function getDictPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-function getDictInfoList() {
-	loading.value = true;
-	getDictList('pay_way,income_expense_type').then((res) => {
-		if (res.code == '200') {
-			fromSourceList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'pay_way',
-			);
-			incomeAndExpensesList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'income_expense_type',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 function init() {
-	//获取字典列表
-	getDictInfoList();
 	//获取财务管理页面数据
 	getDictPage(searchInfo.value, pagination);
 }

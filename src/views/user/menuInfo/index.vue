@@ -209,6 +209,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('true_or_false,is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import {
@@ -222,8 +225,6 @@ import {
 	deleteMenuInfo,
 } from '@/api/user/menuInfo/menuInfoTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
@@ -240,8 +241,9 @@ let rowIds: (string | number)[] = [];
 
 let searchInfo = ref<SearchInfo>({});
 
-let hideInMenuList = ref<DictInfo[]>([]);
-let statusList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
+const hideInMenuList = computed(() => getDictByType('true_or_false'));
+const statusList = computed(() => getDictByType('is_valid'));
 
 let loading = ref<boolean>(false);
 
@@ -268,20 +270,7 @@ const rowSelection = ref({
 	},
 });
 
-const getDictInfoList = () => {
-	getDictList('true_or_false,is_valid').then((res: any) => {
-		if (res.code == '200') {
-			hideInMenuList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'true_or_false',
-			);
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -297,7 +286,7 @@ function query() {
 
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
-	getDataList();
+	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
 function delMenuInfo(ids: string) {
@@ -346,7 +335,6 @@ function getMenuInfoListPage(param: SearchInfo, cur: PageInfo) {
 }
 
 function init() {
-	getDictInfoList();
 	//获取菜单管理表页面数据
 	getMenuInfoListPage(searchInfo.value, pagination);
 }

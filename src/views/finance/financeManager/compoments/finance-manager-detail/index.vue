@@ -143,19 +143,28 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
+import { useDictInfo } from '@/composables/useDictInfo';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/views/common/config';
 import type { FinanceManagerData } from '../../config';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import {
 	getFinanceMangerDetail,
 	addOrEditFinanceManger,
 } from '@/api/finance/financeManager';
 import { rulesRef } from './config';
 import { useUserInfo } from '@/composables/useUserInfo';
+
+const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
+
+const fromSourceList = computed(() => getDictByType('pay_way'));
+
+const incomeAndExpensesList = computed(() =>
+	getDictByType('income_expense_type'),
+);
+
+const validList = computed(() => getDictByType('is_valid'));
 
 // 使用 useUserInfo 组合式函数
 const { userList } = useUserInfo();
@@ -219,39 +228,12 @@ const saveFinanceManager = async () => {
 	}
 };
 
-const onFinish = (values: any) => {
+const onFinish = (values: unknown) => {
 	console.log('Success:', values);
 };
 
-const onFinishFailed = (errorInfo: any) => {
+const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
-};
-
-let fromSourceList = ref<DictInfo[]>([]);
-
-let incomeAndExpensesList = ref<DictInfo[]>([]);
-
-let validList = ref<DictInfo[]>([]);
-
-const getDictInfoList = async () => {
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getDictList('pay_way,income_expense_type,is_valid');
-	if (code == '200') {
-		fromSourceList.value = data.filter(
-			(item: { belongTo: string }) => item.belongTo == 'pay_way',
-		);
-		incomeAndExpensesList.value = data.filter(
-			(item: { belongTo: string }) => item.belongTo == 'income_expense_type',
-		);
-		validList.value = data.filter(
-			(item: { belongTo: string }) => item.belongTo == 'is_valid',
-		);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
-	}
 };
 
 const initDetail = async (modalData: ModelInfo | undefined) => {
@@ -280,8 +262,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 };
 
 const init = async () => {
-	//获取字典信息
-	getDictInfoList();
+	//字典信息已通过 useDictInfo 自动加载
 	//初始化数据
 	initDetail(props.modelInfo);
 };

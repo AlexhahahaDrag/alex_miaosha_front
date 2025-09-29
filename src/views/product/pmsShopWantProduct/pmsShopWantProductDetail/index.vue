@@ -85,14 +85,15 @@
 </template>
 <script lang="ts" setup>
 import type { PmsShopWantProductDetail } from './pmsShopWantProductDetailTs';
+
+const { getDictByType } = useDictInfo('is_valid');
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getPmsShopWantProductDetail,
 	addOrEditPmsShopWantProduct,
 } from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
@@ -185,15 +186,7 @@ const onFinish = (values: any) => {
 
 const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
-};
-
-function getDictInfoList() {
-	getDictList('shop_type').then((res) => {
-		if (res.code == '200') {
-			sourceList.value = sourceList.value.concat(
-				res.data.filter(
-					(item: { belongTo: string }) => item.belongTo == 'shop_type',
-				),
+};),
 			);
 		} else {
 			message.error((res && res.message) || '查询列表失败！');
@@ -202,7 +195,6 @@ function getDictInfoList() {
 }
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getPmsShopWantProductDetail(props.modelInfo.id)
@@ -216,11 +208,7 @@ function init() {
 				})
 				.catch((error: any) => {
 					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+					if (data) { else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}

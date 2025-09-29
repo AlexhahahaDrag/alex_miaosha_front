@@ -100,15 +100,19 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import dayjs from 'dayjs';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('account_type');
+
+// 字典数据已通过 useDictInfo 自动加载
+const accountTypeList = computed(() => getDictByType('account_type'));
 
 const dateFormatter = 'YYYY-MM-DD HH:mm:ss';
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
 let loading = ref<boolean>(false);
-let accountTypeList = ref<DictInfo[]>([]);
+
 const formRef = ref<FormInstance>();
 
 const rulesRef = reactive({
@@ -195,11 +199,11 @@ function saveAccountRecordInfoManager() {
 		});
 }
 
-const onFinish = (values: any) => {
+const onFinish = (values: unknown) => {
 	console.log('Success:', values);
 };
 
-const onFinishFailed = (errorInfo: any) => {
+const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
 };
 
@@ -226,19 +230,6 @@ function init() {
 			};
 		}
 	}
-	getDictInfoList();
-}
-
-function getDictInfoList() {
-	getDictList('account_type').then((res) => {
-		if (res.code == '200') {
-			accountTypeList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'account_type',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
 }
 
 watch(

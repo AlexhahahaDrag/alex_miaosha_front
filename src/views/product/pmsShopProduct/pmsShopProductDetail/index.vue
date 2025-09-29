@@ -311,7 +311,7 @@ function init() {
 					res[0].data.forEach(
 						(item: { typeCode: string; typeName: Ref<string> }) => {
 							if (item.typeCode == res[1].data.source) {
-								sourceName.value = item.typeName;
+								sourceName.value = item.typeName.value;
 							}
 						},
 					);

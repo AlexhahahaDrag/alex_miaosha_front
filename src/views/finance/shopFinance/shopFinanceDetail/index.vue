@@ -167,10 +167,20 @@ import {
 } from '@/api/finance/shopFinance/shopFinanceTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import dayjs from 'dayjs';
-import type { DictInfo } from '@/views/finance/dict/dict';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
+// 字典数据已通过 useDictInfo 自动加载
+const validList = computed(() => getDictByType('is_valid'));
+// 字典数据已通过 useDictInfo 自动加载
+const payWayList = computed(() => getDictByType('pay_way'));
+// 字典数据已通过 useDictInfo 自动加载
+const incomeAndExpenseList = computed(() =>
+	getDictByType('income_expense_type'),
+);
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -181,7 +191,7 @@ const formRef = ref<FormInstance>();
 
 const dateFormatter = 'YYYY-MM-DD';
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },
 	saleAmount: { name: 'saleAmount', label: '售价' },
@@ -301,48 +311,22 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-let validList = ref<DictInfo[]>([]);
-let payWayList = ref<DictInfo[]>([]);
-let incomeAndExpenseList = ref<DictInfo[]>([]);
-
-function getDictInfoList() {
-	getDictList('shop_pay_way,income_expense_type,is_valid').then((res) => {
-		if (res.code == '200') {
-			validList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-			payWayList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'shop_pay_way',
-			);
-			incomeAndExpenseList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'income_expense_type',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
-function init() {
-	getDictInfoList();
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getShopFinanceDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						formState.value.saleDate = dayjs(formState.value.saleDate);
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getShopFinanceDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data;
+				formState.value.saleDate = dayjs(formState.value.saleDate);
+				modelConfig.confirmLoading = false;
+			} else {
+				formState.value = { isValid: '1', saleDate: dayjs() };
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {
@@ -351,7 +335,7 @@ function init() {
 			};
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,

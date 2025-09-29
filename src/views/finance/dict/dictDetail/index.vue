@@ -132,12 +132,17 @@ import {
 	getDictManagerDetail,
 	addOrEditDictManager,
 } from '@/api/finance/dict/dictManager';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import { message } from 'ant-design-vue';
-import type { ModelInfo, dictInfo } from '../dict';
+import type { ModelInfo } from '@/views/common/config';
 import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
+import type { FormInstance } from 'ant-design-vue';
+import { useDictInfo } from '@/composables/useDictInfo';
 
-const formRef = ref<any>();
+const { getDictByType } = useDictInfo('is_valid');
+
+const validList = computed(() => getDictByType('is_valid'));
+
+const formRef = ref<FormInstance>();
 
 const modelConfig = {
 	confirmLoading: true,
@@ -156,7 +161,7 @@ const emit = defineEmits(['handleOk', 'handleCancel']);
 
 const handleOk = () => {
 	formRef.value
-		.validate()
+		?.validate()
 		.then(() => {
 			saveFinanceManager();
 		})
@@ -187,47 +192,20 @@ function saveFinanceManager() {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			message.error(error?.message || '系统问题，请联系管理员！');
+		.catch((error: unknown) => {
+			message.error(
+				(error as { message?: string })?.message || '系统问题，请联系管理员！',
+			);
 		});
 }
 
-const onFinish = (values: any) => {
+const onFinish = (values: unknown) => {
 	console.log('Success:', values);
 };
 
-const onFinishFailed = (errorInfo: any) => {
+const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
 };
-
-let fromSourceList = ref<dictInfo[]>([]);
-
-let incomeAndExpensesList = ref<dictInfo[]>([]);
-
-let validList = [
-	{ typeCode: 0, typeName: '无效' },
-	{ typeCode: 1, typeName: '有效' },
-];
-
-function getDictInfoList() {
-	getDictList('pay_way,income_expense_type,is_valid')
-		.then((res) => {
-			if (res.code == '200') {
-				fromSourceList.value = res.data.filter(
-					(item: { belongTo: string }) => item.belongTo == 'pay_way',
-				);
-				incomeAndExpensesList.value = res.data.filter(
-					(item: { belongTo: string }) =>
-						item.belongTo == 'income_expense_type',
-				);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.catch((error: any) => {
-			message.error(error?.message || '查询列表失败！');
-		});
-}
 
 watch(
 	() => props.open,
@@ -264,7 +242,6 @@ function init() {
 			};
 		}
 	}
-	getDictInfoList();
 }
 
 defineExpose({ handleOk, handleCancel });

@@ -188,14 +188,15 @@
 </template>
 <script lang="ts" setup>
 import type { MenuInfoDetail } from './menuInfoDetailTs';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('true_or_false,is_valid');
 import {
 	getMenuInfoDetail,
 	addOrEditMenuInfo,
 } from '@/api/user/menuInfo/menuInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
 
 const labelCol = ref({ span: 5 });
@@ -205,7 +206,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	name: { name: 'name', label: '菜单名称' },
 	path: { name: 'path', label: '菜单路径' },
 	title: { name: 'title', label: '菜单标题' },
@@ -301,23 +302,9 @@ const props = defineProps<Props>();
 
 let formState = ref<MenuInfoDetail>({});
 
-let hideInMenuList = ref<DictInfo[]>([]);
-let statusList = ref<DictInfo[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('true_or_false,is_valid').then((res) => {
-		if (res.code == '200') {
-			hideInMenuList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'true_or_false',
-			);
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+// 字典数据已通过 useDictInfo 自动加载
+const hideInMenuList = computed(() => getDictByType('true_or_false'));
+const statusList = computed(() => getDictByType('is_valid'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -375,7 +362,6 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getMenuInfoDetail(props.modelInfo.id)
@@ -387,15 +373,15 @@ function init() {
 						message.error((res && res.message) || '查询失败！');
 					}
 				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
+				.catch((error: unknown) => {
+					const data = (error as { response?: { data?: { message?: string } } })
+						?.response?.data;
 					if (data) {
-						message.error(data?.message || '查询失败！');
+						message.error(data?.message || '保存失败！');
 					}
+					modelConfig.confirmLoading = false;
+					formState.value = {};
 				});
-		} else {
-			modelConfig.confirmLoading = false;
-			formState.value = {};
 		}
 	}
 }

@@ -105,15 +105,18 @@
 </template>
 <script lang="ts" setup>
 import type { RoleInfoDetail } from './roleInfoDetailTs';
+
 import {
 	getRoleInfoDetail,
 	addOrEditRoleInfo,
 } from '@/api/user/roleInfo/roleInfoTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
-import { getDictList } from '@/api/finance/dict/dictManager';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -121,7 +124,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	roleCode: { name: 'roleCode', label: '角色编码' },
 	roleName: { name: 'roleName', label: '角色名称' },
 	summary: { name: 'summary', label: '描述' },
@@ -168,23 +171,12 @@ const props = defineProps<Props>();
 
 let formState = ref<RoleInfoDetail>({});
 
-let statusList = ref<DictInfo[]>([]);
+// 字典数据已通过 useDictInfo 自动加载
+const statusList = computed(() => getDictByType('is_valid'));
 
 const permissionTree = ref<any[]>([]);
 
 const selectPermission = ref<string[]>([]);
-
-const getDictInfoList = () => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			statusList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -242,7 +234,6 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 function init() {
-	getDictInfoList();
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
 			getRoleInfoDetail(props.modelInfo.id)

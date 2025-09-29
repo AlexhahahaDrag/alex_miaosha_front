@@ -2,7 +2,7 @@ import { loginApi } from '@/views/login/api';
 import { defineStore } from 'pinia';
 import { getAuthInfo } from './typing';
 import type { MenuInfo, UserState } from './typing';
-import type { LoginParams } from '@/views/login/api';
+import type { LoginParams } from '@/views/login/config';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';

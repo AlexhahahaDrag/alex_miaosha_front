@@ -115,8 +115,6 @@ import {
 	deleteShopStockBatch,
 } from '@/api/finance/shopStockBatch/shopStockBatchTs';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import type { DictInfo } from '@/views/finance/dict/dict';
 
 // 使用分页组合式函数
 const {
@@ -155,20 +153,6 @@ const labelMap = ref<any>({
 });
 
 let searchInfo = ref<SearchInfo>({});
-
-let isValidList = ref<DictInfo[]>([]);
-
-const getDictInfoList = (): void => {
-	getDictList('is_valid').then((res) => {
-		if (res.code == '200') {
-			isValidList.value = res.data.filter(
-				(item: { belongTo: string }) => item.belongTo == 'is_valid',
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -233,7 +217,6 @@ const getShopStockBatchListPage = (param: SearchInfo, cur: PageInfo): void => {
 };
 
 const init = (): void => {
-	getDictInfoList();
 	//获取商店库存批次表页面数据
 	getShopStockBatchListPage(searchInfo.value, pagination);
 };
