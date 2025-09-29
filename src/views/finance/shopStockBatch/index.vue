@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.batchCode"
-									:placeholder="'请选择' + labelMap['batchCode'].label"
+									:placeholder="'请填写' + labelMap['batchCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.batchName"
-									:placeholder="'请选择' + labelMap['batchName'].label"
+									:placeholder="'请填写' + labelMap['batchName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -105,7 +105,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './shopStockBatchListTs';
 import { columns } from './shopStockBatchListTs';

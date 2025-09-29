@@ -78,7 +78,11 @@ const config: Linter.FlatConfig[] = [
 			...typescript.configs.recommended.rules,
 
 			// 基础规则
-			indent: ['error', 'tab', { SwitchCase: 1 }],
+			indent: [
+				'error',
+				'tab',
+				{ SwitchCase: 1, ignoredNodes: ['ConditionalExpression'] },
+			],
 			semi: ['error', 'always'],
 			quotes: [
 				'error',

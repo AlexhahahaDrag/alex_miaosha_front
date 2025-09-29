@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopId"
-									:placeholder="'请选择' + labelMap['shopId'].label"
+									:placeholder="'请填写' + labelMap['shopId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.userId"
-									:placeholder="'请选择' + labelMap['userId'].label"
+									:placeholder="'请填写' + labelMap['userId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -39,7 +39,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.customerId"
-									:placeholder="'请选择' + labelMap['customerId'].label"
+									:placeholder="'请填写' + labelMap['customerId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -53,7 +53,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.isValid"
-									:placeholder="'请选择' + labelMap['isValid'].label"
+									:placeholder="'请填写' + labelMap['isValid'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -65,7 +65,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleNum"
-									:placeholder="'请选择' + labelMap['saleNum'].label"
+									:placeholder="'请填写' + labelMap['saleNum'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -136,7 +136,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem, ModelInfo } from './shopCartListTs';
 import { columns } from './shopCartListTs';

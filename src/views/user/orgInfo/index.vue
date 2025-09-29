@@ -26,7 +26,7 @@
 								>
 									<a-input
 										v-model:value="searchInfo.orgCode"
-										:placeholder="'请选择' + labelMap['orgCode'].label"
+										:placeholder="'请填写' + labelMap['orgCode'].label"
 										allow-clear
 									/>
 								</a-form-item>
@@ -38,7 +38,7 @@
 								>
 									<a-input
 										v-model:value="searchInfo.orgName"
-										:placeholder="'请选择' + labelMap['orgName'].label"
+										:placeholder="'请填写' + labelMap['orgName'].label"
 										allow-clear
 									/>
 								</a-form-item>
@@ -124,7 +124,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './orgInfoListTs';
 import { columns } from './orgInfoListTs';

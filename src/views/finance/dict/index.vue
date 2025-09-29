@@ -99,7 +99,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem, ModelInfo, dictInfo } from './dict';
 import { columns } from './dict';

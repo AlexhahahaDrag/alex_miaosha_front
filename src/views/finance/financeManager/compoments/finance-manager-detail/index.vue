@@ -146,10 +146,9 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import dayjs from 'dayjs';
-import { getUserManagerList } from '@/api/user/userManager';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/views/common/config';
-import type { DataItem } from '../../config';
+import type { FinanceManagerData } from '../../config';
 import { getDictList } from '@/api/finance/dict/dictManager';
 import {
 	getFinanceMangerDetail,
@@ -181,7 +180,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-let formState = ref<DataItem>({});
+let formState = ref<FinanceManagerData>({});
 
 let currentUser = useUserStore()?.getUserInfo;
 
@@ -255,15 +254,6 @@ const getDictInfoList = async () => {
 	}
 };
 
-const getUserInfoList = async () => {
-	const { code, data, message: messageInfo } = await getUserManagerList({});
-	if (code == '200') {
-		userList.value = data;
-	} else {
-		message.error(messageInfo || '查询列表失败！');
-	}
-};
-
 const initDetail = async (modalData: ModelInfo | undefined) => {
 	if (modalData?.id) {
 		const {
@@ -290,8 +280,6 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 };
 
 const init = async () => {
-	//获取用户信息
-	getUserInfoList();
 	//获取字典信息
 	getDictInfoList();
 	//初始化数据

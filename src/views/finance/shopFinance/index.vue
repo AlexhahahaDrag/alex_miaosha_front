@@ -15,7 +15,7 @@
 							>
 								<a-input-number
 									v-model:value="searchInfo.saleAmountFrom"
-									:placeholder="'请选择' + labelMap['saleAmountFrom'].label"
+									:placeholder="'请填写' + labelMap['saleAmountFrom'].label"
 									:formatter="(value) => `${value}`"
 									style="width: 100%"
 									allow-clear
@@ -29,7 +29,7 @@
 							>
 								<a-input-number
 									v-model:value="searchInfo.saleAmountEnd"
-									:placeholder="'请选择' + labelMap['saleAmountEnd'].label"
+									:placeholder="'请填写' + labelMap['saleAmountEnd'].label"
 									:formatter="(value) => `${value}`"
 									style="width: 100%"
 									allow-clear
@@ -171,7 +171,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import { pagination, formatAmount } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './shopFinanceListTs';

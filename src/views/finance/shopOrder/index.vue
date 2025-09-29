@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleOrderCode"
-									:placeholder="'请选择' + labelMap['saleOrderCode'].label"
+									:placeholder="'请填写' + labelMap['saleOrderCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleOrderName"
-									:placeholder="'请选择' + labelMap['saleOrderName'].label"
+									:placeholder="'请填写' + labelMap['saleOrderName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -39,7 +39,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleAmount"
-									:placeholder="'请选择' + labelMap['saleAmount'].label"
+									:placeholder="'请填写' + labelMap['saleAmount'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -69,7 +69,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleDate"
-									:placeholder="'请选择' + labelMap['saleDate'].label"
+									:placeholder="'请填写' + labelMap['saleDate'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -81,7 +81,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.description"
-									:placeholder="'请选择' + labelMap['description'].label"
+									:placeholder="'请填写' + labelMap['description'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -95,7 +95,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.payWay"
-									:placeholder="'请选择' + labelMap['payWay'].label"
+									:placeholder="'请填写' + labelMap['payWay'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -107,7 +107,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleCount"
-									:placeholder="'请选择' + labelMap['saleCount'].label"
+									:placeholder="'请填写' + labelMap['saleCount'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -178,7 +178,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './shopOrderListTs';
 import { columns } from './shopOrderListTs';

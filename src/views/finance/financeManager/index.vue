@@ -18,7 +18,7 @@
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record: DataItem) => record.id || 0"
+				:row-key="(record: FinanceManagerData) => record.id || 0"
 				:pagination="pagination"
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
@@ -95,27 +95,37 @@
 					</template>
 				</template>
 			</a-table>
-			<FinanceManagerDetail
+			<finance-manager-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
-			/>
+			></finance-manager-detail>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
-import type { ModelInfo, PageInfo } from '@/views/common/config';
-import { pagination, formatAmount } from '@/views/common/config';
-import type { SearchInfo, DataItem } from './config';
+import type { ModelInfo } from '@/views/common/config';
+import { formatAmount } from '@/views/common/config';
+import type { FinanceManagerData } from './config';
+import type { SearchInfo } from './compoments/finance-manager-filter/config';
 import { columns, fromSourceTransferList } from './config';
 import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
 } from '@/api/finance/financeManager';
+import { usePagination, type PageInfo } from '@/composables/usePagination';
+import dayjs from 'dayjs';
+
+// 使用分页组合式函数
+const {
+	pagination,
+	handleTableChange: paginationChange,
+	setTotal,
+} = usePagination();
 
 let rowIds: (string | number)[] = [];
 
@@ -124,13 +134,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: FinanceManagerData,
+		selected: boolean,
+		selectedRows: FinanceManagerData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: FinanceManagerData[],
+		changeRows: FinanceManagerData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -140,7 +154,7 @@ let searchInfo = ref<SearchInfo>({});
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref<DataItem[]>([]);
+let dataSource = ref<FinanceManagerData[]>([]);
 
 // 查看详情弹窗
 let visible = ref<boolean>(false);
@@ -152,13 +166,18 @@ const cancelQuery = () => {
 	query();
 };
 
+// 立即查询函数（用于按钮点击等需要立即响应的场景）
 const query = () => {
-	getFinancePage(searchInfo.value, pagination.value);
+	getFinancePage(searchInfo.value, pagination);
 };
 
 // 获取分页数据
-const handleTableChange = (pagination: PageInfo) => {
-	getFinancePage(searchInfo.value, pagination);
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange({
+		current: paginationInfo.current || 1,
+		pageSize: paginationInfo.pageSize || 10,
+	});
+	getFinancePage(searchInfo.value, paginationInfo);
 };
 
 // 删除
@@ -166,7 +185,7 @@ const delFinance = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteFinanceManger(ids);
 	if (code == '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		getFinancePage(searchInfo.value, pagination.value);
+		getFinancePage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -193,20 +212,29 @@ const cancel = (e: MouseEvent) => {
 
 const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
+	let queryParam = {
+		...param,
+		infoDateStart:
+			param.infoDateStart ?
+				dayjs(param.infoDateStart).format('YYYY-MM-DD')
+			:	null,
+		infoDateEnd:
+			param.infoDateEnd ? dayjs(param.infoDateEnd).format('YYYY-MM-DD') : null,
+	};
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await getFinanceMangerPage(param, cur.current, cur.pageSize).finally(
+	} = await getFinanceMangerPage(queryParam, cur.current, cur.pageSize).finally(
 		() => {
 			loading.value = false;
 		},
 	);
 	if (code == '200') {
 		dataSource.value = data.records;
-		pagination.value.current = data.current;
-		pagination.value.pageSize = data.size;
-		pagination.value.total = data.total;
+		pagination.current = data.current;
+		pagination.pageSize = data.size;
+		setTotal(data.total);
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
@@ -227,7 +255,7 @@ const editFinance = (type: string, id?: number) => {
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
-	getFinancePage(searchInfo.value, pagination.value);
+	getFinancePage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
@@ -235,14 +263,14 @@ const handleCancel = (v: boolean) => {
 };
 
 const initPage = () => {
-	pagination.value.current = 1;
-	pagination.value.pageSize = 10;
+	pagination.current = 1;
+	pagination.pageSize = 10;
 };
 
 function init() {
 	initPage();
 	//获取财务管理页面数据
-	getFinancePage(searchInfo.value, pagination.value);
+	getFinancePage(searchInfo.value, pagination);
 }
 
 init();
@@ -251,7 +279,7 @@ watch(
 	() => [searchInfo.value],
 	() => {
 		console.log(`searchInfo.value:`, searchInfo.value);
-		getFinancePage(searchInfo.value, pagination.value);
+		getFinancePage(searchInfo.value, pagination);
 	},
 	{
 		deep: true,

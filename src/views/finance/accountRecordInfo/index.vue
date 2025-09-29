@@ -136,7 +136,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination, formatAmount } from '@/views/common/config';
 import type { DictInfo } from '@/views/finance/dict/dict';
 import type { SearchInfo, DataItem } from './accountRecordInfoListTs';

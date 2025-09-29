@@ -116,7 +116,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import { type SearchInfo, columns, type DataItem } from './userManager';
 import type { DictInfo } from '@/views/finance/dict/dict';

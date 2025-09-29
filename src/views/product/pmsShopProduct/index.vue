@@ -158,7 +158,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './pmsShopProductListTs';
 import { columns, sourceTransferList } from './pmsShopProductListTs';
@@ -236,7 +237,7 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<DictInfo[]>([{ typeName: '请填写', typeCode: '' }]);
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);

@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 import { getPrepaidCardInfoList } from './api/index';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api/index';

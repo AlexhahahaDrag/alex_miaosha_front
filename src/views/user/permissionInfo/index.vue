@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.permissionCode"
-									:placeholder="'请选择' + labelMap['permissionCode'].label"
+									:placeholder="'请填写' + labelMap['permissionCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.permissionName"
-									:placeholder="'请选择' + labelMap['permissionName'].label"
+									:placeholder="'请填写' + labelMap['permissionName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -39,7 +39,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.summary"
-									:placeholder="'请选择' + labelMap['summary'].label"
+									:placeholder="'请填写' + labelMap['summary'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -69,7 +69,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.options"
-									:placeholder="'请选择' + labelMap['options'].label"
+									:placeholder="'请填写' + labelMap['options'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -142,7 +142,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import {
 	type SearchInfo,

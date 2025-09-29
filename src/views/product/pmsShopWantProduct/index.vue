@@ -125,7 +125,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo, ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
 import { columns, sourceTransferList } from './pmsShopWantProductListTs';
@@ -160,7 +161,7 @@ const rowSelection = ref({
 });
 
 let searchInfo = ref<SearchInfo>({});
-const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
+const sourceList = ref<DictInfo[]>([{ typeName: '请填写', typeCode: '' }]);
 
 function cancelQuery() {
 	searchInfo.value = {};

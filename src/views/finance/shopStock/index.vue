@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopName"
-									:placeholder="'请选择' + labelMap['shopName'].label"
+									:placeholder="'请填写' + labelMap['shopName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopCode"
-									:placeholder="'请选择' + labelMap['shopCode'].label"
+									:placeholder="'请填写' + labelMap['shopCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -130,7 +130,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './shopStockListTs';
 import { columns } from './shopStockListTs';

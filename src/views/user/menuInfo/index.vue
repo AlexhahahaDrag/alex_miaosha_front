@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.name"
-									:placeholder="'请选择' + labelMap['name'].label"
+									:placeholder="'请填写' + labelMap['name'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.title"
-									:placeholder="'请选择' + labelMap['title'].label"
+									:placeholder="'请填写' + labelMap['title'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -41,7 +41,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.component"
-									:placeholder="'请选择' + labelMap['component'].label"
+									:placeholder="'请填写' + labelMap['component'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -53,7 +53,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.redirect"
-									:placeholder="'请选择' + labelMap['redirect'].label"
+									:placeholder="'请填写' + labelMap['redirect'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -65,7 +65,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.icon"
-									:placeholder="'请选择' + labelMap['icon'].label"
+									:placeholder="'请填写' + labelMap['icon'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -95,7 +95,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.parentId"
-									:placeholder="'请选择' + labelMap['parentId'].label"
+									:placeholder="'请填写' + labelMap['parentId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -107,7 +107,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.summary"
-									:placeholder="'请选择' + labelMap['summary'].label"
+									:placeholder="'请填写' + labelMap['summary'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -137,7 +137,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.orderBy"
-									:placeholder="'请选择' + labelMap['orderBy'].label"
+									:placeholder="'请填写' + labelMap['orderBy'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -208,7 +208,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import {
 	type SearchInfo,

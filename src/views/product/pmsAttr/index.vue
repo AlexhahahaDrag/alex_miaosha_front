@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.attrName"
-									:placeholder="'请选择' + labelMap['attrName'].label"
+									:placeholder="'请填写' + labelMap['attrName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.searchType"
-									:placeholder="'请选择' + labelMap['searchType'].label"
+									:placeholder="'请填写' + labelMap['searchType'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -39,7 +39,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.icon"
-									:placeholder="'请选择' + labelMap['icon'].label"
+									:placeholder="'请填写' + labelMap['icon'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -53,7 +53,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.valueSelect"
-									:placeholder="'请选择' + labelMap['valueSelect'].label"
+									:placeholder="'请填写' + labelMap['valueSelect'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -65,7 +65,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.attrType"
-									:placeholder="'请选择' + labelMap['attrType'].label"
+									:placeholder="'请填写' + labelMap['attrType'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -77,7 +77,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.enable"
-									:placeholder="'请选择' + labelMap['enable'].label"
+									:placeholder="'请填写' + labelMap['enable'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -91,7 +91,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.catelogId"
-									:placeholder="'请选择' + labelMap['catelogId'].label"
+									:placeholder="'请填写' + labelMap['catelogId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -103,7 +103,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.showDesc"
-									:placeholder="'请选择' + labelMap['showDesc'].label"
+									:placeholder="'请填写' + labelMap['showDesc'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -172,7 +172,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem } from './pmsAttrListTs';
 import { columns } from './pmsAttrListTs';

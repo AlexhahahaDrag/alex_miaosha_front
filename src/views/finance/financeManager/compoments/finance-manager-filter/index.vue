@@ -71,7 +71,7 @@
 					<a-col :span="6">
 						<a-form-item name="infoDateStart" label="业务时间从">
 							<a-date-picker
-								v-model:value="infoDateStart"
+								v-model:value="searchInfo.infoDateStart"
 								@change="handleSearchChange"
 							/>
 						</a-form-item>
@@ -79,7 +79,7 @@
 					<a-col :span="6">
 						<a-form-item name="infoDateEnd" label="至">
 							<a-date-picker
-								v-model:value="infoDateEnd"
+								v-model:value="searchInfo.infoDateEnd"
 								@change="handleSearchChange"
 							/>
 						</a-form-item>
@@ -99,15 +99,16 @@
 </template>
 
 <script setup lang="ts">
-import { message } from 'ant-design-vue';
-import type { SearchInfo } from '../../config';
-import { getDictList } from '@/api/finance/dict/dictManager';
-import { useUserInfo } from '@/composables/useUserInfo';
+import type { SearchInfo } from './config';
 import type { Dayjs } from 'dayjs';
-import type { DictInfo } from '@/views/finance/dict/dict';
+import { labelCol, wrapperCol } from './config';
+import { useUserInfo } from '@/composables/useUserInfo';
+import { useDictInfo } from '@/composables/useDictInfo';
+import { debounce } from 'lodash-es';
 
-// 使用 useUserInfo 组合式函数
+// 使用组合式函数
 const { userList } = useUserInfo();
+const { getDictInfoList, getDictByType } = useDictInfo();
 
 // Props
 interface Props {
@@ -130,22 +131,30 @@ const searchInfo = computed({
 	set: (value) => emit('update:searchInfo', value),
 });
 
-const fromSourceList = ref<DictInfo[]>([]);
-const incomeAndExpensesList = ref<DictInfo[]>([]);
+// 使用计算属性从 map 中获取字典数据
+const fromSourceList = computed(() => getDictByType('pay_way'));
+
+const incomeAndExpensesList = computed(() =>
+	getDictByType('income_expense_type'),
+);
+
 const infoDateStart = ref<string | Dayjs>();
 const infoDateEnd = ref<string | Dayjs>();
 
-// 表单布局配置
-const labelCol = { span: 5 };
-const wrapperCol = { span: 19 };
+// 使用 lodash 防抖
+const debouncedQuery = debounce(() => {
+	emit('query');
+}, 500);
 
 // 事件处理
 const handleSearchChange = () => {
-	// 触发查询
-	console.log(`111111111111111111`, searchInfo.value);
+	// 防抖查询
+	debouncedQuery();
 };
 
 const handleQuery = () => {
+	// 取消防抖，立即查询
+	debouncedQuery.cancel();
 	emit('query');
 };
 
@@ -157,29 +166,10 @@ const handleCancelQuery = () => {
 	emit('cancelQuery');
 };
 
-// 获取字典数据
-const getDictInfoList = async () => {
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getDictList('pay_way,income_expense_type');
-	if (code == '200') {
-		fromSourceList.value = data.filter(
-			(item: { belongTo: string }) => item.belongTo == 'pay_way',
-		);
-		incomeAndExpensesList.value = data.filter(
-			(item: { belongTo: string }) => item.belongTo == 'income_expense_type',
-		);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
-	}
-};
-
 // 初始化
 onMounted(() => {
 	// 获取字典数据
-	getDictInfoList();
+	getDictInfoList('pay_way,income_expense_type');
 	// 用户数据由 useUserInfo 组合式函数自动处理
 });
 </script>

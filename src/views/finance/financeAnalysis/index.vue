@@ -121,35 +121,40 @@ import {
 	getDayExpense,
 	getMonthExpense,
 } from '@/api/finance/financeAnalysis';
-import type { FinanceDetail } from '@/views/finance/financeManager/detail/detail';
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import * as math from 'mathjs';
 import type { ItemInfo } from './analysis';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/bar';
-import { getUserManagerList } from '@/api/user/userManager';
 import { useUserStore } from '@/store/modules/user/user';
+import { useUserInfo } from '@/composables/useUserInfo';
+import type { UserInfo } from '@/types/store';
 
 const dateFormatter = 'YYYY-MM';
 
-const balanceList = ref<FinanceDetail | any>([]);
+// 使用 useUserInfo 组合式函数
+const { userList } = useUserInfo();
+
+const balanceList = ref<FinanceManagerData | any>([]);
 let userInfo = useUserStore()?.getUserInfo;
-let sum = ref<any>(0);
-let monthExpenseSum = ref<any>(0);
-let monthIncomeSum = ref<any>(0);
+let sum = ref<math.BigNumber>(math.bignumber(0));
+let monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
+let monthIncomeSum = ref<math.BigNumber>(math.bignumber(0));
 
 let searchUser = ref<number>(userInfo.id);
 
-let userList = ref([{ id: 0, nickName: '所有人' }]);
+// 初始化用户列表，添加"所有人"选项
+userList.value = [{ id: 0, nickName: '所有人' } as UserInfo];
 
 let searchDateTime = ref<Dayjs>(dayjs());
 
 function getBalanceInfo(userId: number, dateStr: string) {
 	getBalance(userId, dateStr).then(
-		(res: { code: string; data: FinanceDetail[]; message: any }) => {
+		(res: { code: string; data: FinanceManagerData[]; message: any }) => {
 			if (res.code == '200') {
-				sum.value = 0;
+				sum.value = math.bignumber(0);
 				balanceList.value = res.data;
 				if (res.data && res.data.length) {
 					res.data.forEach(
@@ -172,8 +177,8 @@ function getIncomeAndExpenseInfo(userId: number, dateStr: string) {
 		(res: { code: string; data: any[]; message: any }) => {
 			if (res.code == '200') {
 				if (res.data) {
-					monthExpenseSum.value = 0;
-					monthIncomeSum.value = 0;
+					monthExpenseSum.value = math.bignumber(0);
+					monthIncomeSum.value = math.bignumber(0);
 					let dd: ItemInfo[] = [];
 					res.data
 						.filter((item) => item.incomeAndExpenses == 'income')
@@ -332,16 +337,6 @@ function getMonthExpenseInfo(userId: number, dateStr: string) {
 	);
 }
 
-function getUserInfoList() {
-	getUserManagerList({}).then((res) => {
-		if (res.code == '200') {
-			userList.value = [...userList.value, ...res.data];
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 function getInfo() {
 	let dateStr = searchDateTime.value.format(dateFormatter);
 	getBalanceInfo(searchUser.value, dateStr);
@@ -355,8 +350,6 @@ const changeMonth = () => {
 };
 
 onMounted(() => {
-	//获取用户信息
-	getUserInfoList();
 	getInfo();
 });
 

@@ -68,4 +68,9 @@ export interface DataItem {
 export interface DictInfo {
 	typeCode?: string | number | undefined;
 	typeName?: string | undefined;
+	belongTo?: string | number | undefined;
+	belongToName?: string | undefined;
+	orderBy?: number | undefined;
+	isValid?: number | undefined;
+	operateTime?: string | undefined;
 }

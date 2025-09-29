@@ -1,19 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 
-export interface SearchInfo {
-	name?: string;
-	typeCode?: string;
-	fromSource?: string;
-	isValid?: number;
-	pageNo?: number;
-	pageSize?: number;
-	incomeAndExpenses?: string;
-	belongTo?: number;
-	infoDateStart?: string | null;
-	infoDateEnd?: string | null;
-}
-
 export const columns = ref<TableColumnsType>([
 	{
 		title: '名称',
@@ -68,7 +55,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
+export interface FinanceManagerData {
 	id?: number;
 	name?: string;
 	typeCode?: string;

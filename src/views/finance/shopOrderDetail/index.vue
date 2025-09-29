@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.orderId"
-									:placeholder="'请选择' + labelMap['orderId'].label"
+									:placeholder="'请填写' + labelMap['orderId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopName"
-									:placeholder="'请选择' + labelMap['shopName'].label"
+									:placeholder="'请填写' + labelMap['shopName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -39,7 +39,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopCode"
-									:placeholder="'请选择' + labelMap['shopCode'].label"
+									:placeholder="'请填写' + labelMap['shopCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -53,7 +53,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleAmount"
-									:placeholder="'请选择' + labelMap['saleAmount'].label"
+									:placeholder="'请填写' + labelMap['saleAmount'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -65,7 +65,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.isValid"
-									:placeholder="'请选择' + labelMap['isValid'].label"
+									:placeholder="'请填写' + labelMap['isValid'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -77,7 +77,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleDate"
-									:placeholder="'请选择' + labelMap['saleDate'].label"
+									:placeholder="'请填写' + labelMap['saleDate'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -91,7 +91,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.payWay"
-									:placeholder="'请选择' + labelMap['payWay'].label"
+									:placeholder="'请填写' + labelMap['payWay'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -103,7 +103,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.saleNum"
-									:placeholder="'请选择' + labelMap['saleNum'].label"
+									:placeholder="'请填写' + labelMap['saleNum'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -115,7 +115,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.shopStockId"
-									:placeholder="'请选择' + labelMap['shopStockId'].label"
+									:placeholder="'请填写' + labelMap['shopStockId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -188,7 +188,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { PageInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import type { SearchInfo, DataItem, ModelInfo } from './shopOrderDetailListTs';
 import { columns } from './shopOrderDetailListTs';

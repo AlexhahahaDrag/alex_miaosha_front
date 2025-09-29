@@ -15,7 +15,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.roleCode"
-									:placeholder="'请选择' + labelMap['roleCode'].label"
+									:placeholder="'请填写' + labelMap['roleCode'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -27,7 +27,7 @@
 							>
 								<a-input
 									v-model:value="searchInfo.roleName"
-									:placeholder="'请选择' + labelMap['roleName'].label"
+									:placeholder="'请填写' + labelMap['roleName'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -115,7 +115,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo, PageInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/views/common/config';
+import type { PageInfo } from '@/composables/usePagination';
 import { pagination } from '@/views/common/config';
 import {
 	type SearchInfo,
