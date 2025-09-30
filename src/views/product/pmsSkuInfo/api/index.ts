@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PmsSkuInfoData } from '../config';
 
 const basePmsSkuInfo = '/api/v1/pms-sku-info';
 
@@ -15,37 +16,35 @@ const PmsSkuInfoUrl = {
 };
 
 export function getPmsSkuInfoPage(
-	params: any,
+	params: PmsSkuInfoData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.product +
-		basePmsSkuInfo +
-		PmsSkuInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<PmsSkuInfoData>>> {
+	let url = baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getPmsSkuInfoDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url + '?id=' + id,
-	);
+export function getPmsSkuInfoDetail(
+	id: number,
+): Promise<ResponseBody<PmsSkuInfoData>> {
+	return getDataOne(baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url, {
+		id,
+	});
 }
 
-export function deletePmsSkuInfo(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url + '?ids=' + ids,
-	);
+export function deletePmsSkuInfo(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditPmsSkuInfo(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: PmsSkuInfoData,
+): Promise<ResponseBody<PmsSkuInfoData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url,

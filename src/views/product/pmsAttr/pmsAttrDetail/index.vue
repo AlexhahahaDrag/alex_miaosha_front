@@ -155,7 +155,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	attrName: { name: 'attrName', label: '属性名' },
 	searchType: { name: 'searchType', label: '是否需要检索[0-不需要，1-需要]' },
 	icon: { name: 'icon', label: '属性图标' },
@@ -299,7 +299,7 @@ function init() {
 			getPmsAttrDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						modelConfig.confirmLoading = false;
 					} else {
 						message.error((res && res.message) || '查询失败！');

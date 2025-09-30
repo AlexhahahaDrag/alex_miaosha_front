@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { MenuInfoData } from '../config';
 
 const baseMenuInfo = '/api/v1//menu-info';
 
@@ -15,37 +16,35 @@ const MenuInfoUrl = {
 };
 
 export function getMenuInfoPage(
-	params: unknown,
+	params: MenuInfoData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		baseMenuInfo +
-		MenuInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<MenuInfoData>>> {
+	let url = baseService.user + baseMenuInfo + MenuInfoUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getMenuInfoDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.user + baseMenuInfo + MenuInfoUrl.url + '?id=' + id,
-	);
+export function getMenuInfoDetail(
+	id: number,
+): Promise<ResponseBody<MenuInfoData>> {
+	return getDataOne(baseService.user + baseMenuInfo + MenuInfoUrl.url, {
+		id,
+	});
 }
 
-export function deleteMenuInfo(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.user + baseMenuInfo + MenuInfoUrl.url + '?ids=' + ids,
-	);
+export function deleteMenuInfo(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.user + baseMenuInfo + MenuInfoUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditMenuInfo(
 	method: string,
-	params: unknown,
-): Promise<ResponseBody> {
+	params: MenuInfoData,
+): Promise<ResponseBody<MenuInfoData>> {
 	if ('put' == method) {
 		return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
 	} else {

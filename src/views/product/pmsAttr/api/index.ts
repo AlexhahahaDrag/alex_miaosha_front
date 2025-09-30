@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PmsAttrData } from '../config';
 
 const basePmsAttr = '/api/v1//pms-attr';
 
@@ -15,37 +16,35 @@ const PmsAttrUrl = {
 };
 
 export function getPmsAttrPage(
-	params: any,
+	params: PmsAttrData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.product +
-		basePmsAttr +
-		PmsAttrUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<PmsAttrData>>> {
+	let url = baseService.product + basePmsAttr + PmsAttrUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getPmsAttrDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.product + basePmsAttr + PmsAttrUrl.url + '?id=' + id,
-	);
+export function getPmsAttrDetail(
+	id: number,
+): Promise<ResponseBody<PmsAttrData>> {
+	return getDataOne(baseService.product + basePmsAttr + PmsAttrUrl.url, {
+		id,
+	});
 }
 
-export function deletePmsAttr(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.product + basePmsAttr + PmsAttrUrl.url + '?ids=' + ids,
-	);
+export function deletePmsAttr(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.product + basePmsAttr + PmsAttrUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditPmsAttr(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: PmsAttrData,
+): Promise<ResponseBody<PmsAttrData>> {
 	if ('put' == method) {
 		return putData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
 	} else {

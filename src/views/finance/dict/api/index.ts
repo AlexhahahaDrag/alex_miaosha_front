@@ -5,8 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { DictInfo } from '../config';
 
 const baseDictManager = '/api/v1/dict-info';
 
@@ -17,10 +17,10 @@ const dictUrl = {
 };
 
 export function getDictManagerPage(
-	params: unknown,
+	params: DictInfo,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<DictInfo>>> {
 	return postData(
 		baseService.finance + baseDictManager + dictUrl.page,
 		params,
@@ -31,32 +31,35 @@ export function getDictManagerPage(
 	);
 }
 
-export function getDictList(belongTo?: string): Promise<ResponseBody> {
+export function getDictList(
+	belongTo?: string,
+): Promise<ResponseBody<DictInfo[]>> {
 	return getDataOne(
-		baseService.finance +
-			baseDictManager +
-			dictUrl.listByBelong +
-			'?belongTo=' +
+		baseService.finance + baseDictManager + dictUrl.listByBelong,
+		{
 			belongTo,
+		},
 	);
 }
 
-export function getDictManagerDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.finance + baseDictManager + dictUrl.url + '?id=' + id,
-	);
+export function getDictManagerDetail(
+	id: number,
+): Promise<ResponseBody<DictInfo>> {
+	return getDataOne(baseService.finance + baseDictManager + dictUrl.url, {
+		id,
+	});
 }
 
-export function deleteDictManager(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.finance + baseDictManager + dictUrl.url + '?ids=' + ids,
-	);
+export function deleteDictManager(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.finance + baseDictManager + dictUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditDictManager(
 	method: string,
-	params: unknown,
-): Promise<ResponseBody> {
+	params: DictInfo,
+): Promise<ResponseBody<DictInfo>> {
 	if ('put' == method) {
 		return putData(baseService.finance + baseDictManager + dictUrl.url, params);
 	} else {

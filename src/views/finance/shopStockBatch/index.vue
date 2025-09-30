@@ -145,7 +145,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	batchCode: { name: 'batchCode', label: '订单编码' },
 	batchName: { name: 'batchName', label: '订单名称' },
 	isValid: { name: 'isValid', label: '状态' },
@@ -205,8 +205,8 @@ const getShopStockBatchListPage = (param: SearchInfo, cur: PageInfo): void => {
 	getShopStockBatchPage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records;
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

@@ -1,11 +1,12 @@
 import {
-	getData,
+	getDataOne,
 	postData,
 	putData,
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PrepaidCardInfoTData } from '../config';
 
 const basePrepaidCardInfoT = '/api/v1/prepaid-card-info-t';
 
@@ -17,48 +18,51 @@ const PrepaidCardInfoTUrl = {
 };
 
 export function getPrepaidCardInfoTPage(
-	params: any,
+	params: PrepaidCardInfoTData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<PrepaidCardInfoTData>>> {
 	let url =
-		baseService.finance +
-		basePrepaidCardInfoT +
-		PrepaidCardInfoTUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getPrepaidCardInfoList(params: any): Promise<ResponseBody> {
+export function getPrepaidCardInfoList(
+	params: PrepaidCardInfoTData,
+): Promise<ResponseBody<PrepaidCardInfoTData[]>> {
 	let url =
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.list;
 	return postData(url, params);
 }
 
-export function getPrepaidCardInfoTDetail(id: number): Promise<ResponseBody> {
-	return getData(
-		baseService.finance +
-			basePrepaidCardInfoT +
-			PrepaidCardInfoTUrl.url +
-			'?id=' +
+export function getPrepaidCardInfoTDetail(
+	id: number,
+): Promise<ResponseBody<PrepaidCardInfoTData>> {
+	return getDataOne(
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
+		{
 			id,
+		},
 	);
 }
 
-export function deletePrepaidCardInfoT(ids: string): Promise<ResponseBody> {
+export function deletePrepaidCardInfoT(
+	ids: string,
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
-		baseService.finance +
-			basePrepaidCardInfoT +
-			PrepaidCardInfoTUrl.url +
-			'?ids=' +
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
+		{
 			ids,
+		},
 	);
 }
 
-export function consumeAndRecharge(params: any): Promise<ResponseBody> {
+export function consumeAndRecharge(
+	params: any,
+): Promise<ResponseBody<PrepaidCardInfoTData>> {
 	let url =
 		baseService.finance +
 		basePrepaidCardInfoT +
@@ -68,8 +72,8 @@ export function consumeAndRecharge(params: any): Promise<ResponseBody> {
 
 export function addOrEditPrepaidCardInfoT(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: PrepaidCardInfoTData,
+): Promise<ResponseBody<PrepaidCardInfoTData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,

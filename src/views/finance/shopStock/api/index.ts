@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopStockData } from '../config';
 
 const baseShopStock = '/api/v1//shop-stock';
 
@@ -15,37 +16,35 @@ const ShopStockUrl = {
 };
 
 export function getShopStockPage(
-	params: any,
+	params: ShopStockData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseShopStock +
-		ShopStockUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<ShopStockData>>> {
+	let url = baseService.finance + baseShopStock + ShopStockUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopStockDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.finance + baseShopStock + ShopStockUrl.url + '?id=' + id,
-	);
+export function getShopStockDetail(
+	id: number,
+): Promise<ResponseBody<ShopStockData>> {
+	return getDataOne(baseService.finance + baseShopStock + ShopStockUrl.url, {
+		id,
+	});
 }
 
-export function deleteShopStock(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.finance + baseShopStock + ShopStockUrl.url + '?ids=' + ids,
-	);
+export function deleteShopStock(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.finance + baseShopStock + ShopStockUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditShopStock(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopStockData,
+): Promise<ResponseBody<ShopStockData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopStock + ShopStockUrl.url,

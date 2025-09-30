@@ -209,7 +209,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	attrName: { name: 'attrName', label: '属性名' },
 	searchType: { name: 'searchType', label: '是否需要检索[0-不需要，1-需要]' },
 	icon: { name: 'icon', label: '属性图标' },
@@ -279,8 +279,8 @@ function getPmsAttrListPage(param: SearchInfo, cur: PageInfo) {
 	getPmsAttrPage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records || [];
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

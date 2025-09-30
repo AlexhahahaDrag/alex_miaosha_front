@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { OrgInfoData } from '../config';
 
 const baseOrgInfo = '/api/v1//org-info';
 
@@ -15,37 +16,35 @@ const OrgInfoUrl = {
 };
 
 export function getOrgInfoPage(
-	params: unknown,
+	params: OrgInfoData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseOrgInfo +
-		OrgInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<OrgInfoData>>> {
+	let url = baseService.finance + baseOrgInfo + OrgInfoUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getOrgInfoDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.finance + baseOrgInfo + OrgInfoUrl.url + '?id=' + id,
-	);
+export function getOrgInfoDetail(
+	id: number,
+): Promise<ResponseBody<OrgInfoData>> {
+	return getDataOne(baseService.finance + baseOrgInfo + OrgInfoUrl.url, {
+		id,
+	});
 }
 
-export function deleteOrgInfo(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.finance + baseOrgInfo + OrgInfoUrl.url + '?ids=' + ids,
-	);
+export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditOrgInfo(
 	method: string,
-	params: unknown,
-): Promise<ResponseBody> {
+	params: OrgInfoData,
+): Promise<ResponseBody<OrgInfoData>> {
 	if ('put' == method) {
 		return putData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, params);
 	} else {

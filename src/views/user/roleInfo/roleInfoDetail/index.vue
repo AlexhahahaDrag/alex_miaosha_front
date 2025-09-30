@@ -239,7 +239,7 @@ function init() {
 			getRoleInfoDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						permissionTree.value = res?.data?.permissionList || [];
 						selectPermission.value = res?.data?.rolePermissionInfoVoList?.map(
 							(item: any) => item.id,

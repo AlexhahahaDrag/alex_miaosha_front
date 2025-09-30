@@ -5,8 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
-import type { PmsShopProductData } from '../pmsShopProductListTs';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PmsShopProductData } from '../config';
 
 const basePmsShopProduct = '/api/v1//pms-shop-product';
 
@@ -18,75 +18,69 @@ const PmsShopProductUrl = {
 };
 
 export function getPmsShopProductPage(
-	params: unknown,
+	params: PmsShopProductData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody<unknown>> {
-	let url =
-		baseService.product +
-		basePmsShopProduct +
-		PmsShopProductUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<PmsShopProductData>>> {
+	let url = baseService.product + basePmsShopProduct + PmsShopProductUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getNewestPmsShopProductPage(
 	params: PmsShopProductData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody<PmsShopProductData[]>> {
+): Promise<ResponseBody<CommonPageResult<PmsShopProductData>>> {
 	let url =
-		baseService.product +
-		basePmsShopProduct +
-		PmsShopProductUrl.newestPage +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData<PmsShopProductData[]>(url, params);
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.newestPage;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getPmsShopProductDetail(id: number): Promise<ResponseBody> {
+export function getPmsShopProductDetail(
+	id: number,
+): Promise<ResponseBody<PmsShopProductData>> {
 	return getDataOne(
-		baseService.product +
-			basePmsShopProduct +
-			PmsShopProductUrl.url +
-			'?id=' +
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
+		{
 			id,
+		},
 	);
 }
 
-export function deletePmsShopProduct(ids: string): Promise<ResponseBody> {
+export function deletePmsShopProduct(
+	ids: string,
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
-		baseService.product +
-			basePmsShopProduct +
-			PmsShopProductUrl.url +
-			'?ids=' +
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
+		{
 			ids,
+		},
 	);
 }
 
 export function getProductHisInfo(
 	skuId: string,
 	startTime: string | null,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<PmsShopProductData[]>> {
 	return getDataOne(
-		baseService.product +
-			basePmsShopProduct +
-			PmsShopProductUrl.hisInfo +
-			'?skuId=' +
-			skuId +
-			(startTime ? '&startTime=' + startTime : ''),
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.hisInfo,
+		{
+			skuId,
+			startTime,
+		},
 	);
 }
 
 export function addOrEditPmsShopProduct(
 	method: string,
-	params: unknown,
-): Promise<ResponseBody<unknown>> {
+	params: PmsShopProductData,
+): Promise<ResponseBody<PmsShopProductData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.product + basePmsShopProduct + PmsShopProductUrl.url,

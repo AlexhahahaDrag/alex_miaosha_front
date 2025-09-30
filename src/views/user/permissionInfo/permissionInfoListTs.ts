@@ -42,7 +42,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export const labelMap = ref<any>({
+export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	permissionCode: { name: 'permissionCode', label: '权限编码' },
 	permissionName: { name: 'permissionName', label: '权限名称' },
 	summary: { name: 'summary', label: '描述' },

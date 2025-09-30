@@ -312,7 +312,7 @@ const init = (): void => {
 			getShopOrderDetailDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						modelConfig.confirmLoading = false;
 					} else {
 						message.error((res && res.message) || '查询失败！');

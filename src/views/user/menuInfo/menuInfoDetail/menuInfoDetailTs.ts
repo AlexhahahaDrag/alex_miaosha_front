@@ -1,5 +1,4 @@
 export interface MenuInfoDetail {
-	id?: number;
 	name?: string;
 	path?: string;
 	title?: string;
@@ -11,4 +10,5 @@ export interface MenuInfoDetail {
 	summary?: string;
 	status?: string;
 	orderBy?: number;
+	id?: number;
 }

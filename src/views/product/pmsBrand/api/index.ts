@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PmsBrandData } from '../pmsBrandListTs';
+import type { PmsBrandData } from '../config';
 
 const basePmsBrand = '/api/v1//pms-brand';
 
@@ -20,15 +20,11 @@ export function getPmsBrandPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PmsBrandData>>> {
-	let url =
-		baseService.product +
-		basePmsBrand +
-		PmsBrandUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	let url = baseService.product + basePmsBrand + PmsBrandUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getPmsBrandDetail(

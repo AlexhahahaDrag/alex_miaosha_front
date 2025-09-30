@@ -205,7 +205,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orgCode: { name: 'orgCode', label: '机构编码' },
 	orgName: { name: 'orgName', label: '机构名称' },
 	orgShortName: { name: 'orgShortName', label: '机构简称' },

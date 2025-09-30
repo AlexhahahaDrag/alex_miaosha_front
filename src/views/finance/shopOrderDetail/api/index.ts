@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopOrderDetailData } from '../config';
 
 const baseShopOrderDetail = '/api/v1//shop-order-detail';
 
@@ -15,45 +16,43 @@ const ShopOrderDetailUrl = {
 };
 
 export function getShopOrderDetailPage(
-	params: any,
+	params: ShopOrderDetailData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseShopOrderDetail +
-		ShopOrderDetailUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<ShopOrderDetailData>>> {
+	let url = baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopOrderDetailDetail(id: number): Promise<ResponseBody> {
+export function getShopOrderDetailDetail(
+	id: number,
+): Promise<ResponseBody<ShopOrderDetailData>> {
 	return getDataOne(
-		baseService.finance +
-			baseShopOrderDetail +
-			ShopOrderDetailUrl.url +
-			'?id=' +
+		baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
+		{
 			id,
+		},
 	);
 }
 
-export function deleteShopOrderDetail(ids: string): Promise<ResponseBody> {
+export function deleteShopOrderDetail(
+	ids: string,
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
-		baseService.finance +
-			baseShopOrderDetail +
-			ShopOrderDetailUrl.url +
-			'?ids=' +
+		baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
+		{
 			ids,
+		},
 	);
 }
 
 export function addOrEditShopOrderDetail(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopOrderDetailData,
+): Promise<ResponseBody<ShopOrderDetailData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,

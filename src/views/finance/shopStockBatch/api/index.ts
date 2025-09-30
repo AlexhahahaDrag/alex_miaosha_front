@@ -1,11 +1,12 @@
 import {
-	getData,
+	getDataOne,
 	postData,
 	putData,
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopStockBatchData } from '../config';
 
 const baseShopStockBatch = '/api/v1//shop-stock-batch';
 
@@ -15,16 +16,21 @@ const ShopStockBatchUrl = {
 };
 
 export function getShopStockBatchPage(
-	params: any,
+	params: ShopStockBatchData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<ShopStockBatchData>>> {
 	let url = baseService.finance + baseShopStockBatch + ShopStockBatchUrl.page;
-	return postData(url, params, { pageNo, pageSize });
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopStockBatchDetail(id: number): Promise<ResponseBody> {
-	return getData(
+export function getShopStockBatchDetail(
+	id: number,
+): Promise<ResponseBody<ShopStockBatchData>> {
+	return getDataOne(
 		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
 		{
 			id,
@@ -32,7 +38,9 @@ export function getShopStockBatchDetail(id: number): Promise<ResponseBody> {
 	);
 }
 
-export function deleteShopStockBatch(ids: string): Promise<ResponseBody> {
+export function deleteShopStockBatch(
+	ids: string,
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
 		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
 		{
@@ -43,8 +51,8 @@ export function deleteShopStockBatch(ids: string): Promise<ResponseBody> {
 
 export function addOrEditShopStockBatch(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopStockBatchData,
+): Promise<ResponseBody<ShopStockBatchData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,

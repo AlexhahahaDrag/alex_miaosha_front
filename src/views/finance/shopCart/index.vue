@@ -173,7 +173,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopId: { name: 'shopId', label: '商品id' },
 	userId: { name: 'userId', label: '人员id' },
 	customerId: { name: 'customerId', label: '客户id' },
@@ -234,8 +234,8 @@ const getShopCartListPage = (param: SearchInfo, cur: PageInfo): void => {
 	getShopCartPage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records;
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

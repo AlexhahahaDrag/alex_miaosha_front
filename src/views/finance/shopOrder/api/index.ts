@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopOrderData } from '../config';
 
 const baseShopOrder = '/api/v1//shop-order';
 
@@ -15,37 +16,35 @@ const ShopOrderUrl = {
 };
 
 export function getShopOrderPage(
-	params: any,
+	params: ShopOrderData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseShopOrder +
-		ShopOrderUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<ShopOrderData>>> {
+	let url = baseService.finance + baseShopOrder + ShopOrderUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopOrderDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.finance + baseShopOrder + ShopOrderUrl.url + '?id=' + id,
-	);
+export function getShopOrderDetail(
+	id: number,
+): Promise<ResponseBody<ShopOrderData>> {
+	return getDataOne(baseService.finance + baseShopOrder + ShopOrderUrl.url, {
+		id,
+	});
 }
 
-export function deleteShopOrder(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.finance + baseShopOrder + ShopOrderUrl.url + '?ids=' + ids,
-	);
+export function deleteShopOrder(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.finance + baseShopOrder + ShopOrderUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditShopOrder(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopOrderData,
+): Promise<ResponseBody<ShopOrderData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopOrder + ShopOrderUrl.url,

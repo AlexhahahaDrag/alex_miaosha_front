@@ -5,9 +5,10 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopCartData } from '../config';
 
-const baseShopCart = '/api/v1//shop-cart';
+const baseShopCart = '/api/v1/shop-cart';
 
 const ShopCartUrl = {
 	page: '/page',
@@ -15,37 +16,35 @@ const ShopCartUrl = {
 };
 
 export function getShopCartPage(
-	params: any,
+	params: ShopCartData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseShopCart +
-		ShopCartUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<ShopCartData>>> {
+	let url = baseService.finance + baseShopCart + ShopCartUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopCartDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.finance + baseShopCart + ShopCartUrl.url + '?id=' + id,
-	);
+export function getShopCartDetail(
+	id: number,
+): Promise<ResponseBody<ShopCartData>> {
+	return getDataOne(baseService.finance + baseShopCart + ShopCartUrl.url, {
+		id,
+	});
 }
 
-export function deleteShopCart(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.finance + baseShopCart + ShopCartUrl.url + '?ids=' + ids,
-	);
+export function deleteShopCart(ids: string): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.finance + baseShopCart + ShopCartUrl.url, {
+		ids,
+	});
 }
 
 export function addOrEditShopCart(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopCartData,
+): Promise<ResponseBody<ShopCartData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopCart + ShopCartUrl.url,

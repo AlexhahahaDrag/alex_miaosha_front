@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PmsCategoryData } from '../pmsCategoryListTs';
+import type { PmsCategoryData } from '../config';
 
 const basePmsCategory = '/api/v1//pms-category';
 
@@ -21,7 +21,10 @@ export function getPmsCategoryPage(
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PmsCategoryData>>> {
 	let url = baseService.product + basePmsCategory + PmsCategoryUrl.page;
-	return postData(url, params, { pageNo, pageSize });
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getPmsCategoryDetail(

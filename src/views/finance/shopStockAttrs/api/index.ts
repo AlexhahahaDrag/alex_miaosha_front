@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { ShopStockAttrsData } from '../config';
 
 const baseShopStockAttrs = '/api/v1//shop-stock-attrs';
 
@@ -15,45 +16,43 @@ const ShopStockAttrsUrl = {
 };
 
 export function getShopStockAttrsPage(
-	params: any,
+	params: ShopStockAttrsData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseShopStockAttrs +
-		ShopStockAttrsUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<ShopStockAttrsData>>> {
+	let url = baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
-export function getShopStockAttrsDetail(id: number): Promise<ResponseBody> {
+export function getShopStockAttrsDetail(
+	id: number,
+): Promise<ResponseBody<ShopStockAttrsData>> {
 	return getDataOne(
-		baseService.finance +
-			baseShopStockAttrs +
-			ShopStockAttrsUrl.url +
-			'?id=' +
+		baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
+		{
 			id,
+		},
 	);
 }
 
-export function deleteShopStockAttrs(ids: string): Promise<ResponseBody> {
+export function deleteShopStockAttrs(
+	ids: string,
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
-		baseService.finance +
-			baseShopStockAttrs +
-			ShopStockAttrsUrl.url +
-			'?ids=' +
+		baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
+		{
 			ids,
+		},
 	);
 }
 
 export function addOrEditShopStockAttrs(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: ShopStockAttrsData,
+): Promise<ResponseBody<ShopStockAttrsData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,

@@ -1,11 +1,12 @@
 import {
-	getData,
+	getDataOne,
 	postData,
 	putData,
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PrepaidConsumeRecordTData } from '../config';
 
 const basePrepaidConsumeRecordT = '/api/v1//prepaid-consume-record-t';
 
@@ -15,49 +16,50 @@ const PrepaidConsumeRecordTUrl = {
 };
 
 export function getPrepaidConsumeRecordTPage(
-	params: any,
+	params: PrepaidConsumeRecordTData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<PrepaidConsumeRecordTData>>> {
 	let url =
 		baseService.finance +
 		basePrepaidConsumeRecordT +
-		PrepaidConsumeRecordTUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+		PrepaidConsumeRecordTUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getPrepaidConsumeRecordTDetail(
 	id: number,
-): Promise<ResponseBody> {
-	return getData(
+): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
+	return getDataOne(
 		baseService.finance +
 			basePrepaidConsumeRecordT +
-			PrepaidConsumeRecordTUrl.url +
-			'?id=' +
+			PrepaidConsumeRecordTUrl.url,
+		{
 			id,
+		},
 	);
 }
 
 export function deletePrepaidConsumeRecordT(
 	ids: string,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<boolean>> {
 	return deleteData(
 		baseService.finance +
 			basePrepaidConsumeRecordT +
-			PrepaidConsumeRecordTUrl.url +
-			'?ids=' +
+			PrepaidConsumeRecordTUrl.url,
+		{
 			ids,
+		},
 	);
 }
 
 export function addOrEditPrepaidConsumeRecordT(
 	method: string,
-	params: any,
-): Promise<ResponseBody> {
+	params: PrepaidConsumeRecordTData,
+): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance +

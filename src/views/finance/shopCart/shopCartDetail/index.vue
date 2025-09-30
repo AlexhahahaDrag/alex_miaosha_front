@@ -121,7 +121,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopId: { name: 'shopId', label: '商品id' },
 	userId: { name: 'userId', label: '人员id' },
 	customerId: { name: 'customerId', label: '客户id' },
@@ -236,7 +236,7 @@ const init = (): void => {
 			getShopCartDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						modelConfig.confirmLoading = false;
 					} else {
 						message.error((res && res.message) || '查询失败！');

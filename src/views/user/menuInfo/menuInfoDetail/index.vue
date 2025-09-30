@@ -187,7 +187,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { MenuInfoDetail } from './menuInfoDetailTs';
+import type { MenuInfoData } from '../config';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('true_or_false,is_valid');
@@ -300,7 +300,20 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<MenuInfoDetail>({});
+let formState = ref<MenuInfoData>({
+	id: undefined,
+	name: undefined,
+	path: undefined,
+	title: undefined,
+	component: undefined,
+	redirect: undefined,
+	icon: undefined,
+	hideInMenu: undefined,
+	parentId: undefined,
+	summary: undefined,
+	status: undefined,
+	orderBy: undefined,
+});
 
 // 字典数据已通过 useDictInfo 自动加载
 const hideInMenuList = computed(() => getDictByType('true_or_false'));
@@ -340,7 +353,20 @@ function saveMenuInfoManager() {
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
-			formState.value = {};
+			formState.value = {
+				id: undefined,
+				name: undefined,
+				path: undefined,
+				title: undefined,
+				component: undefined,
+				redirect: undefined,
+				icon: undefined,
+				hideInMenu: undefined,
+				parentId: undefined,
+				summary: undefined,
+				status: undefined,
+				orderBy: undefined,
+			};
 		})
 		.catch((error: any) => {
 			let data = error?.response?.data;
@@ -367,7 +393,20 @@ function init() {
 			getMenuInfoDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {
+							id: undefined,
+							name: undefined,
+							path: undefined,
+							title: undefined,
+							component: undefined,
+							redirect: undefined,
+							icon: undefined,
+							hideInMenu: undefined,
+							parentId: undefined,
+							summary: undefined,
+							status: undefined,
+							orderBy: undefined,
+						};
 						modelConfig.confirmLoading = false;
 					} else {
 						message.error((res && res.message) || '查询失败！');
@@ -380,7 +419,20 @@ function init() {
 						message.error(data?.message || '保存失败！');
 					}
 					modelConfig.confirmLoading = false;
-					formState.value = {};
+					formState.value = {
+						id: undefined,
+						name: undefined,
+						path: undefined,
+						title: undefined,
+						component: undefined,
+						redirect: undefined,
+						icon: undefined,
+						hideInMenu: undefined,
+						parentId: undefined,
+						summary: undefined,
+						status: undefined,
+						orderBy: undefined,
+					};
 				});
 		}
 	}

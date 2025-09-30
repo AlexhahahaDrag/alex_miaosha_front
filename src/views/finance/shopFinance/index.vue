@@ -214,7 +214,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<any>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },
 	saleAmount: { name: 'saleAmount', label: '售价' },
@@ -286,8 +286,8 @@ function getShopFinanceListPage(param: SearchInfo, cur: PageInfo) {
 	getShopFinancePage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records || [];
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

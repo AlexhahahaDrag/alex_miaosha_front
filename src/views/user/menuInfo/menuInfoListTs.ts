@@ -91,7 +91,7 @@ export interface DataItem {
 	orderBy: number;
 }
 
-export const labelMap = ref<any>({
+export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	name: { name: 'name', label: '菜单名称' },
 	path: { name: 'path', label: '菜单路径' },
 	title: { name: 'title', label: '菜单标题' },
