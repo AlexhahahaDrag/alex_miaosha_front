@@ -124,10 +124,7 @@ import {
 	type DataItem,
 	labelMap,
 } from './roleInfoListTs';
-import {
-	getRoleInfoPage,
-	deleteRoleInfo,
-} from '@/api/user/roleInfo/roleInfoTs';
+import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

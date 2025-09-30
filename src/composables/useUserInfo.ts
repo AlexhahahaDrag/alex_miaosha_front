@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
-import { getUserManagerList } from '@/api/user/userManager';
+import { getUserManagerList } from '@/views/user/userManager/api';
 import type { UserInfo } from '@/types/store';
 
 export function useUserInfo() {

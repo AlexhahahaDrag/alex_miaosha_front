@@ -159,12 +159,12 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import type { SearchInfo, DataItem } from './pmsShopProductListTs';
+import type { SearchInfo, PmsShopProductData } from './pmsShopProductListTs';
 import { columns, sourceTransferList } from './pmsShopProductListTs';
 import {
 	getNewestPmsShopProductPage,
 	deletePmsShopProduct,
-} from '@/api/product/pmsShopProduct/pmsShopProductTs';
+} from '@/views/product/pmsShopProduct/api';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import type { PageInfo } from '@/composables/usePagination';
@@ -193,13 +193,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PmsShopProductData,
+		selected: boolean,
+		selectedRows: PmsShopProductData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PmsShopProductData[],
+		changeRows: PmsShopProductData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -247,7 +251,7 @@ function batchDelPmsShopProduct() {
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref();
+let dataSource = ref<PmsShopProductData[]>();
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);

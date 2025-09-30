@@ -134,10 +134,10 @@ import {
 	getPmsShopProductDetail,
 	addOrEditPmsShopProduct,
 	getProductHisInfo,
-} from '@/api/product/pmsShopProduct/pmsShopProductTs';
+} from '@/views/product/pmsShopProduct/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
+import { getDictList } from '@/views/finance/dict/api';
 import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
 import type { ModelInfo } from '@/views/common/config';
 

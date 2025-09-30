@@ -172,7 +172,7 @@ import type { ShopStockDetail } from './shopStockDetailTs';
 import {
 	getShopStockDetail,
 	addOrEditShopStock,
-} from '@/api/finance/shopStock/shopStockTs';
+} from '@/views/finance/shopStock/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

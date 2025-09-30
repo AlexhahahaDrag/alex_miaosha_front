@@ -113,7 +113,7 @@ import { columns } from './shopStockBatchListTs';
 import {
 	getShopStockBatchPage,
 	deleteShopStockBatch,
-} from '@/api/finance/shopStockBatch/shopStockBatchTs';
+} from '@/views/finance/shopStockBatch/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

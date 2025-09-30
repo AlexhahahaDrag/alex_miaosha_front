@@ -160,7 +160,7 @@ import {
 	deletePersonalGift,
 	noticePersonalGift,
 	importPersonalGift,
-} from '@/api/finance/personalGift/personalGiftTs';
+} from '@/views/finance/personalGift/api';
 import { message } from 'ant-design-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import { useDictInfo } from '@/composables/useDictInfo';

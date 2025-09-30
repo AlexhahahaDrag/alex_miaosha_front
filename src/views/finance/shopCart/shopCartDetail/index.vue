@@ -109,7 +109,7 @@ import type { ShopCartDetail } from './shopCartDetailTs';
 import {
 	getShopCartDetail,
 	addOrEditShopCart,
-} from '@/api/finance/shopCart/shopCartTs';
+} from '@/views/finance/shopCart/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

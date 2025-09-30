@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/api/finance/dict/dictManager';
+import { getDictList } from '@/views/finance/dict/api';
 import type { DictInfo } from '@/views/finance/dict/dict';
 
 export function useDictInfo(initialDictTypes?: string) {

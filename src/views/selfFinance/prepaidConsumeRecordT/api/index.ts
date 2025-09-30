@@ -4,7 +4,8 @@ import {
 	putData,
 	deleteData,
 	baseService,
-} from '@/api/common';
+} from '@/utils/request';
+import type { ResponseBody } from '@/types/api';
 
 const basePrepaidConsumeRecordT = '/api/v1//prepaid-consume-record-t';
 
@@ -17,7 +18,7 @@ export function getPrepaidConsumeRecordTPage(
 	params: any,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<any> {
+): Promise<ResponseBody> {
 	let url =
 		baseService.finance +
 		basePrepaidConsumeRecordT +
@@ -29,7 +30,9 @@ export function getPrepaidConsumeRecordTPage(
 	return postData(url, params);
 }
 
-export function getPrepaidConsumeRecordTDetail(id: number): Promise<any> {
+export function getPrepaidConsumeRecordTDetail(
+	id: number,
+): Promise<ResponseBody> {
 	return getData(
 		baseService.finance +
 			basePrepaidConsumeRecordT +
@@ -39,7 +42,9 @@ export function getPrepaidConsumeRecordTDetail(id: number): Promise<any> {
 	);
 }
 
-export function deletePrepaidConsumeRecordT(ids: string): Promise<any> {
+export function deletePrepaidConsumeRecordT(
+	ids: string,
+): Promise<ResponseBody> {
 	return deleteData(
 		baseService.finance +
 			basePrepaidConsumeRecordT +
@@ -52,7 +57,7 @@ export function deletePrepaidConsumeRecordT(ids: string): Promise<any> {
 export function addOrEditPrepaidConsumeRecordT(
 	method: string,
 	params: any,
-): Promise<any> {
+): Promise<ResponseBody> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance +

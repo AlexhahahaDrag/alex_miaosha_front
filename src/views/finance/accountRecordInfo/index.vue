@@ -145,7 +145,7 @@ import { columns } from './accountRecordInfoListTs';
 import {
 	getAccountRecordInfoPage,
 	deleteAccountRecordInfo,
-} from '@/api/finance/accountRecordInfo/accountRecordInfoTs';
+} from '@/views/finance/accountRecordInfo/api';
 import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';

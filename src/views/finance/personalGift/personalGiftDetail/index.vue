@@ -143,7 +143,7 @@ import type { PersonalGiftDetail } from './personalGiftDetailTs';
 import {
 	getPersonalGiftDetail,
 	addOrEditPersonalGift,
-} from '@/api/finance/personalGift/personalGiftTs';
+} from '@/views/finance/personalGift/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

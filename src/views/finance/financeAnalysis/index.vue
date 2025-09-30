@@ -120,7 +120,7 @@ import {
 	getIncomeAndExpense,
 	getDayExpense,
 	getMonthExpense,
-} from '@/api/finance/financeAnalysis';
+} from '@/views/finance/financeAnalysis/api';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import * as math from 'mathjs';
 import type { ItemInfo } from './analysis';

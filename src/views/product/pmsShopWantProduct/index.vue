@@ -130,12 +130,15 @@ import type { ModelInfo } from '@/views/common/config';
 // 字典数据已通过 useDictInfo 自动加载
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './pmsShopWantProductListTs';
+import type {
+	SearchInfo,
+	PmsShopWantProductData,
+} from './pmsShopWantProductListTs';
 import { columns, sourceTransferList } from './pmsShopWantProductListTs';
 import {
 	getPmsShopWantProductPage,
 	deletePmsShopWantProduct,
-} from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
+} from '@/views/product/pmsShopWantProduct/api';
 import { message } from 'ant-design-vue';
 import type { DictInfo } from '@/views/finance/dict/dict';
 
@@ -156,13 +159,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PmsShopWantProductData,
+		selected: boolean,
+		selectedRows: PmsShopWantProductData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PmsShopWantProductData[],
+		changeRows: PmsShopWantProductData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -217,21 +224,27 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getPmsShopWantProductListPage(param: SearchInfo, cur: PageInfo) {
+const getPmsShopWantProductListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+) => {
 	loading.value = true;
-	getPmsShopWantProductPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getPmsShopWantProductPage(param, cur.current, cur.pageSize).finally(
+		() => {
 			loading.value = false;
-		});
-}
+		},
+	);
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 // 字典数据已通过 useDictInfo 自动加载
 

@@ -45,13 +45,13 @@ export const columns = ref<TableColumnsType>([
 	{
 		title: '来源',
 		dataIndex: 'source',
-		with: '10%',
+		width: '10%',
 		key: 'source',
 	},
 	{
 		title: '时间',
 		dataIndex: 'operateTime',
-		with: '10%',
+		width: '10%',
 		key: 'operateTime',
 	},
 	{
@@ -62,7 +62,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
+export interface PmsShopProductData {
 	image: string;
 	price: number;
 	name: string;

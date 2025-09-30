@@ -116,7 +116,7 @@ import { columns, fromSourceTransferList } from './config';
 import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
-} from '@/api/finance/financeManager';
+} from '@/views/finance/financeManager/api';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import dayjs from 'dayjs';
 
@@ -217,7 +217,7 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 			:	null,
 		infoDateEnd:
 			param.infoDateEnd ? dayjs(param.infoDateEnd).format('YYYY-MM-DD') : null,
-	};
+	} as FinanceManagerData;
 	const {
 		code,
 		data,
@@ -228,10 +228,11 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 		},
 	);
 	if (code == '200') {
-		dataSource.value = data.records;
-		pagination.current = data.current;
-		pagination.pageSize = data.size;
-		setTotal(data.total);
+		let curData = data;
+		dataSource.value = curData?.records || [];
+		pagination.current = curData?.current || 1;
+		pagination.pageSize = curData?.size || 10;
+		setTotal(curData?.total || 0);
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}

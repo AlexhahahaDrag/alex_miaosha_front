@@ -194,7 +194,7 @@ const { getDictByType } = useDictInfo('true_or_false,is_valid');
 import {
 	getMenuInfoDetail,
 	addOrEditMenuInfo,
-} from '@/api/user/menuInfo/menuInfoTs';
+} from '@/views/user/menuInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

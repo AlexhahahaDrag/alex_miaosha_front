@@ -110,18 +110,18 @@
 	</div>
 </template>
 <script lang="ts" setup>
+import type { FormInstance } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import type { PermissionInfoDetail } from './permissionInfoDetailTs';
-
-const { getDictByType } = useDictInfo('is_valid');
-import { useDictInfo } from '@/composables/useDictInfo';
+import type { ModelInfo } from '@/views/common/config';
 import {
 	getPermissionInfoDetail,
 	addOrEditPermissionInfo,
-} from '@/api/user/permissionInfo/permissionInfoTs';
-import type { FormInstance } from 'ant-design-vue';
-import { message } from 'ant-design-vue';
-import type { dictInfo } from '@/views/finance/dict/dict';
-import type { ModelInfo } from '@/views/common/config';
+} from '@/views/user/permissionInfo/api';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
@@ -183,12 +183,7 @@ const props = defineProps<Props>();
 
 let formState = ref<PermissionInfoDetail>({});
 
-let statusList = ref<dictInfo[]>([]););
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-};
+const statusList = computed(() => getDictByType('is_valid'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -251,7 +246,7 @@ function init() {
 			getPermissionInfoDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						modelConfig.confirmLoading = false;
 					} else {
 						message.error((res && res.message) || '查询失败！');
@@ -259,7 +254,14 @@ function init() {
 				})
 				.catch((error: any) => {
 					let data = error?.response?.data;
-					if (data) { else {
+					if (data) {
+						message.error(data?.message || '查询失败！');
+					}
+				})
+				.finally(() => {
+					modelConfig.confirmLoading = false;
+				});
+		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}

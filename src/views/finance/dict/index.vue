@@ -107,7 +107,7 @@ import { columns } from './dict';
 import {
 	getDictManagerPage,
 	deleteDictManager,
-} from '@/api/finance/dict/dictManager';
+} from '@/views/finance/dict/api';
 import { message } from 'ant-design-vue';
 
 let rowIds: (string | number)[] = [];

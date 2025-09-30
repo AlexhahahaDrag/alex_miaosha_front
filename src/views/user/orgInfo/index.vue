@@ -113,13 +113,13 @@
 					</template>
 				</a-table>
 			</div>
-			<OrgInfoDetail
+			<org-info-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
-			></OrgInfoDetail>
+			></org-info-detail>
 		</div>
 	</div>
 </template>
@@ -129,11 +129,12 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './orgInfoListTs';
+import type { OrgInfoData } from './orgInfoListTs';
 import { columns } from './orgInfoListTs';
-import { getOrgInfoPage, deleteOrgInfo } from '@/api/user/orgInfo/orgInfoTs';
+import { getOrgInfoPage, deleteOrgInfo } from '@/views/user/orgInfo/api';
 import { message } from 'ant-design-vue';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
+import OrgInfoDetail from './orgInfoDetail/index.vue';
 
 // todo: 修改布局  统一设置 添加树组件 添加查询组件
 const treeData: TreeDataItem[] = [
@@ -188,13 +189,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: OrgInfoData,
+		selected: boolean,
+		selectedRows: OrgInfoData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: OrgInfoData[],
+		changeRows: OrgInfoData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -209,7 +214,7 @@ const labelMap = ref<any>({
 	status: { name: 'status', label: '状态' },
 });
 
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<OrgInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 
@@ -261,26 +266,27 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getOrgInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getOrgInfoListPage = async (param: OrgInfoData, cur: PageInfo) => {
 	loading.value = true;
-	getOrgInfoPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getOrgInfoPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
-function init() {
+const init = async () => {
 	//获取机构表页面数据
 	getOrgInfoListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

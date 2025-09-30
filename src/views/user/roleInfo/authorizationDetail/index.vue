@@ -28,7 +28,7 @@ import type { RoleInfoDetail } from './roleInfoDetailTs';
 import {
 	getRoleInfoDetail,
 	addOrEditRoleInfo,
-} from '@/api/user/roleInfo/roleInfoTs';
+} from '@/views/user/roleInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 let loading = ref<boolean>(false);

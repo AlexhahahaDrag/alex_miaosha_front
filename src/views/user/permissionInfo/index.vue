@@ -157,7 +157,7 @@ import {
 import {
 	getPermissionInfoPage,
 	deletePermissionInfo,
-} from '@/api/user/permissionInfo/permissionInfoTs';
+} from '@/views/user/permissionInfo/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

@@ -144,7 +144,7 @@ import type { PmsAttrDetail } from './pmsAttrDetailTs';
 import {
 	getPmsAttrDetail,
 	addOrEditPmsAttr,
-} from '@/api/product/pmsAttr/pmsAttrTs';
+} from '@/views/product/pmsAttr/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

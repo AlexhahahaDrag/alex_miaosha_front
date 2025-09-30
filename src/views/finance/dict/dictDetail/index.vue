@@ -131,7 +131,7 @@ import type { DictDetail } from './detail';
 import {
 	getDictManagerDetail,
 	addOrEditDictManager,
-} from '@/api/finance/dict/dictManager';
+} from '@/views/finance/dict/api';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';

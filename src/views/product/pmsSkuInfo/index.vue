@@ -186,7 +186,7 @@ import { columns } from './pmsSkuInfoListTs';
 import {
 	getPmsSkuInfoPage,
 	deletePmsSkuInfo,
-} from '@/api/product/pmsSkuInfo/pmsSkuInfoTs';
+} from '@/views/product/pmsSkuInfo/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

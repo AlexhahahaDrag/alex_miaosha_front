@@ -123,12 +123,9 @@ import { useDictInfo } from '@/composables/useDictInfo';
 const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './pmsBrandListTs';
+import type { SearchInfo, PmsBrandData } from './pmsBrandListTs';
 import { columns } from './pmsBrandListTs';
-import {
-	getPmsBrandPage,
-	deletePmsBrand,
-} from '@/api/product/pmsBrand/pmsBrandTs';
+import { getPmsBrandPage, deletePmsBrand } from '@/views/product/pmsBrand/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数
@@ -150,13 +147,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PmsBrandData,
+		selected: boolean,
+		selectedRows: PmsBrandData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PmsBrandData[],
+		changeRows: PmsBrandData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},

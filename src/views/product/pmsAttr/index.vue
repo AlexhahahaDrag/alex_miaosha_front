@@ -177,7 +177,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './pmsAttrListTs';
 import { columns } from './pmsAttrListTs';
-import { getPmsAttrPage, deletePmsAttr } from '@/api/product/pmsAttr/pmsAttrTs';
+import { getPmsAttrPage, deletePmsAttr } from '@/views/product/pmsAttr/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

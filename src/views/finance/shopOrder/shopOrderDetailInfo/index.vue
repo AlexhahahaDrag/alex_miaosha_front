@@ -151,7 +151,7 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getShopOrderDetail,
 	addOrEditShopOrder,
-} from '@/api/finance/shopOrder/shopOrderTs';
+} from '@/views/finance/shopOrder/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

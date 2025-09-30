@@ -158,12 +158,12 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './pmsCategoryListTs';
+import type { SearchInfo, PmsCategoryData } from './pmsCategoryListTs';
 import { columns } from './pmsCategoryListTs';
 import {
 	getPmsCategoryPage,
 	deletePmsCategory,
-} from '@/api/product/pmsCategory/pmsCategoryTs';
+} from '@/views/product/pmsCategory/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数
@@ -183,13 +183,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PmsCategoryData,
+		selected: boolean,
+		selectedRows: PmsCategoryData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PmsCategoryData[],
+		changeRows: PmsCategoryData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -243,21 +247,22 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getPmsCategoryListPage(param: SearchInfo, cur: PageInfo) {
+const getPmsCategoryListPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getPmsCategoryPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getPmsCategoryPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 function init() {
 	//获取商品三级分类页面数据

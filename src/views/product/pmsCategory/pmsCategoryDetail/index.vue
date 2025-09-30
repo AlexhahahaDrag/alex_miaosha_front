@@ -120,7 +120,7 @@ import type { PmsCategoryDetail } from './pmsCategoryDetailTs';
 import {
 	getPmsCategoryDetail,
 	addOrEditPmsCategory,
-} from '@/api/product/pmsCategory/pmsCategoryTs';
+} from '@/views/product/pmsCategory/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
@@ -214,33 +214,27 @@ const handleCancel = () => {
 };
 
 //保存商品三级分类信息
-function savePmsCategoryManager() {
+const savePmsCategoryManager = async () => {
 	let method = '';
 	if (formState.value.catId) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditPmsCategory(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const { code, message: messageInfo } = await addOrEditPmsCategory(
+		method,
+		formState.value,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		formState.value = {};
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const onFinish = (values: any) => {
 	console.log('Success:', values);
@@ -250,30 +244,30 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getPmsCategoryDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getPmsCategoryDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				formState.value = {};
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,

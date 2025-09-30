@@ -157,7 +157,7 @@ import type { ShopOrderDetailDetail } from './shopOrderDetailDetailTs';
 import {
 	getShopOrderDetailDetail,
 	addOrEditShopOrderDetail,
-} from '@/api/finance/shopOrderDetail/shopOrderDetailTs';
+} from '@/views/finance/shopOrderDetail/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

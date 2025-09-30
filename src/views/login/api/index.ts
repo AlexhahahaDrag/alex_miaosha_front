@@ -1,7 +1,7 @@
 import request from '@/utils/request/request';
-import { baseService } from '@/api/common/index';
+import { baseService } from '@/utils/request';
 import type { LoginParams } from '@/views/login/config';
-import type { ResponseBody } from '@/api/typing';
+import type { ResponseBody } from '@/types/api';
 
 // 将请求数据转换为form-data格式
 let baseUrl = '/api/v1';

@@ -4,7 +4,8 @@ import {
 	putData,
 	deleteData,
 	baseService,
-} from '@/api/common/index';
+} from '@/utils/request';
+import type { ResponseBody } from '@/types/api';
 
 const baseAccountRecordInfo = '/api/v1//account-record-info';
 
@@ -14,10 +15,10 @@ const AccountRecordInfoUrl = {
 };
 
 export function getAccountRecordInfoPage(
-	params: any,
+	params: unknown,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<any> {
+): Promise<ResponseBody> {
 	let url =
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.page;
 	return postData(url, params, {
@@ -26,7 +27,7 @@ export function getAccountRecordInfoPage(
 	});
 }
 
-export function getAccountRecordInfoDetail(id: number): Promise<any> {
+export function getAccountRecordInfoDetail(id: number): Promise<ResponseBody> {
 	return getDataOne(
 		baseService.finance +
 			baseAccountRecordInfo +
@@ -36,7 +37,7 @@ export function getAccountRecordInfoDetail(id: number): Promise<any> {
 	);
 }
 
-export function deleteAccountRecordInfo(ids: string): Promise<any> {
+export function deleteAccountRecordInfo(ids: string): Promise<ResponseBody> {
 	return deleteData(
 		baseService.finance +
 			baseAccountRecordInfo +
@@ -48,8 +49,8 @@ export function deleteAccountRecordInfo(ids: string): Promise<any> {
 
 export function addOrEditAccountRecordInfo(
 	method: string,
-	params: any,
-): Promise<any> {
+	params: unknown,
+): Promise<ResponseBody> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,

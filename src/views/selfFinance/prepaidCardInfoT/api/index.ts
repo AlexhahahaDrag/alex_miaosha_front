@@ -4,7 +4,8 @@ import {
 	putData,
 	deleteData,
 	baseService,
-} from '@/api/common';
+} from '@/utils/request';
+import type { ResponseBody } from '@/types/api';
 
 const basePrepaidCardInfoT = '/api/v1/prepaid-card-info-t';
 
@@ -19,7 +20,7 @@ export function getPrepaidCardInfoTPage(
 	params: any,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<any> {
+): Promise<ResponseBody> {
 	let url =
 		baseService.finance +
 		basePrepaidCardInfoT +
@@ -31,13 +32,13 @@ export function getPrepaidCardInfoTPage(
 	return postData(url, params);
 }
 
-export function getPrepaidCardInfoList(params: any): Promise<any> {
+export function getPrepaidCardInfoList(params: any): Promise<ResponseBody> {
 	let url =
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.list;
 	return postData(url, params);
 }
 
-export function getPrepaidCardInfoTDetail(id: number): Promise<any> {
+export function getPrepaidCardInfoTDetail(id: number): Promise<ResponseBody> {
 	return getData(
 		baseService.finance +
 			basePrepaidCardInfoT +
@@ -47,7 +48,7 @@ export function getPrepaidCardInfoTDetail(id: number): Promise<any> {
 	);
 }
 
-export function deletePrepaidCardInfoT(ids: string): Promise<any> {
+export function deletePrepaidCardInfoT(ids: string): Promise<ResponseBody> {
 	return deleteData(
 		baseService.finance +
 			basePrepaidCardInfoT +
@@ -57,7 +58,7 @@ export function deletePrepaidCardInfoT(ids: string): Promise<any> {
 	);
 }
 
-export function consumeAndRecharge(params: any): Promise<any> {
+export function consumeAndRecharge(params: any): Promise<ResponseBody> {
 	let url =
 		baseService.finance +
 		basePrepaidCardInfoT +
@@ -68,7 +69,7 @@ export function consumeAndRecharge(params: any): Promise<any> {
 export function addOrEditPrepaidCardInfoT(
 	method: string,
 	params: any,
-): Promise<any> {
+): Promise<ResponseBody> {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,

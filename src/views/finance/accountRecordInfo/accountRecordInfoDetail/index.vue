@@ -95,7 +95,7 @@ import type { AccountRecordInfoDetail } from './accountRecordInfoDetailTs';
 import {
 	getAccountRecordInfoDetail,
 	addOrEditAccountRecordInfo,
-} from '@/api/finance/accountRecordInfo/accountRecordInfoTs';
+} from '@/views/finance/accountRecordInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

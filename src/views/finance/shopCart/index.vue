@@ -141,10 +141,7 @@ import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopCartListTs';
 import type { ModelInfo } from '@/views/common/config';
 import { columns } from './shopCartListTs';
-import {
-	getShopCartPage,
-	deleteShopCart,
-} from '@/api/finance/shopCart/shopCartTs';
+import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

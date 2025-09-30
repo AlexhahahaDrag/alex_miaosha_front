@@ -138,7 +138,7 @@ import type { PmsSkuInfoDetail } from './pmsSkuInfoDetailTs';
 import {
 	getPmsSkuInfoDetail,
 	addOrEditPmsSkuInfo,
-} from '@/api/product/pmsSkuInfo/pmsSkuInfoTs';
+} from '@/views/product/pmsSkuInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

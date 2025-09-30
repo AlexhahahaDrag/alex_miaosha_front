@@ -43,12 +43,14 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
-	brandId: number;
-	name: string;
-	logo: string;
-	descript: string;
-	showStatus: number;
-	firstLetter: string;
-	sort: number;
+export interface PmsBrandData {
+	id?: string | number;
+	brandId?: number;
+	name?: string;
+	logo?: number | string | null;
+	logoUrl?: string;
+	descript?: string;
+	showStatus?: number;
+	firstLetter?: string;
+	sort?: number;
 }

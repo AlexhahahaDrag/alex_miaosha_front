@@ -125,7 +125,7 @@ import type { ShopStockAttrsDetail } from './shopStockAttrsDetailTs';
 import {
 	getShopStockAttrsDetail,
 	addOrEditShopStockAttrs,
-} from '@/api/finance/shopStockAttrs/shopStockAttrsTs';
+} from '@/views/finance/shopStockAttrs/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

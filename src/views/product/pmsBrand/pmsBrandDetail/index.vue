@@ -111,18 +111,18 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { PmsBrandDetail } from './pmsBrandDetailTs';
-
-const { getDictByType } = useDictInfo('is_valid');
-import { useDictInfo } from '@/composables/useDictInfo';
-import {
-	getPmsBrandDetail,
-	addOrEditPmsBrand,
-} from '@/api/product/pmsBrand/pmsBrandTs';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { FileInfo } from '@/compoments/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
+import type { PmsBrandData } from '../pmsBrandListTs';
+import {
+	getPmsBrandDetail,
+	addOrEditPmsBrand,
+} from '@/views/product/pmsBrand/api';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
 
 // 字典数据已通过 useDictInfo 自动加载
 const validList = computed(() => getDictByType('is_valid'));
@@ -166,7 +166,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<PmsBrandDetail>({});
+let formState = ref<PmsBrandData>({});
 
 let fileInfo = ref<FileInfo>({});
 
@@ -227,17 +227,8 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-);
-				}
-			});
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
-
 const customImageRequest = (file: FileInfo) => {
-	formState.value.logo = file.id;
+	formState.value.logo = file.id || null;
 };
 
 const handleRemove = () => {
@@ -252,10 +243,9 @@ function init() {
 			getPmsBrandDetail(props.modelInfo.id)
 				.then((res) => {
 					if (res.code == '200') {
-						formState.value = res.data;
+						formState.value = res.data || {};
 						modelConfig.confirmLoading = false;
 						if (formState.value.logo) {
-							fileInfo.value.id = formState.value.logo;
 							fileInfo.value.url = formState.value.logoUrl;
 						} else {
 							fileInfo.value = {};

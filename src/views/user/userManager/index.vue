@@ -120,7 +120,10 @@ import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import { type SearchInfo, columns, type DataItem } from './userManager';
-import { getUserManagerPage, deleteUserManager } from '@/api/user/userManager';
+import {
+	getUserManagerPage,
+	deleteUserManager,
+} from '@/views/user/userManager/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 

@@ -103,7 +103,7 @@ import {
 	getMonthShopFinanceInfo,
 	getShopNameInfo,
 	getPayWayInfo,
-} from '@/api/finance/shopFinanceAnalysis';
+} from '@/views/finance/shopFinanceAnalysis/api';
 import type { ShopFinanceDetail } from '@/views/finance/shopFinance/shopFinanceDetail/shopFinanceDetailTs';
 import type { ItemInfo } from './shopAnalysis';
 import type { Dayjs } from 'dayjs';

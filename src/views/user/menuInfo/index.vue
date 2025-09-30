@@ -220,10 +220,7 @@ import {
 	type DataItem,
 	labelMap,
 } from './menuInfoListTs';
-import {
-	getMenuInfoPage,
-	deleteMenuInfo,
-} from '@/api/user/menuInfo/menuInfoTs';
+import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 

@@ -178,7 +178,7 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getUserManagerDetail,
 	addOrEditUserManager,
-} from '@/api/user/userManager';
+} from '@/views/user/userManager/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';

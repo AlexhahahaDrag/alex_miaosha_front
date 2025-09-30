@@ -152,7 +152,7 @@ import type { FinanceManagerData } from '../../config';
 import {
 	getFinanceMangerDetail,
 	addOrEditFinanceManger,
-} from '@/api/finance/financeManager';
+} from '@/views/finance/financeManager/api';
 import { rulesRef } from './config';
 import { useUserInfo } from '@/composables/useUserInfo';
 
@@ -244,7 +244,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			message: messageInfo,
 		} = await getFinanceMangerDetail(modalData.id);
 		if (code == '200') {
-			formState.value = data;
+			formState.value = data || {};
 			formState.value.infoDate = dayjs(formState.value.infoDate);
 			modelConfig.confirmLoading = false;
 		} else {

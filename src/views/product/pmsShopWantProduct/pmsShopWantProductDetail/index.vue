@@ -86,15 +86,18 @@
 <script lang="ts" setup>
 import type { PmsShopWantProductDetail } from './pmsShopWantProductDetailTs';
 
-const { getDictByType } = useDictInfo('is_valid');
-import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getPmsShopWantProductDetail,
 	addOrEditPmsShopWantProduct,
-} from '@/api/product/pmsShopWantProduct/pmsShopWantProductTs';
+} from '@/views/product/pmsShopWantProduct/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+
+const { getDictByType } = useDictInfo('is_valid');
+
+const sourceList = computed(() => getDictByType('is_valid'));
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -130,8 +133,6 @@ interface Props {
 const props = defineProps<Props>();
 
 let formState = ref<PmsShopWantProductDetail>({});
-
-const sourceList = ref<DictInfo[]>([{ typeName: '请选择', typeCode: '' }]);
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -186,34 +187,28 @@ const onFinish = (values: any) => {
 
 const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
-};),
-			);
-		} else {
-			message.error((res && res.message) || '查询列表失败！');
-		}
-	});
-}
+};
 
-function init() {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getPmsShopWantProductDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) { else {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getPmsShopWantProductDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
+		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,

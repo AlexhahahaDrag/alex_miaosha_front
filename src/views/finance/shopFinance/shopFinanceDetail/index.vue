@@ -164,7 +164,7 @@ import type { ShopFinanceDetail } from './shopFinanceDetailTs';
 import {
 	getShopFinanceDetail,
 	addOrEditShopFinance,
-} from '@/api/finance/shopFinance/shopFinanceTs';
+} from '@/views/finance/shopFinance/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';

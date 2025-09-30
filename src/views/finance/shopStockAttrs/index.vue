@@ -161,7 +161,7 @@ import { columns } from './shopStockAttrsListTs';
 import {
 	getShopStockAttrsPage,
 	deleteShopStockAttrs,
-} from '@/api/finance/shopStockAttrs/shopStockAttrsTs';
+} from '@/views/finance/shopStockAttrs/api';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';

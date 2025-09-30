@@ -180,7 +180,7 @@ import { columns, fromSourceTransferList } from './shopFinanceListTs';
 import {
 	getShopFinancePage,
 	deleteShopFinance,
-} from '@/api/finance/shopFinance/shopFinanceTs';
+} from '@/views/finance/shopFinance/api';
 import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';

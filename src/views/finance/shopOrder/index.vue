@@ -187,7 +187,7 @@ import { columns } from './shopOrderListTs';
 import {
 	getShopOrderPage,
 	deleteShopOrder,
-} from '@/api/finance/shopOrder/shopOrderTs';
+} from '@/views/finance/shopOrder/api';
 import { message } from 'ant-design-vue';
 
 const { getDictByType } = useDictInfo('is_valid');

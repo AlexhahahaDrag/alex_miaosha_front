@@ -101,7 +101,7 @@ import type { ShopStockBatchDetail } from './shopStockBatchDetailTs';
 import {
 	getShopStockBatchDetail,
 	addOrEditShopStockBatch,
-} from '@/api/finance/shopStockBatch/shopStockBatchTs';
+} from '@/views/finance/shopStockBatch/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';

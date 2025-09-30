@@ -196,7 +196,7 @@ import { columns } from './shopOrderDetailListTs';
 import {
 	getShopOrderDetailPage,
 	deleteShopOrderDetail,
-} from '@/api/finance/shopOrderDetail/shopOrderDetailTs';
+} from '@/views/finance/shopOrderDetail/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数

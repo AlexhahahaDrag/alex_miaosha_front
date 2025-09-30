@@ -141,7 +141,7 @@ import { columns } from './shopStockListTs';
 import {
 	getShopStockPage,
 	deleteShopStock,
-} from '@/api/finance/shopStock/shopStockTs';
+} from '@/views/finance/shopStock/api';
 import { message } from 'ant-design-vue';
 
 // 使用分页组合式函数
