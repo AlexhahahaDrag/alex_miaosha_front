@@ -4,7 +4,9 @@ import {
 	putData,
 	deleteData,
 	baseService,
-} from '@/api/common/index';
+} from '@/utils/request';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { OrgInfoData } from '../orgInfoListTs';
 
 const baseOrgInfo = '/api/v1//org-info';
 
@@ -14,10 +16,10 @@ const OrgInfoUrl = {
 };
 
 export function getOrgInfoPage(
-	params: any,
+	params: OrgInfoData,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<any> {
+): Promise<ResponseBody<CommonPageResult<OrgInfoData>>> {
 	let url =
 		baseService.user +
 		baseOrgInfo +
@@ -29,19 +31,24 @@ export function getOrgInfoPage(
 	return postData(url, params);
 }
 
-export function getOrgInfoDetail(id: number): Promise<any> {
+export function getOrgInfoDetail(
+	id: number,
+): Promise<ResponseBody<OrgInfoData>> {
 	return getDataOne(
 		baseService.user + baseOrgInfo + OrgInfoUrl.url + '?id=' + id,
 	);
 }
 
-export function deleteOrgInfo(ids: string): Promise<any> {
+export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(
 		baseService.user + baseOrgInfo + OrgInfoUrl.url + '?ids=' + ids,
 	);
 }
 
-export function addOrEditOrgInfo(method: string, params: any): Promise<any> {
+export function addOrEditOrgInfo(
+	method: string,
+	params: OrgInfoData,
+): Promise<ResponseBody<OrgInfoData>> {
 	if ('put' == method) {
 		return putData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
 	} else {

@@ -35,11 +35,12 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
-	name: string;
-	shop: string;
-	icons: string;
-	source: string;
+export interface PmsShopWantProductData {
+	id?: number;
+	name?: string;
+	shop?: string;
+	icons?: string;
+	source?: string;
 }
 
 export const sourceTransferList = [

@@ -60,14 +60,14 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
-	catId: number;
-	name: string;
-	parentCid: number;
-	catLevel: number;
-	showStatus: number;
-	sort: number;
-	icon: string;
-	productUnit: string;
-	productCount: number;
+export interface PmsCategoryData {
+	catId?: number;
+	name?: string;
+	parentCid?: number;
+	catLevel?: number;
+	showStatus?: number;
+	sort?: number;
+	icon?: string;
+	productUnit?: string;
+	productCount?: number;
 }

@@ -43,11 +43,13 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
-	orgCode: string;
-	orgName: string;
-	orgShortName: string;
-	parentId: number;
-	summary: string;
-	status: string;
+export interface OrgInfoData {
+	id?: number;
+	orgCode?: string;
+	orgName?: string;
+	orgShortName?: string;
+	parentId?: number;
+	parentOrgName?: string;
+	summary?: string;
+	status?: string;
 }
