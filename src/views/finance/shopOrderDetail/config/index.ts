@@ -56,6 +56,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface ShopOrderDetailData {
+	id?: number;
 	orderId?: number;
 	shopName?: string;
 	shopCode?: string;

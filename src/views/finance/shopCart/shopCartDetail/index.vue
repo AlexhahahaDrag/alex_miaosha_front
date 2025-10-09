@@ -230,24 +230,20 @@ const onFinishFailed = (errorInfo: any): void => {
 	console.log('Failed:', errorInfo);
 };
 
-const init = (): void => {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getShopCartDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getShopCartDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};

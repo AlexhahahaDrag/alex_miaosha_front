@@ -207,10 +207,11 @@ yarn preview
 - ✅ TypeScript 严格模式
 - ✅ ESLint + Prettier 格式化
 - ✅ 组件自动导入
+- ✅ 保存时自动格式化 (Format on Save)
 
 ### 命名规范
 
-```typescript
+``typescript
 // 组件文件
 UserManager.vue
 
@@ -222,11 +223,12 @@ userManagerTs.ts
 
 // 页面目录
 user-manager/
+
 ```
 
 ### 项目结构规范
 
-```vue
+``vue
 <template>
 	<!-- 模板内容 -->
 </template>

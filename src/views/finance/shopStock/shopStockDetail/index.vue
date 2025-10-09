@@ -109,10 +109,10 @@
 							:name="labelMap['saleDate'].name"
 							:label="labelMap['saleDate'].label"
 						>
-							<a-input
+							<a-date-picker
 								v-model:value="formState.saleDate"
 								:placeholder="'请填写' + labelMap['saleDate'].label"
-							></a-input>
+							></a-date-picker>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -331,30 +331,26 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getShopStockDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getShopStockDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,

@@ -174,30 +174,27 @@ const handleCancel = () => {
 };
 
 //保存信息
-function saveAccountRecordInfoManager() {
+const saveAccountRecordInfoManager = async () => {
 	let method = '';
 	if (formState.value.id) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditAccountRecordInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch(() => {
-			message.error('系统问题，请联系管理员！');
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const { code, message: messageInfo } = await addOrEditAccountRecordInfo(
+		method,
+		formState.value,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		emit('handleOk', false);
+		formState.value = {};
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const onFinish = (values: unknown) => {
 	console.log('Success:', values);
@@ -207,22 +204,21 @@ const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getAccountRecordInfoDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						formState.value.avliDate = dayjs(formState.value.avliDate);
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch(() => {
-					message.error('系统问题，请联系管理员！');
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getAccountRecordInfoDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				formState.value.avliDate = dayjs(formState.value.avliDate);
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {
@@ -230,7 +226,7 @@ function init() {
 			};
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,

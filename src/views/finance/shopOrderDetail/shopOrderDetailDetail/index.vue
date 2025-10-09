@@ -104,10 +104,10 @@
 							:name="labelMap['saleDate'].name"
 							:label="labelMap['saleDate'].label"
 						>
-							<a-input
+							<a-date-picker
 								v-model:value="formState.saleDate"
 								:placeholder="'请填写' + labelMap['saleDate'].label"
-							></a-input>
+							></a-date-picker>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -153,7 +153,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { ShopOrderDetailDetail } from './shopOrderDetailDetailTs';
+import type { ShopOrderDetailData } from '../config';
 import {
 	getShopOrderDetailDetail,
 	addOrEditShopOrderDetail,
@@ -249,7 +249,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<ShopOrderDetailDetail>({});
+let formState = ref<ShopOrderDetailData>({});
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -270,32 +270,27 @@ const handleCancel = (): void => {
 };
 
 //保存商店订单明细表信息
-const saveShopOrderDetailManager = (): void => {
+const saveShopOrderDetailManager = async (): Promise<void> => {
 	let method = '';
 	if (formState.value.id) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditShopOrderDetail(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	const { code, message: messageInfo } = await addOrEditShopOrderDetail(
+		method,
+		formState.value,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		formState.value = {};
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+		formState.value = {};
+	}
 };
 
 const onFinish = (values: any): void => {
@@ -306,24 +301,20 @@ const onFinishFailed = (errorInfo: any): void => {
 	console.log('Failed:', errorInfo);
 };
 
-const init = (): void => {
+const init = async () => {
 	if (props.modelInfo) {
 		if (props.modelInfo.id) {
-			getShopOrderDetailDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getShopOrderDetailDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
