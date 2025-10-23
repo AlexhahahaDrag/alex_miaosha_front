@@ -101,9 +101,9 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './dict';
+import type { SearchInfo, DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
-import { columns } from './dict';
+import { columns } from './config';
 import {
 	getDictManagerPage,
 	deleteDictManager,
@@ -111,6 +111,14 @@ import {
 import { message } from 'ant-design-vue';
 
 let rowIds: (string | number)[] = [];
+
+let loading = ref<boolean>(false);
+
+let dataSource = ref();
+
+let visible = ref<boolean>(false);
+
+let modelInfo = ref<ModelInfo>({});
 
 // 使用分页组合式函数
 const {
@@ -127,13 +135,13 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (record: DictInfo, selected: boolean, selectedRows: DictInfo[]) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: DictInfo[],
+		changeRows: DictInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -184,44 +192,26 @@ function batchDelDictManager() {
 	delDict(ids);
 }
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
-
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getDictPage(param: SearchInfo, cur: PageInfo) {
+const getDictPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getDictManagerPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.catch((e) => {
-			message.error('获取页面异常，请联系管理员！', 3);
-			console.log(e);
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
-
-function init() {
-	//获取财务管理页面数据
-	getDictPage(searchInfo.value, pagination);
-}
-
-init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getDictManagerPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 //新增和修改弹窗
 function editDict(type: string, id?: number) {
@@ -244,5 +234,12 @@ const handleOk = (v: boolean) => {
 const handleCancel = (v: boolean) => {
 	visible.value = v;
 };
+
+const init = () => {
+	//获取财务管理页面数据
+	getDictPage(searchInfo.value, pagination);
+};
+
+init();
 </script>
 <style lang="scss" scoped></style>

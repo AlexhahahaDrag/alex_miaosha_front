@@ -271,8 +271,8 @@ function getPmsSkuInfoListPage(param: SearchInfo, cur: PageInfo) {
 	getPmsSkuInfoPage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records || [];
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

@@ -127,7 +127,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { DictDetail } from './detail';
+import type { DictInfo } from '../config';
 import {
 	getDictManagerDetail,
 	addOrEditDictManager,
@@ -155,7 +155,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<DictDetail>({});
+let formState = ref<DictInfo>({});
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -165,7 +165,7 @@ const handleOk = () => {
 		.then(() => {
 			saveFinanceManager();
 		})
-		.catch((error: ValidateErrorEntity<DictDetail>) => {
+		.catch((error: ValidateErrorEntity<DictInfo>) => {
 			console.log('error', error);
 		});
 };
@@ -175,29 +175,24 @@ const handleCancel = () => {
 };
 
 //保存财务信息
-function saveFinanceManager() {
+const saveFinanceManager = async () => {
 	let method = '';
 	if (formState.value.id) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditDictManager(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: unknown) => {
-			message.error(
-				(error as { message?: string })?.message || '系统问题，请联系管理员！',
-			);
-		});
-}
+	const { code, message: messageInfo } = await addOrEditDictManager(
+		method,
+		formState.value,
+	);
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const onFinish = (values: unknown) => {
 	console.log('Success:', values);
@@ -205,6 +200,29 @@ const onFinish = (values: unknown) => {
 
 const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
+};
+
+const init = async () => {
+	if (props.modelInfo) {
+		if (props.modelInfo.id) {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getDictManagerDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
+		} else {
+			modelConfig.confirmLoading = false;
+			formState.value = {
+				isValid: 1,
+			};
+		}
+	}
 };
 
 watch(
@@ -219,29 +237,6 @@ watch(
 		deep: true,
 	},
 );
-
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			const {
-				code,
-				data,
-				message: messageInfo,
-			} = getDictManagerDetail(props.modelInfo.id);
-			if (code == '200') {
-				formState.value = data;
-				modelConfig.confirmLoading = false;
-			} else {
-				message.error(messageInfo || '查询失败！');
-			}
-		} else {
-			modelConfig.confirmLoading = false;
-			formState.value = {
-				isValid: 1,
-			};
-		}
-	}
-}
 
 defineExpose({ handleOk, handleCancel });
 </script>

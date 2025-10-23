@@ -1,11 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
 export const columns = ref<TableColumnsType>([
-	// {
-	//   title: "id",
-	//   dataIndex: "id",
-	//   key: "id",
-	// },
 	{
 		title: '类别编码',
 		dataIndex: 'typeCode',
@@ -51,6 +46,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DictInfo {
+	id?: number | undefined;
 	typeCode?: string | number | undefined;
 	typeName?: string | undefined;
 	belongTo?: string | number | undefined;

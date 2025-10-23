@@ -138,7 +138,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { formatAmount } from '@/views/common/config';
+import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './accountRecordInfoListTs';
 import { columns } from './accountRecordInfoListTs';
@@ -242,8 +242,8 @@ function getAccountRecordInfoListPage(param: SearchInfo, cur: PageInfo) {
 	getAccountRecordInfoPage(param, cur.current, cur.pageSize)
 		.then((res) => {
 			if (res.code == '200') {
-				dataSource.value = res.data.records;
-				setTotal(res.data.total);
+				dataSource.value = res.data?.records || [];
+				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
 			}

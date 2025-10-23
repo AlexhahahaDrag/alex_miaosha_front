@@ -173,7 +173,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
-import { formatAmount } from '@/views/common/config';
+import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopFinanceListTs';
 import { columns, fromSourceTransferList } from './shopFinanceListTs';
