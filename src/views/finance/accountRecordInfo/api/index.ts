@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { AccountRecordInfoData } from '../config';
+import type { AccountRecordInfo } from '../config';
 
 const baseAccountRecordInfo = '/api/v1//account-record-info';
 
@@ -16,10 +16,10 @@ const AccountRecordInfoUrl = {
 };
 
 export function getAccountRecordInfoPage(
-	params: AccountRecordInfoData,
+	params: AccountRecordInfo,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody<CommonPageResult<AccountRecordInfoData>>> {
+): Promise<ResponseBody<CommonPageResult<AccountRecordInfo>>> {
 	let url =
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.page;
 	return postData(url, params, {
@@ -30,7 +30,7 @@ export function getAccountRecordInfoPage(
 
 export function getAccountRecordInfoDetail(
 	id: number,
-): Promise<ResponseBody<AccountRecordInfoData>> {
+): Promise<ResponseBody<AccountRecordInfo>> {
 	return getDataOne(
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
 		{
@@ -50,19 +50,20 @@ export function deleteAccountRecordInfo(
 	);
 }
 
-export function addOrEditAccountRecordInfo(
-	method: string,
-	params: AccountRecordInfoData,
-): Promise<ResponseBody<AccountRecordInfoData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
-			params,
-		);
-	}
+export function addAccountRecordInfo(
+	params: AccountRecordInfo,
+): Promise<ResponseBody<AccountRecordInfo>> {
+	return postData(
+		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
+		params,
+	);
+}
+
+export function editAccountRecordInfo(
+	params: AccountRecordInfo,
+): Promise<ResponseBody<AccountRecordInfo>> {
+	return putData(
+		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
+		params,
+	);
 }

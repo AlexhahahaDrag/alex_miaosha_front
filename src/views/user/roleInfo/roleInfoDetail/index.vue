@@ -197,33 +197,26 @@ const handleCancel = () => {
 };
 
 //保存角色信息表信息
-function saveRoleInfoManager() {
+const saveRoleInfoManager = async () => {
 	let method = '';
 	if (formState.value.id) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditRoleInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const { code, message: messageInfo } = await addOrEditRoleInfo(
+		method,
+		formState.value,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const onFinish = (values: any) => {
 	console.log('Success:', values);
@@ -233,34 +226,31 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getRoleInfoDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						permissionTree.value = res?.data?.permissionList || [];
-						selectPermission.value = res?.data?.rolePermissionInfoVoList?.map(
-							(item: any) => item.id,
-						);
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+const init = async () => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getRoleInfoDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
+			permissionTree.value =
+				(data as { permissionList?: unknown[] })?.permissionList || [];
+			selectPermission.value =
+				(
+					data as { rolePermissionInfoVoList?: { id: string }[] }
+				)?.rolePermissionInfoVoList?.map((item: { id: string }) => item.id) ||
+				[];
 			modelConfig.confirmLoading = false;
-			formState.value = {};
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -274,7 +264,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

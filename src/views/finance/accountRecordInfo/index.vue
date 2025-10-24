@@ -60,7 +60,7 @@
 				:rowKey="(record: any) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:rowSelection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -99,11 +99,7 @@
 					</template>
 					<template v-else-if="column.key === 'avliDate'">
 						<span>
-							{{
-								record.avliDate ?
-									dayjs(record.avliDate).format('YYYY-MM-DD')
-								:	''
-							}}
+							{{ formatDate(record.avliDate) }}
 						</span>
 					</template>
 					<template v-else-if="column.key === 'status'">
@@ -124,32 +120,31 @@
 					</template>
 				</template>
 			</a-table>
-			<AccountRecordInfoDetail
-				ref="editInfo"
-				:open="visible"
-				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
-			>
-			</AccountRecordInfoDetail>
 		</div>
+		<account-record-info-detail
+			ref="editInfo"
+			:open="modelInfo.open"
+			:modelInfo="modelInfo"
+			@handleOk="handleOk"
+			@handleCancel="handleCancel"
+		>
+		</account-record-info-detail>
 	</div>
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
+import type { AccountRecordInfo } from './config';
 import { formatAmount } from '@/utils/amountInfo';
-import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './accountRecordInfoListTs';
-import { columns } from './accountRecordInfoListTs';
+import { columns, labelCol, wrapperCol } from './config';
 import {
 	getAccountRecordInfoPage,
 	deleteAccountRecordInfo,
 } from '@/views/finance/accountRecordInfo/api';
 import { message } from 'ant-design-vue';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
+import { usePagination } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';
+import { formatDate } from '@/utils/dayjs';
 
 const { getDictByType } = useDictInfo('account_type');
 
@@ -162,9 +157,6 @@ const {
 	setTotal,
 } = usePagination();
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
 let rowIds: (string | number)[] = [];
 
 const rowSelection = ref({
@@ -172,98 +164,97 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: AccountRecordInfo,
+		selected: boolean,
+		selectedRows: AccountRecordInfo[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: AccountRecordInfo[],
+		changeRows: AccountRecordInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
 });
 
-let searchInfo = ref<SearchInfo>({});
+// 搜索条件
+let searchInfo = ref<AccountRecordInfo>({});
 
-function cancelQuery() {
-	searchInfo.value = {};
-	infoDateStart.value = null;
-	infoDateEnd.value = null;
-}
+let loading = ref<boolean>(false);
 
-let infoDateStart = ref<Dayjs | null>();
-let infoDateEnd = ref<Dayjs | null>();
+let dataSource = ref<AccountRecordInfo[]>([]);
 
-function query() {
+let modelInfo = ref<ModelInfo>({});
+
+// 查询
+const query = () => {
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
-}
+};
+
+//清空查询条件
+const cancelQuery = () => {
+	searchInfo.value = {};
+	searchInfo.value.infoDateStart = undefined;
+	searchInfo.value.infoDateEnd = undefined;
+};
 
 function handleTableChange(pagination: PageInfo) {
 	paginationChange(pagination);
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
 }
 
-function delAccountRecordInfo(ids: string) {
-	deleteAccountRecordInfo(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getAccountRecordInfoListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
-
-function batchDelAccountRecordInfo() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
+//删除
+const delAccountRecordInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteAccountRecordInfo(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getAccountRecordInfoListPage(searchInfo.value, pagination);
 	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
+
+//批量删除
+const batchDelAccountRecordInfo = () => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delAccountRecordInfo(ids);
-}
-
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
+	delAccountRecordInfo(rowIds.join(','));
+};
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getAccountRecordInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getAccountRecordInfoListPage = async (
+	param: AccountRecordInfo,
+	cur: PageInfo,
+) => {
 	loading.value = true;
-	getAccountRecordInfoPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getAccountRecordInfoPage(param, cur.current, cur.pageSize);
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 const initPage = () => {
 	pagination.current = 1;
 	pagination.pageSize = 10;
 };
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
-function editAccountRecordInfo(type: string, id?: number) {
+const editAccountRecordInfo = (type: string, id?: number) => {
 	if (type == 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -271,24 +262,25 @@ function editAccountRecordInfo(type: string, id?: number) {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
-}
+	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
+};
 
 const handleOk = (v: boolean) => {
-	visible.value = v;
+	modelInfo.value.open = v;
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
-	visible.value = v;
+	modelInfo.value.open = v;
 };
 
-function init() {
+// 初始化页面数据
+const init = () => {
+	modelInfo.value = { open: false, confirmLoading: false };
 	initPage();
 	//获取页面数据
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 </script>

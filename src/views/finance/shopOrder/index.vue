@@ -141,7 +141,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -262,17 +262,11 @@ const delShopOrder = (ids: string): void => {
 };
 
 const batchDelShopOrder = (): void => {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopOrder(ids);
+	delShopOrder(rowIds.join(','));
 };
 
 let loading = ref<boolean>(false);

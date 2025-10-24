@@ -331,24 +331,23 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
+// 初始化数据
 const init = async () => {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			const {
-				code,
-				data,
-				message: messageInfo,
-			} = await getShopStockDetail(props.modelInfo.id);
-			if (code == '200') {
-				formState.value = data || {};
-				modelConfig.confirmLoading = false;
-			} else {
-				message.error(messageInfo || '查询失败！');
-			}
-		} else {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopStockDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
-			formState.value = {};
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
 };
 
@@ -364,7 +363,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

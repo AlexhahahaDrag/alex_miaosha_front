@@ -108,6 +108,7 @@ import type { ShopFinanceDetail } from '@/views/finance/shopFinance/shopFinanceD
 import type { ItemInfo } from './shopAnalysis';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import { formatTime } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/shopBar';
 
@@ -177,7 +178,7 @@ let dayConfig = ref<barItem>({
 					axisValue: any;
 					marker: any;
 					value: any;
-					seriesName: any;
+					seriesName: string;
 				}) => {
 					tip += `<p style="margin: 0;text-align: left">${element.marker}${element.seriesName}: ${element.value ? element.value : 0.0}${element.seriesName === '销售额' ? '元' : '件'}</p>`;
 				},
@@ -236,7 +237,7 @@ const getDayShopFinanceInfoInfo = (dateStr: string) => {
 					let xAxis = [] as any;
 					res.data.forEach((item) => {
 						series.push(item.saleAmount);
-						xAxis.push(item.infoDate.substring(8, 10));
+						xAxis.push(formatTime(item.infoDate));
 						numSeries.push(item.saleNum);
 					});
 					let seriesAll = [] as any[];

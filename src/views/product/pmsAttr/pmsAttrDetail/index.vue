@@ -293,30 +293,24 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getPmsAttrDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
+// 初始化数据
+const init = async () => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsAttrDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
+			modelConfig.confirmLoading = false;
 		} else {
 			modelConfig.confirmLoading = false;
 			formState.value = {};
+			message.error(messageInfo || '查询失败！');
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -330,7 +324,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

@@ -70,7 +70,7 @@
 					:row-key="(record) => record.id"
 					:pagination="pagination"
 					@change="handleTableChange"
-					:scroll="{ x: 1100 }"
+					:scroll="{ x: 'max-content' }"
 					:row-selection="rowSelection"
 				>
 					<template #bodyCell="{ column, record }">
@@ -244,19 +244,13 @@ function delOrgInfo(ids: string) {
 	});
 }
 
-function batchDelOrgInfo() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelOrgInfo = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delOrgInfo(ids);
-}
+	delOrgInfo(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 

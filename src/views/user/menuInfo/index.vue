@@ -209,11 +209,8 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import { useDictInfo } from '@/composables/useDictInfo';
-
-const { getDictByType } = useDictInfo('true_or_false,is_valid');
+import type { MenuInfoData } from './config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import {
 	type SearchInfo,
 	columns,
@@ -223,6 +220,10 @@ import {
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
+import { useDictInfo } from '@/composables/useDictInfo';
+import { usePagination } from '@/composables/usePagination';
+
+const { getDictByType } = useDictInfo('true_or_false,is_valid');
 
 // 使用分页组合式函数
 const {
@@ -244,7 +245,7 @@ const statusList = computed(() => getDictByType('is_valid'));
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref<DataItem[]>([]);
+let dataSource = ref<MenuInfoData[]>([]);
 
 let visible = ref<boolean>(false);
 
@@ -297,44 +298,42 @@ function delMenuInfo(ids: string) {
 	});
 }
 
-function batchDelMenuInfo() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelMenuInfo = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delMenuInfo(ids);
-}
+	delMenuInfo(rowIds.join(','));
+};
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getMenuInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getMenuInfoListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getMenuInfoPage(param, cur.current, cur.pageSize)
-		.then((res: any) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getMenuInfoPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
-function init() {
+const init = () => {
 	//获取菜单管理表页面数据
 	getMenuInfoListPage(searchInfo.value, pagination);
-}
+};
 
 //新增和修改弹窗
 function editMenuInfo(type: string, id?: number) {

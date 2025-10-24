@@ -92,7 +92,7 @@
 				:loading="loading"
 				:row-key="(record) => record.id"
 				:pagination="pagination"
-				:scroll="{ x: 1100, y: 420 }"
+				:scroll="{ x: 'max-content', y: 420 }"
 				:row-selection="rowSelection"
 				@change="handleTableChange"
 			>
@@ -204,30 +204,23 @@ function handleTableChange(pagination: PageInfo) {
 	getShopStockListPage(searchInfo.value, pagination);
 }
 
-function delShopStock(ids: string) {
-	deleteShopStock(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopStockListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
-
-function batchDelShopStock() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
+const delShopStock = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopStock(ids);
+	if (code == '200') {
+		message.success((messageInfo && '删除' + messageInfo) || '删除成功！', 3);
+		getShopStockListPage(searchInfo.value, pagination);
 	} else {
+		message.error((messageInfo && '删除失败！') || '删除失败！', 3);
+	}
+};
+
+const batchDelShopStock = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopStock(ids);
-}
+	delShopStock(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 
@@ -237,26 +230,31 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getShopStockListPage(param: SearchInfo, cur: PageInfo) {
+const getShopStockListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopStockPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getShopStockPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	//获取商店库存表页面数据
 	getShopStockListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

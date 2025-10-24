@@ -244,33 +244,28 @@ const handleCancel = () => {
 };
 
 //保存sku信息信息
-function savePmsSkuInfoManager() {
+const savePmsSkuInfoManager = async (): Promise<void> => {
 	let method = '';
 	if (formState.value.skuId) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditPmsSkuInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const { code, message: messageInfo } = await addOrEditPmsSkuInfo(
+		method,
+		formState.value,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		formState.value = {};
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+		formState.value = {};
+	}
+};
 
 const onFinish = (values: any) => {
 	console.log('Success:', values);
@@ -280,30 +275,25 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getPmsSkuInfoDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data;
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+// 初始化数据
+const init = async (): Promise<void> => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsSkuInfoDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
-			formState.value = {};
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -317,7 +307,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

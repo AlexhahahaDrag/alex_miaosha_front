@@ -30,7 +30,7 @@
 import { message } from 'ant-design-vue';
 import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { addOrEditFileManager } from '@/api/file/index';
+import { addOrEditFileManager } from '@/views/common/api/file';
 import type { FileInfo } from './config';
 
 const emit = defineEmits(['customImageRequest', 'handleRemove']);
@@ -41,7 +41,7 @@ interface Props {
 }
 
 // 通过覆盖默认的上传行为,可以自定义自己的上传实现(只写了前端没有写请求)
-const customImageRequest = (info: any) => {
+const customImageRequest = async (info: any) => {
 	const formData = new FormData() as any;
 	formData.append('file', info.file);
 	let method = '';
@@ -51,18 +51,24 @@ const customImageRequest = (info: any) => {
 	} else {
 		method = 'post';
 	}
-	addOrEditFileManager(
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await addOrEditFileManager(
 		method,
 		props.fromSystem ? props.fromSystem : 'common',
 		formData,
-	).then((res) => {
-		if (res?.code == '200') {
-			info.onSuccess(res.data, info.file);
-			emit('customImageRequest', res.data);
-		} else {
-			message.error(res?.message || '上传错误，请联系管理员！');
-		}
+	).finally(() => {
+		loading.value = false;
 	});
+	console.log(`dddddddddddddddddddddddddd`, code, messageInfo, data);
+	if (code == '200') {
+		info.onSuccess(data, info.file);
+		emit('customImageRequest', data);
+	} else {
+		message.error(messageInfo || '上传错误，请联系管理员！');
+	}
 };
 
 const loading = ref<boolean>(false);
@@ -101,14 +107,14 @@ const handleRemove = () => {
 //     return isJpgOrPng && isLt2M;
 // };
 
-function getBase6412(file: File) {
+const getBase6412 = (file: File) => {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 		reader.readAsDataURL(file);
 		reader.onload = () => resolve(reader.result);
 		reader.onerror = (error) => reject(error);
 	});
-}
+};
 
 const previewVisible = ref(false);
 const previewImage = ref('');
@@ -121,7 +127,7 @@ const handleCancel = () => {
 	previewVisible.value = false;
 	previewTitle.value = '';
 };
-const handlePreview = async (file) => {
+const handlePreview = async (file: any) => {
 	if (!file.url && !file.preview) {
 		file.preview = (await getBase6412(file.originFileObj)) as string;
 	}
@@ -131,19 +137,17 @@ const handlePreview = async (file) => {
 		file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
 };
 
-function init() {
+const init = () => {
 	fileList.value = [];
-	if (props.fileInfo) {
-		if (props.fileInfo.id) {
-			fileList.value?.push({
-				uid: props.fileInfo.id + '',
-				name: 'test.png',
-				status: 'done',
-				url: props.fileInfo.url,
-			});
-		}
+	if (props.fileInfo?.id) {
+		fileList.value?.push({
+			uid: props.fileInfo.id + '',
+			name: 'test.png',
+			status: 'done',
+			url: props.fileInfo.url,
+		});
 	}
-}
+};
 
 watch(
 	() => props.fileInfo,

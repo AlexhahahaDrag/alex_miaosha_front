@@ -236,39 +236,29 @@ const handleRemove = () => {
 	formState.value.logoUrl = '';
 };
 
-function init() {
-	//获取字典值
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getPmsBrandDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-						if (formState.value.logo) {
-							fileInfo.value.url = formState.value.logoUrl;
-						} else {
-							fileInfo.value = {};
-						}
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
+// 初始化数据
+const init = async () => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsBrandDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
-			formState.value = {
-				showStatus: 1,
-			};
+		} else {
 			fileInfo.value = {};
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {
+			showStatus: 1,
+		};
+		fileInfo.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -282,7 +272,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

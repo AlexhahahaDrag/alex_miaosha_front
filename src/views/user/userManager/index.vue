@@ -32,7 +32,6 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editUser('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
 				<a-button type="primary" danger @click="batchDelUserManager"
 					>删除</a-button
 				>
@@ -46,7 +45,7 @@
 				:row-key="(record: any) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1400 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -63,7 +62,6 @@
 								ok-text="确认"
 								cancel-text="取消"
 								@confirm="delUser(record.id)"
-								@cancel="cancel"
 								v-if="record.username != 'superman'"
 							>
 								<a-button type="primary" size="small" danger>删除</a-button>
@@ -73,9 +71,7 @@
 					</template>
 					<template v-else-if="column.key === 'birthday'">
 						<span>
-							{{
-								record.birthday ? String(record.birthday).substring(0, 10) : ''
-							}}
+							{{ formatTime(record.birthday) }}
 						</span>
 					</template>
 					<template v-else-if="column.key === 'status'">
@@ -106,7 +102,7 @@
 			</a-table>
 			<UserManagerDetail
 				ref="editInfo"
-				:open="visible"
+				:open="modelInfo.open"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
@@ -119,7 +115,9 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import { type SearchInfo, columns, type DataItem } from './userManager';
+import type { UserManagerInfo } from './config';
+import { columns, labelCol, wrapperCol } from './config';
+import { formatTime } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
 	deleteUserManager,
@@ -135,13 +133,12 @@ const {
 	setTotal,
 } = usePagination();
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
 // 字典数据已通过 useDictInfo 自动加载
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<UserManagerInfo>({});
 let loading = ref<boolean>(false);
-let dataSource = ref();
-let visible = ref<boolean>(false);
+// 数据源
+let dataSource = ref<UserManagerInfo[]>([]);
+// 弹窗信息
 let modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
@@ -149,100 +146,76 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: UserManagerInfo,
+		selected: boolean,
+		selectedRows: UserManagerInfo[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: UserManagerInfo[],
+		changeRows: UserManagerInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
 });
 
-function cancelQuery() {
+const cancelQuery = () => {
 	searchInfo.value = {};
 	triggerDebouncedQuery.cancel();
 	pagination.current = 1;
 	getUserPage(searchInfo.value, pagination);
-}
+};
 
-function query() {
+const query = () => {
 	triggerDebouncedQuery.cancel();
 	getUserPage(searchInfo.value, pagination);
-}
+};
 
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
 	getUserPage(searchInfo.value, pagination);
 };
 
-function delUser(ids: string) {
-	deleteUserManager(ids).then((res: any) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			if (
-				(pagination.total ? pagination.total - 1 : 0) <=
-				(pagination.current ? pagination.current - 1 : 1) *
-					(pagination.pageSize || 10)
-			) {
-				pagination.current = (pagination?.current || 2) - 1;
-			}
-			getUserPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
-
-function batchDelUserManager() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
+const delUser = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteUserManager(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		pagination.current = 1;
+		getUserPage(searchInfo.value, pagination);
 	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
+
+// 批量删除用户信息
+const batchDelUserManager = () => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delUser(ids);
-}
-
-const cancel = (e: MouseEvent) => {
-	console.log(e);
+	delUser(rowIds.join(','));
 };
 
-function getUserPage(param: SearchInfo, cur: PageInfo) {
+// 查询用户信息分页数据
+const getUserPage = async (param: UserManagerInfo, cur: PageInfo) => {
 	loading.value = true;
-	getUserManagerPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.catch((error: any) => {
-			pagination.current = 0;
-			pagination.pageSize = 10;
-			pagination.total = 0;
-			message.warn(error?.message || '查询列表失败！');
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
-
-// 字典数据已通过 useDictInfo 自动加载
-
-function init() {
-	//获取字典列表
-	//获取财务管理页面数据
-	getUserPage(searchInfo.value, pagination);
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getUserManagerPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 //新增和修改弹窗
 function editUser(type: string, id?: number) {
@@ -253,17 +226,16 @@ function editUser(type: string, id?: number) {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
 }
 
 const handleOk = (v: boolean) => {
-	visible.value = v;
+	modelInfo.value.open = v;
 	getUserPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean) => {
-	visible.value = v;
+	modelInfo.value.open = v;
 };
 
 const initPage = () => {
@@ -271,14 +243,18 @@ const initPage = () => {
 	pagination.pageSize = 10;
 };
 
-//初始化
-init();
-
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {
 	pagination.current = 1;
 	getUserPage(searchInfo.value, pagination);
 }, 300);
+
+const init = () => {
+	//获取财务管理页面数据
+	getUserPage(searchInfo.value, pagination);
+};
+
+init();
 
 watch(
 	() => searchInfo.value,

@@ -84,7 +84,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -131,9 +131,7 @@
 					</template>
 					<template v-else-if="column.key === 'saleDate'">
 						<span>
-							{{
-								record.saleDate ? String(record.saleDate).substring(0, 10) : ''
-							}}
+							{{ formatTime(record.saleDate) }}
 						</span>
 					</template>
 					<template v-else-if="column.key === 'payWay'">
@@ -177,13 +175,13 @@ import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopFinanceListTs';
 import { columns, fromSourceTransferList } from './shopFinanceListTs';
+import { formatTime, formatDate } from '@/utils/dayjs';
 import {
 	getShopFinancePage,
 	deleteShopFinance,
 } from '@/views/finance/shopFinance/api';
 import { message } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
 
 // 使用分页组合式函数
 const {
@@ -237,9 +235,9 @@ let saleDateEnd = ref<string | Dayjs>();
 
 function query() {
 	searchInfo.value.saleDateFrom =
-		saleDateFrom.value ? dayjs(saleDateFrom.value).format('YYYY-MM-DD') : null;
+		saleDateFrom.value ? formatDate(saleDateFrom.value) : null;
 	searchInfo.value.saleDateEnd =
-		saleDateEnd.value ? dayjs(saleDateEnd.value).format('YYYY-MM-DD') : null;
+		saleDateEnd.value ? formatDate(saleDateEnd.value) : null;
 	getShopFinanceListPage(searchInfo.value, pagination);
 }
 
@@ -259,19 +257,13 @@ function delShopFinance(ids: string) {
 	});
 }
 
-function batchDelShopFinance() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelShopFinance = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopFinance(ids);
-}
+	delShopFinance(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 
@@ -302,10 +294,11 @@ const initPage = () => {
 	pagination.pageSize = 10;
 };
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	//获取商店财务表页面数据
 	getShopFinanceListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

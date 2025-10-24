@@ -7,7 +7,7 @@ import {
 	postFileData,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PersonalGiftData } from '../config';
+import type { PersonalGiftInfo } from '../config';
 
 const basePersonalGift = '/api/v1/personal-gift';
 
@@ -18,55 +18,60 @@ const PersonalGiftUrl = {
 	import: '/import',
 };
 
-export function getPersonalGiftPage(
-	params: PersonalGiftData,
+// 获取个人随礼信息表列表
+export const getPersonalGiftPage = (
+	params: PersonalGiftInfo,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody<CommonPageResult<PersonalGiftData>>> {
+): Promise<ResponseBody<CommonPageResult<PersonalGiftInfo>>> => {
 	let url = baseService.finance + basePersonalGift + PersonalGiftUrl.page;
 	return postData(url, params, {
 		pageNo: pageNo ? pageNo : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
-}
+};
 
-export function getPersonalGiftDetail(
+// 获取个人随礼信息表详情
+export const getPersonalGiftDetail = (
 	id: number,
-): Promise<ResponseBody<PersonalGiftData>> {
+): Promise<ResponseBody<PersonalGiftInfo>> => {
 	return getDataOne(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.url,
 		{
 			id,
 		},
 	);
-}
+};
 
-export function deletePersonalGift(
+// 删除个人随礼信息表信息
+export const deletePersonalGift = (
 	ids: string,
-): Promise<ResponseBody<boolean>> {
+): Promise<ResponseBody<boolean>> => {
 	return deleteData(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.url,
 		{
 			ids,
 		},
 	);
-}
+};
 
-export function noticePersonalGift(
+// 通知个人随礼信息表信息
+export const noticePersonalGift = (
 	id: number,
-): Promise<ResponseBody<PersonalGiftData>> {
+): Promise<ResponseBody<PersonalGiftInfo>> => {
 	return getDataOne(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.notice,
 		{
 			id,
 		},
 	);
-}
+};
 
-export function addOrEditPersonalGift(
+// 添加或编辑个人随礼信息表信息
+export const addOrEditPersonalGift = (
 	method: string,
-	params: PersonalGiftData,
-): Promise<ResponseBody<PersonalGiftData>> {
+	params: PersonalGiftInfo,
+): Promise<ResponseBody<PersonalGiftInfo>> => {
 	if ('put' == method) {
 		return putData(
 			baseService.finance + basePersonalGift + PersonalGiftUrl.url,
@@ -78,13 +83,14 @@ export function addOrEditPersonalGift(
 			params,
 		);
 	}
-}
+};
 
-export function importPersonalGift(
-	file: any,
-): Promise<ResponseBody<PersonalGiftData>> {
+// 导入个人随礼信息表信息
+export const importPersonalGift = (
+	file: FormData,
+): Promise<ResponseBody<boolean>> => {
 	return postFileData(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.import,
 		file,
 	);
-}
+};

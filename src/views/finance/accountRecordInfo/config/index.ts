@@ -1,7 +1,7 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 
-export const columns = ref<TableColumnsType>([
+const columns = ref<TableColumnsType>([
 	{
 		title: '名称',
 		dataIndex: 'name',
@@ -35,14 +35,19 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface AccountRecordInfoData {
+interface AccountRecordInfo {
+	id?: number;
 	name?: string;
 	avliDate?: Dayjs | string;
 	amount?: number;
 	account?: string;
 	isSend?: number;
 	status?: string;
+	infoDateStart?: Dayjs | string;
+	infoDateEnd?: Dayjs | string;
 }
 
-export const labelCol: { span: number } = { span: 5 };
-export const wrapperCol: { span: number } = { span: 19 };
+const labelCol: { span: number } = { span: 5 };
+const wrapperCol: { span: number } = { span: 19 };
+
+export { AccountRecordInfo, columns, labelCol, wrapperCol };

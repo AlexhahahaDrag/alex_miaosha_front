@@ -70,7 +70,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -202,19 +202,13 @@ function delPmsShopWantProduct(ids: string) {
 	});
 }
 
-function batchDelPmsShopWantProduct() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelPmsShopWantProduct = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsShopWantProduct(ids);
-}
+	delPmsShopWantProduct(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 
@@ -246,12 +240,11 @@ const getPmsShopWantProductListPage = async (
 	}
 };
 
-// 字典数据已通过 useDictInfo 自动加载
-
-function init() {
+// 初始化页面数据
+const init = () => {
 	//获取商品想买网上商品信息页面数据
 	getPmsShopWantProductListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

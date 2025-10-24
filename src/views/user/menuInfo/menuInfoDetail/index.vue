@@ -387,56 +387,25 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getMenuInfoDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {
-							id: undefined,
-							name: undefined,
-							path: undefined,
-							title: undefined,
-							component: undefined,
-							redirect: undefined,
-							icon: undefined,
-							hideInMenu: undefined,
-							parentId: undefined,
-							summary: undefined,
-							status: undefined,
-							orderBy: undefined,
-						};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: unknown) => {
-					const data = (error as { response?: { data?: { message?: string } } })
-						?.response?.data;
-					if (data) {
-						message.error(data?.message || '保存失败！');
-					}
-					modelConfig.confirmLoading = false;
-					formState.value = {
-						id: undefined,
-						name: undefined,
-						path: undefined,
-						title: undefined,
-						component: undefined,
-						redirect: undefined,
-						icon: undefined,
-						hideInMenu: undefined,
-						parentId: undefined,
-						summary: undefined,
-						status: undefined,
-						orderBy: undefined,
-					};
-				});
+// 初始化数据
+const init = async () => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getMenuInfoDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
+			modelConfig.confirmLoading = false;
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -450,7 +419,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

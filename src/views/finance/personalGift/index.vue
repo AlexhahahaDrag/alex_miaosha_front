@@ -63,21 +63,21 @@
 		<div class="button" style="margin-left: 10px">
 			<a-space>
 				<a-button type="primary" @click="editPersonalGift('add')"
-					>新增</a-button
-				>
+					>新增
+				</a-button>
 				<a-upload
 					name="file"
 					:showUploadList="false"
-					:customRequest="customImageRequest"
+					:customRequest="customImportRequest"
 				>
 					<a-button type="primary">
 						<upload-outlined></upload-outlined>
 						导入
 					</a-button>
 				</a-upload>
-				<a-button type="primary" danger @click="batchDelPersonalGift"
-					>删除</a-button
-				>
+				<a-button type="primary" danger @click="batchDelPersonalGift">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content" style="min-height: 400px">
@@ -87,10 +87,10 @@
 				:loading="loading"
 				:row-key="(record) => record.id"
 				:pagination="pagination"
-				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 				:style="{ minHeight: '400px' }"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
@@ -129,40 +129,36 @@
 					</template>
 					<template v-else-if="column.key === 'eventTime'">
 						<span>
-							{{
-								record.eventTime ?
-									String(record.eventTime).substring(0, 10)
-								:	''
-							}}
+							{{ formatDate(record.eventTime) }}
 						</span>
 					</template>
 				</template>
 			</a-table>
-			<PersonalGiftDetail
-				ref="editInfo"
-				:open="visible"
-				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
-			></PersonalGiftDetail>
 		</div>
+		<PersonalGiftDetail
+			ref="editInfo"
+			:open="modelInfo?.open"
+			:modelInfo="modelInfo"
+			@handleOk="handleOk"
+			@handleCancel="handleCancel"
+		></PersonalGiftDetail>
 	</div>
 </template>
 <script setup lang="ts">
+import { message } from 'ant-design-vue';
+import { UploadOutlined } from '@ant-design/icons-vue';
 import type { ModelInfo } from '@/views/common/config';
-
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './personalGiftListTs';
-import { columns } from './personalGiftListTs';
+import type { PersonalGiftInfo } from './config';
+import { columns, labelCol, wrapperCol, labelMap } from './config';
 import {
 	getPersonalGiftPage,
 	deletePersonalGift,
 	noticePersonalGift,
 	importPersonalGift,
 } from '@/views/finance/personalGift/api';
-import { message } from 'ant-design-vue';
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { formatDate } from '@/utils/dayjs';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('action');
@@ -176,9 +172,6 @@ const {
 	setTotal,
 } = usePagination();
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
 let rowIds: (string | number)[] = [];
 
 const rowSelection = ref({
@@ -186,32 +179,32 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PersonalGiftInfo,
+		selected: boolean,
+		selectedRows: PersonalGiftInfo[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PersonalGiftInfo[],
+		changeRows: PersonalGiftInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
 });
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	eventName: { name: 'eventName', label: '事件名称' },
-	amount: { name: 'amount', label: '金额' },
-	otherPerson: { name: 'otherPerson', label: '其他人' },
-	eventTime: { name: 'eventTime', label: '随礼时间' },
-	remarks: { name: 'remarks', label: '备注' },
-	action: { name: 'action', label: '动作' },
-	noticeNum: { name: 'noticeNum', label: '通知次数' },
-});
+// 加载状态
+let loading = ref<boolean>(false);
+// 数据源
+let dataSource = ref<PersonalGiftInfo[]>([]);
+// 搜索条件
+let searchInfo = ref<PersonalGiftInfo>({});
+// 弹窗信息
+let modelInfo = ref<ModelInfo>({});
 
-let searchInfo = ref<SearchInfo>({});
-
-// 字典数据已通过 useDictInfo 自动加载
-
+// 清空查询条件
 const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
@@ -225,102 +218,74 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
-const noticePersonalInfo = (id: number) => {
-	noticePersonalGift(id)
-		.then((res: unknown) => {
-			console.log(`res:`, res);
-			if ((res as { code: string }).code === '200') {
-				getPersonalGiftListPage(searchInfo.value, pagination);
-			} else {
-				message.error(
-					(res as { message?: { description?: string } })?.message
-						?.description || '失败，请联系管理员！',
-				);
-			}
-		})
-		.catch((error: unknown) => {
-			message.error(
-				(error as { description?: string })?.description ||
-					'失败，请联系管理员！',
-			);
-		});
-};
-
-const delPersonalGift = (ids: string): void => {
-	deletePersonalGift(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPersonalGiftListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-};
-
-const batchDelPersonalGift = (): void => {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
+const noticePersonalInfo = async (id: number): Promise<void> => {
+	const { code, message: messageInfo } = await noticePersonalGift(id);
+	if (code == '200') {
+		message.success(messageInfo || '通知成功！', 3);
+		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
+		message.error(messageInfo || '通知失败！', 3);
+	}
+};
+
+// 删除个人随礼信息表信息
+const delPersonalGift = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deletePersonalGift(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getPersonalGiftListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
+
+// 批量删除个人随礼信息表信息
+const batchDelPersonalGift = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPersonalGift(ids);
+	delPersonalGift(rowIds.join(','));
 };
 
-const customImageRequest = (info: unknown) => {
+// 导入个人随礼信息表信息
+const customImportRequest = async (info: unknown): Promise<void> => {
 	const formData = new FormData();
 	formData.append('file', (info as { file: File }).file);
-	importPersonalGift(formData).then((res) => {
-		console.log(`res:`, res);
-		if (res.code == '200') {
-			console.log(`res:`, res);
-			(info as { onSuccess: (data: unknown, file: File) => void }).onSuccess(
-				res.data,
-				(info as { file: File }).file,
-			);
-			getPersonalGiftListPage(searchInfo.value, pagination);
-		}
-	});
+	const { code, message: messageInfo } = await importPersonalGift(formData);
+	if (code == '200') {
+		message.success(messageInfo || '导入成功！', 3);
+		getPersonalGiftListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '导入失败！', 3);
+	}
 };
-
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
 
 const cancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
-const getPersonalGiftListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getPersonalGiftListPage = async (
+	param: PersonalGiftInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getPersonalGiftPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getPersonalGiftPage(param, cur.current, cur.pageSize).finally(
+		() => {
 			loading.value = false;
-		});
+		},
+	);
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
 };
-
-const init = (): void => {
-	//获取个人随礼信息表页面数据
-	getPersonalGiftListPage(searchInfo.value, pagination);
-};
-
-init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editPersonalGift = (type: string, id?: number): void => {
@@ -331,17 +296,26 @@ const editPersonalGift = (type: string, id?: number): void => {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
 };
 
+// 保存个人随礼信息表信息
 const handleOk = (v: boolean): void => {
-	visible.value = v;
+	modelInfo.value.open = v;
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
+// 取消个人随礼信息表信息
 const handleCancel = (v: boolean): void => {
-	visible.value = v;
+	modelInfo.value.open = v;
 };
+
+const init = (): void => {
+	modelInfo.value = { open: false, confirmLoading: false };
+	//获取个人随礼信息表页面数据
+	getPersonalGiftListPage(searchInfo.value, pagination);
+};
+
+init();
 </script>
 <style lang="scss" scoped></style>

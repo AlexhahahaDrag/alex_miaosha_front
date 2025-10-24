@@ -240,33 +240,25 @@ const onFinishFailed = (errorInfo: any) => {
 	console.log('Failed:', errorInfo);
 };
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getPermissionInfoDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				})
-				.finally(() => {
-					modelConfig.confirmLoading = false;
-				});
-		} else {
+// 初始化数据
+const init = async () => {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPermissionInfoDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
-			formState.value = {};
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -280,7 +272,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

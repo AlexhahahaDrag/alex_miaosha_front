@@ -41,7 +41,7 @@
 				:loading="loading"
 				:row-key="(record) => record.id"
 				:pagination="pagination"
-				:scroll="{ x: 1500 }"
+				:scroll="{ x: 'max-content' }"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">

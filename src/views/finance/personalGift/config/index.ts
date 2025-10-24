@@ -45,7 +45,8 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface PersonalGiftData {
+export interface PersonalGiftInfo {
+	id?: number;
 	eventName?: string;
 	amount?: number;
 	otherPerson?: string;
@@ -55,5 +56,18 @@ export interface PersonalGiftData {
 	noticeNum?: number;
 }
 
-export const labelCol: { span: number } = { span: 5 };
-export const wrapperCol: { span: number } = { span: 19 };
+// 表单布局配置
+export const labelCol = ref({ span: 5 });
+// 表单布局配置
+export const wrapperCol = ref({ span: 19 });
+
+// 表单标签映射
+export const labelMap = ref<Record<string, { name: string; label: string }>>({
+	eventName: { name: 'eventName', label: '事件名称' },
+	amount: { name: 'amount', label: '金额' },
+	otherPerson: { name: 'otherPerson', label: '其他人' },
+	eventTime: { name: 'eventTime', label: '随礼时间' },
+	remarks: { name: 'remarks', label: '备注' },
+	action: { name: 'action', label: '动作' },
+	noticeNum: { name: 'noticeNum', label: '通知次数' },
+});

@@ -300,40 +300,39 @@ function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
 	);
 }
 
-function init() {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			Promise.all([
-				getDictList('shop_type'),
-				getPmsShopProductDetail(props.modelInfo.id),
-			]).then((res: any[]) => {
-				if (res[0].code == '200' && res[0].data?.length && res[1].data) {
-					res[0].data.forEach(
-						(item: { typeCode: string; typeName: Ref<string> }) => {
-							if (item.typeCode == res[1].data.source) {
-								sourceName.value = item.typeName.value;
-							}
-						},
-					);
-				} else {
-					message.error((res[0] && res[0].message) || '查询列表失败！');
-				}
-				if (res[1].code == '200') {
-					formState.value = res[1].data;
-					modelConfig.confirmLoading = false;
-				} else {
-					message.error((res[1] && res[1].message) || '查询失败！');
-				}
-			});
-		} else {
-			modelConfig.confirmLoading = false;
-			formState.value = {};
-		}
+// 初始化数据
+const init = async () => {
+	if (props.modelInfo?.id) {
+		Promise.all([
+			getDictList('shop_type'),
+			getPmsShopProductDetail(props.modelInfo.id),
+		]).then((res: any[]) => {
+			if (res[0].code == '200' && res[0].data?.length && res[1].data) {
+				res[0].data.forEach(
+					(item: { typeCode: string; typeName: Ref<string> }) => {
+						if (item.typeCode == res[1].data.source) {
+							sourceName.value = item.typeName.value;
+						}
+					},
+				);
+			} else {
+				message.error((res[0] && res[0].message) || '查询列表失败！');
+			}
+			if (res[1].code == '200') {
+				formState.value = res[1].data;
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error((res[1] && res[1].message) || '查询失败！');
+			}
+		});
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
 	if (formState.value?.skuId) {
 		getProductHisDaysInfo(formState.value.skuId, '');
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -347,8 +346,6 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>
 <style lang="scss" scoped>

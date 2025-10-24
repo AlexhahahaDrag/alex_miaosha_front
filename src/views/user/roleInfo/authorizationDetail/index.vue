@@ -102,44 +102,28 @@ function saveRoleInfoManager() {
 		});
 }
 
-function init() {
-	if (props.data && typeof props.data === 'object' && 'id' in props.data) {
-		if ((props.data as { id: string }).id) {
-			getRoleInfoDetail(Number((props.data as { id: string }).id))
-				.then((res: unknown) => {
-					if ((res as { code: string }).code == '200') {
-						formState.value = (res as { data: unknown }).data as RoleInfoDetail;
-						permissionTree.value =
-							(res as { data?: { permissionList?: unknown[] } })?.data
-								?.permissionList || [];
-						selectPermission.value =
-							(
-								res as {
-									data?: { rolePermissionInfoVoList?: { id: string }[] };
-								}
-							)?.data?.rolePermissionInfoVoList?.map(
-								(item: { id: string }) => item.id,
-							) || [];
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error(
-							(res as { message?: string })?.message || '查询失败！',
-						);
-					}
-				})
-				.catch((error: unknown) => {
-					const data = (error as { response?: { data?: { message?: string } } })
-						?.response?.data;
-					if (data) {
-						message.error(data?.message || '保存失败！');
-					}
-					modelConfig.confirmLoading = false;
-					formState.value = {};
-					permissionTree.value = [];
-				});
+const init = async () => {
+	if ((props.data as { id: string })?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getRoleInfoDetail(Number((props.data as { id: string }).id));
+		if (code == '200') {
+			formState.value = data as RoleInfoDetail;
+			permissionTree.value =
+				(data as { permissionList?: unknown[] })?.permissionList || [];
+			selectPermission.value =
+				(
+					data as { rolePermissionInfoVoList?: { id: string }[] }
+				)?.rolePermissionInfoVoList?.map((item: { id: string }) => item.id) ||
+				[];
+			modelConfig.confirmLoading = false;
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
 	}
-}
+};
 
 watch(
 	() => props.open,
@@ -153,7 +137,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

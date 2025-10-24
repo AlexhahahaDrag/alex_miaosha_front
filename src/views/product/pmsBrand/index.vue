@@ -68,7 +68,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -189,19 +189,13 @@ function delPmsBrand(ids: string) {
 	});
 }
 
-function batchDelPmsBrand() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelPmsBrand = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsBrand(ids);
-}
+	delPmsBrand(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 
@@ -227,11 +221,12 @@ function getPmsBrandListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	//获取字典值
 	//获取品牌页面数据
 	getPmsBrandListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

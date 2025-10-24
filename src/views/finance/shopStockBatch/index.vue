@@ -59,7 +59,7 @@
 				:loading="loading"
 				:row-key="(record) => record.id"
 				:pagination="pagination"
-				:scroll="{ x: 1100, y: 470 }"
+				:scroll="{ x: 'max-content', y: 470 }"
 				:row-selection="rowSelection"
 				@change="handleTableChange"
 			>
@@ -179,17 +179,11 @@ const delShopStockBatch = (ids: string): void => {
 };
 
 const batchDelShopStockBatch = (): void => {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopStockBatch(ids);
+	delShopStockBatch(rowIds.join(','));
 };
 
 let loading = ref<boolean>(false);

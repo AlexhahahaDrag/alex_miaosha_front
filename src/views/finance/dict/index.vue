@@ -53,7 +53,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1200 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -179,17 +179,11 @@ function delDict(ids: string) {
 }
 
 function batchDelDictManager() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delDict(ids);
+	delDict(rowIds.join(','));
 }
 
 const cancel = (e: MouseEvent) => {
@@ -235,6 +229,7 @@ const handleCancel = (v: boolean) => {
 	visible.value = v;
 };
 
+// 初始化页面数据
 const init = () => {
 	//获取财务管理页面数据
 	getDictPage(searchInfo.value, pagination);

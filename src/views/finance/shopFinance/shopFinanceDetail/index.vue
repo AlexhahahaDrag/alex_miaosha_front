@@ -254,7 +254,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<ShopFinanceDetail>({});
+let formState = ref<ShopFinanceDetail | undefined>({});
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -277,12 +277,12 @@ const handleCancel = () => {
 //保存商店财务表信息
 function saveShopFinanceManager() {
 	let method = '';
-	if (formState.value.id) {
+	if (formState.value?.id) {
 		method = 'put';
 	} else {
 		method = 'post';
 	}
-	addOrEditShopFinance(method, formState.value)
+	addOrEditShopFinance(method, formState.value || {})
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');
@@ -312,28 +312,26 @@ const onFinishFailed = (errorInfo: any) => {
 };
 
 const init = async () => {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			const {
-				code,
-				data,
-				message: messageInfo,
-			} = await getShopFinanceDetail(props.modelInfo.id);
-			if (code == '200') {
-				formState.value = data;
-				formState.value.saleDate = dayjs(formState.value.saleDate);
-				modelConfig.confirmLoading = false;
-			} else {
-				formState.value = { isValid: '1', saleDate: dayjs() };
-				message.error(messageInfo || '查询失败！');
-			}
-		} else {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopFinanceDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
+			formState.value.saleDate = dayjs(formState.value.saleDate);
 			modelConfig.confirmLoading = false;
-			formState.value = {
-				isValid: '1',
-				saleDate: dayjs(),
-			};
+		} else {
+			formState.value = { isValid: '1', saleDate: dayjs() };
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {
+			isValid: '1',
+			saleDate: dayjs(),
+		};
 	}
 };
 
@@ -349,7 +347,5 @@ watch(
 		deep: true,
 	},
 );
-
-defineExpose({ handleOk, handleCancel });
 </script>
 <style lang="scss" scoped></style>

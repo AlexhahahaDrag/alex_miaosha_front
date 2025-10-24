@@ -1,6 +1,6 @@
 <template>
 	<div class="page-info">
-		<FinanceManagerFilter
+		<finance-manager-filter
 			v-model:searchInfo="searchInfo"
 			@query="query"
 			@cancelQuery="cancelQuery"
@@ -118,7 +118,7 @@ import {
 	deleteFinanceManger,
 } from '@/views/finance/financeManager/api';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
-import dayjs from 'dayjs';
+import { formatDate } from '@/utils/dayjs';
 
 // 使用分页组合式函数
 const {
@@ -190,17 +190,11 @@ const delFinance = async (ids: string) => {
 
 //批量删除
 const batchDelFinanceManager = () => {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delFinance(ids);
+	delFinance(rowIds.join(','));
 };
 
 const cancel = (e: MouseEvent) => {
@@ -211,12 +205,8 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
 	let queryParam = {
 		...param,
-		infoDateStart:
-			param.infoDateStart ?
-				dayjs(param.infoDateStart).format('YYYY-MM-DD ')
-			:	null,
-		infoDateEnd:
-			param.infoDateEnd ? dayjs(param.infoDateEnd).format('YYYY-MM-DD') : null,
+		infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
+		infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
 	} as FinanceManagerData;
 	const {
 		code,
@@ -265,11 +255,12 @@ const initPage = () => {
 	pagination.pageSize = 10;
 };
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	initPage();
 	//获取财务管理页面数据
 	getFinancePage(searchInfo.value, pagination);
-}
+};
 
 init();
 </script>

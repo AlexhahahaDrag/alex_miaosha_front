@@ -118,7 +118,7 @@
 				:row-key="(record) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1100 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -225,19 +225,13 @@ function delPmsCategory(ids: string) {
 	});
 }
 
-function batchDelPmsCategory() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelPmsCategory = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsCategory(ids);
-}
+	delPmsCategory(rowIds.join(','));
+};
 
 let loading = ref<boolean>(false);
 
@@ -247,7 +241,10 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-const getPmsCategoryListPage = async (param: SearchInfo, cur: PageInfo) => {
+const getPmsCategoryListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
 	const {
 		code,
@@ -264,10 +261,11 @@ const getPmsCategoryListPage = async (param: SearchInfo, cur: PageInfo) => {
 	}
 };
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	//获取商品三级分类页面数据
 	getPmsCategoryListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 

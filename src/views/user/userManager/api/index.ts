@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { UserManagerInfo } from '../config';
 
 const baseUserManager = '/api/v1/user';
 
@@ -16,19 +17,12 @@ const userMangerUrl = {
 };
 
 export function getUserManagerPage(
-	params: any,
+	params: UserManagerInfo | null,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		baseUserManager +
-		userMangerUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+): Promise<ResponseBody<CommonPageResult<UserManagerInfo>>> {
+	let url = baseService.user + baseUserManager + userMangerUrl.page;
+	return postData(url, params, { pageNo, pageSize });
 }
 
 export function getUserManagerDetail(id: number): Promise<ResponseBody> {
@@ -45,7 +39,7 @@ export function deleteUserManager(ids: string): Promise<ResponseBody> {
 
 export function addOrEditUserManager(
 	method: string,
-	params: any,
+	params: UserManagerInfo | null,
 ): Promise<ResponseBody> {
 	if ('put' == method) {
 		return putData(
@@ -60,7 +54,9 @@ export function addOrEditUserManager(
 	}
 }
 
-export function getUserManagerList(params: any): Promise<ResponseBody> {
+export function getUserManagerList(
+	params: UserManagerInfo | null,
+): Promise<ResponseBody<UserManagerInfo[]>> {
 	let url = baseService.user + baseUserManager + userMangerUrl.list;
 	return postData(url, params);
 }

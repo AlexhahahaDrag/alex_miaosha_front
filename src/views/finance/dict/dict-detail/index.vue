@@ -3,15 +3,11 @@
 		<a-modal
 			:open="props.open"
 			:width="props?.modelInfo?.width || '1000px'"
-			:title="
-				props.modelInfo && props.modelInfo.title ?
-					props.modelInfo.title
-				:	'Basic Modal'
-			"
-			@ok="handleOk"
+			:title="props?.modelInfo?.title || 'Basic Modal'"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
 			:destroyOnClose="modelConfig.destroyOnClose"
+			@ok="handleOk"
 			@cancel="handleCancel"
 		>
 			<a-form
@@ -157,8 +153,6 @@ const props = defineProps<Props>();
 
 let formState = ref<DictInfo>({});
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
-
 const handleOk = () => {
 	formRef.value
 		?.validate()
@@ -202,26 +196,25 @@ const onFinishFailed = (errorInfo: unknown) => {
 	console.log('Failed:', errorInfo);
 };
 
+// 初始化数据
 const init = async () => {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			const {
-				code,
-				data,
-				message: messageInfo,
-			} = await getDictManagerDetail(props.modelInfo.id);
-			if (code == '200') {
-				formState.value = data || {};
-				modelConfig.confirmLoading = false;
-			} else {
-				message.error(messageInfo || '查询失败！');
-			}
-		} else {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getDictManagerDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
-			formState.value = {
-				isValid: 1,
-			};
+		} else {
+			message.error(messageInfo || '查询失败！');
 		}
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {
+			isValid: 1,
+		};
 	}
 };
 
@@ -238,5 +231,5 @@ watch(
 	},
 );
 
-defineExpose({ handleOk, handleCancel });
+const emit = defineEmits(['handleOk', 'handleCancel']);
 </script>

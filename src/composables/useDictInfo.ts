@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/views/finance/dict/api';
-import type { DictInfo } from '@/views/finance/dict/dict';
+import type { DictInfo } from '@/views/finance/dict/config';
 
 export function useDictInfo(initialDictTypes?: string) {
 	const loading = ref(false);
@@ -14,7 +14,7 @@ export function useDictInfo(initialDictTypes?: string) {
 			if (code === '200') {
 				// 按 belongTo 分组数据
 				const groupedData = new Map<string, DictInfo[]>();
-				data.forEach((item: DictInfo) => {
+				data?.forEach((item: DictInfo) => {
 					const belongTo = item.belongTo;
 					if (!groupedData.has(belongTo as string)) {
 						groupedData.set(belongTo as string, []);

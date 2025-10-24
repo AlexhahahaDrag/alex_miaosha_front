@@ -58,7 +58,7 @@
 				:row-key="(record: any) => record.id"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ y: 520 }"
+				:scroll="{ x: 'max-content', y: 520 }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -188,19 +188,13 @@ function delRoleInfo(ids: string) {
 	});
 }
 
-function batchDelRoleInfo() {
-	let ids = '';
-	if (rowIds && rowIds.length > 0) {
-		rowIds.forEach((item: string) => {
-			ids += item + ',';
-		});
-		ids = ids.substring(0, ids.length - 1);
-	} else {
+const batchDelRoleInfo = (): void => {
+	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delRoleInfo(ids);
-}
+	delRoleInfo(rowIds.join(','));
+};
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
@@ -259,11 +253,12 @@ function query() {
 	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
-function init() {
+// 初始化页面数据
+const init = () => {
 	authorizationModal.value = { open: false };
 	//获取角色信息表页面数据
 	getRoleInfoListPage(searchInfo.value, pagination);
-}
+};
 
 init();
 </script>
