@@ -1,10 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from 'dayjs';
 
-export interface SearchInfo {
-	username?: string;
-}
-
 export const columns = ref<TableColumnsType>([
 	{
 		title: '用户名',
@@ -54,7 +50,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DataItem {
+export interface UserManagerInfo {
 	id?: number;
 	username?: string;
 	password?: string;
@@ -72,4 +68,10 @@ export interface DataItem {
 	github?: string;
 	gitee?: string;
 	person_resume?: string;
+	avatarUrl?: string;
 }
+
+// 表单布局配置
+export const labelCol = ref({ span: 5 });
+// 表单布局配置
+export const wrapperCol = ref({ span: 19 });
