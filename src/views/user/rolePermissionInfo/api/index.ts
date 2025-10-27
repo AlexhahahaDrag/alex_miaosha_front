@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseRolePermissionInfo = '/api/v1//role-permission-info';
+const baseRolePermissionInfo = '/api/v1/role-permission-info';
 
 const RolePermissionInfoUrl = {
 	page: '/page',
@@ -19,34 +19,27 @@ export function getRolePermissionInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		baseRolePermissionInfo +
-		RolePermissionInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	return postData(
+		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.page,
+		params,
+		{
+			pageNo: pageNo ? pageNo : 1,
+			pageSize: pageSize ? pageSize : 10,
+		},
+	);
 }
 
 export function getRolePermissionInfoDetail(id: number): Promise<ResponseBody> {
 	return getDataOne(
-		baseService.user +
-			baseRolePermissionInfo +
-			RolePermissionInfoUrl.url +
-			'?id=' +
-			id,
+		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
+		{ id },
 	);
 }
 
 export function deleteRolePermissionInfo(ids: string): Promise<ResponseBody> {
 	return deleteData(
-		baseService.user +
-			baseRolePermissionInfo +
-			RolePermissionInfoUrl.url +
-			'?ids=' +
-			ids,
+		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
+		{ ids },
 	);
 }
 

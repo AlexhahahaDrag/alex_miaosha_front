@@ -12,8 +12,8 @@
 		<template #footer>
 			<a-button key="back" @click="handleCancel">取消</a-button>
 			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
-				>保存</a-button
-			>
+				>保存
+			</a-button>
 		</template>
 		<a-form
 			ref="formRef"
@@ -97,7 +97,7 @@
 						<a-select
 							ref="select"
 							v-model:value="formState.action"
-							:placeholder="'请输入' + labelMap['action'].label"
+							:placeholder="'请选择' + labelMap['action'].label"
 							:field-names="{ label: 'typeName', value: 'typeCode' }"
 							:options="actionList"
 							:allowClear="true"
@@ -125,7 +125,8 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { labelMap, rulesRef, labelCol, wrapperCol } from './config';
+import { rulesRef } from './config';
+import { labelCol, wrapperCol, labelMap } from '../config';
 import type { PersonalGiftInfo } from '../config';
 import type { ModelInfo } from '@/views/common/config';
 import { defaultDateFormat } from '@/utils/dayjs';
@@ -139,8 +140,6 @@ const { getDictByType } = useDictInfo('gift_action');
 
 const actionList = computed(() => getDictByType('gift_action'));
 
-let loading = ref<boolean>(false);
-
 const formRef = ref<FormInstance>();
 
 const modelConfig = {
@@ -152,10 +151,15 @@ interface Props {
 	open?: boolean;
 	modelInfo?: ModelInfo;
 }
+
 const props = defineProps<Props>();
 
+let loading = ref<boolean>(false);
+
+// 表单数据
 let formState = ref<PersonalGiftInfo>({});
 
+// 保存个人随礼信息表信息
 const handleOk = (): void => {
 	loading.value = true;
 	if (formRef.value) {
@@ -168,6 +172,7 @@ const handleOk = (): void => {
 	}
 };
 
+// 取消
 const handleCancel = (): void => {
 	emit('handleCancel', false);
 };

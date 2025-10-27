@@ -54,10 +54,9 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editPmsBrand('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
-				<a-button type="primary" danger @click="batchDelPmsBrand"
-					>删除</a-button
-				>
+				<a-button type="primary" danger @click="batchDelPmsBrand">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -78,8 +77,9 @@
 								type="primary"
 								size="small"
 								@click="editPmsBrand('update', record.brandId)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

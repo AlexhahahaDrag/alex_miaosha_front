@@ -41,6 +41,7 @@
 							:field-names="{ label: 'typeName', value: 'typeCode' }"
 							:options="genderList"
 							:allowClear="true"
+							placeholder="请选择性别"
 						>
 						</a-select>
 					</a-form-item>

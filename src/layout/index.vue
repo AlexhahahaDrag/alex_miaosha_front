@@ -57,12 +57,8 @@ let collapsed = ref<boolean>(false);
 let selectedKeys = ref<string[]>(['1']);
 
 // 从环境变量获取配置
-// todo: 研究是否生效
 const appTitle = import.meta.env.VITE_APP_DESCRIPTION || 'alex管理后台';
-console.log(
-	`import.meta.env.VITE_APP_DESCRIPTION`,
-	import.meta.env.VITE_APP_DESCRIPTION,
-);
+
 const showFooter = import.meta.env.VITE_SHOW_FOOTER !== 'false';
 </script>
 <style lang="scss" scoped>
@@ -114,7 +110,6 @@ const showFooter = import.meta.env.VITE_SHOW_FOOTER !== 'false';
 }
 
 .content-container {
-	padding: 20px;
 	background: #fff;
 	flex: 1;
 	overflow-y: auto;

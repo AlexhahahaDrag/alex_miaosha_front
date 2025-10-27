@@ -53,13 +53,12 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editPmsShopWantProduct('add')"
-					>新增</a-button
-				>
-				<a-button type="primary" @click="query">导入</a-button>
-				<a-button type="primary" danger @click="batchDelPmsShopWantProduct"
-					>删除</a-button
-				>
+				<a-button type="primary" @click="editPmsShopWantProduct('add')">
+					新增
+				</a-button>
+				<a-button type="primary" danger @click="batchDelPmsShopWantProduct">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -80,8 +79,9 @@
 								type="primary"
 								size="small"
 								@click="editPmsShopWantProduct('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

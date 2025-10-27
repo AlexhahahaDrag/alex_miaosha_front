@@ -10,72 +10,66 @@ const financeAnalysisUrl = {
 	getMonthExpense: '/getMonthExpense',
 };
 
-export function getBalance(
+export const getBalance = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> {
-	let url =
-		baseService.finance +
-		baseFinanceAnalysis +
-		financeAnalysisUrl.getBalance +
-		'?searchDate=' +
-		searchDate;
-	if (belongTo) {
-		url += '&belongTo=' + belongTo;
-	}
-	return getDataOne(url);
-}
+): Promise<ResponseBody> => {
+	let params = {
+		searchDate,
+		belongTo,
+	} as Record<string, unknown>;
+	return getDataOne(
+		baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getBalance,
+		params,
+	);
+};
 
-export function getIncomeAndExpense(
+export const getIncomeAndExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
 	type?: string,
-): Promise<ResponseBody> {
-	let url =
+): Promise<ResponseBody> => {
+	let params = {
+		belongTo,
+		searchDate,
+		type,
+	} as Record<string, unknown>;
+	return getDataOne(
 		baseService.finance +
-		baseFinanceAnalysis +
-		financeAnalysisUrl.getIncomeAndExpense +
-		'?1=1';
-	if (belongTo) {
-		url += '&belongTo=' + belongTo;
-	}
-	if (searchDate) {
-		url += '&searchDate=' + searchDate;
-	}
-	if (type) {
-		url += '&type=' + type;
-	}
-	return getDataOne(url);
-}
+			baseFinanceAnalysis +
+			financeAnalysisUrl.getIncomeAndExpense,
+		params,
+	);
+};
 
-export function getDayExpense(
+export const getDayExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> {
-	let url =
+): Promise<ResponseBody> => {
+	let params = {
+		belongTo,
+		searchDate,
+	} as Record<string, unknown>;
+	return getDataOne(
 		baseService.finance +
-		baseFinanceAnalysis +
-		financeAnalysisUrl.getDayExpense +
-		'?searchDate=' +
-		searchDate;
-	if (belongTo) {
-		url += '&belongTo=' + belongTo;
-	}
-	return getDataOne(url);
-}
+			baseFinanceAnalysis +
+			financeAnalysisUrl.getDayExpense,
+		params,
+	);
+};
 
-export function getMonthExpense(
+export const getMonthExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> {
-	let url =
+): Promise<ResponseBody> => {
+	let params = {
+		belongTo,
+		searchDate,
+	} as Record<string, unknown>;
+	return getDataOne(
 		baseService.finance +
-		baseFinanceAnalysis +
-		financeAnalysisUrl.getMonthExpense +
-		'?searchDate=' +
-		searchDate;
-	if (belongTo) {
-		url += '&belongTo=' + belongTo;
-	}
-	return getDataOne(url);
-}
+			baseFinanceAnalysis +
+			financeAnalysisUrl.getMonthExpense,
+		params,
+	);
+};

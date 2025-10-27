@@ -22,20 +22,23 @@ export function getPrepaidCardInfoTPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PrepaidCardInfoTData>>> {
-	let url =
-		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.page;
-	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
-		pageSize: pageSize ? pageSize : 10,
-	});
+	return postData(
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.page,
+		params,
+		{
+			pageNo: pageNo ? pageNo : 1,
+			pageSize: pageSize ? pageSize : 10,
+		},
+	);
 }
 
 export function getPrepaidCardInfoList(
 	params: PrepaidCardInfoTData,
 ): Promise<ResponseBody<PrepaidCardInfoTData[]>> {
-	let url =
-		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.list;
-	return postData(url, params);
+	return postData(
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.list,
+		params,
+	);
 }
 
 export function getPrepaidCardInfoTDetail(
@@ -43,9 +46,7 @@ export function getPrepaidCardInfoTDetail(
 ): Promise<ResponseBody<PrepaidCardInfoTData>> {
 	return getDataOne(
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
-		{
-			id,
-		},
+		{ id },
 	);
 }
 
@@ -54,20 +55,19 @@ export function deletePrepaidCardInfoT(
 ): Promise<ResponseBody<boolean>> {
 	return deleteData(
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
-		{
-			ids,
-		},
+		{ ids },
 	);
 }
 
 export function consumeAndRecharge(
 	params: any,
 ): Promise<ResponseBody<PrepaidCardInfoTData>> {
-	let url =
+	return postData(
 		baseService.finance +
-		basePrepaidCardInfoT +
-		PrepaidCardInfoTUrl.consumeAndRecharge;
-	return postData(url, params);
+			basePrepaidCardInfoT +
+			PrepaidCardInfoTUrl.consumeAndRecharge,
+		params,
+	);
 }
 
 export function addOrEditPrepaidCardInfoT(

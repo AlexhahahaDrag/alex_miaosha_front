@@ -15,6 +15,7 @@
 						v-model:value="searchUser"
 						:field-names="{ label: 'nickName', value: 'id' }"
 						:options="userList"
+						placeholder="请选择用户"
 						@change="changeMonth"
 					>
 					</a-select>

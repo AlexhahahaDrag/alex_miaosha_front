@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { OrgInfoData } from '../orgInfoListTs';
 
-const baseOrgInfo = '/api/v1//org-info';
+const baseOrgInfo = '/api/v1/org-info';
 
 const OrgInfoUrl = {
 	page: '/page',
@@ -20,29 +20,20 @@ export function getOrgInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<OrgInfoData>>> {
-	let url =
-		baseService.user +
-		baseOrgInfo +
-		OrgInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	return postData(baseService.user + baseOrgInfo + OrgInfoUrl.page, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getOrgInfoDetail(
 	id: number,
 ): Promise<ResponseBody<OrgInfoData>> {
-	return getDataOne(
-		baseService.user + baseOrgInfo + OrgInfoUrl.url + '?id=' + id,
-	);
+	return getDataOne(baseService.user + baseOrgInfo + OrgInfoUrl.url, { id });
 }
 
 export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {
-	return deleteData(
-		baseService.user + baseOrgInfo + OrgInfoUrl.url + '?ids=' + ids,
-	);
+	return deleteData(baseService.user + baseOrgInfo + OrgInfoUrl.url, { ids });
 }
 
 export function addOrEditOrgInfo(

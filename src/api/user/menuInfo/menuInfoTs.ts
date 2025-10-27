@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseMenuInfo = '/api/v1//menu-info';
+const baseMenuInfo = '/api/v1/menu-info';
 
 const MenuInfoUrl = {
 	page: '/page',
@@ -19,15 +19,11 @@ export function getMenuInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		baseMenuInfo +
-		MenuInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	let url = baseService.user + baseMenuInfo + MenuInfoUrl.page;
+	return postData(url, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getMenuInfoDetail(id: number): Promise<ResponseBody> {

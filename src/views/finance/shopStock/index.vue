@@ -40,7 +40,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.category"
-									:placeholder="'请输入' + labelMap['category'].label"
+									:placeholder="'请选择' + labelMap['category'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="categoryList"
 									:allowClear="true"
@@ -58,7 +58,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.purchasePlace"
-									:placeholder="'请输入' + labelMap['purchasePlace'].label"
+									:placeholder="'请选择' + labelMap['purchasePlace'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="purchasePlaceList"
 									:allowClear="true"
@@ -79,10 +79,9 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editShopStock('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
-				<a-button type="primary" danger @click="batchDelShopStock"
-					>删除</a-button
-				>
+				<a-button type="primary" danger @click="batchDelShopStock">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -103,8 +102,9 @@
 								type="primary"
 								size="small"
 								@click="editShopStock('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

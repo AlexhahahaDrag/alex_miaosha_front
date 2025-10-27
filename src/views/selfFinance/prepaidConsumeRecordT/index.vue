@@ -15,14 +15,16 @@
 								type="primary"
 								:size="'small'"
 								@click="handleRecharge(card)"
-								>充值</a-button
 							>
+								充值
+							</a-button>
 							<a-button
 								type="primary"
 								:size="'small'"
 								@click="handleConsume(card)"
-								>消费</a-button
 							>
+								消费
+							</a-button>
 						</div>
 					</a-card>
 				</a-col>
@@ -67,7 +69,10 @@
 					/>
 				</a-form-item>
 				<a-form-item label="支付方式">
-					<a-select v-model:value="rechargeForm.paymentMethod">
+					<a-select
+						v-model:value="rechargeForm.paymentMethod"
+						placeholder="请选择支付方式"
+					>
 						<a-select-option value="wechat">微信支付</a-select-option>
 						<a-select-option value="alipay">支付宝</a-select-option>
 						<a-select-option value="bank">银行卡</a-select-option>

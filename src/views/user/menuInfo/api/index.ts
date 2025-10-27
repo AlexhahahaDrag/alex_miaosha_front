@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { MenuInfoData } from '../config';
 
-const baseMenuInfo = '/api/v1//menu-info';
+const baseMenuInfo = '/api/v1/menu-info';
 
 const MenuInfoUrl = {
 	page: '/page',
@@ -20,8 +20,7 @@ export function getMenuInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<MenuInfoData>>> {
-	let url = baseService.user + baseMenuInfo + MenuInfoUrl.page;
-	return postData(url, params, {
+	return postData(baseService.user + baseMenuInfo + MenuInfoUrl.page, params, {
 		pageNo: pageNo ? pageNo : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
@@ -30,15 +29,11 @@ export function getMenuInfoPage(
 export function getMenuInfoDetail(
 	id: number,
 ): Promise<ResponseBody<MenuInfoData>> {
-	return getDataOne(baseService.user + baseMenuInfo + MenuInfoUrl.url, {
-		id,
-	});
+	return getDataOne(baseService.user + baseMenuInfo + MenuInfoUrl.url, { id });
 }
 
 export function deleteMenuInfo(ids: string): Promise<ResponseBody<boolean>> {
-	return deleteData(baseService.user + baseMenuInfo + MenuInfoUrl.url, {
-		ids,
-	});
+	return deleteData(baseService.user + baseMenuInfo + MenuInfoUrl.url, { ids });
 }
 
 export function addOrEditMenuInfo(

@@ -1,15 +1,6 @@
 import type { Rule } from 'ant-design-vue/es/form';
 
-export const labelMap: Record<string, { name: string; label: string }> = {
-	eventName: { name: 'eventName', label: '事件名称' },
-	amount: { name: 'amount', label: '金额' },
-	otherPerson: { name: 'otherPerson', label: '其他人' },
-	eventTime: { name: 'eventTime', label: '随礼时间' },
-	remarks: { name: 'remarks', label: '备注' },
-	action: { name: 'action', label: '动作' },
-	noticeNum: { name: 'noticeNum', label: '通知次数' },
-};
-
+// 表单验证规则
 export const rulesRef: Record<string, Rule[]> = {
 	eventName: [
 		{
@@ -42,7 +33,3 @@ export const rulesRef: Record<string, Rule[]> = {
 		},
 	],
 };
-
-export const labelCol: { span: number } = { span: 5 };
-
-export const wrapperCol: { span: number } = { span: 19 };

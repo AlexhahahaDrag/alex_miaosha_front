@@ -36,9 +36,7 @@ export function getDictList(
 ): Promise<ResponseBody<DictInfo[]>> {
 	return getDataOne(
 		baseService.finance + baseDictManager + dictUrl.listByBelong,
-		{
-			belongTo,
-		},
+		{ belongTo },
 	);
 }
 

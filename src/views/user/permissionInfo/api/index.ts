@@ -19,30 +19,31 @@ export function getPermissionInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		basePermissionInfo +
-		PermissionInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	return postData(
+		baseService.user + basePermissionInfo + PermissionInfoUrl.page,
+		params,
+		{
+			pageNo: pageNo ? pageNo : 1,
+			pageSize: pageSize ? pageSize : 10,
+		},
+	);
 }
 
 export function getPermissionInfoDetail(id: number): Promise<ResponseBody> {
 	return getDataOne(
-		baseService.user + basePermissionInfo + PermissionInfoUrl.url + '?id=' + id,
+		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
+		{
+			id,
+		},
 	);
 }
 
 export function deletePermissionInfo(ids: string): Promise<ResponseBody> {
 	return deleteData(
-		baseService.user +
-			basePermissionInfo +
-			PermissionInfoUrl.url +
-			'?ids=' +
+		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
+		{
 			ids,
+		},
 	);
 }
 

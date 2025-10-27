@@ -123,7 +123,6 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editPmsAttr('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
 				<a-button type="primary" danger @click="batchDelPmsAttr">删除</a-button>
 			</a-space>
 		</div>
@@ -145,8 +144,9 @@
 								type="primary"
 								size="small"
 								@click="editPmsAttr('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

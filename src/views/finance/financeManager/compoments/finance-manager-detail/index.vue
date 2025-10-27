@@ -2,16 +2,8 @@
 	<div>
 		<a-modal
 			:open="props.open"
-			:width="
-				props.modelInfo && props.modelInfo.width ?
-					props.modelInfo.width
-				:	'1000px'
-			"
-			:title="
-				props.modelInfo && props.modelInfo.title ?
-					props.modelInfo.title
-				:	'Basic Modal'
-			"
+			:width="props.modelInfo?.width || '1000px'"
+			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -26,8 +18,8 @@
 					type="primary"
 					:loading="loading"
 					@click="handleOk"
-					>保存</a-button
-				>
+					>保存
+				</a-button>
 			</template>
 			<a-form
 				ref="formRef"
@@ -132,6 +124,7 @@
 								v-model:value="formState.belongTo"
 								:field-names="{ label: 'nickName', value: 'id' }"
 								:options="userList"
+								placeholder="请选择归属人"
 							>
 							</a-select>
 						</a-form-item>

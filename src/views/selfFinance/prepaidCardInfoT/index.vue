@@ -8,8 +8,9 @@
 					type="primary"
 					style="margin-left: 10px"
 					@click="handleRecharge('recharge')"
-					>新增消费记录</a-button
 				>
+					新增消费记录
+				</a-button>
 			</div>
 			<a-row :gutter="24">
 				<a-col :span="4" v-for="card in cards" :key="card.id">
@@ -23,12 +24,15 @@
 							<p class="balance">余额: ¥{{ card.currentBalance }}</p>
 						</div>
 						<div class="card-actions">
-							<a-button type="primary" @click="handleRecharge('recharge', card)"
-								>充值</a-button
+							<a-button
+								type="primary"
+								@click="handleRecharge('recharge', card)"
 							>
-							<a-button type="primary" @click="handleRecharge('consume', card)"
-								>消费</a-button
-							>
+								充值
+							</a-button>
+							<a-button type="primary" @click="handleRecharge('consume', card)">
+								消费
+							</a-button>
 						</div>
 					</a-card>
 				</a-col>
@@ -42,9 +46,9 @@
 				<span v-if="selectedCardId"
 					>当前查看: {{ getSelectedCardName() }} 的交易记录</span
 				>
-				<a-button v-if="selectedCardId" type="link" @click="clearCardSelection"
-					>查看全部记录</a-button
-				>
+				<a-button v-if="selectedCardId" type="link" @click="clearCardSelection">
+					查看全部记录
+				</a-button>
 			</div>
 			<a-table
 				:columns="columns"

@@ -32,9 +32,9 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editUser('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelUserManager"
-					>删除</a-button
-				>
+				<a-button type="primary" danger @click="batchDelUserManager">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -55,8 +55,9 @@
 								type="primary"
 								size="small"
 								@click="editUser('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除用户信息?"
 								ok-text="确认"

@@ -87,9 +87,9 @@
 					<a-col :span="6" style="text-align: right">
 						<a-space>
 							<a-button type="primary" @click="handleQuery"> 查找</a-button>
-							<a-button type="primary" @click="handleCancelQuery"
-								>清空</a-button
-							>
+							<a-button type="primary" @click="handleCancelQuery">
+								清空
+							</a-button>
 						</a-space>
 					</a-col>
 				</a-row>

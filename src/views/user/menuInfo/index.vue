@@ -80,7 +80,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.hideInMenu"
-									:placeholder="'请输入' + labelMap['hideInMenu'].label"
+									:placeholder="'请选择' + labelMap['hideInMenu'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="hideInMenuList"
 									:allowClear="true"
@@ -122,7 +122,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.status"
-									:placeholder="'请输入' + labelMap['status'].label"
+									:placeholder="'请选择' + labelMap['status'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="statusList"
 									:allowClear="true"
@@ -157,10 +157,9 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editMenuInfo('add')">新增</a-button>
-				<a-button type="primary" @click="query">导入</a-button>
-				<a-button type="primary" danger @click="batchDelMenuInfo"
-					>删除</a-button
-				>
+				<a-button type="primary" danger @click="batchDelMenuInfo">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -181,8 +180,9 @@
 								type="primary"
 								size="small"
 								@click="editMenuInfo('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

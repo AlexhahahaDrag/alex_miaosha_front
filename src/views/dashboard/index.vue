@@ -166,20 +166,20 @@
 
 				<!-- 待办事项 -->
 				<a-col :xs="24" :lg="12">
-					<a-card title="待办事项" class="todo-card">
-						<a-list :data-source="todoList" size="small">
+					<a-card title="待办事项" class="tdo-card">
+						<a-list :data-source="tdoList" size="small">
 							<template #renderItem="{ item }">
 								<a-list-item>
 									<template #actions>
 										<a-button
 											type="link"
 											size="small"
-											@click="completeTodo(item.id)"
+											@click="completetdo(item.id)"
 										>
 											完成
 										</a-button>
 									</template>
-									<div class="todo-item">
+									<div class="tdo-item">
 										<a-tag
 											:color="
 												item.priority === 'high' ? 'red'
@@ -262,7 +262,7 @@ const recentActivities = ref([
 ]);
 
 // 待办事项
-const todoList = ref([
+const tdoList = ref([
 	{
 		id: 1,
 		task: '审核待上架商品',
@@ -291,8 +291,8 @@ const navigateTo = (path: string) => {
 };
 
 // 完成待办事项
-const completeTodo = (id: number) => {
-	todoList.value = todoList.value.filter((item) => item.id !== id);
+const completetdo = (id: number) => {
+	tdoList.value = tdoList.value.filter((item) => item.id !== id);
 };
 
 // 初始化图表
@@ -484,7 +484,7 @@ onMounted(() => {
 
 .bottom-section {
 	.activity-card,
-	.todo-card {
+	.tdo-card {
 		.activity-item {
 			.activity-title {
 				font-size: 14px;
@@ -497,7 +497,7 @@ onMounted(() => {
 			}
 		}
 
-		.todo-item {
+		.tdo-item {
 			display: flex;
 			align-items: center;
 			gap: 8px;

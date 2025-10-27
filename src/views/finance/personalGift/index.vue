@@ -1,64 +1,11 @@
 <template>
 	<div class="page-info">
 		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['eventName'].name"
-								:label="labelMap['eventName'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.eventName"
-									:placeholder="'请填写' + labelMap['eventName'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['otherPerson'].name"
-								:label="labelMap['otherPerson'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.otherPerson"
-									:placeholder="'请填写' + labelMap['otherPerson'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['action'].name"
-								:label="labelMap['action'].label"
-							>
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.action"
-									:placeholder="'请输入' + labelMap['action'].label"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="actionList"
-									:allowClear="true"
-								>
-								</a-select>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="20" style="text-align: right; margin-bottom: 10px">
-							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
-			</div>
+			<personal-gift-filter
+				v-model="searchInfo"
+				@query="query"
+				@cancelQuery="cancelQuery"
+			></personal-gift-filter>
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
@@ -85,7 +32,7 @@
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record: PersonalGiftInfo) => record.id || 0"
 				:pagination="pagination"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
@@ -99,14 +46,16 @@
 								type="primary"
 								size="small"
 								@click="noticePersonalInfo(record.id)"
-								>通知</a-button
 							>
+								通知
+							</a-button>
 							<a-button
 								type="primary"
 								size="small"
 								@click="editPersonalGift('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"
@@ -124,7 +73,7 @@
 							:key="record.action"
 							:color="record.action == 'give' ? 'red' : 'green'"
 						>
-							{{ record.action == 'give' ? '随礼' : '收礼' }}
+							{{ actionMap[record.action] }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'eventTime'">
@@ -135,13 +84,13 @@
 				</template>
 			</a-table>
 		</div>
-		<PersonalGiftDetail
+		<personal-gift-detail
 			ref="editInfo"
 			:open="modelInfo?.open"
 			:modelInfo="modelInfo"
 			@handleOk="handleOk"
 			@handleCancel="handleCancel"
-		></PersonalGiftDetail>
+		></personal-gift-detail>
 	</div>
 </template>
 <script setup lang="ts">
@@ -151,7 +100,8 @@ import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { PersonalGiftInfo } from './config';
-import { columns, labelCol, wrapperCol, labelMap } from './config';
+import { columns } from './config';
+import type { DictInfo } from '@/views/finance/dict/config';
 import {
 	getPersonalGiftPage,
 	deletePersonalGift,
@@ -161,9 +111,17 @@ import {
 import { formatDate } from '@/utils/dayjs';
 import { useDictInfo } from '@/composables/useDictInfo';
 
-const { getDictByType } = useDictInfo('action');
+const { getDictByType } = useDictInfo('gift_action');
 
-const actionList = computed(() => getDictByType('action'));
+const actionMap = computed(() => {
+	return getDictByType('gift_action')?.reduce(
+		(acc: Record<string, string>, curr: DictInfo) => {
+			acc[curr.typeCode || ''] = curr.typeName || '';
+			return acc;
+		},
+		{} as Record<string, string>,
+	);
+});
 
 // 使用分页组合式函数
 const {

@@ -4,13 +4,14 @@ import { getDictList } from '@/views/finance/dict/api';
 import type { DictInfo } from '@/views/finance/dict/config';
 
 export function useDictInfo(initialDictTypes?: string) {
-	const loading = ref(false);
+	const loading = ref<boolean>(false);
 	const dictMap = ref<Map<string, DictInfo[]>>(new Map());
 
 	const getDictInfoList = async (dictTypes: string) => {
 		loading.value = true;
 		try {
 			const { code, data, message: messageInfo } = await getDictList(dictTypes);
+			console.log(`获取字典数据:`, data, code, messageInfo, dictTypes);
 			if (code === '200') {
 				// 按 belongTo 分组数据
 				const groupedData = new Map<string, DictInfo[]>();

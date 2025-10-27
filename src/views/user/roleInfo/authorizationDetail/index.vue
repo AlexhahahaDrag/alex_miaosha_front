@@ -12,8 +12,8 @@
 				>取消</a-button
 			>
 			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
-				>保存</a-button
-			>
+				>保存
+			</a-button>
 		</template>
 		<menu-tree
 			:treeData="permissionTree"

@@ -66,7 +66,7 @@
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.isValid"
-									:placeholder="'请输入' + labelMap['isValid'].label"
+									:placeholder="'请选择' + labelMap['isValid'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="isValidList"
 									:allowClear="true"
@@ -100,13 +100,12 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editShopStockAttrs('add')"
-					>新增</a-button
-				>
-				<a-button type="primary" @click="query">导入</a-button>
-				<a-button type="primary" danger @click="batchDelShopStockAttrs"
-					>删除</a-button
-				>
+				<a-button type="primary" @click="editShopStockAttrs('add')">
+					新增
+				</a-button>
+				<a-button type="primary" danger @click="batchDelShopStockAttrs">
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -127,8 +126,9 @@
 								type="primary"
 								size="small"
 								@click="editShopStockAttrs('update', record.id)"
-								>编辑</a-button
 							>
+								编辑
+							</a-button>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"

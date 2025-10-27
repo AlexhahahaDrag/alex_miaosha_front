@@ -34,8 +34,9 @@
 					@click="onSubmit"
 					style="width: 100%"
 					:loading="loading"
-					>登录</a-button
 				>
+					登录
+				</a-button>
 			</a-form-item>
 		</a-form>
 	</div>

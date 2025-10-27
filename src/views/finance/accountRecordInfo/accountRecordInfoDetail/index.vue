@@ -13,8 +13,8 @@
 		<template #footer>
 			<a-button key="back" @click="handleCancel">取消</a-button>
 			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
-				>保存</a-button
-			>
+				>保存
+			</a-button>
 		</template>
 		<a-form
 			ref="formRef"
@@ -62,7 +62,7 @@
 						<a-select
 							ref="select"
 							v-model:value="formState.account"
-							placeholder="请填写账号"
+							placeholder="请选择账号"
 							:field-names="{ label: 'typeName', value: 'typeCode' }"
 							:options="accountTypeList"
 							:allowClear="true"

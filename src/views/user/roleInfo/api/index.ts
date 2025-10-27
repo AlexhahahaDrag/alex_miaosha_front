@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseRoleInfo = '/api/v1//role-info';
+const baseRoleInfo = '/api/v1/role-info';
 
 const RoleInfoUrl = {
 	page: '/page',
@@ -19,27 +19,18 @@ export function getRoleInfoPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
-	let url =
-		baseService.user +
-		baseRoleInfo +
-		RoleInfoUrl.page +
-		'?pageNum=' +
-		(pageNo ? pageNo : 1) +
-		'&pageSize=' +
-		(pageSize ? pageSize : 10);
-	return postData(url, params);
+	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.page, params, {
+		pageNo: pageNo ? pageNo : 1,
+		pageSize: pageSize ? pageSize : 10,
+	});
 }
 
 export function getRoleInfoDetail(id: number): Promise<ResponseBody> {
-	return getDataOne(
-		baseService.user + baseRoleInfo + RoleInfoUrl.url + '?id=' + id,
-	);
+	return getDataOne(baseService.user + baseRoleInfo + RoleInfoUrl.url, { id });
 }
 
 export function deleteRoleInfo(ids: string): Promise<ResponseBody> {
-	return deleteData(
-		baseService.user + baseRoleInfo + RoleInfoUrl.url + '?ids=' + ids,
-	);
+	return deleteData(baseService.user + baseRoleInfo + RoleInfoUrl.url, { ids });
 }
 
 export function addOrEditRoleInfo(

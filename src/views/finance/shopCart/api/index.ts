@@ -20,11 +20,14 @@ export function getShopCartPage(
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<ShopCartData>>> {
-	let url = baseService.finance + baseShopCart + ShopCartUrl.page;
-	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
-		pageSize: pageSize ? pageSize : 10,
-	});
+	return postData(
+		baseService.finance + baseShopCart + ShopCartUrl.page,
+		params,
+		{
+			pageNo: pageNo ? pageNo : 1,
+			pageSize: pageSize ? pageSize : 10,
+		},
+	);
 }
 
 export function getShopCartDetail(
