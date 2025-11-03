@@ -18,7 +18,8 @@
 					type="primary"
 					:loading="loading"
 					@click="handleOk"
-					>保存
+				>
+					保存
 				</a-button>
 			</template>
 			<a-form
@@ -26,8 +27,6 @@
 				name="financeForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
@@ -141,10 +140,11 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/views/common/config';
-import type { FinanceManagerData } from '../../config';
+import type { FinanceManagerData } from '../config';
 import {
 	getFinanceMangerDetail,
-	addOrEditFinanceManger,
+	addFinanceManger,
+	editFinanceManger,
 } from '@/views/finance/financeManager/api';
 import { rulesRef } from './config';
 import { useUserInfo } from '@/composables/useUserInfo';
@@ -186,8 +186,6 @@ let formState = ref<FinanceManagerData>({});
 
 let currentUser = useUserStore()?.getUserInfo;
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
-
 const handleOk = () => {
 	loading.value = true;
 	if (formRef.value) {
@@ -201,32 +199,21 @@ const handleCancel = () => {
 
 //保存财务信息
 const saveFinanceManager = async () => {
-	let method = '';
+	let api = addFinanceManger;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editFinanceManger;
 	}
-	const { code, message: messageInfo } = await addOrEditFinanceManger(
-		method,
-		formState.value,
-	).finally(() => {
-		loading.value = false;
-	});
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
-};
-
-const onFinish = (values: unknown) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: unknown) => {
-	console.log('Failed:', errorInfo);
 };
 
 const initDetail = async (modalData: ModelInfo | undefined) => {
@@ -272,5 +259,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['handleOk', 'handleCancel']);
 </script>
 <style lang="scss" scoped></style>
