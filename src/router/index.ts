@@ -30,6 +30,24 @@ export const routes: MenuDataItem[] = [
 		],
 	},
 	{
+		name: 'personal-gift',
+		path: '/personal-gift',
+		redirect: '/contacts-user',
+		component: Layout,
+		meta: {
+			title: '个人礼物',
+			hiedInMenu: false,
+		},
+		children: [
+			{
+				path: '/contacts-user',
+				component: modules['/src/views/personal-gift/contacts-user/index.vue'],
+				name: 'contacts-user',
+				meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
+			},
+		],
+	},
+	{
 		name: 'login',
 		path: '/login',
 		component: modules['/src/views/login/index.vue'],
@@ -48,6 +66,7 @@ const router = createRouter({
 let dynamicRouter = [] as any[];
 
 router.beforeEach((to: any, _from: any, next) => {
+	console.log(`router.beforeEach`, to);
 	const userStore = useUserStore();
 	NProgress.start();
 	if (to.path == '/login') {
@@ -74,7 +93,7 @@ const addRouter = () => {
 	if (userStore.getMenuInfo?.length) {
 		let roleInfo = userStore.getRoleInfo;
 		if (
-			roleInfo.roleCode !== 'super_super' &&
+			roleInfo?.roleCode !== 'super_super' &&
 			!roleInfo?.permissionList?.length
 		) {
 			return;

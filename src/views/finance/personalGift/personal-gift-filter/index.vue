@@ -38,22 +38,20 @@
 						:label="labelMap['action'].label"
 					>
 						<a-select
-							ref="select"
 							v-model:value="searchInfo.action"
-							:placeholder="'请选择' + labelMap['action'].label"
+							:placeholder="`请选择${labelMap['action'].label}`"
 							:field-names="{ label: 'typeName', value: 'typeCode' }"
 							:options="actionList"
 							:allowClear="true"
 							@change="onQueryImmediate"
-						>
-						</a-select>
+						/>
 					</a-form-item>
 				</a-col>
+
+				<!-- 操作按钮 -->
 				<a-col :span="6" style="text-align: right; margin-bottom: 10px">
 					<a-space>
-						<!-- 查找按钮 -->
-						<a-button type="primary" @click="onQueryImmediate"> 查找</a-button>
-						<!-- 清空按钮 -->
+						<a-button type="primary" @click="onQueryImmediate">查找</a-button>
 						<a-button type="primary" @click="onCancelQuery">清空</a-button>
 					</a-space>
 				</a-col>
@@ -62,14 +60,17 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { computed, onBeforeUnmount } from 'vue';
+import { debounce } from 'lodash-es';
 import type { PersonalGiftInfo } from '../config';
 import { labelCol, wrapperCol, labelMap } from '../config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { debounce } from 'lodash-es';
 
-// 字典信息
+// 防抖延迟时间配置（毫秒）
+const DEBOUNCE_DELAY = 800;
+
+// 字典信息 - 获取操作类型选项
 const { getDictByType } = useDictInfo('gift_action');
-// 动作列表
 const actionList = computed(() => getDictByType('gift_action'));
 
 // 定义接收的 props
@@ -116,7 +117,7 @@ const onQueryImmediate = (): void => {
  */
 const onQueryWithDebounce = debounce((): void => {
 	emit('query');
-}, 800);
+}, DEBOUNCE_DELAY);
 
 /**
  * 清空查询条件处理函数
@@ -126,5 +127,10 @@ const onCancelQuery = (): void => {
 	searchInfo.value = {};
 	onQueryImmediate();
 };
+
+// 组件卸载时，取消待处理的防抖操作
+onBeforeUnmount(() => {
+	onQueryWithDebounce.cancel();
+});
 </script>
 <style lang="scss" scoped></style>

@@ -8,7 +8,7 @@ import { decrypt } from '@/utils/crypto/index';
 import moment from 'moment';
 
 const request = axios.create({
-	timeout: 6000,
+	timeout: 30000,
 });
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';

@@ -112,7 +112,7 @@ import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
 import type { FinanceManagerData } from './config';
-import type { SearchInfo } from './compoments/finance-manager-filter/config';
+import type { SearchInfo } from './finance-manager-filter/config';
 import { columns, fromSourceTransferList } from './config';
 import {
 	getFinanceMangerPage,

@@ -49,19 +49,20 @@ export function deleteFinanceManger(
 	);
 }
 
-export function addOrEditFinanceManger(
-	method: string,
+export function addFinanceManger(
 	params: FinanceManagerData,
 ): Promise<ResponseBody<FinanceManagerData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseFinanceManager + financeMangerUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseFinanceManager + financeMangerUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + baseFinanceManager + financeMangerUrl.url,
+		params,
+	);
+}
+
+export function editFinanceManger(
+	params: FinanceManagerData,
+): Promise<ResponseBody<FinanceManagerData>> {
+	return putData(
+		baseService.finance + baseFinanceManager + financeMangerUrl.url,
+		params,
+	);
 }
