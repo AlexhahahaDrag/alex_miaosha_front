@@ -5,6 +5,7 @@ import {
 	deleteData,
 	baseService,
 	postFileData,
+	downloadFile,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { ContactsUserInfo } from '../config';
@@ -82,4 +83,18 @@ export const importContactsUser = (
 		baseService.finance + baseContactsUser + ContactsUserUrl.import,
 		file,
 	);
+};
+
+// AI Agent: 下载联系人模版
+// 注意事项：
+// 1. 此接口返回的是二进制Blob文件，不是JSON数据
+// 2. 响应拦截器会自动跳过解密处理
+// 3. 返回的response.data是Blob对象，需要通过createObjectURL处理
+// 4. 使用示例见：index.vue中的onDownloadTemplate()函数
+export const downloadContactsUserTemplate = (
+	params: unknown,
+): Promise<ResponseBody<unknown>> => {
+	return downloadFile(baseService.finance + baseContactsUser + '/template', {
+		params,
+	});
 };

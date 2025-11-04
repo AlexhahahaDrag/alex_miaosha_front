@@ -60,7 +60,7 @@ const requestHandler = (
 };
 
 //请求拦截器
-const requestHandlerFile = (
+const requestFileHandler = (
 	config: AxiosRequestConfig<any>,
 ): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
 	const userStore = useUserStore();
@@ -93,6 +93,12 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
 	response: AxiosResponse<any>,
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
+	// AI Agent: 检查是否需要跳过响应处理（用于文件下载等二进制数据）
+	if ((response.config as any)?.skipResponseInterceptor) {
+		// 直接返回响应，不进行解密处理
+		return response;
+	}
+
 	const { data } = response;
 	let resData = decrypt(data);
 	if (resData.code == 403) {
@@ -100,6 +106,14 @@ const responseHandler = (
 		return;
 	}
 	return resData;
+};
+
+//响应拦截器
+const responseFileHandler = (
+	response: AxiosResponse<any>,
+): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
+	console.log(`responseFileHandler eeeeeeeeeeeeeeeeeeeeeeeeeeeeeee:`, response);
+	return response;
 };
 
 // 添加响应拦截器
@@ -110,8 +124,8 @@ const requestFile = axios.create({
 });
 
 // 添加请求拦截器
-requestFile.interceptors.request.use(requestHandlerFile, errorHandler);
+requestFile.interceptors.request.use(requestFileHandler, errorHandler);
 
-requestFile.interceptors.response.use(responseHandler, errorHandler);
+requestFile.interceptors.response.use(responseFileHandler, errorHandler);
 
 export { request as default, requestFile };

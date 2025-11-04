@@ -4,18 +4,23 @@
 		<div class="page-header">
 			<h1 class="page-title">联系人管理</h1>
 			<div class="header-actions">
+				<!-- AI Agent: 下载模版按钮 -->
+				<a-button class="btn-template btn-info" @click="onDownloadTemplate">
+					<template #icon><download-outlined /></template>
+					下载模版
+				</a-button>
 				<a-upload
 					name="file"
 					:showUploadList="false"
 					:customRequest="customImportRequest"
 					accept=".xlsx,.xls"
 				>
-					<a-button type="primary" class="btn-import">
+					<a-button type="primary" class="btn-import btn-info">
 						<template #icon><download-outlined /></template>
 						导入联系人
 					</a-button>
 				</a-upload>
-				<a-button type="primary" class="btn-add" @click="onAddContact">
+				<a-button type="primary" class="btn-add btn-info" @click="onAddContact">
 					<template #icon><plus-outlined /></template>
 					添加联系人
 				</a-button>
@@ -30,6 +35,7 @@
 					placeholder="搜索联系名称、电话号码"
 					allow-clear
 					@press-enter="onSearch"
+					@change="onSearchDebounce"
 					class="search-input"
 				>
 					<template #prefix><search-outlined /></template>
@@ -48,6 +54,11 @@
 					<a-select-option value="colleague">同事</a-select-option>
 					<a-select-option value="other">其他</a-select-option>
 				</a-select>
+				<!-- AI Agent: 添加查询和清空按钮 -->
+				<a-button type="primary" @click="onSearch" class="search-btn">
+					<template #icon><search-outlined /></template>
+					查询
+				</a-button>
 				<a-button @click="onResetFilter" class="reset-btn">
 					<template #icon><reload-outlined /></template>
 					清空
@@ -68,7 +79,6 @@
 				:row-key="(record: ContactsUserInfo) => record.id || 0"
 				:pagination="pagination"
 				:scroll="{ x: 'max-content' }"
-				:style="{ minHeight: '400px' }"
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
@@ -125,8 +135,10 @@ import {
 	getContactsUserPage,
 	deleteContactsUser,
 	importContactsUser,
+	downloadContactsUserTemplate,
 } from './api/index';
 import { ref } from 'vue';
+import { debounce } from 'lodash-es';
 import contactsUserDetail from './contacts-user-detail/index.vue';
 
 // 使用分页组合式函数
@@ -138,6 +150,8 @@ const {
 
 // 加载状态
 const loading = ref<boolean>(false);
+// 下载中状态 - AI Agent: 防止重复下载
+const downloading = ref<boolean>(false);
 // 数据源
 const contactList = ref<ContactsUserInfo[]>([]);
 // 搜索条件 - 合并到searchInfo中
@@ -183,6 +197,12 @@ const onSearch = (): void => {
 	pagination.current = 1;
 	getContactsUserListPage(searchInfo.value, pagination);
 };
+
+// AI Agent: 防抖搜索 - 用户输入时延迟500ms后执行查询，避免频繁请求
+const onSearchDebounce = debounce((): void => {
+	pagination.current = 1;
+	getContactsUserListPage(searchInfo.value, pagination);
+}, 500);
 
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
@@ -263,6 +283,61 @@ const onEditContact = (record: ContactsUserInfo): void => {
 	};
 };
 
+// 下载联系人模版 - AI Agent: 改进版本，修复所有风险
+const onDownloadTemplate = async (): Promise<void> => {
+	// 风险1修复：防止重复下载
+	if (downloading.value) {
+		return;
+	}
+	message.info('开始下载模版，请稍候...');
+	try {
+		// 设置下载中状态
+		downloading.value = true;
+		// AI Agent: 获取加密后的响应（内容为Blob）
+		const response: unknown = await downloadContactsUserTemplate({
+			responseType: 'blob',
+		});
+		// AI Agent: 响应数据是Blob二进制文件
+		const blob = (response as { data: Blob }).data;
+		// 创建临时 URL
+		const blobUrl = window.URL.createObjectURL(blob);
+		// 创建临时 a 标签进行下载
+		const link = document.createElement('a');
+		link.href = blobUrl;
+		link.download = '联系人模版.xlsx';
+		document.body.appendChild(link);
+		// 触发下载
+		link.click();
+		// 清理资源
+		document.body.removeChild(link);
+		window.URL.revokeObjectURL(blobUrl);
+		// 隐藏加载提示，显示成功提示
+		message.success('模版下载成功！');
+	} catch (error) {
+		// 风险4修复：详细的错误信息处理
+		let errorMsg = '下载模版失败！';
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const axiosError = error as any;
+		if (axiosError?.code === 'ECONNABORTED') {
+			errorMsg = '下载超时，请检查网络后重试';
+		} else if (axiosError?.response?.status === 404) {
+			errorMsg = '模版文件不存在，请联系管理员';
+		} else if (axiosError?.response?.status === 401) {
+			errorMsg = '登录已过期，请重新登录';
+		} else if (axiosError?.response?.status === 500) {
+			errorMsg = '服务器错误，请稍后重试';
+		} else if (error instanceof Error && error.message.includes('token')) {
+			errorMsg = '登录令牌缺失，请重新登录';
+		} else if (error instanceof Error) {
+			errorMsg = error.message;
+		}
+		message.error(errorMsg);
+		console.error('下载模版错误:', error);
+	} finally {
+		downloading.value = false;
+	}
+};
+
 // 页面初始化
 const init = (): void => {
 	const params: ContactsUserInfo = {};
@@ -295,6 +370,16 @@ init();
 		.header-actions {
 			display: flex;
 			gap: 12px;
+
+			.btn-template {
+				color: #1890ff;
+				border-color: #1890ff;
+
+				&:hover {
+					color: #0050b3;
+					border-color: #0050b3;
+				}
+			}
 
 			.btn-import {
 				background: #52c41a;
@@ -436,6 +521,18 @@ init();
 				}
 			}
 
+			.search-btn {
+				background: #1890ff;
+				border-color: #1890ff;
+				height: 100%;
+				border-radius: 4px;
+
+				&:hover {
+					background: #0050b3;
+					border-color: #0050b3;
+				}
+			}
+
 			.reset-btn {
 				border-color: #d9d9d9;
 				color: #000;
@@ -523,5 +620,10 @@ init();
 			}
 		}
 	}
+}
+
+.btn-info {
+	padding: 6px 10px;
+	height: 40px;
 }
 </style>
