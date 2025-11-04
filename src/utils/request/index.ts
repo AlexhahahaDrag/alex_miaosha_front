@@ -52,7 +52,7 @@ export function postFileData<T = unknown>(
 export function downloadFile(
 	url: string,
 	config?: Record<string, unknown>,
-): Promise<unknown> {
+): Promise<any> {
 	return requestFile.get(url, {
 		...config,
 		// 关键：告诉axios直接返回Blob，不经过响应拦截器处理

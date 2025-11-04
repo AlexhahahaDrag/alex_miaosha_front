@@ -45,6 +45,28 @@ export const routes: MenuDataItem[] = [
 				name: 'contacts-user',
 				meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
 			},
+			{
+				path: '/personal-gift-info',
+				component:
+					modules['/src/views/personal-gift/personal-gift-info/index.vue'],
+				name: 'personal-gift-info',
+				meta: {
+					title: '个人礼物信息',
+					icon: 'personal-gift-info',
+					hiedInMenu: false,
+				},
+			},
+			{
+				path: '/personal-gift-statistic',
+				component:
+					modules['/src/views/personal-gift/personal-gift-statistic/index.vue'],
+				name: 'personal-gift-statistic',
+				meta: {
+					title: '个人礼物统计',
+					icon: 'personal-gift-statistic',
+					hiedInMenu: false,
+				},
+			},
 		],
 	},
 	{
