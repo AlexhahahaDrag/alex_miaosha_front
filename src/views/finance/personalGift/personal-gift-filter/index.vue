@@ -1,6 +1,6 @@
 <template>
 	<div class="search-box">
-		<!-- AI Agent: 个人随礼搜索表单组件 -->
+		<!-- 个人随礼搜索表单组件 -->
 		<a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
 			<a-row :gutter="24">
 				<!-- 事件名称搜索字段 -->

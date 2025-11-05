@@ -161,14 +161,11 @@ const saveContactsUserManager = async (): Promise<void> => {
 	if (formState.value.id) {
 		api = editContactsUser;
 	}
-	const {
-		code,
-		message: messageInfo,
-		data,
-	} = await api(formState.value).finally(() => {
-		loading.value = false;
-	});
-	console.log(`${api.name}`, code, messageInfo, data);
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		emit('handleOk', false);

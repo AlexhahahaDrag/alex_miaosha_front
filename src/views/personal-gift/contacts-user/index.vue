@@ -4,7 +4,7 @@
 		<div class="page-header">
 			<h1 class="page-title">联系人管理</h1>
 			<div class="header-actions">
-				<!-- AI Agent: 下载模版按钮 -->
+				<!-- 下载模版按钮 -->
 				<a-button class="btn-template btn-info" @click="onDownloadTemplate">
 					<template #icon><download-outlined /></template>
 					下载模版
@@ -54,7 +54,7 @@
 					<a-select-option value="colleague">同事</a-select-option>
 					<a-select-option value="other">其他</a-select-option>
 				</a-select>
-				<!-- AI Agent: 添加查询和清空按钮 -->
+				<!-- 添加查询和清空按钮 -->
 				<a-button type="primary" @click="onSearch" class="search-btn">
 					<template #icon><search-outlined /></template>
 					查询
@@ -150,7 +150,7 @@ const {
 
 // 加载状态
 const loading = ref<boolean>(false);
-// 下载中状态 - AI Agent: 防止重复下载
+// 下载中状态 - 防止重复下载
 const downloading = ref<boolean>(false);
 // 数据源
 const contactList = ref<ContactsUserInfo[]>([]);
@@ -198,12 +198,13 @@ const onSearch = (): void => {
 	getContactsUserListPage(searchInfo.value, pagination);
 };
 
-// AI Agent: 防抖搜索 - 用户输入时延迟500ms后执行查询，避免频繁请求
+// 防抖搜索 - 用户输入时延迟500ms后执行查询，避免频繁请求
 const onSearchDebounce = debounce((): void => {
 	pagination.current = 1;
 	getContactsUserListPage(searchInfo.value, pagination);
 }, 500);
 
+// 分页改变
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
 	getContactsUserListPage(searchInfo.value, pagination);
@@ -242,6 +243,7 @@ const onCancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
+// 获取联系人列表
 const getContactsUserListPage = async (
 	param: ContactsUserInfo,
 	cur: PageInfo,
@@ -283,7 +285,7 @@ const onEditContact = (record: ContactsUserInfo): void => {
 	};
 };
 
-// 下载联系人模版 - AI Agent: 改进版本，修复所有风险
+// 下载联系人模版 - 改进版本，修复所有风险
 const onDownloadTemplate = async (): Promise<void> => {
 	// 风险1修复：防止重复下载
 	if (downloading.value) {
@@ -293,11 +295,11 @@ const onDownloadTemplate = async (): Promise<void> => {
 	try {
 		// 设置下载中状态
 		downloading.value = true;
-		// AI Agent: 获取加密后的响应（内容为Blob）
+		// 获取加密后的响应（内容为Blob）
 		const response: unknown = await downloadContactsUserTemplate({
 			responseType: 'blob',
 		});
-		// AI Agent: 响应数据是Blob二进制文件
+		// 响应数据是Blob二进制文件
 		const blob = (response as { data: Blob }).data;
 		// 创建临时 URL
 		const blobUrl = window.URL.createObjectURL(blob);

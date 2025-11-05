@@ -48,7 +48,7 @@ export function postFileData<T = unknown>(
 	return requestFile.post<Params, ResponseBody<T>>(url, params, config);
 }
 
-// AI Agent: 文件下载方法 - 绕过响应解密拦截器，直接返回Blob
+// 文件下载方法 - 绕过响应解密拦截器，直接返回Blob
 export function downloadFile(
 	url: string,
 	config?: Record<string, unknown>,

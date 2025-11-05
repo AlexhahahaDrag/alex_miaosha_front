@@ -1,5 +1,4 @@
 <template>
-	<!-- AI Agent 生成的代码：基于Figma设计 https://www.figma.com/design/jE9CdrSdOWwEFl2h84lQoV -->
 	<div class="personal-gift-container">
 		<!-- 筛选区域 -->
 		<div class="filter-section">
@@ -24,7 +23,7 @@
 
 		<!-- 统计数据区域 -->
 		<a-row :gutter="16" class="stats-section">
-			<!-- AI Agent: 使用 v-for 循环动态渲染统计卡片 -->
+			<!-- 使用 v-for 循环动态渲染统计卡片 -->
 			<a-col
 				v-for="card in statCards"
 				:key="card.id"
@@ -76,7 +75,7 @@
 					</div>
 				</div>
 
-				<!-- 联系人列表表格 - AI Agent: 使用 a-table 替代卡片列表 -->
+				<!-- 联系人列表表格 - 使用 a-table 替代卡片列表 -->
 				<div class="table-wrapper">
 					<a-table
 						:columns="tableColumns"
@@ -91,47 +90,37 @@
 						<!-- 自定义列渲染 -->
 						<template #bodyCell="{ column, record }">
 							<!-- 联系人名称和标签 -->
-							<template v-if="column.key === 'name'">
+							<template v-if="column.key === 'contactsUserName'">
 								<div class="contact-name-cell">
 									<div class="name-tag-group">
 										<span class="contact-name">{{
-											(record as ContactRecord).name
+											record.contactsUserName
 										}}</span>
 										<a-tag
-											:color="
-												getTagColor((record as ContactRecord).relationship)
-											"
+											:color="getRelationshipColor(record.relationship)"
 											class="relationship-tag"
 										>
-											{{ (record as ContactRecord).relationship }}
+											{{ getRelationshipLabel(record.relationship) }}
 										</a-tag>
 									</div>
 									<p class="contact-date">
 										上次往来:
-										{{ (record as ContactRecord).lastInteractionDate }}
+										{{ record.lastContactTime }}
 									</p>
 								</div>
 							</template>
 
 							<!-- 随礼总额 -->
-							<template v-if="column.key === 'giftAmount'">
-								<span
-									:class="[
-										'amount-text',
-										(record as ContactRecord).giftAmount > 0 ?
-											'text-red'
-										:	'text-green',
-									]"
+							<template v-if="column.key === 'giftOutAmount'">
+								<span class="amount-text text-red"
+									>¥{{ record.giftOutAmount }}</span
 								>
-									{{ (record as ContactRecord).giftAmount > 0 ? '-¥' : '¥'
-									}}{{ Math.abs((record as ContactRecord).giftAmount) }}
-								</span>
 							</template>
 
 							<!-- 收礼总额 -->
-							<template v-if="column.key === 'receiveAmount'">
+							<template v-if="column.key === 'giftInAmount'">
 								<span class="amount-text text-green"
-									>¥{{ (record as ContactRecord).receiveAmount }}</span
+									>¥{{ record.giftInAmount }}</span
 								>
 							</template>
 
@@ -140,13 +129,11 @@
 								<span
 									:class="[
 										'amount-text',
-										(record as ContactRecord).netAmount > 0 ?
-											'text-green'
-										:	'text-red',
+										record.netAmount > 0 ? 'text-green' : 'text-red',
 									]"
 								>
-									{{ (record as ContactRecord).netAmount > 0 ? '¥' : '-¥'
-									}}{{ Math.abs((record as ContactRecord).netAmount) }}
+									{{ record.netAmount > 0 ? '¥' : '-¥'
+									}}{{ Math.abs(record.netAmount) }}
 								</span>
 							</template>
 
@@ -157,7 +144,7 @@
 										type="link"
 										size="small"
 										class="btn-record-gift"
-										@click="onRecordGift(record as ContactRecord)"
+										@click="onRecordGift(record)"
 									>
 										<template #icon>
 											<!-- eslint-disable-next-line vue/component-name-in-template-casing -->
@@ -169,7 +156,7 @@
 										type="link"
 										size="small"
 										class="btn-interaction-record"
-										@click="onInteractionRecord(record as ContactRecord)"
+										@click="onInteractionRecord(record)"
 									>
 										<template #icon>
 											<!-- eslint-disable-next-line vue/component-name-in-template-casing -->
@@ -188,75 +175,26 @@
 </template>
 
 <script setup lang="ts">
-// AI Agent: 使用 Ant Design Vue 表格组件的脚本
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { message } from 'ant-design-vue';
 import type { TableColumnsType } from 'ant-design-vue';
 import { GiftOutlined, HistoryOutlined } from '@ant-design/icons-vue';
 import { usePagination } from '@/composables/usePagination';
 import type { PageInfo } from '@/composables/usePagination';
+import { getContactsGiftRecordList } from './api/index';
+import {
+	type ContactsGiftRecord,
+	getRelationshipColor,
+	getRelationshipLabel,
+	defaultPageConfig,
+	errorMessages,
+} from './config/index';
 
-// 使用分页组合式函数 - AI Agent: 参考 contacts-user 的实现
+// 使用分页组合式函数 - 参考 contacts-user 的实现
 const { pagination, handleTableChange: paginationChange } = usePagination();
 
-// 接口定义 - AI Agent: 联系人信息
-interface ContactRecord {
-	id: string | number;
-	name: string;
-	relationship: 'family' | 'friend' | 'colleague' | 'other';
-	lastInteractionDate: string;
-	giftAmount: number; // 随礼总额（负数表示随礼）
-	receiveAmount: number; // 收礼总额
-	netAmount: number; // 净差额
-}
-
-// 表格数据 - AI Agent: 模拟数据
-const contactTableData = ref<ContactRecord[]>([
-	{
-		id: '1',
-		name: '张女士',
-		relationship: 'family',
-		lastInteractionDate: '2023-10-15',
-		giftAmount: 1200,
-		receiveAmount: 800,
-		netAmount: -400,
-	},
-	{
-		id: '2',
-		name: '李先生',
-		relationship: 'friend',
-		lastInteractionDate: '2023-11-02',
-		giftAmount: 800,
-		receiveAmount: 1000,
-		netAmount: 200,
-	},
-	{
-		id: '3',
-		name: '王经理',
-		relationship: 'colleague',
-		lastInteractionDate: '2023-09-28',
-		giftAmount: 500,
-		receiveAmount: 500,
-		netAmount: 0,
-	},
-	{
-		id: '4',
-		name: '陈小姐',
-		relationship: 'friend',
-		lastInteractionDate: '2023-11-10',
-		giftAmount: 600,
-		receiveAmount: 800,
-		netAmount: 200,
-	},
-	{
-		id: '5',
-		name: '赵先生',
-		relationship: 'family',
-		lastInteractionDate: '2023-08-05',
-		giftAmount: 1200,
-		receiveAmount: 2000,
-		netAmount: 800,
-	},
-]);
+// 表格数据
+const contactTableData = ref<ContactsGiftRecord[]>([]);
 
 // 排序方式
 const sortBy = ref<string>('date');
@@ -264,7 +202,42 @@ const sortBy = ref<string>('date');
 // 表格加载状态
 const tableLoading = ref<boolean>(false);
 
-// AI Agent: 统计卡片数据 - 定义卡片信息数组
+/**
+ * 加载联系人随礼记录列表
+ */
+const loadContactsGiftRecordList = async () => {
+	try {
+		tableLoading.value = true;
+		const {
+			code,
+			message: messageInfo,
+			data,
+		} = await getContactsGiftRecordList(
+			pagination.current || defaultPageConfig.pageNum,
+			pagination.pageSize || defaultPageConfig.pageSize,
+		);
+		if (code === '200' && data) {
+			contactTableData.value = data.records || [];
+			pagination.total = data.total || 0;
+		} else {
+			message.error(messageInfo || errorMessages.loadDataFail, 3);
+		}
+	} catch (error) {
+		console.error('加载联系人随礼记录失败:', error);
+		message.error(errorMessages.loadDataException, 3);
+	} finally {
+		tableLoading.value = false;
+	}
+};
+
+/**
+ * 页面挂载时加载数据
+ */
+onMounted(() => {
+	loadContactsGiftRecordList();
+});
+
+// 统计卡片数据 - 定义卡片信息数组
 interface StatCard {
 	id: string;
 	label: string;
@@ -305,25 +278,25 @@ const statCards = ref<StatCard[]>([
 	},
 ]);
 
-// 表格列配置 - AI Agent: 根据 contacts-user 的风格定义
-const tableColumns: TableColumnsType<ContactRecord> = [
+// 表格列配置 - 根据 contacts-user 的风格定义
+const tableColumns: TableColumnsType<ContactsGiftRecord> = [
 	{
 		title: '联系人',
-		dataIndex: 'name',
-		key: 'name',
+		dataIndex: 'contactsUserName',
+		key: 'contactsUserName',
 		width: 200,
 	},
 	{
 		title: '随礼总额',
-		dataIndex: 'giftAmount',
-		key: 'giftAmount',
+		dataIndex: 'giftOutAmount',
+		key: 'giftOutAmount',
 		width: 120,
 		align: 'right',
 	},
 	{
 		title: '收礼总额',
-		dataIndex: 'receiveAmount',
-		key: 'receiveAmount',
+		dataIndex: 'giftInAmount',
+		key: 'giftInAmount',
 		width: 120,
 		align: 'right',
 	},
@@ -343,46 +316,39 @@ const tableColumns: TableColumnsType<ContactRecord> = [
 	},
 ];
 
-// 获取关系标签颜色 - AI Agent: 根据不同关系类型显示不同颜色
-const getTagColor = (relationship: string): string => {
-	const colorMap: Record<string, string> = {
-		family: 'blue',
-		friend: 'green',
-		colleague: 'purple',
-		other: 'default',
-	};
-	return colorMap[relationship] || 'default';
-};
-
 // 排序改变事件
 const onSortChange = (): void => {
 	// TODO: 实现排序逻辑
 	console.log('排序方式改变:', sortBy.value);
 };
 
-// 表格变化事件 - AI Agent: 处理分页变化，参考 contacts-user 的实现
+/**
+ * 表格变化事件 - 处理分页变化，参考 contacts-user 的实现
+ */
 const onTableChange = (paginationInfo: PageInfo): void => {
 	paginationChange(paginationInfo);
-	// TODO: 在这里调用 API 获取对应页码的数据
-	// 例如：getContactsData(searchInfo.value, pagination);
-	console.log('表格分页变化:', paginationInfo);
+	loadContactsGiftRecordList();
 };
 
-// 收礼随礼记录 - AI Agent: 查看和记录与该联系人的收礼随礼详情
-const onRecordGift = (record: ContactRecord): void => {
+/**
+ * 收礼随礼记录 - 查看和记录与该联系人的收礼随礼详情
+ */
+const onRecordGift = (record: ContactsGiftRecord): void => {
 	// TODO: 打开收礼随礼详情页面或模态框
 	console.log('收礼随礼:', record);
 };
 
-// 往来记录 - AI Agent: 查看与该联系人的所有往来记录
-const onInteractionRecord = (record: ContactRecord): void => {
+/**
+ * 往来记录 - 查看与该联系人的所有往来记录
+ */
+const onInteractionRecord = (record: ContactsGiftRecord): void => {
 	// TODO: 打开往来记录详情页面或模态框
 	console.log('往来记录:', record);
 };
 </script>
 
 <style lang="less" scoped>
-// AI Agent: 根据Figma设计生成的样式
+// 根据Figma设计生成的样式
 
 // 颜色定义
 @color-primary: #1f2937;
@@ -632,7 +598,7 @@ const onInteractionRecord = (record: ContactRecord): void => {
 	line-height: 1.4;
 }
 
-// ========== 表格样式 - AI Agent: 基于 contacts-user 的表格风格 ==========
+// ========== 表格样式 - 基于 contacts-user 的表格风格 ==========
 .table-wrapper {
 	margin-bottom: @spacing-lg;
 
@@ -663,7 +629,7 @@ const onInteractionRecord = (record: ContactRecord): void => {
 	}
 }
 
-// 联系人名称单元格 - AI Agent: 自定义样式
+// 联系人名称单元格 - 自定义样式
 .contact-name-cell {
 	.name-tag-group {
 		display: flex;

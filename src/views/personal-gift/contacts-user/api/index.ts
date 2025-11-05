@@ -85,7 +85,7 @@ export const importContactsUser = (
 	);
 };
 
-// AI Agent: 下载联系人模版
+// 下载联系人模版
 // 注意事项：
 // 1. 此接口返回的是二进制Blob文件，不是JSON数据
 // 2. 响应拦截器会自动跳过解密处理

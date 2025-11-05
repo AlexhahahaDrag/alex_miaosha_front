@@ -93,7 +93,7 @@ request.interceptors.request.use(requestHandler, errorHandler);
 const responseHandler = (
 	response: AxiosResponse<any>,
 ): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-	// AI Agent: 检查是否需要跳过响应处理（用于文件下载等二进制数据）
+	// 检查是否需要跳过响应处理（用于文件下载等二进制数据）
 	if ((response.config as any)?.skipResponseInterceptor) {
 		// 直接返回响应，不进行解密处理
 		return response;
