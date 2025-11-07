@@ -81,7 +81,7 @@
 						:columns="tableColumns"
 						:data-source="contactTableData"
 						:loading="tableLoading"
-						:row-key="(record: any) => record.id"
+						:row-key="(record: ContactsGiftRecord) => record?.id ?? 0"
 						:pagination="pagination"
 						:scroll="{ x: 'max-content' }"
 						size="small"
@@ -144,7 +144,7 @@
 										type="link"
 										size="small"
 										class="btn-record-gift"
-										@click="onRecordGift(record)"
+										@click="onRecordGift(record as ContactsGiftRecord)"
 									>
 										<template #icon>
 											<!-- eslint-disable-next-line vue/component-name-in-template-casing -->
@@ -156,7 +156,7 @@
 										type="link"
 										size="small"
 										class="btn-interaction-record"
-										@click="onInteractionRecord(record)"
+										@click="onInteractionRecord(record as ContactsGiftRecord)"
 									>
 										<template #icon>
 											<!-- eslint-disable-next-line vue/component-name-in-template-casing -->
