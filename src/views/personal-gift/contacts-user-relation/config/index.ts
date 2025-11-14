@@ -21,12 +21,6 @@ export const columns = ref<TableColumnsType>([
 		width: 200,
 	},
 	{
-		title: '备注',
-		dataIndex: 'remarks',
-		key: 'remarks',
-		width: 150,
-	},
-	{
 		title: '是否启用',
 		dataIndex: 'isEnabled',
 		key: 'isEnabled',

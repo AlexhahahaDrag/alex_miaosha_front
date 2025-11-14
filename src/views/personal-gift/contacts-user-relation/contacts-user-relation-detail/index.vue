@@ -2,6 +2,7 @@
 	<a-modal
 		:open="open"
 		:title="modelInfo?.title || '关系分类'"
+		:confirm-loading="loading"
 		@ok="onSubmit"
 		@cancel="onCancel"
 		:destroyOnClose="true"
@@ -10,7 +11,7 @@
 		<a-form
 			ref="formRef"
 			:model="formData"
-			:label-col="{ span: 6 }"
+			:label-col="{ span: 4 }"
 			:wrapper-col="{ span: 18 }"
 		>
 			<!-- 关系分类标签 -->
@@ -52,16 +53,6 @@
 				/>
 			</a-form-item>
 
-			<!-- 备注 -->
-			<a-form-item label="备注" name="remarks">
-				<a-textarea
-					v-model:value="formData.remarks"
-					placeholder="请输入备注信息"
-					:rows="2"
-					allow-clear
-				/>
-			</a-form-item>
-
 			<!-- 是否启用 -->
 			<a-form-item
 				label="是否启用"
@@ -81,7 +72,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { message } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
 import type { ContactsUserRelationInfo } from '../config/index';
@@ -91,6 +81,9 @@ import {
 	getContactsUserRelationDetail,
 } from '../api/index';
 import type { ResponseBody } from '@/types/api';
+import { useUserStore } from '@/store/modules/user/user';
+
+const userId = useUserStore()?.getUserInfo?.id;
 
 interface Props {
 	open?: boolean;
@@ -112,6 +105,7 @@ const emit = defineEmits<{
 }>();
 
 const formRef = ref<FormInstance>();
+const loading = ref<boolean>(false);
 const formData = ref<ContactsUserRelationInfo>({
 	relationshipTag: '',
 	importance: 1,
@@ -119,20 +113,6 @@ const formData = ref<ContactsUserRelationInfo>({
 	remarks: '',
 	isEnabled: 1,
 });
-
-// 监听 open 状态变化
-watch(
-	() => props.open,
-	async (newVal) => {
-		if (newVal && props.modelInfo?.id) {
-			// 编辑模式 - 获取详情
-			await loadDetail(props.modelInfo.id);
-		} else if (newVal) {
-			// 新增模式 - 重置表单
-			resetForm();
-		}
-	},
-);
 
 // 加载详情
 const loadDetail = async (id: number): Promise<void> => {
@@ -160,17 +140,15 @@ const resetForm = (): void => {
 const onSubmit = async (): Promise<void> => {
 	try {
 		await formRef.value?.validateFields();
-
+		loading.value = true;
 		let response: ResponseBody<ContactsUserRelationInfo>;
+		const params = { ...formData.value, userId, id: props.modelInfo?.id };
 		if (props.modelInfo?.id) {
 			// 编辑
-			response = await editContactsUserRelation({
-				...formData.value,
-				id: props.modelInfo.id,
-			});
+			response = await editContactsUserRelation(params);
 		} else {
 			// 新增
-			response = await addContactsUserRelation(formData.value);
+			response = await addContactsUserRelation(params);
 		}
 
 		const { code, message: messageInfo } = response;
@@ -185,6 +163,8 @@ const onSubmit = async (): Promise<void> => {
 		}
 	} catch (error) {
 		console.error('表单提交错误:', error);
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -192,6 +172,20 @@ const onSubmit = async (): Promise<void> => {
 const onCancel = (): void => {
 	emit('handleCancel', false);
 };
+
+// 监听 open 状态变化
+watch(
+	() => props.open,
+	async (newVal) => {
+		if (newVal && props.modelInfo?.id) {
+			// 编辑模式 - 获取详情
+			await loadDetail(props.modelInfo.id);
+		} else if (newVal) {
+			// 新增模式 - 重置表单
+			resetForm();
+		}
+	},
+);
 </script>
 
 <style scoped>

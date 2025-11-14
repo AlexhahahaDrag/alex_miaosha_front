@@ -48,7 +48,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			vue(),
 			AutoImport({
 				// 指定需要自动导入的库
-				imports: ['vue', 'vue-router'],
+				imports: ['vue', 'vue-router', 'pinia'],
 				// Vite特定的配置
 				dts: 'src/auto-imports.d.ts', // 生成自动导入类型声明文件
 				// 其他配置...

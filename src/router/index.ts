@@ -40,6 +40,17 @@ export const routes: MenuDataItem[] = [
 		},
 		children: [
 			{
+				path: '/contacts-user-relation',
+				component:
+					modules['/src/views/personal-gift/contacts-user-relation/index.vue'],
+				name: 'contacts-user-relation',
+				meta: {
+					title: '联系人关系管理',
+					icon: 'contacts-user-relation',
+					hiedInMenu: false,
+				},
+			},
+			{
 				path: '/contacts-user',
 				component: modules['/src/views/personal-gift/contacts-user/index.vue'],
 				name: 'contacts-user',

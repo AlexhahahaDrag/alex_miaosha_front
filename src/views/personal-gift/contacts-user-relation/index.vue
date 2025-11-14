@@ -105,12 +105,19 @@
 						<a-tag v-if="record.isEnabled === 1" color="green">启用</a-tag>
 						<a-tag v-else color="red">禁用</a-tag>
 					</template>
+					<!-- 描述显示 -->
+					<template v-else-if="column.key === 'description'">
+						<div class="description-text" :title="record.description">
+							{{ record.description }}
+						</div>
+					</template>
 					<!-- 操作按钮 -->
 					<template v-else-if="column.key === 'operation'">
 						<a-space>
 							<a-button
 								type="link"
 								size="small"
+								v-if="getPermission(record)"
 								@click="onEditRelation(record)"
 							>
 								编辑
@@ -119,6 +126,7 @@
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
+								v-if="getPermission(record)"
 								@confirm="onDeleteRelation(record.id)"
 								@cancel="onCancel"
 							>
@@ -162,10 +170,13 @@ import {
 	getContactsUserRelationPage,
 	deleteContactsUserRelation,
 } from './api/index';
-import { ref } from 'vue';
 import { debounce } from 'lodash-es';
 import contactsUserRelationDetail from './contacts-user-relation-detail/index.vue';
+import { useUserStore } from '@/store/modules/user/user';
 
+const userStore = useUserStore();
+// 获取用户信息和角色信息
+const { userInfo, roleInfo } = storeToRefs(userStore);
 // 使用分页组合式函数
 const {
 	pagination,
@@ -182,6 +193,7 @@ const searchInfo = ref<ContactsUserRelationInfo>({
 	keyword: '',
 	importance: undefined,
 	isEnabled: undefined,
+	userId: userInfo.value?.id as number | undefined,
 });
 
 // 详情模态框相关
@@ -215,6 +227,7 @@ const onResetFilter = (): void => {
 		keyword: '',
 		importance: undefined,
 		isEnabled: undefined,
+		userId: userInfo.value?.id as number | undefined,
 	};
 	getRelationListPage(searchInfo.value, pagination);
 };
@@ -300,6 +313,13 @@ const onEditRelation = (record: ContactsUserRelationInfo): void => {
 		record,
 		id: record.id,
 	};
+};
+
+const getPermission = (record: ContactsUserRelationInfo): boolean => {
+	return (
+		userInfo.value?.id === record.userId ||
+		roleInfo.value?.roleCode === 'super_super'
+	);
 };
 
 // 页面初始化
@@ -496,6 +516,7 @@ init();
 		background: white;
 		border-radius: 4px;
 		overflow: hidden;
+		padding: 10px;
 
 		.loading-container {
 			height: 200px;
@@ -547,6 +568,19 @@ init();
 				left: 50%;
 				transform: translate(-50%, -50%);
 			}
+		}
+
+		// 描述文本样式 - 最多显示两行，超出部分用省略号
+		.description-text {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			word-break: break-word;
+			line-height: 1.5;
+			max-height: 3em; // 两行的高度（1.5 * 2）
 		}
 
 		// 空状态
