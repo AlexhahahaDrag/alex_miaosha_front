@@ -104,7 +104,7 @@ export const getPublicEnabledRelations = (): Promise<
 
 // 查询用户的启用关系分类（公共+私有）
 export const getUserEnabledRelations = (
-	userId: number,
+	userId: number | string,
 ): Promise<ResponseBody<ContactsUserRelationInfo[]>> => {
 	return getDataOne(
 		baseService.finance +

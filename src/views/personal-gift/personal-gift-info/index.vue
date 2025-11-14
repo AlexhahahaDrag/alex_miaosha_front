@@ -112,16 +112,16 @@
 
 							<!-- 随礼总额 -->
 							<template v-if="column.key === 'giftOutAmount'">
-								<span class="amount-text text-red"
-									>¥{{ record.giftOutAmount }}</span
-								>
+								<span class="amount-text text-red">
+									¥{{ record.giftOutAmount }}
+								</span>
 							</template>
 
 							<!-- 收礼总额 -->
 							<template v-if="column.key === 'giftInAmount'">
-								<span class="amount-text text-green"
-									>¥{{ record.giftInAmount }}</span
-								>
+								<span class="amount-text text-green">
+									¥{{ record.giftInAmount }}
+								</span>
 							</template>
 
 							<!-- 净差额 -->
@@ -132,8 +132,8 @@
 										record.netAmount > 0 ? 'text-green' : 'text-red',
 									]"
 								>
-									{{ record.netAmount > 0 ? '¥' : '-¥'
-									}}{{ Math.abs(record.netAmount) }}
+									{{ record.netAmount >= 0 ? '¥' : '-¥' }}
+									{{ Math.abs(record.netAmount) }}
 								</span>
 							</template>
 
@@ -171,13 +171,21 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- 收礼随礼详情模态框 -->
+		<personal-gift-info-detail
+			ref="giftDetailRef"
+			:open="giftModelInfo?.open"
+			:modelInfo="giftModelInfo"
+			@handleOk="handleGiftOk"
+			@handleCancel="handleGiftCancel"
+		></personal-gift-info-detail>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
-import type { TableColumnsType } from 'ant-design-vue';
 import { GiftOutlined, HistoryOutlined } from '@ant-design/icons-vue';
 import { usePagination } from '@/composables/usePagination';
 import type { PageInfo } from '@/composables/usePagination';
@@ -187,7 +195,7 @@ import {
 	getRelationshipColor,
 	getRelationshipLabel,
 	defaultPageConfig,
-	errorMessages,
+	tableColumns,
 } from './config/index';
 
 // 使用分页组合式函数 - 参考 contacts-user 的实现
@@ -201,6 +209,18 @@ const sortBy = ref<string>('date');
 
 // 表格加载状态
 const tableLoading = ref<boolean>(false);
+
+// 收礼随礼详情模态框相关
+const giftDetailRef = ref<ContactsGiftRecord | null>(null);
+const giftModelInfo = ref<{
+	open: boolean;
+	title?: string;
+	record?: ContactsGiftRecord;
+	id?: number;
+	contactsUserId?: number | string;
+}>({
+	open: false,
+});
 
 /**
  * 加载联系人随礼记录列表
@@ -220,11 +240,11 @@ const loadContactsGiftRecordList = async () => {
 			contactTableData.value = data.records || [];
 			pagination.total = data.total || 0;
 		} else {
-			message.error(messageInfo || errorMessages.loadDataFail, 3);
+			message.error(messageInfo || '加载数据失败！', 3);
 		}
 	} catch (error) {
 		console.error('加载联系人随礼记录失败:', error);
-		message.error(errorMessages.loadDataException, 3);
+		message.error('加载数据异常！', 3);
 	} finally {
 		tableLoading.value = false;
 	}
@@ -278,44 +298,6 @@ const statCards = ref<StatCard[]>([
 	},
 ]);
 
-// 表格列配置 - 根据 contacts-user 的风格定义
-const tableColumns: TableColumnsType<ContactsGiftRecord> = [
-	{
-		title: '联系人',
-		dataIndex: 'contactsUserName',
-		key: 'contactsUserName',
-		width: 200,
-	},
-	{
-		title: '随礼总额',
-		dataIndex: 'giftOutAmount',
-		key: 'giftOutAmount',
-		width: 120,
-		align: 'right',
-	},
-	{
-		title: '收礼总额',
-		dataIndex: 'giftInAmount',
-		key: 'giftInAmount',
-		width: 120,
-		align: 'right',
-	},
-	{
-		title: '净差额',
-		dataIndex: 'netAmount',
-		key: 'netAmount',
-		width: 120,
-		align: 'right',
-	},
-	{
-		title: '操作',
-		key: 'operation',
-		fixed: 'right',
-		width: 150,
-		align: 'center',
-	},
-];
-
 // 排序改变事件
 const onSortChange = (): void => {
 	// TODO: 实现排序逻辑
@@ -334,8 +316,24 @@ const onTableChange = (paginationInfo: PageInfo): void => {
  * 收礼随礼记录 - 查看和记录与该联系人的收礼随礼详情
  */
 const onRecordGift = (record: ContactsGiftRecord): void => {
-	// TODO: 打开收礼随礼详情页面或模态框
-	console.log('收礼随礼:', record);
+	giftModelInfo.value = {
+		open: true,
+		title: `收礼随礼 - ${record.contactsUserName}`,
+		record,
+		contactsUserId: record.contactsUserId,
+	};
+};
+
+// 处理收礼随礼详情页面保存成功
+const handleGiftOk = (v: boolean): void => {
+	giftModelInfo.value = { open: v };
+	// 重新加载列表
+	loadContactsGiftRecordList();
+};
+
+// 处理收礼随礼详情页面取消
+const handleGiftCancel = (v: boolean): void => {
+	giftModelInfo.value = { open: v };
 };
 
 /**

@@ -3,10 +3,10 @@
 		:open="props.open"
 		:width="props.modelInfo?.width || '800px'"
 		:title="props.modelInfo?.title || '联系人详情'"
-		@ok="handleOk"
 		okText="保存"
-		:confirmLoading="modelConfig.confirmLoading"
+		:confirm-loading="confirmLoading"
 		:destroyOnClose="modelConfig.destroyOnClose"
+		@ok="handleOk"
 		@cancel="handleCancel"
 	>
 		<template #footer>
@@ -26,6 +26,7 @@
 			class="ant-advanced-search-form"
 			:model="formState"
 			:rules="rulesRef"
+			label-align="right"
 			:label-col="labelCol"
 			:wrapper-col="wrapperCol"
 		>
@@ -51,11 +52,9 @@
 							v-model:value="formState.relationship"
 							placeholder="请选择关系类型"
 							:allowClear="true"
+							:options="relationshipOptions"
+							:field-names="{ label: 'relationshipTag', value: 'id' }"
 						>
-							<a-select-option value="friend">朋友</a-select-option>
-							<a-select-option value="family">家人</a-select-option>
-							<a-select-option value="colleague">同事</a-select-option>
-							<a-select-option value="other">其他</a-select-option>
 						</a-select>
 					</a-form-item>
 				</a-col>
@@ -70,7 +69,12 @@
 			</a-row>
 			<a-row :gutter="24">
 				<a-col :span="24">
-					<a-form-item name="address" label="地址">
+					<a-form-item
+						name="address"
+						label="地址"
+						:label-col="{ span: 3 }"
+						:wrapperCol="{ span: 20 }"
+					>
 						<a-input
 							v-model:value="formState.address"
 							placeholder="请输入联系地址"
@@ -80,7 +84,12 @@
 			</a-row>
 			<a-row :gutter="24">
 				<a-col :span="24">
-					<a-form-item name="remarks" label="备注">
+					<a-form-item
+						name="remarks"
+						label="备注"
+						:label-col="{ span: 3 }"
+						:wrapperCol="{ span: 20 }"
+					>
 						<a-textarea
 							v-model:value="formState.remarks"
 							placeholder="请输入备注信息"
@@ -116,12 +125,18 @@ import {
 	addContactsUser,
 	editContactsUser,
 } from '@/views/personal-gift/contacts-user/api/index';
-import { ref, watch } from 'vue';
+import {
+	getUserEnabledRelations,
+	getPublicEnabledRelations,
+} from '@/views/personal-gift/contacts-user-relation/api/index';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config/index';
+import { useUserStore } from '@/store/modules/user/user';
 
 const formRef = ref<FormInstance>();
 
+// 确认加载
+const confirmLoading = ref<boolean>(false);
 const modelConfig = {
-	confirmLoading: true,
 	destroyOnClose: true,
 };
 
@@ -134,17 +149,22 @@ const props = defineProps<Props>();
 
 const loading = ref<boolean>(false);
 
+// 关系分类选项
+const relationshipOptions = ref<ContactsUserRelationInfo[]>([]);
+
 // 表单数据
 const formState = ref<ContactsUserInfo>({});
 
 // 保存联系人信息
 const handleOk = (): void => {
+	confirmLoading.value = true;
 	loading.value = true;
 	if (formRef.value) {
 		formRef.value
 			.validateFields()
 			.then(() => saveContactsUserManager())
 			.catch(() => {
+				confirmLoading.value = false;
 				loading.value = false;
 			});
 	}
@@ -163,6 +183,7 @@ const saveContactsUserManager = async (): Promise<void> => {
 	}
 	const { code, message: messageInfo } = await api(formState.value).finally(
 		() => {
+			confirmLoading.value = false;
 			loading.value = false;
 		},
 	);
@@ -175,8 +196,36 @@ const saveContactsUserManager = async (): Promise<void> => {
 	}
 };
 
+// 获取关系分类选项
+const loadRelationshipOptions = async (): Promise<void> => {
+	try {
+		const userStore = useUserStore();
+		const userInfo = userStore.getUserInfo;
+		const userId = userInfo?.id;
+
+		if (userId) {
+			// 获取用户的所有启用的关系分类（公共+私有）
+			const { code, data } = await getUserEnabledRelations(userId);
+			if (code == '200' && data) {
+				relationshipOptions.value = data;
+			}
+		} else {
+			// 如果没有用户ID，获取公共的关系分类
+			const { code, data } = await getPublicEnabledRelations();
+			if (code == '200' && data) {
+				relationshipOptions.value = data;
+			}
+		}
+	} catch (error) {
+		console.error('获取关系分类失败:', error);
+	}
+};
+
 // 初始化数据
 const init = async () => {
+	// 加载关系分类选项
+	await loadRelationshipOptions();
+
 	if (props.modelInfo?.id) {
 		const {
 			code,
@@ -185,12 +234,10 @@ const init = async () => {
 		} = await getContactsUserDetail(props.modelInfo.id);
 		if (code == '200') {
 			formState.value = data || {};
-			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');
 		}
 	} else {
-		modelConfig.confirmLoading = false;
 		formState.value = {};
 	}
 };

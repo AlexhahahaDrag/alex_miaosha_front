@@ -1,8 +1,4 @@
-/**
- * 联系人随礼记录页面配置文件
- */
-
-// ==================== 类型定义 ====================
+import type { TableColumnsType } from 'ant-design-vue';
 
 /**
  * 联系人随礼记录接口
@@ -31,8 +27,6 @@ export interface TableColumnConfig {
 	align?: 'left' | 'center' | 'right';
 }
 
-// ==================== 样式主题颜色 ====================
-
 export const themeColors = {
 	primary: '#1f2937',
 	secondary: '#6b7280',
@@ -48,8 +42,6 @@ export const themeColors = {
 	purple: '#a855f7',
 	purpleLight: '#f3e8ff',
 };
-
-// ==================== 字体和间距 ====================
 
 export const typography = {
 	fontFamily: 'Inter, sans-serif',
@@ -67,8 +59,6 @@ export const spacing = {
 	lg: '20px',
 	xl: '24px',
 };
-
-// ==================== 关系类型配置 ====================
 
 export const relationshipOptions = [
 	{ value: 'family', label: '家人', color: 'blue' },
@@ -118,11 +108,40 @@ export const defaultPageConfig = {
 	pageSize: 10,
 };
 
-// ==================== 错误提示信息 ====================
-
-export const errorMessages = {
-	loadDataFail: '加载数据失败！',
-	loadDataException: '加载数据异常！',
-	deleteFail: '删除失败！',
-	deleteException: '删除异常！',
-};
+// 表格列配置 - 根据 contacts-user 的风格定义
+export const tableColumns: TableColumnsType<ContactsGiftRecord> = [
+	{
+		title: '联系人',
+		dataIndex: 'contactsUserName',
+		key: 'contactsUserName',
+		width: 200,
+	},
+	{
+		title: '随礼总额',
+		dataIndex: 'giftOutAmount',
+		key: 'giftOutAmount',
+		width: 120,
+		align: 'right',
+	},
+	{
+		title: '收礼总额',
+		dataIndex: 'giftInAmount',
+		key: 'giftInAmount',
+		width: 120,
+		align: 'right',
+	},
+	{
+		title: '净差额',
+		dataIndex: 'netAmount',
+		key: 'netAmount',
+		width: 120,
+		align: 'right',
+	},
+	{
+		title: '操作',
+		key: 'operation',
+		fixed: 'right',
+		width: 150,
+		align: 'center',
+	},
+];

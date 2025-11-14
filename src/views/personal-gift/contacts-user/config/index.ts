@@ -1,4 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config/index';
 
 export const columns = ref<TableColumnsType>([
 	{
@@ -56,6 +57,7 @@ export interface ContactsUserInfo {
 	name?: string;
 	phone?: string;
 	relationship?: string;
+	relationshipTag?: string;
 	email?: string;
 	address?: string;
 	remarks?: string;
@@ -66,9 +68,9 @@ export interface ContactsUserInfo {
 }
 
 // 表单布局配置
-export const labelCol = ref({ span: 5 });
+export const labelCol = ref({ span: 6 });
 // 表单布局配置
-export const wrapperCol = ref({ span: 19 });
+export const wrapperCol = ref({ span: 18 });
 
 // 表单标签映射
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
@@ -88,3 +90,28 @@ export const relationshipOptions = [
 	{ value: 'colleague', label: '同事' },
 	{ value: 'other', label: '其他' },
 ];
+
+// 根据关系标签获取对应的颜色
+export const getRelationshipTagColor = (
+	relationshipTag: string,
+	relationshipOptions: ContactsUserRelationInfo[],
+): string => {
+	const relation = relationshipOptions.find(
+		(option: ContactsUserRelationInfo) =>
+			option.relationshipTag === relationshipTag,
+	);
+	if (relation?.importance) {
+		// 根据重要程度返回不同颜色
+		switch (relation.importance) {
+			case 1:
+				return 'blue'; // 普通
+			case 2:
+				return 'orange'; // 重要
+			case 3:
+				return 'red'; // 非常重要
+			default:
+				return 'default';
+		}
+	}
+	return 'default'; // 默认颜色
+};

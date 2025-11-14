@@ -46,13 +46,17 @@
 					v-model:value="searchInfo.relationship"
 					placeholder="所有关系"
 					style="width: 120px; height: 100%"
+					allow-clear
 					@change="onSearch"
 				>
 					<a-select-option value="">所有关系</a-select-option>
-					<a-select-option value="friend">朋友</a-select-option>
-					<a-select-option value="family">家人</a-select-option>
-					<a-select-option value="colleague">同事</a-select-option>
-					<a-select-option value="other">其他</a-select-option>
+					<a-select-option
+						v-for="option in relationshipOptions"
+						:key="option.id"
+						:value="option.id"
+					>
+						{{ option.relationshipTag }}
+					</a-select-option>
 				</a-select>
 				<!-- 添加查询和清空按钮 -->
 				<a-button type="primary" @click="onSearch" class="search-btn">
@@ -82,7 +86,20 @@
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
+					<template v-if="column.key === 'relationship'">
+						<a-tag
+							v-if="record.relationshipTag"
+							:color="
+								getRelationshipTagColor(
+									record.relationshipTag,
+									relationshipOptions,
+								)
+							"
+						>
+							{{ record.relationshipTag }}
+						</a-tag>
+					</template>
+					<template v-else-if="column.key === 'operation'">
 						<a-space>
 							<a-button type="link" size="small" @click="onEditContact(record)">
 								编辑
@@ -130,16 +147,22 @@ import {
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { ContactsUserInfo } from './config/index';
-import { columns } from './config/index';
+import { columns, getRelationshipTagColor } from './config/index';
 import {
 	getContactsUserPage,
 	deleteContactsUser,
 	importContactsUser,
 	downloadContactsUserTemplate,
 } from './api/index';
-import { ref } from 'vue';
 import { debounce } from 'lodash-es';
 import contactsUserDetail from './contacts-user-detail/index.vue';
+import { getUserEnabledRelations } from '../contacts-user-relation/api/index';
+import type { ContactsUserRelationInfo } from '../contacts-user-relation/config/index';
+import { useUserStore } from '@/store/modules/user/user';
+
+const userStore = useUserStore();
+// 获取用户信息
+const { userInfo } = storeToRefs(userStore);
 
 // 使用分页组合式函数
 const {
@@ -154,6 +177,8 @@ const loading = ref<boolean>(false);
 const downloading = ref<boolean>(false);
 // 数据源
 const contactList = ref<ContactsUserInfo[]>([]);
+// 关系分类选项
+const relationshipOptions = ref<ContactsUserRelationInfo[]>([]);
 // 搜索条件 - 合并到searchInfo中
 const searchInfo = ref<ContactsUserInfo>({
 	relationship: '',
@@ -340,8 +365,26 @@ const onDownloadTemplate = async (): Promise<void> => {
 	}
 };
 
+// 获取关系分类选项
+const loadRelationshipOptions = async (): Promise<void> => {
+	try {
+		// 获取用户的所有启用的关系分类（公共+私有）
+		const { code, data } = await getUserEnabledRelations(
+			userInfo.value?.id ?? 0,
+		);
+		if (code == '200' && data) {
+			relationshipOptions.value = data;
+		}
+	} catch (error) {
+		console.error('获取关系分类失败:', error);
+	}
+};
+
 // 页面初始化
-const init = (): void => {
+const init = async (): Promise<void> => {
+	// 加载关系分类选项
+	loadRelationshipOptions();
+	// 加载联系人列表
 	const params: ContactsUserInfo = {};
 	getContactsUserListPage(params, pagination);
 };
@@ -554,6 +597,7 @@ init();
 		background: white;
 		border-radius: 4px;
 		overflow: hidden;
+		padding: 16px;
 
 		.loading-container {
 			height: 200px;
