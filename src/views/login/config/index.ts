@@ -11,6 +11,7 @@ export interface LoginParams {
 export interface LoginFormType {
 	username: string;
 	password: string;
+	isRememberMe?: boolean;
 }
 
 // 登录规则

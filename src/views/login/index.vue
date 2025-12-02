@@ -6,39 +6,70 @@
 			@particles-loaded="particlesLoaded"
 			:options="options"
 		/>
-		<a-form
-			ref="formRef"
-			:model="loginForm"
-			class="login-form"
-			:rules="loginRules"
-		>
-			<h3 class="title">alex管理后台</h3>
-			<a-form-item name="username">
-				<a-input
-					v-model:value="loginForm.username"
-					placeholder="请输入账号或手机号"
-					autocomplete="on"
-				/>
-			</a-form-item>
-			<a-form-item name="password">
-				<a-input-password
-					v-model:value="loginForm.password"
-					type="password"
-					placeholder="请输入密码"
-					autocomplete="on"
-				/>
-			</a-form-item>
-			<a-form-item>
-				<a-button
-					type="primary"
-					@click="onSubmit"
-					style="width: 100%"
-					:loading="loading"
-				>
-					登录
-				</a-button>
-			</a-form-item>
-		</a-form>
+		<div class="login-form-container">
+			<a-form
+				ref="formRef"
+				:model="loginForm"
+				class="login-form"
+				:rules="loginRules"
+			>
+				<div class="title-container">
+					<div class="title">alex管理后台</div>
+					<p class="sub-title">Alex Admin Console</p>
+				</div>
+
+				<a-form-item name="username">
+					<a-input
+						v-model:value="loginForm.username"
+						placeholder="请输入用户名"
+						autocomplete="on"
+						size="large"
+						class="custom-input"
+					>
+						<template #prefix>
+							<user-outlined class="input-icon" />
+						</template>
+					</a-input>
+				</a-form-item>
+				<a-form-item name="password">
+					<a-input-password
+						v-model:value="loginForm.password"
+						type="password"
+						placeholder="请输入密码"
+						autocomplete="on"
+						size="large"
+						class="custom-input"
+					>
+						<template #prefix>
+							<lock-outlined class="input-icon" />
+						</template>
+					</a-input-password>
+				</a-form-item>
+
+				<div class="login-options">
+					<a-checkbox
+						v-model:checked="loginForm.isRememberMe"
+						class="remember-me"
+					>
+						记住我
+					</a-checkbox>
+					<a class="forgot-password">忘记密码?</a>
+				</div>
+
+				<a-form-item>
+					<a-button
+						type="primary"
+						@click="onSubmit"
+						style="width: 100%"
+						:loading="loading"
+						size="large"
+						class="submit-btn"
+					>
+						登录
+					</a-button>
+				</a-form-item>
+			</a-form>
+		</div>
 	</div>
 </template>
 
@@ -49,6 +80,7 @@ import type { LoginParams, LoginFormType } from '@/views/login/config';
 import { loginRules, options } from '@/views/login/config';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/modules/user/user';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -58,6 +90,7 @@ const formRef = ref();
 const loginForm: UnwrapRef<LoginFormType> = reactive({
 	username: '',
 	password: '',
+	isRememberMe: false,
 });
 
 const loading = ref<boolean>(false);
@@ -70,6 +103,7 @@ const onSubmit = () => {
 			let param: LoginParams = {
 				username: loginForm.username,
 				password: loginForm.password,
+				isRememberMe: loginForm.isRememberMe,
 			};
 			const res = await userStore.login(param);
 			if (res) {
@@ -89,105 +123,132 @@ const particlesLoaded = async (container: unknown) => {
 };
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-$bg: #2d3a4b;
-$light_gray: #eee;
-
-/* reset element-ui css */
-.login-container {
-	.a-input {
-		display: inline-block;
-		height: 47px;
-		width: 85%;
-
-		input {
-			background: transparent;
-			border: 0px;
-			-webkit-appearance: none;
-			appearance: none;
-			border-radius: 0px;
-			padding: 12px 5px 12px 15px;
-			color: $light_gray;
-			height: 47px;
-
-			&:-webkit-autofill {
-				-webkit-box-shadow: 0 0 0px 1000px $bg inset !important;
-				-webkit-text-fill-color: #fff !important;
-			}
-		}
-	}
-
-	.a-form-item {
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		background: rgba(0, 0, 0, 0.1);
-		border-radius: 5px;
-		color: #454545;
-	}
-}
-</style>
-
 <style rel="stylesheet/scss" lang="scss" scoped>
-$bg: #2d3a4b;
+$bg: #000000;
 $dark_gray: #889aa4;
 $light_gray: #eee;
+$form_bg: rgba(255, 255, 255, 0.05);
 
 .login-container {
 	position: fixed;
 	height: 100%;
 	width: 100%;
 	background-color: $bg;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-	.login-form {
-		position: absolute;
-		left: 0;
-		right: 0;
-		width: 520px;
-		max-width: 100%;
-		padding: 35px 35px 15px 35px;
-		margin: 120px auto;
-	}
+	.login-form-container {
+		position: relative;
+		z-index: 1;
+		width: 420px;
+		padding: 40px;
+		background: rgba(30, 30, 30, 0.6); // 深色半透明背景
+		backdrop-filter: blur(10px); // 毛玻璃效果
+		border-radius: 16px;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 
-	.tips {
-		font-size: 14px;
-		color: #fff;
-		margin-bottom: 10px;
+		.title-container {
+			text-align: center;
+			margin-bottom: 30px;
 
-		span {
-			&:first-of-type {
-				margin-right: 16px;
+			.title {
+				font-size: 28px;
+				color: #fff;
+				font-weight: 600;
+				margin-bottom: 8px;
+			}
+
+			.sub-title {
+				font-size: 14px;
+				color: #8c8c8c;
+				margin: 0;
 			}
 		}
-	}
 
-	.svg-container {
-		padding: 6px 5px 6px 15px;
-		color: $dark_gray;
-		vertical-align: middle;
-		width: 30px;
-		display: inline-block;
+		:deep(.ant-input-affix-wrapper) {
+			background-color: #000000;
+			border: 1px solid #434343;
+			color: #fff;
+			height: 44px;
+			border-radius: 6px;
+			transition: all 0.3s;
 
-		&_login {
-			font-size: 20px;
+			&:hover,
+			&:focus-within {
+				border-color: #1890ff;
+				box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+			}
+
+			input {
+				background-color: transparent;
+				color: #fff;
+				&::placeholder {
+					color: #5a5a5a;
+				}
+
+				// 解决自动填充背景变白的问题
+				&:-webkit-autofill,
+				&:-webkit-autofill:hover,
+				&:-webkit-autofill:focus,
+				&:-webkit-autofill:active {
+					transition: background-color 5000s ease-in-out 0s;
+					-webkit-text-fill-color: #fff !important;
+					caret-color: #fff;
+					box-shadow: 0 0 0px 1000px #000000 inset !important;
+				}
+			}
+
+			.anticon {
+				color: #8c8c8c;
+				margin-right: 10px;
+			}
 		}
-	}
 
-	.title {
-		font-size: 26px;
-		font-weight: 400;
-		color: $light_gray;
-		margin: 0px auto 40px auto;
-		text-align: center;
-		font-weight: bold;
-	}
+		:deep(.ant-input) {
+			background-color: transparent;
+			color: #fff;
+		}
 
-	.show-pwd {
-		position: absolute;
-		right: 10px;
-		top: 7px;
-		font-size: 16px;
-		color: $dark_gray;
-		cursor: pointer;
-		user-select: none;
+		.login-options {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			margin-top: -5px;
+
+			.remember-me {
+				color: #8c8c8c;
+				:deep(.ant-checkbox-inner) {
+					background-color: transparent;
+					border-color: #434343;
+				}
+			}
+
+			.forgot-password {
+				color: #8c8c8c;
+				font-size: 14px;
+				cursor: pointer;
+				&:hover {
+					color: #1890ff;
+				}
+			}
+		}
+
+		.submit-btn {
+			height: 44px;
+			font-size: 16px;
+			border-radius: 6px;
+			background-color: #1890ff;
+			border-color: #1890ff;
+			font-weight: 500;
+
+			&:hover {
+				background-color: #40a9ff;
+				border-color: #40a9ff;
+			}
+		}
 	}
 }
 </style>
