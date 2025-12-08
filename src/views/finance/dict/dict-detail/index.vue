@@ -15,8 +15,6 @@
 				name="dictForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 			>
 				<a-row :gutter="24">
 					<a-col :span="12">
@@ -189,14 +187,6 @@ const saveFinanceManager = async () => {
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
-};
-
-const onFinish = (values: unknown) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: unknown) => {
-	console.log('Failed:', errorInfo);
 };
 
 // 初始化数据

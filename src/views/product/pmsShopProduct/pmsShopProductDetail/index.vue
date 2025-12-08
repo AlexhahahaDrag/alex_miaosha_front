@@ -26,8 +26,6 @@
 				class="ant-advanced-search-form"
 				disabled
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
 			>
@@ -228,14 +226,6 @@ function savePmsShopProductManager() {
 			loading.value = false;
 		});
 }
-
-const onFinish = (values: any) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-	console.log('Failed:', errorInfo);
-};
 
 let sourceName = ref<string>('');
 

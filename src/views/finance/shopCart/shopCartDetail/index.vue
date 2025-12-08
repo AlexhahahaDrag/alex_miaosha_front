@@ -25,8 +25,6 @@
 				name="ShopCartForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
@@ -212,14 +210,6 @@ const saveShopCartManager = (): void => {
 		.finally(() => {
 			loading.value = false;
 		});
-};
-
-const onFinish = (values: any): void => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any): void => {
-	console.log('Failed:', errorInfo);
 };
 
 // 初始化数据

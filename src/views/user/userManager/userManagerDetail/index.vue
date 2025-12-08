@@ -20,7 +20,6 @@
 			name="financeForm"
 			:rules="rulesRef"
 			:model="formState"
-			@finishFailed="onFinishFailed"
 			:label-col="labelCol"
 			:wrapper-col="wrapperCol"
 		>
@@ -241,10 +240,6 @@ const saveUserManager = async () => {
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
-};
-
-const onFinishFailed = (errorInfo: any) => {
-	console.log('Failed:', errorInfo);
 };
 
 function initForm() {

@@ -25,8 +25,6 @@
 				name="PmsSkuInfoForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
@@ -257,14 +255,6 @@ const savePmsSkuInfoManager = async (): Promise<void> => {
 		message.error(messageInfo || '保存失败！');
 		formState.value = {};
 	}
-};
-
-const onFinish = (values: any) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-	console.log('Failed:', errorInfo);
 };
 
 // 初始化数据

@@ -25,8 +25,6 @@
 				name="PmsShopWantProductForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
@@ -172,14 +170,6 @@ function savePmsShopWantProductManager() {
 			loading.value = false;
 		});
 }
-
-const onFinish = (values: any) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-	console.log('Failed:', errorInfo);
-};
 
 const init = async () => {
 	if (props.modelInfo) {
