@@ -227,23 +227,18 @@ const savePmsCategoryManager = async () => {
 };
 
 const init = async () => {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			const {
-				code,
-				data,
-				message: messageInfo,
-			} = await getPmsCategoryDetail(props.modelInfo.id);
-			if (code == '200') {
-				formState.value = data || {};
-				modelConfig.confirmLoading = false;
-			} else {
-				formState.value = {};
-				message.error(messageInfo || '查询失败！');
-			}
-		} else {
+	if (props.modelInfo?.id) {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsCategoryDetail(props.modelInfo.id);
+		if (code == '200') {
+			formState.value = data || {};
 			modelConfig.confirmLoading = false;
+		} else {
 			formState.value = {};
+			message.error(messageInfo || '查询失败！');
 		}
 	} else {
 		modelConfig.confirmLoading = false;

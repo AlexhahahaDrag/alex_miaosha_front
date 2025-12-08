@@ -259,27 +259,25 @@ const savePrepaidConsumeRecordTManager = (): void => {
 };
 
 const init = (): void => {
-	if (props.modelInfo) {
-		if (props.modelInfo.id) {
-			getPrepaidConsumeRecordTDetail(props.modelInfo.id)
-				.then((res) => {
-					if (res.code == '200') {
-						formState.value = res.data || {};
-						modelConfig.confirmLoading = false;
-					} else {
-						message.error((res && res.message) || '查询失败！');
-					}
-				})
-				.catch((error: any) => {
-					let data = error?.response?.data;
-					if (data) {
-						message.error(data?.message || '查询失败！');
-					}
-				});
-		} else {
-			modelConfig.confirmLoading = false;
-			formState.value = {};
-		}
+	if (props.modelInfo?.id) {
+		getPrepaidConsumeRecordTDetail(props.modelInfo.id)
+			.then((res) => {
+				if (res.code == '200') {
+					formState.value = res.data || {};
+					modelConfig.confirmLoading = false;
+				} else {
+					message.error((res && res.message) || '查询失败！');
+				}
+			})
+			.catch((error: any) => {
+				let data = error?.response?.data;
+				if (data) {
+					message.error(data?.message || '查询失败！');
+				}
+			});
+	} else {
+		modelConfig.confirmLoading = false;
+		formState.value = {};
 	}
 };
 
