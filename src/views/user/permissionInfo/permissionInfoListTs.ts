@@ -1,6 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
-export interface SearchInfo {
+interface SearchInfo {
 	permissionCode?: string;
 	permissionName?: string;
 	summary?: string;
@@ -8,7 +8,7 @@ export interface SearchInfo {
 	options?: string;
 }
 
-export const columns = ref<TableColumnsType>([
+const columns = ref<TableColumnsType>([
 	{
 		title: '权限编码',
 		dataIndex: 'permissionCode',
@@ -42,7 +42,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	permissionCode: { name: 'permissionCode', label: '权限编码' },
 	permissionName: { name: 'permissionName', label: '权限名称' },
 	summary: { name: 'summary', label: '描述' },
@@ -50,10 +50,13 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	options: { name: 'options', label: 'url' },
 });
 
-export interface DataItem {
-	permissionCode: string;
-	permissionName: string;
-	summary: string;
-	status: string;
-	options: string;
+interface PermissionInfo {
+	id?: number;
+	permissionCode?: string;
+	permissionName?: string;
+	summary?: string;
+	status?: string;
+	options?: string;
 }
+
+export { type SearchInfo, columns, labelMap, type PermissionInfo };

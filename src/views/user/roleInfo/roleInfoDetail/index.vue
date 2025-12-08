@@ -97,59 +97,23 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { RoleInfoDetail } from './roleInfoDetailTs';
-
 import {
 	getRoleInfoDetail,
-	addOrEditRoleInfo,
+	addRoleInfo,
+	editRoleInfo,
 } from '@/views/user/roleInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
+import type { RoleInfo } from '../roleInfoListTs';
+import { labelMap, rulesRef, labelCol, wrapperCol } from './roleInfoDetailTs';
 
 const { getDictByType } = useDictInfo('is_valid');
-
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
 
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
-
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	roleCode: { name: 'roleCode', label: '角色编码' },
-	roleName: { name: 'roleName', label: '角色名称' },
-	summary: { name: 'summary', label: '描述' },
-	status: { name: 'status', label: '状态' },
-});
-
-const rulesRef = reactive({
-	roleCode: [
-		{
-			required: true,
-			message: '角色编码不能为空！',
-		},
-	],
-	roleName: [
-		{
-			required: true,
-			message: '角色名称不能为空！',
-		},
-	],
-	summary: [
-		{
-			required: true,
-			message: '描述不能为空！',
-		},
-	],
-	status: [
-		{
-			required: true,
-			message: '状态不能为空！',
-		},
-	],
-});
 
 const modelConfig = {
 	confirmLoading: true,
@@ -162,7 +126,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<RoleInfoDetail>({});
+let formState = ref<RoleInfo>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
@@ -191,18 +155,15 @@ const handleCancel = () => {
 
 //保存角色信息表信息
 const saveRoleInfoManager = async () => {
-	let method = '';
+	let api = addRoleInfo;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editRoleInfo;
 	}
-	const { code, message: messageInfo } = await addOrEditRoleInfo(
-		method,
-		formState.value,
-	).finally(() => {
-		loading.value = false;
-	});
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		emit('handleOk', false);

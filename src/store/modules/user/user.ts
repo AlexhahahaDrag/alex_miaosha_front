@@ -6,6 +6,8 @@ import type { LoginParams } from '@/views/login/config';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
+import type { UserInfo } from '@/types/store';
+import type { RoleInfo } from '@/views/user/roleInfo/roleInfoListTs';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -23,7 +25,7 @@ export const useUserStore = defineStore('app-user', {
 	}),
 
 	getters: {
-		getUserInfo(): any {
+		getUserInfo(): UserInfo {
 			return this.userInfo || getAuthInfo('userInfo');
 		},
 		getToken(): string {
@@ -40,9 +42,9 @@ export const useUserStore = defineStore('app-user', {
 			return this.lastUpdateTime;
 		},
 		getRouteStatus(): boolean {
-			return this.hasMenu || localStorage.getItem('hasRoute') === 'true';
+			return this.hasMenu || getAuthInfo('hasRoute') === 'true';
 		},
-		getRoleInfo(): any {
+		getRoleInfo(): RoleInfo {
 			return this.roleInfo || getAuthInfo('roleInfo');
 		},
 		getOrgInfo(): any {

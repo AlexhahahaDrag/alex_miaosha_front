@@ -36,13 +36,14 @@ export function deleteMenuInfo(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(baseService.user + baseMenuInfo + MenuInfoUrl.url, { ids });
 }
 
-export function addOrEditMenuInfo(
-	method: string,
+export function addMenuInfo(
 	params: MenuInfoData,
 ): Promise<ResponseBody<MenuInfoData>> {
-	if ('put' == method) {
-		return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
-	} else {
-		return postData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
-	}
+	return postData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
+}
+
+export function editMenuInfo(
+	params: MenuInfoData,
+): Promise<ResponseBody<MenuInfoData>> {
+	return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
 }

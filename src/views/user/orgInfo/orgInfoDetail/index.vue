@@ -116,8 +116,13 @@
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import type { OrgInfoDetail } from './orgInfoDetailTs';
-import { getOrgInfoDetail, addOrEditOrgInfo } from '@/views/user/orgInfo/api';
+import { labelMap, labelCol, wrapperCol, rulesRef } from './orgInfoDetailTs';
+import {
+	getOrgInfoDetail,
+	addOrgInfo,
+	editOrgInfo,
+} from '@/views/user/orgInfo/api';
+import type { OrgInfoData } from '../orgInfoListTs';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
@@ -125,60 +130,9 @@ const { getDictByType } = useDictInfo('is_valid');
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
-
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	orgCode: { name: 'orgCode', label: '机构编码' },
-	orgName: { name: 'orgName', label: '机构名称' },
-	orgShortName: { name: 'orgShortName', label: '机构简称' },
-	parentId: { name: 'parentId', label: '父级机构id' },
-	summary: { name: 'summary', label: '简介最多150字' },
-	status: { name: 'status', label: '状态' },
-});
-
-const rulesRef = reactive({
-	orgCode: [
-		{
-			required: true,
-			message: '机构编码不能为空！',
-		},
-	],
-	orgName: [
-		{
-			required: true,
-			message: '机构名称不能为空！',
-		},
-	],
-	orgShortName: [
-		{
-			required: true,
-			message: '机构简称不能为空！',
-		},
-	],
-	parentId: [
-		{
-			required: true,
-			message: '父级机构id不能为空！',
-		},
-	],
-	summary: [
-		{
-			required: true,
-			message: '简介最多150字不能为空！',
-		},
-	],
-	status: [
-		{
-			required: true,
-			message: '状态不能为空！',
-		},
-	],
-});
 
 const modelConfig = {
 	confirmLoading: true,
@@ -191,7 +145,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<OrgInfoDetail>({});
+let formState = ref<OrgInfoData>({});
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
@@ -212,33 +166,27 @@ const handleCancel = () => {
 };
 
 //保存机构表信息
-function saveOrgInfoManager() {
-	let method = '';
+const saveOrgInfoManager = async () => {
+	let api = addOrgInfo;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editOrgInfo;
 	}
-	addOrEditOrgInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
+	const { code, message: messageInfo } = await api(formState.value)
+		.catch((error) => {
+			return error;
 		})
 		.finally(() => {
 			loading.value = false;
 		});
-}
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		formState.value = {};
+		loading.value = false;
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const onFinish = (values: any) => {
 	console.log('Success:', values);

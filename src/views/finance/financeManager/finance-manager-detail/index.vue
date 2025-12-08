@@ -162,9 +162,6 @@ const validList = computed(() => getDictByType('is_valid'));
 // 使用 useUserInfo 组合式函数
 const { userList } = useUserInfo();
 
-const labelCol = ref<{ span: number }>({ span: 5 });
-const wrapperCol = ref<{ span: number }>({ span: 19 });
-
 const dateFormatter = 'YYYY-MM-DD';
 let loading = ref<boolean>(false);
 
@@ -203,11 +200,14 @@ const saveFinanceManager = async () => {
 	if (formState.value.id) {
 		api = editFinanceManger;
 	}
-	const { code, message: messageInfo } = await api(formState.value).finally(
-		() => {
+	loading.value = true;
+	const { code, message: messageInfo } = await api(formState.value)
+		.catch((error: any) => {
+			return error;
+		})
+		.finally(() => {
 			loading.value = false;
-		},
-	);
+		});
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};

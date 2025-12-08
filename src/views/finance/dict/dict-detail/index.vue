@@ -126,7 +126,8 @@
 import type { DictInfo } from '../config';
 import {
 	getDictManagerDetail,
-	addOrEditDictManager,
+	addDictManager,
+	editDictManager,
 } from '@/views/finance/dict/api';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
@@ -170,16 +171,18 @@ const handleCancel = () => {
 
 //保存财务信息
 const saveFinanceManager = async () => {
-	let method = '';
+	let api = addDictManager;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editDictManager;
 	}
-	const { code, message: messageInfo } = await addOrEditDictManager(
-		method,
-		formState.value,
-	);
+	modelConfig.confirmLoading = true;
+	const { code, message: messageInfo } = await api(formState.value)
+		.catch((error) => {
+			return error;
+		})
+		.finally(() => {
+			modelConfig.confirmLoading = false;
+		});
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		emit('handleOk', false);

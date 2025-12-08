@@ -6,6 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
+import type { RoleInfo } from '../roleInfoListTs';
 
 const baseRoleInfo = '/api/v1/role-info';
 
@@ -15,7 +16,7 @@ const RoleInfoUrl = {
 };
 
 export function getRoleInfoPage(
-	params: any,
+	params: RoleInfo,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
@@ -33,13 +34,12 @@ export function deleteRoleInfo(ids: string): Promise<ResponseBody> {
 	return deleteData(baseService.user + baseRoleInfo + RoleInfoUrl.url, { ids });
 }
 
-export function addOrEditRoleInfo(
-	method: string,
-	params: any,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
-	} else {
-		return postData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
-	}
+// 新增角色信息
+export function addRoleInfo(params: RoleInfo): Promise<ResponseBody> {
+	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
+}
+
+// 编辑角色信息
+export function editRoleInfo(params: RoleInfo): Promise<ResponseBody> {
+	return putData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
 }

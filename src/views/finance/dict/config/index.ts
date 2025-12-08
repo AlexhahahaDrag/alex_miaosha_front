@@ -1,6 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
-export const columns = ref<TableColumnsType>([
+const columns = ref<TableColumnsType>([
 	{
 		title: '类别编码',
 		dataIndex: 'typeCode',
@@ -45,7 +45,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface DictInfo {
+interface DictInfo {
 	id?: number | undefined;
 	typeCode?: string | number | undefined;
 	typeName?: string | undefined;
@@ -56,5 +56,7 @@ export interface DictInfo {
 	operateTime?: string | undefined;
 }
 
-export const labelCol: { span: number } = { span: 5 };
-export const wrapperCol: { span: number } = { span: 19 };
+const labelCol: { span: number } = { span: 5 };
+const wrapperCol: { span: number } = { span: 19 };
+
+export { columns, DictInfo, labelCol, wrapperCol };

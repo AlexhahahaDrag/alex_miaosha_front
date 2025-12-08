@@ -39,8 +39,8 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editDict('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelDictManager"
-					>删除
+				<a-button type="primary" danger @click="batchDelDictManager">
+					删除
 				</a-button>
 			</a-space>
 		</div>
@@ -101,7 +101,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DictInfo } from './config';
+import type { DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns } from './config';
 import {
@@ -147,7 +147,7 @@ const rowSelection = ref({
 	},
 });
 
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<DictInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -190,7 +190,7 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-const getDictPage = async (param: SearchInfo, cur: PageInfo) => {
+const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 	loading.value = true;
 	const {
 		code,

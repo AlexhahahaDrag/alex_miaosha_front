@@ -123,7 +123,7 @@ import { usePagination } from '@/composables/usePagination';
 import {
 	type SearchInfo,
 	columns,
-	type DataItem,
+	type RoleInfo,
 	labelMap,
 } from './roleInfoListTs';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
@@ -145,7 +145,7 @@ let searchInfo = ref<SearchInfo>({});
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref<DataItem[]>([]);
+let dataSource = ref<RoleInfo[]>([]);
 
 let visible = ref<boolean>(false);
 
@@ -156,13 +156,13 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (record: RoleInfo, selected: boolean, selectedRows: RoleInfo[]) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: RoleInfo[],
+		changeRows: RoleInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},

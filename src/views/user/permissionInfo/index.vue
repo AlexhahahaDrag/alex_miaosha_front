@@ -151,7 +151,7 @@ import { usePagination } from '@/composables/usePagination';
 import {
 	type SearchInfo,
 	columns,
-	type DataItem,
+	type PermissionInfo,
 	labelMap,
 } from './permissionInfoListTs';
 import {
@@ -182,13 +182,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: PermissionInfo,
+		selected: boolean,
+		selectedRows: PermissionInfo[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: PermissionInfo[],
+		changeRows: PermissionInfo[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -209,16 +213,15 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPermissionInfoListPage(searchInfo.value, pagination);
 };
 
-function delPermissionInfo(ids: string) {
-	deletePermissionInfo(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPermissionInfoListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
+const delPermissionInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deletePermissionInfo(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getPermissionInfoListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
 
 const batchDelPermissionInfo = (): void => {
 	if (!rowIds?.length) {
@@ -230,27 +233,30 @@ const batchDelPermissionInfo = (): void => {
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref();
+let dataSource = ref<PermissionInfo[]>([]);
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getPermissionInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getPermissionInfoPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getPermissionInfoPage(param, cur.current, cur.pageSize).finally(
+		() => {
 			loading.value = false;
-		});
-}
+		},
+	);
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 const init = () => {
 	//获取权限信息表页面数据

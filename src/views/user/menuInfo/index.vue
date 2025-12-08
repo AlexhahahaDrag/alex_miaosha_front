@@ -209,14 +209,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import type { MenuInfoData } from './config';
 import type { PageInfo } from '@/composables/usePagination';
-import {
-	type SearchInfo,
-	columns,
-	type DataItem,
-	labelMap,
-} from './menuInfoListTs';
+import type { MenuInfoData } from './config';
+import { columns, labelMap } from './config';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
@@ -237,7 +232,7 @@ const wrapperCol = ref({ span: 19 });
 
 let rowIds: (string | number)[] = [];
 
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<MenuInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const hideInMenuList = computed(() => getDictByType('true_or_false'));
@@ -256,13 +251,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: MenuInfoData,
+		selected: boolean,
+		selectedRows: MenuInfoData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: MenuInfoData[],
+		changeRows: MenuInfoData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -287,16 +286,19 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
-function delMenuInfo(ids: string) {
-	deleteMenuInfo(ids).then((res: any) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getMenuInfoListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
+const delMenuInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteMenuInfo(ids).catch(
+		(error) => {
+			return error;
+		},
+	);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getMenuInfoListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
 
 const batchDelMenuInfo = (): void => {
 	if (!rowIds?.length) {
@@ -311,7 +313,7 @@ const cancel = (e: MouseEvent) => {
 };
 
 const getMenuInfoListPage = async (
-	param: SearchInfo,
+	param: MenuInfoData,
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;

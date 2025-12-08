@@ -144,7 +144,7 @@ let sum = ref<math.BigNumber>(math.bignumber(0));
 let monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
 let monthIncomeSum = ref<math.BigNumber>(math.bignumber(0));
 
-let searchUser = ref<number>(userInfo.id);
+let searchUser = ref<number>(userInfo?.id || 0);
 
 // 初始化用户列表，添加"所有人"选项
 userList.value = [{ id: 0, nickName: '所有人' } as UserInfo];

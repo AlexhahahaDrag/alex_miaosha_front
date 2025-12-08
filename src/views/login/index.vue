@@ -53,7 +53,7 @@
 					>
 						记住我
 					</a-checkbox>
-					<a class="forgot-password">忘记密码?</a>
+					<!-- <a class="forgot-password">忘记密码?</a> -->
 				</div>
 
 				<a-form-item>
@@ -76,25 +76,29 @@
 <script setup lang="ts">
 import type { UnwrapRef } from 'vue';
 import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
-import type { LoginParams, LoginFormType } from '@/views/login/config';
+import type { LoginParams } from '@/views/login/config';
 import { loginRules, options } from '@/views/login/config';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/modules/user/user';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import { decryptSimple, encrypt } from '@/utils/crypto';
+import { useLoginStore } from '@/store/modules/login-store';
 
 const router = useRouter();
 const userStore = useUserStore();
-
+const loginStore = useLoginStore();
 const formRef = ref();
 
-const loginForm: UnwrapRef<LoginFormType> = reactive({
+// 登录表单
+const loginForm: UnwrapRef<LoginParams> = reactive({
 	username: '',
 	password: '',
 	isRememberMe: false,
 });
 
+// 登录按钮加载状态
 const loading = ref<boolean>(false);
 
+// 登录提交
 const onSubmit = () => {
 	loading.value = true;
 	formRef.value
@@ -105,12 +109,21 @@ const onSubmit = () => {
 				password: loginForm.password,
 				isRememberMe: loginForm.isRememberMe,
 			};
+			// 如果记住我，则加密登录信息
+			if (loginForm.isRememberMe) {
+				// 加密登录信息
+				loginStore.setLoginInfo(encrypt(param));
+			} else {
+				// 清空登录信息
+				loginStore.setLoginInfo('');
+			}
 			const res = await userStore.login(param);
 			if (res) {
+				// 登录成功，跳转首页
 				router.push('/');
 			}
 		})
-		.catch((error: ValidateErrorEntity<LoginFormType>) => {
+		.catch((error: ValidateErrorEntity<LoginParams>) => {
 			console.log('error', error);
 		})
 		.finally(() => {
@@ -118,6 +131,23 @@ const onSubmit = () => {
 		});
 };
 
+// 生命周期钩子
+onMounted(() => {
+	// 获取登录信息
+	const loginInfo = loginStore.getLoginInfo;
+	// 如果登录信息存在，则解密登录信息
+	if (loginInfo) {
+		const info = decryptSimple(loginInfo) as LoginParams;
+		// 如果解密成功，则设置登录表单
+		if (info) {
+			loginForm.username = info.username || '';
+			loginForm.password = info.password || '';
+			loginForm.isRememberMe = info.isRememberMe || false;
+		}
+	}
+});
+
+// 粒子加载完成
 const particlesLoaded = async (container: unknown) => {
 	console.log('Particles container loaded', container);
 };

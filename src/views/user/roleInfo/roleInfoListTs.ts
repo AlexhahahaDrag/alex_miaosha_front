@@ -1,4 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
+import type { PermissionInfo } from '../permissionInfo/permissionInfoListTs';
 
 export interface SearchInfo {
 	roleCode?: string;
@@ -45,9 +46,11 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	status: { name: 'status', label: '状态' },
 });
 
-export interface DataItem {
-	roleCode: string;
-	roleName: string;
-	summary: string;
-	status: string;
+export interface RoleInfo {
+	id?: number;
+	roleCode?: string;
+	roleName?: string;
+	summary?: string;
+	status?: string;
+	permissionList?: PermissionInfo[];
 }

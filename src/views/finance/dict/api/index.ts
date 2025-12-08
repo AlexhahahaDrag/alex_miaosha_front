@@ -54,16 +54,16 @@ export function deleteDictManager(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditDictManager(
-	method: string,
+// 新增字典信息
+export function addDictManager(
 	params: DictInfo,
 ): Promise<ResponseBody<DictInfo>> {
-	if ('put' == method) {
-		return putData(baseService.finance + baseDictManager + dictUrl.url, params);
-	} else {
-		return postData(
-			baseService.finance + baseDictManager + dictUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.finance + baseDictManager + dictUrl.url, params);
+}
+
+// 修改字典信息
+export function editDictManager(
+	params: DictInfo,
+): Promise<ResponseBody<DictInfo>> {
+	return putData(baseService.finance + baseDictManager + dictUrl.url, params);
 }

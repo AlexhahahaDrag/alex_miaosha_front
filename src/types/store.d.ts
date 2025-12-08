@@ -1,5 +1,5 @@
 export interface UserInfo {
-	id?: string | number;
+	id?: number;
 	userId: string | number;
 	username: string;
 	nickName: string;

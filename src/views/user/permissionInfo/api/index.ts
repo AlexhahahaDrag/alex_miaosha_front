@@ -5,7 +5,8 @@ import {
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { PermissionInfo } from '../permissionInfoListTs';
 
 const basePermissionInfo = '/api/v1//permission-info';
 
@@ -15,51 +16,50 @@ const PermissionInfoUrl = {
 };
 
 export function getPermissionInfoPage(
-	params: any,
+	params: PermissionInfo,
 	pageNo: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<PermissionInfo>>> {
 	return postData(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.page,
 		params,
 		{
-			pageNo: pageNo ? pageNo : 1,
-			pageSize: pageSize ? pageSize : 10,
+			pageNo: pageNo || 1,
+			pageSize: pageSize || 10,
 		},
 	);
 }
 
-export function getPermissionInfoDetail(id: number): Promise<ResponseBody> {
+export function getPermissionInfoDetail(
+	id: number,
+): Promise<ResponseBody<PermissionInfo>> {
 	return getDataOne(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
-		{
-			id,
-		},
+		{ id },
 	);
 }
 
 export function deletePermissionInfo(ids: string): Promise<ResponseBody> {
 	return deleteData(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
-		{
-			ids,
-		},
+		{ ids },
 	);
 }
 
-export function addOrEditPermissionInfo(
-	method: string,
-	params: any,
+export function addPermissionInfo(
+	params: PermissionInfo,
 ): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.user + basePermissionInfo + PermissionInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.user + basePermissionInfo + PermissionInfoUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
+		params,
+	);
+}
+
+export function editPermissionInfo(
+	params: PermissionInfo,
+): Promise<ResponseBody> {
+	return putData(
+		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
+		params,
+	);
 }

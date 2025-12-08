@@ -2,16 +2,10 @@ import type { Rule } from 'ant-design-vue/es/form/interface';
 
 // 登录参数
 export interface LoginParams {
+	username?: string;
+	password?: string;
 	isRememberMe?: boolean;
-	username: string;
-	password: string;
 	type?: string;
-}
-
-export interface LoginFormType {
-	username: string;
-	password: string;
-	isRememberMe?: boolean;
 }
 
 // 登录规则

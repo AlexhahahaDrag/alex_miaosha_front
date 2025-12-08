@@ -1,6 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
-export const columns = ref<TableColumnsType>([
+const columns = ref<TableColumnsType>([
 	{
 		title: '菜单名称',
 		dataIndex: 'name',
@@ -64,7 +64,8 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface MenuInfoData {
+interface MenuInfoData {
+	id?: number;
 	name?: string;
 	path?: string;
 	title?: string;
@@ -76,10 +77,9 @@ export interface MenuInfoData {
 	summary?: string;
 	status?: string;
 	orderBy?: number;
-	id?: number;
 }
 
-export const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap = ref<Record<string, { name: string; label: string }>>({
 	name: { name: 'name', label: '菜单名称' },
 	path: { name: 'path', label: '菜单路径' },
 	title: { name: 'title', label: '菜单标题' },
@@ -93,5 +93,7 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orderBy: { name: 'orderBy', label: '排序' },
 });
 
-export const labelCol: { span: number } = { span: 5 };
-export const wrapperCol: { span: number } = { span: 19 };
+const labelCol: { span: number } = { span: 5 };
+const wrapperCol: { span: number } = { span: 19 };
+
+export { columns, MenuInfoData, labelMap, labelCol, wrapperCol };

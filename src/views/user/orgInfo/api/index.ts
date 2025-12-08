@@ -36,13 +36,16 @@ export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(baseService.user + baseOrgInfo + OrgInfoUrl.url, { ids });
 }
 
-export function addOrEditOrgInfo(
-	method: string,
+// 添加机构表信息
+export function addOrgInfo(
 	params: OrgInfoData,
-): Promise<ResponseBody<OrgInfoData>> {
-	if ('put' == method) {
-		return putData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
-	} else {
-		return postData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
-	}
+): Promise<ResponseBody<boolean>> {
+	return postData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
+}
+
+// 编辑机构表信息
+export function editOrgInfo(
+	params: OrgInfoData,
+): Promise<ResponseBody<boolean>> {
+	return putData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
 }

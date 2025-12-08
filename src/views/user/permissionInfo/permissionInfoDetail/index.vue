@@ -25,8 +25,6 @@
 				name="PermissionInfoForm"
 				class="ant-advanced-search-form"
 				:model="formState"
-				@finish="onFinish"
-				@finishFailed="onFinishFailed"
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
@@ -104,63 +102,26 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { PermissionInfoDetail } from './permissionInfoDetailTs';
+import {
+	labelMap,
+	rulesRef,
+	labelCol,
+	wrapperCol,
+} from './permissionInfoDetailTs';
 import type { ModelInfo } from '@/views/common/config';
+import type { PermissionInfo } from '../permissionInfoListTs';
 import {
 	getPermissionInfoDetail,
-	addOrEditPermissionInfo,
+	addPermissionInfo,
+	editPermissionInfo,
 } from '@/views/user/permissionInfo/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
-
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	permissionCode: { name: 'permissionCode', label: '权限编码' },
-	permissionName: { name: 'permissionName', label: '权限名称' },
-	summary: { name: 'summary', label: '描述' },
-	status: { name: 'status', label: '状态' },
-	options: { name: 'options', label: 'url' },
-});
-
-const rulesRef = reactive({
-	permissionCode: [
-		{
-			required: true,
-			message: '权限编码不能为空！',
-		},
-	],
-	permissionName: [
-		{
-			required: true,
-			message: '权限名称不能为空！',
-		},
-	],
-	summary: [
-		{
-			required: true,
-			message: '描述不能为空！',
-		},
-	],
-	status: [
-		{
-			required: true,
-			message: '状态不能为空！',
-		},
-	],
-	options: [
-		{
-			required: true,
-			message: 'url不能为空！',
-		},
-	],
-});
 
 const modelConfig = {
 	confirmLoading: true,
@@ -173,7 +134,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<PermissionInfoDetail>({});
+let formState = ref<PermissionInfo>({});
 
 const statusList = computed(() => getDictByType('is_valid'));
 
@@ -196,40 +157,18 @@ const handleCancel = () => {
 };
 
 //保存权限信息表信息
-function savePermissionInfoManager() {
-	let method = '';
+const savePermissionInfoManager = async () => {
+	let api = addPermissionInfo;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPermissionInfo;
 	}
-	addOrEditPermissionInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
-
-const onFinish = (values: any) => {
-	console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo: any) => {
-	console.log('Failed:', errorInfo);
+	const { code, message: messageInfo } = await api(formState.value);
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
 };
 
 // 初始化数据
