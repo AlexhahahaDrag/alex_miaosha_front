@@ -28,10 +28,10 @@ const props = defineProps({
 
 const id = ref(`vue-echarts-${nanoid()}`);
 
-const style = ref({
+const style = computed(() => ({
 	height: props.height,
 	width: props.width,
-});
+}));
 let chart: echarts.ECharts | null = null;
 const initEcharts = () => {
 	disposeChart();

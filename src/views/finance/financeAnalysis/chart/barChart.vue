@@ -57,9 +57,15 @@ const setOption = (data: any[]) => {
 			tooltip: tooltip || {
 				trigger: 'axis',
 			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '15%',
+				containLabel: true,
+			},
 			xAxis: {
 				type: 'category',
-				boundaryGap: false,
+				boundaryGap: true,
 				data: xAxis ? xAxis : [],
 				axisTick: {
 					alignWithLabel: true,
@@ -127,9 +133,15 @@ const chartOption = {
 	},
 	color: [] as string[],
 	tooltip: {} as object,
+	grid: {
+		left: '3%',
+		right: '4%',
+		bottom: '15%',
+		containLabel: true,
+	},
 	xAxis: {
 		type: 'category',
-		boundaryGap: false,
+		boundaryGap: true,
 		data: [] as string[],
 		axisTick: {
 			alignWithLabel: true,

@@ -43,7 +43,8 @@ const options = computed(() => {
 			{
 				name: '',
 				type: 'pie',
-				radius: '50%',
+				radius: '70%',
+				center: ['50%', '50%'],
 				data: props.data || [],
 				emphasis: {
 					itemStyle: {

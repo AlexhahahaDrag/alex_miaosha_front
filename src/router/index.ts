@@ -29,57 +29,57 @@ export const routes: MenuDataItem[] = [
 			},
 		],
 	},
-	{
-		name: 'personal-gift',
-		path: '/personal-gift',
-		redirect: '/contacts-user',
-		component: Layout,
-		meta: {
-			title: '个人礼物',
-			hiedInMenu: false,
-		},
-		children: [
-			{
-				path: '/contacts-user-relation',
-				component:
-					modules['/src/views/personal-gift/contacts-user-relation/index.vue'],
-				name: 'contacts-user-relation',
-				meta: {
-					title: '联系人关系管理',
-					icon: 'contacts-user-relation',
-					hiedInMenu: false,
-				},
-			},
-			{
-				path: '/contacts-user',
-				component: modules['/src/views/personal-gift/contacts-user/index.vue'],
-				name: 'contacts-user',
-				meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
-			},
-			{
-				path: '/personal-gift-info',
-				component:
-					modules['/src/views/personal-gift/personal-gift-info/index.vue'],
-				name: 'personal-gift-info',
-				meta: {
-					title: '个人礼物信息',
-					icon: 'personal-gift-info',
-					hiedInMenu: false,
-				},
-			},
-			{
-				path: '/personal-gift-statistic',
-				component:
-					modules['/src/views/personal-gift/personal-gift-statistic/index.vue'],
-				name: 'personal-gift-statistic',
-				meta: {
-					title: '个人礼物统计',
-					icon: 'personal-gift-statistic',
-					hiedInMenu: false,
-				},
-			},
-		],
-	},
+	// {
+	// 	name: 'personal-gift',
+	// 	path: '/personal-gift',
+	// 	redirect: '/contacts-user',
+	// 	component: Layout,
+	// 	meta: {
+	// 		title: '个人礼物',
+	// 		hiedInMenu: false,
+	// 	},
+	// 	children: [
+	// 		{
+	// 			path: '/contacts-user-relation',
+	// 			component:
+	// 				modules['/src/views/personal-gift/contacts-user-relation/index.vue'],
+	// 			name: 'contacts-user-relation',
+	// 			meta: {
+	// 				title: '联系人关系管理',
+	// 				icon: 'contacts-user-relation',
+	// 				hiedInMenu: false,
+	// 			},
+	// 		},
+	// 		{
+	// 			path: '/contacts-user',
+	// 			component: modules['/src/views/personal-gift/contacts-user/index.vue'],
+	// 			name: 'contacts-user',
+	// 			meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
+	// 		},
+	// 		{
+	// 			path: '/personal-gift-info',
+	// 			component:
+	// 				modules['/src/views/personal-gift/personal-gift-info/index.vue'],
+	// 			name: 'personal-gift-info',
+	// 			meta: {
+	// 				title: '个人礼物信息',
+	// 				icon: 'personal-gift-info',
+	// 				hiedInMenu: false,
+	// 			},
+	// 		},
+	// 		{
+	// 			path: '/personal-gift-statistic',
+	// 			component:
+	// 				modules['/src/views/personal-gift/personal-gift-statistic/index.vue'],
+	// 			name: 'personal-gift-statistic',
+	// 			meta: {
+	// 				title: '个人礼物统计',
+	// 				icon: 'personal-gift-statistic',
+	// 				hiedInMenu: false,
+	// 			},
+	// 		},
+	// 	],
+	// },
 	{
 		name: 'login',
 		path: '/login',
@@ -134,15 +134,15 @@ const addRouter = () => {
 		userStore.getMenuInfo.forEach((item: MenuInfo) => {
 			if (
 				judgePermission(
-					roleInfo?.permissionList,
+					roleInfo?.permissionList || [],
 					item?.permissionCode,
-					roleInfo.roleCode,
+					roleInfo?.roleCode || '',
 				)
 			) {
 				let newRouter = getChildren(
 					item,
-					roleInfo?.permissionList,
-					roleInfo.roleCode,
+					roleInfo?.permissionList || [],
+					roleInfo?.roleCode || '',
 				);
 				router.addRoute(newRouter);
 				dynamicRouter.push(newRouter);
@@ -155,7 +155,6 @@ const addRouter = () => {
 
 // 根据组件路径获取组件
 const getComponent = (item: MenuInfo) => {
-	console.log(`getComp`, item);
 	if (item.component) {
 		if (item.component === 'Layout') {
 			return Layout;

@@ -1,10 +1,11 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { getUserManagerList } from '@/views/user/userManager/api';
-import type { UserInfo } from '@/types/store';
+import type { UserManagerInfo } from '@/views/user/userManager/config';
 
+// 用户列表
 export function useUserInfo() {
-	const userList = ref<UserInfo[]>([]);
+	const userList = ref<UserManagerInfo[]>([]);
 	const loading = ref<boolean>(false);
 
 	const getUserInfoList = async () => {
@@ -12,7 +13,7 @@ export function useUserInfo() {
 		try {
 			const { code, data, message: messageInfo } = await getUserManagerList({});
 			if (code == '200') {
-				userList.value = data;
+				userList.value = data || [];
 			} else {
 				message.error(messageInfo || '查询用户列表失败！');
 			}

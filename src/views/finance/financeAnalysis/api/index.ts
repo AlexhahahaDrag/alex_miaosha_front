@@ -1,5 +1,6 @@
 import { getDataOne, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
+import type { FinanceManagerData } from '../../financeManager/config';
 
 const baseFinanceAnalysis = '/api/v1/finance-analysis';
 
@@ -13,7 +14,7 @@ const financeAnalysisUrl = {
 export const getBalance = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> => {
+): Promise<ResponseBody<FinanceManagerData[]>> => {
 	let params = {
 		searchDate,
 		belongTo,
@@ -24,11 +25,13 @@ export const getBalance = (
 	);
 };
 
+// 获取收入和支出信息
+// todo: 将来添加type参数，根据type查询收入和支出
 export const getIncomeAndExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
 	type?: string,
-): Promise<ResponseBody> => {
+): Promise<ResponseBody<any[]>> => {
 	let params = {
 		belongTo,
 		searchDate,
