@@ -27,7 +27,8 @@ import type { RoleInfoDetail } from './roleInfoDetailTs';
 // 字典数据已通过 useDictInfo 自动加载
 import {
 	getRoleInfoDetail,
-	addOrEditRoleInfo,
+	addRoleInfo,
+	editRoleInfo,
 } from '@/views/user/roleInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -73,34 +74,23 @@ const handleCancel = () => {
 };
 
 //保存角色信息表信息
-function saveRoleInfoManager() {
-	let method = '';
-	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+const saveRoleInfoManager = async () => {
+	let api = addRoleInfo;
+	if (formState.value?.id) {
+		api = editRoleInfo;
 	}
-	addOrEditRoleInfo(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: unknown) => {
-			const data = (error as { response?: { data?: { message?: string } } })
-				?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
 			loading.value = false;
-		});
-}
+		},
+	);
+	if (code == '200') {
+		message.success(messageInfo || '保存成功！');
+		emit('handleOk', false);
+	} else {
+		message.error(messageInfo || '保存失败！');
+	}
+};
 
 const init = async () => {
 	if ((props.data as { id: string })?.id) {

@@ -13,8 +13,8 @@ _🚀 基于 Vue 3 + TypeScript + Vite 构建的现代化后台管理系统_
 [![Pinia](https://img.shields.io/badge/Pinia-FFD93D?style=flat-square&logo=vue.js&logoColor=black)](https://pinia.vuejs.org/)
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/alex_miaosha_front?style=flat-square&logo=github)](https://github.com/yourusername/alex_miaosha_front/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/alex_miaosha_front?style=flat-square&logo=github)](https://github.com/yourusername/alex_miaosha_front/network)
+[![GitHub stars](https://img.shields.io/github/stars/AlexhahahaDrag/alex_miaosha_front?style=flat-square&logo=github)](https://github.com/AlexhahahaDrag/alex_miaosha_front/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/AlexhahahaDrag/alex_miaosha_front?style=flat-square&logo=github)](https://github.com/AlexhahahaDrag/alex_miaosha_front/network)
 
 </div>
 
@@ -145,7 +145,7 @@ alex_miaosha_front/
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/alex_miaosha_front.git
+git clone https://github.com/AlexhahahaDrag/alex_miaosha_front.git
 
 # 进入项目目录
 cd alex_miaosha_front
@@ -291,8 +291,8 @@ docker run -p 80:80 alex-miaosha-front
 
 <div align="center">
 
-[![GitHub](https://img.shields.io/badge/GitHub-@yourusername-181717?style=flat-square&logo=github)](https://github.com/yourusername)
-[![Email](https://img.shields.io/badge/Email-your.email@example.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:your.email@example.com)
+[![GitHub](https://img.shields.io/badge/GitHub-@AlexhahahaDrag-181717?style=flat-square&logo=github)](https://github.com/AlexhahahaDrag)
+[![Email](https://img.shields.io/badge/Email-your.email@example.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:734663446@qq.com)
 
 </div>
 
@@ -303,5 +303,5 @@ docker run -p 80:80 alex-miaosha-front
 **🌟 如果这个项目对你有帮助，请给它一个星标！**
 
 Made with ❤️ by Alex Team
-1
+
 </div>
