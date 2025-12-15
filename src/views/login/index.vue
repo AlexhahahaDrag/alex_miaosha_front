@@ -98,6 +98,26 @@ const loginForm: UnwrapRef<LoginParams> = reactive({
 // 登录按钮加载状态
 const loading = ref<boolean>(false);
 
+/**
+ * AI Agent
+ * 监听键盘 Enter，触发登录
+ * - 使用 window 监听，避免受组件内部 focus/事件冒泡影响
+ * - loading 时不重复触发
+ * - 输入法组合输入过程中不触发（避免回车上屏时误触）
+ */
+const onKeydownEnter = (e: KeyboardEvent) => {
+	if (e.isComposing) {
+		return;
+	}
+	if (e.key !== 'Enter') {
+		return;
+	}
+	if (loading.value) {
+		return;
+	}
+	onSubmit();
+};
+
 // 登录提交
 const onSubmit = () => {
 	loading.value = true;
@@ -133,6 +153,9 @@ const onSubmit = () => {
 
 // 生命周期钩子
 onMounted(() => {
+	// AI Agent: 绑定回车登录
+	window.addEventListener('keydown', onKeydownEnter);
+
 	// 获取登录信息
 	const loginInfo = loginStore.getLoginInfo;
 	// 如果登录信息存在，则解密登录信息
@@ -145,6 +168,11 @@ onMounted(() => {
 			loginForm.isRememberMe = info.isRememberMe || false;
 		}
 	}
+});
+
+onUnmounted(() => {
+	// AI Agent: 移除回车登录监听，避免影响其它页面
+	window.removeEventListener('keydown', onKeydownEnter);
 });
 
 // 粒子加载完成
@@ -171,7 +199,7 @@ $form_bg: rgba(255, 255, 255, 0.05);
 	.login-form-container {
 		position: relative;
 		z-index: 1;
-		width: 420px;
+		width: 380px;
 		padding: 40px;
 		background: rgba(30, 30, 30, 0.6); // 深色半透明背景
 		backdrop-filter: blur(10px); // 毛玻璃效果
