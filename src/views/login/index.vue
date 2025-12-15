@@ -254,7 +254,7 @@ $form_bg: rgba(255, 255, 255, 0.05);
 					transition: background-color 5000s ease-in-out 0s;
 					-webkit-text-fill-color: #fff !important;
 					caret-color: #fff;
-					box-shadow: 0 0 0px 1000px #000000 inset !important;
+					box-shadow: 0 0 0 1000px #000000 inset !important;
 				}
 			}
 
