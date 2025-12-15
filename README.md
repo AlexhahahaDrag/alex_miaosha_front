@@ -1,16 +1,16 @@
-# ⚡ Alex 秒杀商城前端
+# ⚡ Alex 管理系统前端
 
 <div align="center">
 
-![Logo](https://img.shields.io/badge/⚡-Alex_秒杀商城-ff6b6b?style=for-the-badge&logo=lightning&logoColor=white)
+![Logo](https://img.shields.io/badge/⚡-Alex_管理系统-ff6b6b?style=for-the-badge&logo=lightning&logoColor=white)
 
-_🚀 基于 Vue 3 + TypeScript + Vite 构建的现代化电商后台管理系统_
+_🚀 基于 Vue 3 + TypeScript + Vite 构建的现代化后台管理系统_
 
-[![Vue](https://img.shields.io/badge/Vue-3.4.15-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Ant Design Vue](https://img.shields.io/badge/Ant_Design_Vue-4.1.2-0170FE?style=flat-square&logo=ant-design&logoColor=white)](https://antdv.com/)
-[![Pinia](https://img.shields.io/badge/Pinia-2.1.7-FFD93D?style=flat-square&logo=vue.js&logoColor=black)](https://pinia.vuejs.org/)
+[![Vue](https://img.shields.io/badge/Vue-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Ant Design Vue](https://img.shields.io/badge/Ant_Design_Vue-0170FE?style=flat-square&logo=ant-design&logoColor=white)](https://antdv.com/)
+[![Pinia](https://img.shields.io/badge/Pinia-FFD93D?style=flat-square&logo=vue.js&logoColor=black)](https://pinia.vuejs.org/)
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/yourusername/alex_miaosha_front?style=flat-square&logo=github)](https://github.com/yourusername/alex_miaosha_front/stargazers)
@@ -20,11 +20,11 @@ _🚀 基于 Vue 3 + TypeScript + Vite 构建的现代化电商后台管理系�
 
 ## 📖 项目简介
 
-Alex 秒杀商城前端是一个功能丰富的电商后台管理系统，专注于秒杀活动管理和电商运营。采用最新的前端技术栈，提供了完整的商城管理解决方案。
+Alex 管理系统前端是一个功能丰富的后台管理系统，面向业务运营与日常管理场景。采用最新的前端技术栈，提供了完整的管理端解决方案。
 
 ### ✨ 核心特性
 
-- 🎯 **秒杀活动管理** - 专业的秒杀活动配置和监控
+- 🎯 **业务管理** - 面向运营与日常管理的业务能力支持
 - 👥 **用户权限管理** - 基于角色的权限控制系统
 - 📦 **商品管理** - 完整的商品信息、库存、属性管理
 - 💰 **财务管理** - 订单财务、账目记录、数据分析
@@ -38,28 +38,28 @@ Alex 秒杀商城前端是一个功能丰富的电商后台管理系统，专注
 ### 核心框架
 
 ```
-🖼️ 前端框架    Vue 3.4.15 (Composition API)
-🔷 开发语言    TypeScript 5.3.3
-⚡ 构建工具    Vite 6.3.5
-🎨 UI 组件库   Ant Design Vue 4.1.2
+🖼️ 前端框架    Vue (Composition API)
+🔷 开发语言    TypeScript
+⚡ 构建工具    Vite
+🎨 UI 组件库   Ant Design Vue
 ```
 
 ### 状态管理与路由
 
 ```
-🗃️ 状态管理    Pinia 2.1.7 + 持久化存储
-🧭 路由管理    Vue Router 4.2.5 (动态路由)
-🌐 HTTP 客户端 Axios 1.6.7
+🗃️ 状态管理    Pinia + 持久化存储
+🧭 路由管理    Vue Router (动态路由)
+🌐 HTTP 客户端 Axios
 ```
 
 ### 工具库与插件
 
 ```
-📊 图表可视化   ECharts 5.4.0
-🎨 样式预处理   Less 4.1.3 + SASS 1.81.0
+📊 图表可视化   ECharts
+🎨 样式预处理   Less + SASS
 🔢 数值计算    BigNumber.js + Math.js
-🔐 加密工具    Crypto-js 4.1.1
-⭐ 粒子效果    TSParticles 3.3.0
+🔐 加密工具    Crypto-js
+⭐ 粒子效果    TSParticles
 🔧 自动导入    unplugin-vue-components
 ```
 
@@ -68,7 +68,7 @@ Alex 秒杀商城前端是一个功能丰富的电商后台管理系统，专注
 ```
 📋 代码规范    ESLint + Prettier
 🪝 Git 钩子   Husky + lint-staged
-📦 包管理     Yarn 1.22.21
+📦 包管理     Yarn
 🔨 构建优化    Rollup + Terser + Compression
 ```
 
@@ -122,12 +122,12 @@ alex_miaosha_front/
 - 🎁 礼品卡管理
 - 💰 账户记录查询
 
-### 🎯 秒杀系统
+### 🧩 运营与业务管理
 
-- ⚡ 秒杀活动配置
-- 📈 实时数据监控
-- 🛒 购物车管理
-- 📋 订单处理
+- 📈 数据看板与运营分析
+- 🧾 订单处理与业务流转
+- 🛒 购物车与交易相关管理
+- ⚙️ 配置与字典管理
 
 </td>
 </tr>
@@ -138,8 +138,8 @@ alex_miaosha_front/
 ### 环境要求
 
 ```bash
-📋 Node.js >= 16.0.0
-📦 Yarn >= 1.22.0
+📋 Node.js
+📦 Yarn
 ```
 
 ### 安装依赖
