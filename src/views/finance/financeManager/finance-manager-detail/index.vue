@@ -135,7 +135,6 @@
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
-import { useDictInfo } from '@/composables/useDictInfo';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { useUserStore } from '@/store/modules/user/user';
@@ -148,6 +147,7 @@ import {
 } from '@/views/finance/financeManager/api';
 import { rulesRef } from './config';
 import { useUserInfo } from '@/composables/useUserInfo';
+import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
 
@@ -186,7 +186,10 @@ let currentUser = useUserStore()?.getUserInfo;
 const handleOk = () => {
 	loading.value = true;
 	if (formRef.value) {
-		formRef.value.validateFields().then(() => saveFinanceManager());
+		formRef.value
+			.validateFields()
+			.then(() => saveFinanceManager())
+			.catch(() => (loading.value = false));
 	}
 };
 
@@ -242,7 +245,6 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 };
 
 const init = async () => {
-	//字典信息已通过 useDictInfo 自动加载
 	//初始化数据
 	initDetail(props.modelInfo);
 };

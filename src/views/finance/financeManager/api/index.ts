@@ -32,9 +32,7 @@ export function getFinanceMangerDetail(
 ): Promise<ResponseBody<FinanceManagerData>> {
 	return getDataOne(
 		baseService.finance + baseFinanceManager + financeMangerUrl.url,
-		{
-			id,
-		},
+		{ id },
 	);
 }
 
