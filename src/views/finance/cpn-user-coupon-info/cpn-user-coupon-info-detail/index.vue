@@ -33,24 +33,24 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item
-							:name="labelMap['couponName'].name"
-							:label="labelMap['couponName'].label"
+							:name="labelMap['userId'].name"
+							:label="labelMap['userId'].label"
 						>
 							<a-input
-								v-model:value="formState.couponName"
-								:placeholder="'请填写' + labelMap['couponName'].label"
+								v-model:value="formState.userId"
+								:placeholder="'请填写' + labelMap['userId'].label"
 							>
 							</a-input>
 						</a-form-item>
 					</a-col>
 					<a-col :span="12">
 						<a-form-item
-							:name="labelMap['totalQuantity'].name"
-							:label="labelMap['totalQuantity'].label"
+							:name="labelMap['couponId'].name"
+							:label="labelMap['couponId'].label"
 						>
 							<a-input
-								v-model:value="formState.totalQuantity"
-								:placeholder="'请填写' + labelMap['totalQuantity'].label"
+								v-model:value="formState.couponId"
+								:placeholder="'请填写' + labelMap['couponId'].label"
 							>
 							</a-input>
 						</a-form-item>
@@ -59,11 +59,23 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item
-							:name="labelMap['startDate'].name"
-							:label="labelMap['startDate'].label"
+							:name="labelMap['status'].name"
+							:label="labelMap['status'].label"
+						>
+							<a-input
+								v-model:value="formState.status"
+								:placeholder="'请填写' + labelMap['status'].label"
+							>
+							</a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['receiveTime'].name"
+							:label="labelMap['receiveTime'].label"
 						>
 							<a-date-picker
-								v-model:value="formState.startDate"
+								v-model:value="formState.receiveTime"
 								:format="'YYYY-MM-DD'"
 								:getPopupContainer="
 									(triggerNode: any) => {
@@ -73,13 +85,15 @@
 							/>
 						</a-form-item>
 					</a-col>
+				</a-row>
+				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item
-							:name="labelMap['endDate'].name"
-							:label="labelMap['endDate'].label"
+							:name="labelMap['expireTime'].name"
+							:label="labelMap['expireTime'].label"
 						>
 							<a-date-picker
-								v-model:value="formState.endDate"
+								v-model:value="formState.expireTime"
 								:format="'YYYY-MM-DD'"
 								:getPopupContainer="
 									(triggerNode: any) => {
@@ -87,32 +101,6 @@
 									}
 								"
 							/>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['unitValue'].name"
-							:label="labelMap['unitValue'].label"
-						>
-							<a-input
-								v-model:value="formState.unitValue"
-								:placeholder="'请填写' + labelMap['unitValue'].label"
-							>
-							</a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['minSpend'].name"
-							:label="labelMap['minSpend'].label"
-						>
-							<a-input
-								v-model:value="formState.minSpend"
-								:placeholder="'请填写' + labelMap['minSpend'].label"
-							>
-							</a-input>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -123,12 +111,12 @@
 <script lang="ts" setup>
 import { message, type FormInstance } from 'ant-design-vue';
 import {
-	getCouponInfoDetail,
-	addCouponInfo,
-	editCouponInfo,
-} from '@/views/finance/coupon-info/api/index';
+	getCpnUserCouponInfoDetail,
+	addCpnUserCouponInfo,
+	editCpnUserCouponInfo,
+} from '@/views/finance/cpn-user-coupon-info/api/index';
 import type { ModelInfo } from '@/views/common/config';
-import type { CouponInfoData } from '../config';
+import type { CpnUserCouponInfoData } from '../config';
 import { labelMap } from '../config';
 import { rulesRef, labelCol, wrapperCol } from './config';
 
@@ -147,14 +135,14 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<CouponInfoData>({});
+let formState = ref<CpnUserCouponInfoData>({});
 
 const handleOk = () => {
 	loading.value = true;
 	if (formRef.value) {
 		formRef.value
 			.validateFields()
-			.then(() => saveCouponInfo())
+			.then(() => saveCpnUserCouponInfo())
 			.catch(() => (loading.value = false));
 	}
 };
@@ -162,11 +150,11 @@ const handleCancel = () => {
 	emit('handleCancel', false);
 };
 
-//保存消费券信息表信息
-const saveCouponInfo = async () => {
-	let api = addCouponInfo;
+//保存用户消费券库存表 (按数量核销)信息
+const saveCpnUserCouponInfo = async () => {
+	let api = addCpnUserCouponInfo;
 	if (formState.value.id) {
-		api = editCouponInfo;
+		api = editCpnUserCouponInfo;
 	}
 	loading.value = true;
 	const { code, message: messageInfo } = await api(formState.value)
@@ -190,7 +178,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			code,
 			data,
 			message: messageInfo,
-		} = await getCouponInfoDetail(modalData.id);
+		} = await getCpnUserCouponInfoDetail(modalData.id);
 		if (code == '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;

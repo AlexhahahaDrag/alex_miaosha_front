@@ -41,7 +41,7 @@ export const columns = ref<TableColumnsType>([
 	},
 ]);
 
-export interface CouponInfoData {
+export interface CpnCouponInfoData {
 	id?: number;
 	couponName?: string;
 	totalQuantity?: number;

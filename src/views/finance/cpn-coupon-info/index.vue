@@ -96,8 +96,10 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" @click="editCouponInfo('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelCouponInfo">
+				<a-button type="primary" @click="editCpnCouponInfo('add')"
+					>新增</a-button
+				>
+				<a-button type="primary" danger @click="batchDelCpnCouponInfo">
 					删除
 				</a-button>
 			</a-space>
@@ -107,7 +109,7 @@
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record: CouponInfoData) => record.id || 0"
+				:row-key="(record: CpnCouponInfoData) => record.id || 0"
 				:pagination="pagination"
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
@@ -119,7 +121,7 @@
 							<a-button
 								type="primary"
 								size="small"
-								@click="editCouponInfo('update', record.id)"
+								@click="editCpnCouponInfo('update', record.id)"
 							>
 								编辑
 							</a-button>
@@ -127,7 +129,7 @@
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
-								@confirm="delCouponInfo(record.id)"
+								@confirm="delCpnCouponInfo(record.id)"
 								@cancel="cancel"
 							>
 								<a-button type="primary" size="small" danger>删除</a-button>
@@ -136,22 +138,22 @@
 					</template>
 				</template>
 			</a-table>
-			<CouponInfoDetail
+			<CpnCouponInfoDetail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
 			>
-			</CouponInfoDetail>
+			</CpnCouponInfoDetail>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { getCouponInfoPage, deleteCouponInfo } from './api/index';
+import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api/index';
 import type { ModelInfo } from '@/views/common/config';
-import type { CouponInfoData } from './config';
+import type { CpnCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 
@@ -164,7 +166,7 @@ const {
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref<CouponInfoData[]>([]);
+let dataSource = ref<CpnCouponInfoData[]>([]);
 
 let visible = ref<boolean>(false);
 
@@ -172,28 +174,28 @@ let modelInfo = ref<ModelInfo>({});
 
 let rowIds: (string | number)[] = [];
 
-let searchInfo = ref<CouponInfoData>({});
+let searchInfo = ref<CpnCouponInfoData>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (
 		selectedRowKeys: (string | number)[],
-		_selectedRows: CouponInfoData[],
+		_selectedRows: CpnCouponInfoData[],
 	) => {
 		console.log(_selectedRows);
 		rowIds = selectedRowKeys;
 	},
 	onSelect: (
-		record: CouponInfoData,
+		record: CpnCouponInfoData,
 		selected: boolean,
-		selectedRows: CouponInfoData[],
+		selectedRows: CpnCouponInfoData[],
 	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: CouponInfoData[],
-		changeRows: CouponInfoData[],
+		selectedRows: CpnCouponInfoData[],
+		changeRows: CpnCouponInfoData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -204,45 +206,50 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getCouponInfoListPage(searchInfo.value, pagination);
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 const handleTableChange = (paginationInfo: PageInfo): void => {
 	paginationChange(paginationInfo);
-	getCouponInfoListPage(searchInfo.value, pagination);
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
-const delCouponInfo = async (ids: string) => {
-	const { code, message: messageInfo } = await deleteCouponInfo(ids);
+const delCpnCouponInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteCpnCouponInfo(ids);
 	if (code == '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		getCouponInfoListPage(searchInfo.value, pagination);
+		getCpnCouponInfoListPage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
 };
 
-const batchDelCouponInfo = (): void => {
+const batchDelCpnCouponInfo = (): void => {
 	if (!rowIds?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delCouponInfo(rowIds.join(','));
+	delCpnCouponInfo(rowIds.join(','));
 };
 
 const cancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
-const getCouponInfoListPage = async (param: CouponInfoData, cur: PageInfo) => {
+const getCpnCouponInfoListPage = async (
+	param: CpnCouponInfoData,
+	cur: PageInfo,
+) => {
 	loading.value = true;
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await getCouponInfoPage(param, cur.current, cur.pageSize).finally(() => {
-		loading.value = false;
-	});
+	} = await getCpnCouponInfoPage(param, cur.current, cur.pageSize).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
@@ -255,7 +262,7 @@ const getCouponInfoListPage = async (param: CouponInfoData, cur: PageInfo) => {
 };
 
 //新增和修改弹窗
-const editCouponInfo = (type: string, id?: number): void => {
+const editCpnCouponInfo = (type: string, id?: number): void => {
 	if (type == 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -269,7 +276,7 @@ const editCouponInfo = (type: string, id?: number): void => {
 
 const handleOk = (v: boolean): void => {
 	visible.value = v;
-	getCouponInfoListPage(searchInfo.value, pagination);
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {
@@ -278,7 +285,7 @@ const handleCancel = (v: boolean): void => {
 
 const init = (): void => {
 	//获取消费券信息表页面数据
-	getCouponInfoListPage(searchInfo.value, pagination);
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 init();
