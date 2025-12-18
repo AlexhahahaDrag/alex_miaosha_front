@@ -12,7 +12,6 @@ const request = axios.create({
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
-// AI Agent: 高阶函数，根据type参数返回不同的错误处理器
 // 异常拦截处理器
 const errorHandler = (type: string) => {
 	return (error: AxiosError): Promise<any> => {
@@ -41,7 +40,6 @@ const errorHandler = (type: string) => {
 	};
 };
 
-// AI Agent: 高阶函数，根据type参数返回不同的请求处理器
 // 请求拦截器
 const requestHandler = (type: string) => {
 	return (
@@ -70,7 +68,6 @@ const requestHandler = (type: string) => {
 	};
 };
 
-// AI Agent: 高阶函数，根据type参数返回不同的响应处理器
 // 响应拦截器
 const responseHandler = (type: string) => {
 	return (

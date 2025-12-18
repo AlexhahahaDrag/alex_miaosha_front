@@ -37,8 +37,10 @@
 								:name="labelMap['startDate'].name"
 								:label="labelMap['startDate'].label"
 							>
-								<a-input
+								<a-date-picker
 									v-model:value="searchInfo.startDate"
+									show-time
+									format="YYYY-MM-DD HH:mm:ss"
 									:placeholder="'请输入' + labelMap['startDate'].label"
 									allow-clear
 								/>
@@ -51,11 +53,13 @@
 								:name="labelMap['endDate'].name"
 								:label="labelMap['endDate'].label"
 							>
-								<a-input
+								<a-date-picker
 									v-model:value="searchInfo.endDate"
+									show-time
+									format="YYYY-MM-DD HH:mm:ss"
 									:placeholder="'请输入' + labelMap['endDate'].label"
 									allow-clear
-								/>
+								/>>
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">

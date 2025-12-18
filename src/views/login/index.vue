@@ -153,7 +153,7 @@ const onSubmit = () => {
 
 // 生命周期钩子
 onMounted(() => {
-	// AI Agent: 绑定回车登录
+	// 绑定回车登录
 	window.addEventListener('keydown', onKeydownEnter);
 
 	// 获取登录信息
@@ -171,7 +171,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-	// AI Agent: 移除回车登录监听，避免影响其它页面
+	// 移除回车登录监听，避免影响其它页面
 	window.removeEventListener('keydown', onKeydownEnter);
 });
 

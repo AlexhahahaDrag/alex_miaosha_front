@@ -51,11 +51,14 @@
 								:name="labelMap['receiveTime'].name"
 								:label="labelMap['receiveTime'].label"
 							>
-								<a-input
+								<a-date-picker
+									show-time
+									format="YYYY-MM-DD HH:mm:ss"
 									v-model:value="searchInfo.receiveTime"
 									:placeholder="'请输入' + labelMap['receiveTime'].label"
 									allow-clear
-								/>
+								>
+								</a-date-picker>
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
@@ -63,11 +66,14 @@
 								:name="labelMap['expireTime'].name"
 								:label="labelMap['expireTime'].label"
 							>
-								<a-input
+								<a-date-picker
+									show-time
+									format="YYYY-MM-DD HH:mm:ss"
 									v-model:value="searchInfo.expireTime"
 									:placeholder="'请输入' + labelMap['expireTime'].label"
 									allow-clear
-								/>
+								>
+								</a-date-picker>
 							</a-form-item>
 						</a-col>
 					</a-row>

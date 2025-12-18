@@ -102,13 +102,15 @@
 						>
 							<a-date-picker
 								v-model:value="formState.redemptionTime"
-								:format="'YYYY-MM-DD'"
+								show-time
+								format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
 									(triggerNode: any) => {
 										return triggerNode.parentNode;
 									}
 								"
-							/>
+							>
+							</a-date-picker>
 						</a-form-item>
 					</a-col>
 				</a-row>

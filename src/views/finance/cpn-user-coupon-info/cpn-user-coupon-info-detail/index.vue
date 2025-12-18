@@ -76,13 +76,15 @@
 						>
 							<a-date-picker
 								v-model:value="formState.receiveTime"
-								:format="'YYYY-MM-DD'"
+								show-time
+								format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
 									(triggerNode: any) => {
 										return triggerNode.parentNode;
 									}
 								"
-							/>
+							>
+							</a-date-picker>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -94,13 +96,15 @@
 						>
 							<a-date-picker
 								v-model:value="formState.expireTime"
-								:format="'YYYY-MM-DD'"
+								show-time
+								format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
 									(triggerNode: any) => {
 										return triggerNode.parentNode;
 									}
 								"
-							/>
+							>
+							</a-date-picker>
 						</a-form-item>
 					</a-col>
 				</a-row>

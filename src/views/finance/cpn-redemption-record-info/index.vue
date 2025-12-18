@@ -75,8 +75,10 @@
 								:name="labelMap['redemptionTime'].name"
 								:label="labelMap['redemptionTime'].label"
 							>
-								<a-input
+								<a-date-picker
 									v-model:value="searchInfo.redemptionTime"
+									show-time
+									format="YYYY-MM-DD HH:mm:ss"
 									:placeholder="'请输入' + labelMap['redemptionTime'].label"
 									allow-clear
 								/>
@@ -110,9 +112,9 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" @click="editCpnRedemptionRecordInfo('add')"
-					>新增</a-button
-				>
+				<a-button type="primary" @click="editCpnRedemptionRecordInfo('add')">
+					新增
+				</a-button>
 				<a-button
 					type="primary"
 					danger

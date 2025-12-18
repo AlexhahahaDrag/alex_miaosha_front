@@ -99,20 +99,20 @@
 					</template>
 				</template>
 			</a-table>
-			<RoleInfoDetail
+			<role-info-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
-			></RoleInfoDetail>
-			<AuthorizationDetail
+			></role-info-detail>
+			<authorization-detail
 				ref="authorizationInfo"
 				:open="authorizationModal.open"
 				:data="authorizationModal"
 				@handleOk="handleOk"
 				@handleCancel="handleAuthorizationCancel"
-			></AuthorizationDetail>
+			></authorization-detail>
 		</div>
 	</div>
 </template>
@@ -134,6 +134,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	setCurrent,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -170,25 +171,26 @@ const rowSelection = ref({
 
 // 字典数据已通过 useDictInfo 自动加载
 
-function cancelQuery() {
+const cancelQuery = () => {
 	searchInfo.value = {};
-}
+};
 
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
 	getRoleInfoListPage(searchInfo.value, pagination);
 };
 
-function delRoleInfo(ids: string) {
-	deleteRoleInfo(ids).then((res: any) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getRoleInfoListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
+const delRoleInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteRoleInfo(ids);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		// 刷新列表
+		setCurrent(1);
+		getRoleInfoListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
 
 const batchDelRoleInfo = (): void => {
 	if (!rowIds?.length) {
@@ -203,7 +205,7 @@ const cancel = (e: MouseEvent) => {
 };
 
 //新增和修改弹窗
-function editRoleInfo(type: string, id?: number) {
+const editRoleInfo = (type: string, id?: number) => {
 	if (type == 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -213,7 +215,7 @@ function editRoleInfo(type: string, id?: number) {
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
-}
+};
 
 const handleOk = (v: boolean) => {
 	visible.value = v;
@@ -235,21 +237,22 @@ const handleAuthorizationCancel = () => {
 	authorizationModal.value.open = false;
 };
 
-function getRoleInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getRoleInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getRoleInfoPage(param, cur.current, cur.pageSize)
-		.then((res: any) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getRoleInfoPage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (code == '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
+};
 
 function query() {
 	getRoleInfoListPage(searchInfo.value, pagination);

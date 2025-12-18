@@ -77,7 +77,7 @@ export async function addCpnCouponInfo(
 	params: CpnCouponInfoData,
 ): Promise<ResponseBody<CpnCouponInfoData>> {
 	return postData(
-		baseService.finance + baseCouponInfo + CpnCouponInfoEndpoints.create,
+		baseService.finance + baseCpnCouponInfo + CpnCouponInfoEndpoints.create,
 		params,
 	);
 }
@@ -86,7 +86,7 @@ export async function editCpnCouponInfo(
 	params: CpnCouponInfoData,
 ): Promise<ResponseBody<CpnCouponInfoData>> {
 	return putData(
-		baseService.finance + baseCouponInfo + CpnCouponInfoEndpoints.update,
+		baseService.finance + baseCpnCouponInfo + CpnCouponInfoEndpoints.update,
 		params,
 	);
 }
