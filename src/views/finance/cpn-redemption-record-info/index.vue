@@ -158,14 +158,14 @@
 					</template>
 				</template>
 			</a-table>
-			<CpnRedemptionRecordInfoDetail
+			<cpn-redemption-record-info-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
 			>
-			</CpnRedemptionRecordInfoDetail>
+			</cpn-redemption-record-info-detail>
 		</div>
 	</div>
 </template>

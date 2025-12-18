@@ -118,7 +118,7 @@ import {
 	getCpnUserCouponInfoDetail,
 	addCpnUserCouponInfo,
 	editCpnUserCouponInfo,
-} from '@/views/finance/cpn-user-coupon-info/api/index';
+} from '@/views/finance/cpn-user-coupon-info/api';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnUserCouponInfoData } from '../config';
 import { labelMap } from '../config';

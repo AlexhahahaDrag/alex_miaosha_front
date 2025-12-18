@@ -5,7 +5,7 @@
 			id="tsparticles"
 			@particles-loaded="particlesLoaded"
 			:options="options"
-		/>
+		></vue-particles>
 		<div class="login-form-container">
 			<a-form
 				ref="formRef"

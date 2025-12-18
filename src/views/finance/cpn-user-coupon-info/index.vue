@@ -132,14 +132,14 @@
 					</template>
 				</template>
 			</a-table>
-			<CpnUserCouponInfoDetail
+			<cpn-user-coupon-info-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
 			>
-			</CpnUserCouponInfoDetail>
+			</cpn-user-coupon-info-detail>
 		</div>
 	</div>
 </template>

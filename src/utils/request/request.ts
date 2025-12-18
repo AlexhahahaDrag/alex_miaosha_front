@@ -4,7 +4,7 @@ import axios from 'axios';
 import type { ResponseBody } from '@/types/api';
 import { message } from 'ant-design-vue';
 import router from '@/router';
-import { decrypt } from '@/utils/crypto/index';
+import { decrypt } from '@/utils/crypto';
 
 const request = axios.create({
 	timeout: 30000,

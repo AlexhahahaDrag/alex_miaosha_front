@@ -138,7 +138,7 @@ import {
 	getCpnRedemptionRecordInfoDetail,
 	addCpnRedemptionRecordInfo,
 	editCpnRedemptionRecordInfo,
-} from '@/views/finance/cpn-redemption-record-info/api/index';
+} from '@/views/finance/cpn-redemption-record-info/api';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnRedemptionRecordInfoData } from '../config';
 import { labelMap } from '../config';
