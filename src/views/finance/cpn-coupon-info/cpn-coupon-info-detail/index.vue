@@ -159,7 +159,7 @@ const handleOk = () => {
 	}
 };
 const handleCancel = () => {
-	emit('handleCancel', false);
+	emits('handleCancel', false);
 };
 
 //保存消费券信息表信息
@@ -179,6 +179,7 @@ const saveCpnCouponInfo = async () => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
+		emits('handleOk', true);
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -208,7 +209,7 @@ const init = async () => {
 	initDetail(props.modelInfo);
 };
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emits = defineEmits(['handleOk', 'handleCancel']);
 
 defineExpose({ handleOk, handleCancel });
 

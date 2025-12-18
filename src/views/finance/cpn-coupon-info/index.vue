@@ -22,34 +22,6 @@
 						</a-col>
 						<a-col :span="8">
 							<a-form-item
-								:name="labelMap['totalQuantity'].name"
-								:label="labelMap['totalQuantity'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.totalQuantity"
-									:placeholder="'请输入' + labelMap['totalQuantity'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['startDate'].name"
-								:label="labelMap['startDate'].label"
-							>
-								<a-date-picker
-									v-model:value="searchInfo.startDate"
-									show-time
-									format="YYYY-MM-DD HH:mm:ss"
-									:placeholder="'请输入' + labelMap['startDate'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
 								:name="labelMap['endDate'].name"
 								:label="labelMap['endDate'].label"
 							>
@@ -59,36 +31,10 @@
 									format="YYYY-MM-DD HH:mm:ss"
 									:placeholder="'请输入' + labelMap['endDate'].label"
 									allow-clear
-								/>>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['unitValue'].name"
-								:label="labelMap['unitValue'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.unitValue"
-									:placeholder="'请输入' + labelMap['unitValue'].label"
-									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['minSpend'].name"
-								:label="labelMap['minSpend'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.minSpend"
-									:placeholder="'请输入' + labelMap['minSpend'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="20" style="text-align: right; margin-bottom: 20px">
+						<a-col :span="8" style="text-align: right; margin-bottom: 20px">
 							<a-space>
 								<a-button type="primary" @click="query"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -160,6 +106,7 @@ import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
@@ -168,18 +115,24 @@ const {
 	setTotal,
 } = usePagination();
 
+// 加载中
 let loading = ref<boolean>(false);
 
+// 数据源
 let dataSource = ref<CpnCouponInfoData[]>([]);
 
+// 是否显示弹窗
 let visible = ref<boolean>(false);
 
+// modal信息
 let modelInfo = ref<ModelInfo>({});
 
 let rowIds: (string | number)[] = [];
 
+// 搜索信息
 let searchInfo = ref<CpnCouponInfoData>({});
 
+// 行选择
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (
@@ -205,13 +158,23 @@ const rowSelection = ref({
 	},
 });
 
+// 清空搜索
 const cancelQuery = (): void => {
 	searchInfo.value = {};
+	pagination.current = 1;
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
+// 查询
 const query = (): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+// AI Agent：使用 lodash-es 的 debounce，避免输入频繁变化导致接口被高频调用
+const triggerDebouncedQuery = debounce((): void => {
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
+}, 300);
 
 const handleTableChange = (paginationInfo: PageInfo): void => {
 	paginationChange(paginationInfo);
@@ -254,6 +217,7 @@ const getCpnCouponInfoListPage = async (
 			loading.value = false;
 		},
 	);
+	console.log(`data aaaaaaaaaaaa:`, data);
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
@@ -289,9 +253,26 @@ const handleCancel = (v: boolean): void => {
 
 const init = (): void => {
 	//获取消费券信息表页面数据
+	pagination.current = 1;
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 init();
+
+// 页面卸载时取消防抖任务，避免产生“卸载后仍触发请求”的副作用
+onUnmounted(() => {
+	triggerDebouncedQuery.cancel();
+});
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{
+		deep: true,
+		immediate: true,
+	},
+);
 </script>
 <style lang="scss" scoped></style>

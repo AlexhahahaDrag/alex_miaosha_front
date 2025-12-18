@@ -55,10 +55,10 @@ export const labelCol = ref({ span: 5 });
 export const wrapperCol = ref({ span: 19 });
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
-	couponName: { name: 'couponName', label: '消费券名称' },
+	couponName: { name: 'couponName', label: '名称' },
 	totalQuantity: { name: 'totalQuantity', label: '消费券总发行数量' },
 	startDate: { name: 'startDate', label: '有效期开始时间' },
-	endDate: { name: 'endDate', label: '有效期结束时间' },
+	endDate: { name: 'endDate', label: '有效期' },
 	unitValue: { name: 'unitValue', label: '消费券单张面值' },
 	minSpend: { name: 'minSpend', label: '最低消费门槛' },
 });

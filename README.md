@@ -292,7 +292,7 @@ docker run -p 80:80 alex-miaosha-front
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-@AlexhahahaDrag-181717?style=flat-square&logo=github)](https://github.com/AlexhahahaDrag)
-[![Email](https://img.shields.io/badge/Email-your.email@example.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:734663446@qq.com)
+[![Email](https://img.shields.io/badge/Email-734663446@qq.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:734663446@qq.com)
 
 </div>
 
