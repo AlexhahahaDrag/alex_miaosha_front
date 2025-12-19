@@ -18,7 +18,8 @@ export const rulesRef = reactive({
 		},
 		{
 			message: '输入的电话号不合法！',
-			pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+			// AI Agent：字符类 [] 内不需要写 |，否则会把 | 当成合法字符；简化为 1 + (3/4/5/7/8) + 9位数字
+			pattern: /^1[34578]\d{9}$/,
 		},
 	],
 	email: [

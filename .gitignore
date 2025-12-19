@@ -31,3 +31,4 @@ components.d.ts
 .eslintrc-auto-import.json
 .cursor/
 .husky/
+qodana.yaml
