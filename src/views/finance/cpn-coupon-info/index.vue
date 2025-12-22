@@ -66,27 +66,32 @@
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
-							<a-button
-								type="primary"
-								size="small"
-								@click="editCpnCouponInfo('update', record.id)"
-							>
-								编辑
-							</a-button>
-							<a-popconfirm
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delCpnCouponInfo(record.id)"
-								@cancel="cancel"
-							>
-								<a-button type="primary" size="small" danger>删除</a-button>
-							</a-popconfirm>
-						</a-space>
+						<template v-if="column.key === 'operation'">
+							<a-space>
+								<a-button
+									type="primary"
+									size="small"
+									@click="editCpnCouponInfo('update', record.id)"
+								>
+									编辑
+								</a-button>
+								<a-popconfirm
+									title="确认删除?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delCpnCouponInfo(record.id)"
+									@cancel="cancel"
+								>
+									<a-button type="primary" size="small" danger>删除</a-button>
+								</a-popconfirm>
+							</a-space>
+						</template>
+						<template v-else-if="column.key === 'expireStatus'">
+							<Tag :color="getExpireStatusColor(record.expireRangeStatus)">
+								{{ record.expireStatus }}
+							</Tag>
+						</template>
 					</template>
-				</template>
 			</a-table>
 			<cpn-coupon-info-detail
 				ref="editInfo"
@@ -100,7 +105,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { message } from 'ant-design-vue';
+import { message, Tag } from 'ant-design-vue';
 import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api/index';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from './config';
@@ -172,6 +177,21 @@ const query = (): void => {
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 // AI Agent：使用 lodash-es 的 debounce，避免输入频繁变化导致接口被高频调用
+// 获取过期状态颜色
+const getExpireStatusColor = (status: number | undefined): string => {
+	if (status === undefined) return 'default';
+	switch (status) {
+		case 0:
+			return 'red';
+		case 1:
+			return 'green';
+		case 2:
+			return 'orange';
+		default:
+			return 'default';
+	}
+};
+
 const triggerDebouncedQuery = debounce((): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 }, 300);

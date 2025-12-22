@@ -1,6 +1,7 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
 import type { Dayjs } from 'dayjs';
+import { formatTime } from '@/utils/dayjs';
 
 export const columns = ref<TableColumnsType>([
 	{
@@ -17,21 +18,23 @@ export const columns = ref<TableColumnsType>([
 		title: '有效期开始时间',
 		dataIndex: 'startDate',
 		key: 'startDate',
+		customRender: ({ text }) => formatTime(text),
 	},
 	{
 		title: '有效期结束时间',
 		dataIndex: 'endDate',
 		key: 'endDate',
+		customRender: ({ text }) => formatTime(text),
+	},
+	{
+		title: '过期状态',
+		dataIndex: 'expireStatus',
+		key: 'expireStatus',
 	},
 	{
 		title: '消费券单张面值',
 		dataIndex: 'unitValue',
 		key: 'unitValue',
-	},
-	{
-		title: '最低消费门槛',
-		dataIndex: 'minSpend',
-		key: 'minSpend',
 	},
 	{
 		title: '操作',
@@ -49,6 +52,8 @@ export interface CpnCouponInfoData {
 	endDate?: Dayjs | string;
 	unitValue?: number;
 	minSpend?: number;
+	expireStatus?: string;
+	expireRangeStatus?: number;
 }
 
 export const labelCol = ref({ span: 5 });
