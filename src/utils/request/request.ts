@@ -57,13 +57,6 @@ const requestHandler = (type: string) => {
 		} else {
 			router.push({ name: 'login' });
 		}
-		if (config?.data && type !== 'file') {
-			for (const k in config.data) {
-				if (config.data[k] && config.data[k].$L == 'zh-cn') {
-					config.data[k] = config.data[k].add(8, 'hours');
-				}
-			}
-		}
 		return config;
 	};
 };

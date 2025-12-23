@@ -20,6 +20,7 @@ const CpnUserCouponInfoEndpoints = {
 	delete: '',
 	create: '',
 	update: '',
+	redeem: '/redeem',
 };
 
 /**
@@ -99,4 +100,27 @@ export async function editCpnUserCouponInfo(
 			CpnUserCouponInfoEndpoints.update,
 		params,
 	);
+}
+
+// AI Agent：消费券核销数量请求（按数量核销）
+export interface CpnUserCouponRedeemReq {
+	userId: number;
+	couponId: number;
+	redemptionQuantity: number;
+	remarks?: string;
+	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime/userCouponId）暂不在该页面使用
+}
+
+/**
+ * 消费券核销数量（按数量核销）
+ * 对应后端：POST /api/v1/cpn-user-coupon-info/redeem
+ */
+export async function redeemCpnUserCouponInfo(
+	params: CpnUserCouponRedeemReq,
+): Promise<ResponseBody<boolean>> {
+	const url =
+		baseService.finance +
+		baseCpnUserCouponInfo +
+		CpnUserCouponInfoEndpoints.redeem;
+	return postData(url, params);
 }

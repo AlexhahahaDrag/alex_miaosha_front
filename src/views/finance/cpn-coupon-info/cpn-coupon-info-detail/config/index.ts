@@ -4,19 +4,19 @@ export const rulesRef: Record<string, Rule[]> = {
 	couponName: [
 		{
 			required: true,
-			message: '消费券名称不能为空！',
+			message: '名称不能为空！',
 		},
 	],
 	totalQuantity: [
 		{
 			required: true,
-			message: '消费券总发行数量不能为空！',
+			message: '总数量不能为空！',
 		},
 	],
 	endDate: [
 		{
 			required: true,
-			message: '有效期结束时间不能为空！',
+			message: '有效期不能为空！',
 		},
 	],
 };

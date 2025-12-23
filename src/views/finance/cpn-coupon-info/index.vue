@@ -66,52 +66,77 @@
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
-						<template v-if="column.key === 'operation'">
-							<a-space>
-								<a-button
-									type="primary"
-									size="small"
-									@click="editCpnCouponInfo('update', record.id)"
-								>
-									编辑
-								</a-button>
-								<a-popconfirm
-									title="确认删除?"
-									ok-text="确认"
-									cancel-text="取消"
-									@confirm="delCpnCouponInfo(record.id)"
-									@cancel="cancel"
-								>
-									<a-button type="primary" size="small" danger>删除</a-button>
-								</a-popconfirm>
-							</a-space>
-						</template>
-						<template v-else-if="column.key === 'expireStatus'">
-							<Tag :color="getExpireStatusColor(record.expireRangeStatus)">
-								{{ record.expireStatus }}
-							</Tag>
-						</template>
+					<template v-if="column.key === 'operation'">
+						<a-space>
+							<a-button
+								type="primary"
+								size="small"
+								@click="editCpnCouponInfo('update', record.id)"
+							>
+								编辑
+							</a-button>
+							<a-button
+								type="primary"
+								size="small"
+								@click="onShowRedeemQuantityModal(record)"
+							>
+								消费券核销数量
+							</a-button>
+							<a-popconfirm
+								title="确认删除?"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="delCpnCouponInfo(record.id)"
+								@cancel="cancel"
+							>
+								<a-button type="primary" size="small" danger>删除</a-button>
+							</a-popconfirm>
+						</a-space>
 					</template>
+					<template v-else-if="column.key === 'expireStatus'">
+						<!-- AI Agent：超过3天（expireRangeStatus === 3）时不展示标签 -->
+						<a-tag
+							v-if="record.expireRangeStatus !== 3"
+							:color="getExpireStatusColor(record.expireRangeStatus)"
+						>
+							{{ record.expireStatus }}
+						</a-tag>
+					</template>
+				</template>
 			</a-table>
 			<cpn-coupon-info-detail
 				ref="editInfo"
-				:open="visible"
+				:open="modelInfo.open"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
 			>
 			</cpn-coupon-info-detail>
+			<cpn-coupon-redeem-quantity-detail
+				:open="redeemModelInfo.open"
+				:modelInfo="redeemModelInfo"
+				:couponInfo="redeemCouponInfo"
+				@handleOk="onRedeemOk"
+				@handleCancel="onRedeemCancel"
+			/>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import { message, Tag } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api/index';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from './config';
-import { columns, labelMap, labelCol, wrapperCol } from './config';
+import {
+	columns,
+	labelMap,
+	labelCol,
+	wrapperCol,
+	getExpireStatusColor,
+} from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
+import CpnCouponRedeemQuantityDetail from './cpn-coupon-redeem-quantity-detail/index.vue';
 
 // 使用分页组合式函数
 const {
@@ -126,11 +151,12 @@ let loading = ref<boolean>(false);
 // 数据源
 let dataSource = ref<CpnCouponInfoData[]>([]);
 
-// 是否显示弹窗
-let visible = ref<boolean>(false);
-
 // modal信息
 let modelInfo = ref<ModelInfo>({});
+
+// AI Agent：核销弹窗（仿造 `cpn-coupon-info-detail` 的弹窗模式）
+let redeemModelInfo = ref<ModelInfo>({});
+let redeemCouponInfo = ref<CpnCouponInfoData | null>(null);
 
 let rowIds: (string | number)[] = [];
 
@@ -175,23 +201,7 @@ const query = (): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
-// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
-// AI Agent：使用 lodash-es 的 debounce，避免输入频繁变化导致接口被高频调用
-// 获取过期状态颜色
-const getExpireStatusColor = (status: number | undefined): string => {
-	if (status === undefined) return 'default';
-	switch (status) {
-		case 0:
-			return 'red';
-		case 1:
-			return 'green';
-		case 2:
-			return 'orange';
-		default:
-			return 'default';
-	}
-};
-
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询
 const triggerDebouncedQuery = debounce((): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 }, 300);
@@ -237,7 +247,7 @@ const getCpnCouponInfoListPage = async (
 			loading.value = false;
 		},
 	);
-	console.log(`data aaaaaaaaaaaa:`, data);
+
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
@@ -251,24 +261,49 @@ const getCpnCouponInfoListPage = async (
 
 //新增和修改弹窗
 const editCpnCouponInfo = (type: string, id?: number): void => {
-	if (type == 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+	let add = '新增';
+	if (type == 'update') {
+		add = '修改';
 	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value = {
+		confirmLoading: true,
+		open: true,
+		id: id || undefined,
+		title: add + '消费券信息',
+	};
 };
 
 const handleOk = (v: boolean): void => {
-	visible.value = v;
+	modelInfo.value.open = v;
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 const handleCancel = (v: boolean): void => {
-	visible.value = v;
+	modelInfo.value.open = v;
+};
+
+// AI Agent：打开“消费券核销数量”弹窗（事件处理函数以 on 开头）
+const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
+	redeemCouponInfo.value = record;
+	redeemModelInfo.value = {
+		open: true,
+		title: '消费券核销数量',
+		width: 'min(1000px, 80%)',
+		id: record.id || undefined,
+	};
+};
+
+// AI Agent：核销弹窗 - 保存成功回调
+const onRedeemOk = (v: boolean): void => {
+	redeemModelInfo.value.open = v;
+	// 核销成功后刷新列表（接口接入后保持同样逻辑）
+	getCpnCouponInfoListPage(searchInfo.value, pagination);
+};
+
+// AI Agent：核销弹窗 - 取消回调
+const onRedeemCancel = (v: boolean): void => {
+	redeemModelInfo.value.open = v;
+	redeemCouponInfo.value = null;
 };
 
 const init = (): void => {

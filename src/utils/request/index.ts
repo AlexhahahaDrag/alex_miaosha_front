@@ -7,7 +7,7 @@ export function getData<T = unknown>(
 	url: string,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return request.get<Params, ResponseBody<T>>(url, config);
+	return request.get<Params, ResponseBody<T>>(url, { params: config });
 }
 
 export function getDataOne<T = unknown>(
