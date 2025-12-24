@@ -32,18 +32,6 @@
 								/>
 							</a-form-item>
 						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['status'].name"
-								:label="labelMap['status'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.status"
-									:placeholder="'请输入' + labelMap['status'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
 					</a-row>
 					<a-row :gutter="24">
 						<a-col :span="8">
@@ -56,21 +44,6 @@
 									format="YYYY-MM-DD HH:mm:ss"
 									v-model:value="searchInfo.receiveTime"
 									:placeholder="'请输入' + labelMap['receiveTime'].label"
-									allow-clear
-								>
-								</a-date-picker>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['expireTime'].name"
-								:label="labelMap['expireTime'].label"
-							>
-								<a-date-picker
-									show-time
-									format="YYYY-MM-DD HH:mm:ss"
-									v-model:value="searchInfo.expireTime"
-									:placeholder="'请输入' + labelMap['expireTime'].label"
 									allow-clear
 								>
 								</a-date-picker>
@@ -90,9 +63,6 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" @click="editCpnUserCouponInfo('add')"
-					>新增</a-button
-				>
 				<a-button type="primary" danger @click="batchDelCpnUserCouponInfo">
 					删除
 				</a-button>
@@ -112,13 +82,17 @@
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
 						<a-space>
-							<a-button
-								type="primary"
-								size="small"
-								@click="editCpnUserCouponInfo('update', record.id)"
+							<!-- AI Agent：取消核销（仅 USED 状态可操作） -->
+							<a-popconfirm
+								v-if="record.status === 'USED'"
+								title="确认取消核销？取消后将回退本次核销数量"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="onCancelRedeem(record)"
+								@cancel="cancel"
 							>
-								编辑
-							</a-button>
+								<a-button type="primary" size="small">取消核销</a-button>
+							</a-popconfirm>
 							<a-popconfirm
 								title="确认删除?"
 								ok-text="确认"
@@ -132,21 +106,16 @@
 					</template>
 				</template>
 			</a-table>
-			<cpn-user-coupon-info-detail
-				ref="editInfo"
-				:open="visible"
-				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
-			>
-			</cpn-user-coupon-info-detail>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { getCpnUserCouponInfoPage, deleteCpnUserCouponInfo } from './api/index';
-import type { ModelInfo } from '@/views/common/config';
+import {
+	getCpnUserCouponInfoPage,
+	deleteCpnUserCouponInfo,
+	cancelRedeemCpnUserCouponInfo,
+} from './api/index';
 import type { CpnUserCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
@@ -161,10 +130,6 @@ const {
 let loading = ref<boolean>(false);
 
 let dataSource = ref<CpnUserCouponInfoData[]>([]);
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
 
 let rowIds: (string | number)[] = [];
 
@@ -212,9 +177,49 @@ const delCpnUserCouponInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteCpnUserCouponInfo(ids);
 	if (code == '200') {
 		message.success(messageInfo || '删除成功！', 3);
+		rowIds = [];
 		getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
+	}
+};
+
+// AI Agent：取消核销（按数量核销）
+const onCancelRedeem = async (record: CpnUserCouponInfoData) => {
+	// 1) 参数兜底校验
+	if (!record?.id) {
+		message.warning('缺少券明细ID，无法取消核销');
+		return;
+	}
+	if (!record?.userId || !record?.couponId) {
+		message.warning('用户/消费券信息不完整，无法取消核销');
+		return;
+	}
+	const redemptionQuantity = Number(record.redemptionQuantity ?? 1);
+	if (!Number.isFinite(redemptionQuantity) || redemptionQuantity <= 0) {
+		message.warning('核销数量异常，无法取消核销');
+		return;
+	}
+
+	// 2) 调用后端取消核销接口
+	loading.value = true;
+	try {
+		const { code, message: messageInfo } = await cancelRedeemCpnUserCouponInfo({
+			userId: record.userId,
+			couponId: record.couponId,
+			userCouponId: record.id,
+			redemptionQuantity,
+			remarks: '列表取消核销',
+		});
+		if (code === '200') {
+			message.success(messageInfo || '取消核销成功！');
+			rowIds = [];
+			getCpnUserCouponInfoListPage(searchInfo.value, pagination);
+		} else {
+			message.error(messageInfo || '取消核销失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -253,28 +258,6 @@ const getCpnUserCouponInfoListPage = async (
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
-};
-
-//新增和修改弹窗
-const editCpnUserCouponInfo = (type: string, id?: number): void => {
-	if (type == 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
-};
-
-const handleOk = (v: boolean): void => {
-	visible.value = v;
-	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean): void => {
-	visible.value = v;
 };
 
 const init = (): void => {

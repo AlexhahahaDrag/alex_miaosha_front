@@ -21,6 +21,7 @@ const CpnUserCouponInfoEndpoints = {
 	create: '',
 	update: '',
 	redeem: '/redeem',
+	cancelRedeem: '/redeem/cancel',
 };
 
 /**
@@ -106,9 +107,11 @@ export async function editCpnUserCouponInfo(
 export interface CpnUserCouponRedeemReq {
 	userId: number;
 	couponId: number;
+	// AI Agent：券明细ID（对应后端 userCouponId，用于取消核销）
+	userCouponId?: number;
 	redemptionQuantity: number;
 	remarks?: string;
-	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime/userCouponId）暂不在该页面使用
+	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime）暂不在该页面使用
 }
 
 /**
@@ -122,5 +125,19 @@ export async function redeemCpnUserCouponInfo(
 		baseService.finance +
 		baseCpnUserCouponInfo +
 		CpnUserCouponInfoEndpoints.redeem;
+	return postData(url, params);
+}
+
+/**
+ * 取消核销（按数量核销）
+ * 对应后端：POST /api/v1/cpn-user-coupon-info/redeem/cancel
+ */
+export async function cancelRedeemCpnUserCouponInfo(
+	params: CpnUserCouponRedeemReq,
+): Promise<ResponseBody<boolean>> {
+	const url =
+		baseService.finance +
+		baseCpnUserCouponInfo +
+		CpnUserCouponInfoEndpoints.cancelRedeem;
 	return postData(url, params);
 }

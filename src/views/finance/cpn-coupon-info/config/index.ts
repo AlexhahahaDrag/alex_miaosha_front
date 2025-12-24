@@ -11,8 +11,8 @@ export const columns = ref<TableColumnsType>([
 	},
 	{
 		title: '总数量',
-		dataIndex: 'totalQuantity',
-		key: 'totalQuantity',
+		dataIndex: 'remainingQuantity',
+		key: 'remainingQuantity',
 	},
 	{
 		title: '有效期',

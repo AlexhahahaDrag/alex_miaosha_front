@@ -110,20 +110,6 @@
 				</a-form>
 			</div>
 		</div>
-		<div class="button" style="margin-left: 10px">
-			<a-space>
-				<a-button type="primary" @click="editCpnRedemptionRecordInfo('add')">
-					新增
-				</a-button>
-				<a-button
-					type="primary"
-					danger
-					@click="batchDelCpnRedemptionRecordInfo"
-				>
-					删除
-				</a-button>
-			</a-space>
-		</div>
 		<div class="content">
 			<a-table
 				:dataSource="dataSource"
@@ -133,52 +119,18 @@
 				:pagination="pagination"
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
-				:row-selection="rowSelection"
 			>
-				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
-							<a-button
-								type="primary"
-								size="small"
-								@click="editCpnRedemptionRecordInfo('update', record.id)"
-							>
-								编辑
-							</a-button>
-							<a-popconfirm
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delCpnRedemptionRecordInfo(record.id)"
-								@cancel="cancel"
-							>
-								<a-button type="primary" size="small" danger>删除</a-button>
-							</a-popconfirm>
-						</a-space>
-					</template>
-				</template>
 			</a-table>
-			<cpn-redemption-record-info-detail
-				ref="editInfo"
-				:open="visible"
-				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
-			>
-			</cpn-redemption-record-info-detail>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import {
-	getCpnRedemptionRecordInfoPage,
-	deleteCpnRedemptionRecordInfo,
-} from './api/index';
-import type { ModelInfo } from '@/views/common/config';
+import { getCpnRedemptionRecordInfoPage } from './api/index';
 import type { CpnRedemptionRecordInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
@@ -191,38 +143,7 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref<CpnRedemptionRecordInfoData[]>([]);
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
-
-let rowIds: (string | number)[] = [];
-
 let searchInfo = ref<CpnRedemptionRecordInfoData>({});
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (
-		selectedRowKeys: (string | number)[],
-		_selectedRows: CpnRedemptionRecordInfoData[],
-	) => {
-		console.log(_selectedRows);
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: CpnRedemptionRecordInfoData,
-		selected: boolean,
-		selectedRows: CpnRedemptionRecordInfoData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: CpnRedemptionRecordInfoData[],
-		changeRows: CpnRedemptionRecordInfoData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -237,29 +158,7 @@ const handleTableChange = (paginationInfo: PageInfo): void => {
 	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
 };
 
-const delCpnRedemptionRecordInfo = async (ids: string) => {
-	const { code, message: messageInfo } =
-		await deleteCpnRedemptionRecordInfo(ids);
-	if (code == '200') {
-		message.success(messageInfo || '删除成功！', 3);
-		getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
-	} else {
-		message.error(messageInfo || '删除失败！', 3);
-	}
-};
-
-const batchDelCpnRedemptionRecordInfo = (): void => {
-	if (!rowIds?.length) {
-		message.warning('请先选择数据！', 3);
-		return;
-	}
-	delCpnRedemptionRecordInfo(rowIds.join(','));
-};
-
-const cancel = (e: MouseEvent): void => {
-	console.log(e);
-};
-
+// 获取消费券核销记录表 (按数量核销)页面数据
 const getCpnRedemptionRecordInfoListPage = async (
 	param: CpnRedemptionRecordInfoData,
 	cur: PageInfo,
@@ -287,33 +186,31 @@ const getCpnRedemptionRecordInfoListPage = async (
 	}
 };
 
-//新增和修改弹窗
-const editCpnRedemptionRecordInfo = (type: string, id?: number): void => {
-	if (type == 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
-};
-
-const handleOk = (v: boolean): void => {
-	visible.value = v;
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询
+const triggerDebouncedQuery = debounce((): void => {
 	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
-};
+}, 300);
 
-const handleCancel = (v: boolean): void => {
-	visible.value = v;
-};
-
+// 初始化
 const init = (): void => {
 	//获取消费券核销记录表 (按数量核销)页面数据
 	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
 };
 
-init();
+onMounted(() => {
+	init();
+});
+
+watch(
+	() => searchInfo.value,
+	() => {
+		pagination.current = 1;
+		triggerDebouncedQuery();
+	},
+	{
+		deep: true,
+		immediate: true,
+	},
+);
 </script>
 <style lang="scss" scoped></style>

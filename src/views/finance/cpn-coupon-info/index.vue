@@ -28,7 +28,7 @@
 								<a-date-picker
 									v-model:value="searchInfo.endDate"
 									show-time
-									format="YYYY-MM-DD HH:mm:ss"
+									format="YYYY-MM-DD HH:mm"
 									:placeholder="'请输入' + labelMap['endDate'].label"
 									allow-clear
 								/>
@@ -46,9 +46,9 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" @click="editCpnCouponInfo('add')"
-					>新增</a-button
-				>
+				<a-button type="primary" @click="editCpnCouponInfo('add')">
+					新增
+				</a-button>
 				<a-button type="primary" danger @click="batchDelCpnCouponInfo">
 					删除
 				</a-button>
@@ -62,7 +62,7 @@
 				:row-key="(record: CpnCouponInfoData) => record.id || 0"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 'max-content' }"
+				:scroll="{ x: 'max-content', y: '465px' }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -76,13 +76,15 @@
 								编辑
 							</a-button>
 							<a-button
+								v-if="record.remainingQuantity"
 								type="primary"
 								size="small"
 								@click="onShowRedeemQuantityModal(record)"
 							>
-								消费券核销数量
+								核销
 							</a-button>
 							<a-popconfirm
+								v-if="record.remainingQuantity"
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
@@ -115,7 +117,7 @@
 			<cpn-coupon-redeem-quantity-detail
 				:open="redeemModelInfo.open"
 				:modelInfo="redeemModelInfo"
-				:couponInfo="redeemCouponInfo"
+				:coupon-info="redeemCouponInfo || undefined"
 				@handleOk="onRedeemOk"
 				@handleCancel="onRedeemCancel"
 			/>
@@ -124,6 +126,7 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
+import type { TableRowSelection } from 'ant-design-vue/es/table/interface';
 import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api/index';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from './config';
@@ -136,7 +139,6 @@ import {
 } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
-import CpnCouponRedeemQuantityDetail from './cpn-coupon-redeem-quantity-detail/index.vue';
 
 // 使用分页组合式函数
 const {
@@ -164,8 +166,12 @@ let rowIds: (string | number)[] = [];
 let searchInfo = ref<CpnCouponInfoData>({});
 
 // 行选择
-const rowSelection = ref({
+const rowSelection = ref<TableRowSelection>({
 	checkStrictly: false,
+	// AI Agent：当 remainingQuantity 为 0 时禁用勾选（包含“全选”也会自动跳过禁用项）
+	getCheckboxProps: (record: CpnCouponInfoData) => ({
+		disabled: (record.remainingQuantity ?? 0) === 0,
+	}),
 	onChange: (
 		selectedRowKeys: (string | number)[],
 		_selectedRows: CpnCouponInfoData[],
@@ -215,6 +221,7 @@ const delCpnCouponInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteCpnCouponInfo(ids);
 	if (code == '200') {
 		message.success(messageInfo || '删除成功！', 3);
+		rowIds = [];
 		getCpnCouponInfoListPage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -247,7 +254,6 @@ const getCpnCouponInfoListPage = async (
 			loading.value = false;
 		},
 	);
-
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
@@ -284,13 +290,13 @@ const handleCancel = (v: boolean): void => {
 
 // AI Agent：打开“消费券核销数量”弹窗（事件处理函数以 on 开头）
 const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
-	redeemCouponInfo.value = record;
 	redeemModelInfo.value = {
 		open: true,
-		title: '消费券核销数量',
-		width: 'min(1000px, 80%)',
+		title: '消费券核销',
+		width: 'min(600px, 60%)',
 		id: record.id || undefined,
 	};
+	redeemCouponInfo.value = record;
 };
 
 // AI Agent：核销弹窗 - 保存成功回调
@@ -322,6 +328,7 @@ onUnmounted(() => {
 watch(
 	() => searchInfo.value,
 	() => {
+		pagination.current = 1;
 		triggerDebouncedQuery();
 	},
 	{

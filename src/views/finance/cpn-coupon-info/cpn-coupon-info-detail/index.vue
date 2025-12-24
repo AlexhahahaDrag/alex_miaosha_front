@@ -2,14 +2,23 @@
 	<div>
 		<a-modal
 			:open="props.open"
-			:width="props.modelInfo?.width || 'min(1000px, 80%)'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			:width="props.modelInfo?.width || 'min(800px, 60%)'"
 			okText="保存"
 			:confirmLoading="loading"
 			:destroyOnClose="true"
 			@ok="handleOk"
 			@cancel="handleCancel"
 		>
+			<!-- AI Agent: 参照 cpn-coupon-redeem-quantity-detail 升级标题样式（局部生效，不影响全局 Modal） -->
+			<template #title>
+				<div class="ai-agent-modal-title-wrap">
+					<span class="ai-agent-modal-title">
+						{{ props.modelInfo?.title || 'Basic Modal' }}
+					</span>
+					<!-- AI Agent: 标题下方横线（顶到两端） -->
+					<div class="ai-agent-modal-title-divider"></div>
+				</div>
+			</template>
 			<template #footer>
 				<a-button key="back" @click="handleCancel">取消</a-button>
 				<a-button
@@ -29,6 +38,8 @@
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
+				:disabled="loading"
+				style="margin-top: 20px"
 			>
 				<a-row :gutter="24">
 					<a-col :span="12">
@@ -221,4 +232,26 @@ watch(
 	},
 );
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+/* AI Agent: 弹窗标题字号调大“两号”（默认约 16px -> 18px），并添加分割线 */
+.ai-agent-modal-title-wrap {
+	width: 100%;
+}
+.ai-agent-modal-title {
+	font-size: 18px;
+	line-height: 24px;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.88);
+}
+
+/* AI Agent: 标题下横线（不改全局 ant 样式，局部实现） */
+.ai-agent-modal-title-divider {
+	/* AI Agent: antd Modal header 默认左右 padding 为 24px，这里用负 margin 抵消，让线“顶到两端” */
+	width: calc(100% + 48px);
+	margin-left: -24px;
+	height: 1px;
+	margin-top: 12px;
+	/* AI Agent: 分割线颜色加深（对标 Ant 边框色更清晰） */
+	background: #d9d9d9;
+}
+</style>

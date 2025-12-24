@@ -4,29 +4,24 @@ import type { Dayjs } from 'dayjs';
 
 export const columns = ref<TableColumnsType>([
 	{
-		title: '领取用户ID',
-		dataIndex: 'userId',
-		key: 'userId',
+		title: '消费券',
+		dataIndex: 'couponName',
+		key: 'couponName',
 	},
 	{
-		title: '对应的消费券ID (外键关联 cpn_coupon_info_t.id)',
-		dataIndex: 'couponId',
-		key: 'couponId',
+		title: '核销用户',
+		dataIndex: 'userName',
+		key: 'userName',
 	},
 	{
-		title: '状态（UNUSED, USED, EXPIRED）',
+		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
 	},
 	{
-		title: '领取时间',
+		title: '核销时间',
 		dataIndex: 'receiveTime',
 		key: 'receiveTime',
-	},
-	{
-		title: '有效期截止时间',
-		dataIndex: 'expireTime',
-		key: 'expireTime',
 	},
 	{
 		title: '操作',
@@ -39,8 +34,14 @@ export const columns = ref<TableColumnsType>([
 export interface CpnUserCouponInfoData {
 	id?: number;
 	userId?: number;
+	// AI Agent：关联用户表返回
+	userName?: string;
 	couponId?: number;
+	// AI Agent：关联消费券表返回
+	couponName?: string;
 	status?: string;
+	// AI Agent：按数量核销本次消耗数量
+	redemptionQuantity?: number;
 	receiveTime?: Dayjs | string;
 	expireTime?: Dayjs | string;
 }
