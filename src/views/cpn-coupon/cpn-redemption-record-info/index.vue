@@ -10,66 +10,30 @@
 					<a-row :gutter="24">
 						<a-col :span="8">
 							<a-form-item
-								:name="labelMap['userCouponId'].name"
-								:label="labelMap['userCouponId'].label"
+								:name="labelMap['couponName'].name"
+								:label="labelMap['couponName'].label"
 							>
 								<a-input
-									v-model:value="searchInfo.userCouponId"
-									:placeholder="'请输入' + labelMap['userCouponId'].label"
+									v-model:value="searchInfo.couponName"
+									:placeholder="'请输入' + labelMap['couponName'].label"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
 							<a-form-item
-								:name="labelMap['userId'].name"
-								:label="labelMap['userId'].label"
+								:name="labelMap['userName'].name"
+								:label="labelMap['userName'].label"
 							>
 								<a-input
-									v-model:value="searchInfo.userId"
-									:placeholder="'请输入' + labelMap['userId'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['orderId'].name"
-								:label="labelMap['orderId'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.orderId"
-									:placeholder="'请输入' + labelMap['orderId'].label"
+									v-model:value="searchInfo.userName"
+									:placeholder="'请输入' + labelMap['userName'].label"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
 					</a-row>
 					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['redemptionQuantity'].name"
-								:label="labelMap['redemptionQuantity'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.redemptionQuantity"
-									:placeholder="'请输入' + labelMap['redemptionQuantity'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['redemptionValue'].name"
-								:label="labelMap['redemptionValue'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.redemptionValue"
-									:placeholder="'请输入' + labelMap['redemptionValue'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
 						<a-col :span="8">
 							<a-form-item
 								:name="labelMap['redemptionTime'].name"
@@ -80,20 +44,6 @@
 									show-time
 									format="YYYY-MM-DD HH:mm:ss"
 									:placeholder="'请输入' + labelMap['redemptionTime'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['merchantId'].name"
-								:label="labelMap['merchantId'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.merchantId"
-									:placeholder="'请输入' + labelMap['merchantId'].label"
 									allow-clear
 								/>
 							</a-form-item>
@@ -175,6 +125,7 @@ const getCpnRedemptionRecordInfoListPage = async (
 	).finally(() => {
 		loading.value = false;
 	});
+	console.log(`data aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:`, data);
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];

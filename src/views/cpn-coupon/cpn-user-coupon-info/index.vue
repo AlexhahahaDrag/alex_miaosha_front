@@ -10,63 +10,37 @@
 					<a-row :gutter="24">
 						<a-col :span="8">
 							<a-form-item
-								:name="labelMap['userId'].name"
-								:label="labelMap['userId'].label"
+								:name="labelMap['userName'].name"
+								:label="labelMap['userName'].label"
 							>
 								<a-input
-									v-model:value="searchInfo.userId"
-									:placeholder="'请输入' + labelMap['userId'].label"
+									v-model:value="searchInfo.userName"
+									:placeholder="'请输入' + labelMap['userName'].label"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
 							<a-form-item
-								:name="labelMap['couponId'].name"
-								:label="labelMap['couponId'].label"
+								:name="labelMap['couponName'].name"
+								:label="labelMap['couponName'].label"
 							>
 								<a-input
-									v-model:value="searchInfo.couponId"
-									:placeholder="'请输入' + labelMap['couponId'].label"
+									v-model:value="searchInfo.couponName"
+									:placeholder="'请输入' + labelMap['couponName'].label"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['receiveTime'].name"
-								:label="labelMap['receiveTime'].label"
-							>
-								<a-date-picker
-									show-time
-									format="YYYY-MM-DD HH:mm:ss"
-									v-model:value="searchInfo.receiveTime"
-									:placeholder="'请输入' + labelMap['receiveTime'].label"
-									allow-clear
-								>
-								</a-date-picker>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="20" style="text-align: right; margin-bottom: 20px">
+						<a-col style="text-align: right; margin-bottom: 20px">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button type="primary" @click="onQuery"> 查找</a-button>
+								<a-button type="primary" @click="onCancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
 				</a-form>
 			</div>
-		</div>
-		<div class="button" style="margin-left: 10px">
-			<a-space>
-				<a-button type="primary" danger @click="batchDelCpnUserCouponInfo">
-					删除
-				</a-button>
-			</a-space>
 		</div>
 		<div class="content">
 			<a-table
@@ -75,9 +49,8 @@
 				:loading="loading"
 				:row-key="(record: CpnUserCouponInfoData) => record.id || 0"
 				:pagination="pagination"
-				@change="handleTableChange"
+				@change="onTableChange"
 				:scroll="{ x: 'max-content' }"
-				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
@@ -89,18 +62,9 @@
 								ok-text="确认"
 								cancel-text="取消"
 								@confirm="onCancelRedeem(record)"
-								@cancel="cancel"
+								@cancel="onCancel"
 							>
 								<a-button type="primary" size="small">取消核销</a-button>
-							</a-popconfirm>
-							<a-popconfirm
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delCpnUserCouponInfo(record.id)"
-								@cancel="cancel"
-							>
-								<a-button type="primary" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>
@@ -111,9 +75,9 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 import {
 	getCpnUserCouponInfoPage,
-	deleteCpnUserCouponInfo,
 	cancelRedeemCpnUserCouponInfo,
 } from './api/index';
 import type { CpnUserCouponInfoData } from './config';
@@ -131,57 +95,20 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref<CpnUserCouponInfoData[]>([]);
 
-let rowIds: (string | number)[] = [];
-
 let searchInfo = ref<CpnUserCouponInfoData>({});
 
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (
-		selectedRowKeys: (string | number)[],
-		_selectedRows: CpnUserCouponInfoData[],
-	) => {
-		console.log(_selectedRows);
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: CpnUserCouponInfoData,
-		selected: boolean,
-		selectedRows: CpnUserCouponInfoData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: CpnUserCouponInfoData[],
-		changeRows: CpnUserCouponInfoData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
-
-const cancelQuery = (): void => {
+const onCancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const onQuery = (): void => {
+	// AI Agent：手动点击查询时，立即查询并回到第一页
 	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (paginationInfo: PageInfo): void => {
+const onTableChange = (paginationInfo: PageInfo): void => {
 	paginationChange(paginationInfo);
 	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
-};
-
-const delCpnUserCouponInfo = async (ids: string) => {
-	const { code, message: messageInfo } = await deleteCpnUserCouponInfo(ids);
-	if (code == '200') {
-		message.success(messageInfo || '删除成功！', 3);
-		rowIds = [];
-		getCpnUserCouponInfoListPage(searchInfo.value, pagination);
-	} else {
-		message.error(messageInfo || '删除失败！', 3);
-	}
 };
 
 // AI Agent：取消核销（按数量核销）
@@ -209,11 +136,10 @@ const onCancelRedeem = async (record: CpnUserCouponInfoData) => {
 			couponId: record.couponId,
 			userCouponId: record.id,
 			redemptionQuantity,
-			remarks: '列表取消核销',
+			remarks: '取消核销',
 		});
 		if (code === '200') {
 			message.success(messageInfo || '取消核销成功！');
-			rowIds = [];
 			getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 		} else {
 			message.error(messageInfo || '取消核销失败！');
@@ -223,15 +149,7 @@ const onCancelRedeem = async (record: CpnUserCouponInfoData) => {
 	}
 };
 
-const batchDelCpnUserCouponInfo = (): void => {
-	if (!rowIds?.length) {
-		message.warning('请先选择数据！', 3);
-		return;
-	}
-	delCpnUserCouponInfo(rowIds.join(','));
-};
-
-const cancel = (e: MouseEvent): void => {
+const onCancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
@@ -240,15 +158,29 @@ const getCpnUserCouponInfoListPage = async (
 	cur: PageInfo,
 ) => {
 	loading.value = true;
+	// AI Agent：对输入做一次轻量规范化，避免“全是空格”导致的无效查询
+	const normalizedParam: CpnUserCouponInfoData = {
+		...param,
+		userName:
+			typeof param?.userName === 'string' ?
+				param.userName.trim()
+			:	param?.userName,
+		couponName:
+			typeof param?.couponName === 'string' ?
+				param.couponName.trim()
+			:	param?.couponName,
+	};
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await getCpnUserCouponInfoPage(param, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
+	} = await getCpnUserCouponInfoPage(
+		normalizedParam,
+		cur.current,
+		cur.pageSize,
+	).finally(() => {
+		loading.value = false;
+	});
 	if (code == '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
@@ -265,6 +197,28 @@ const init = (): void => {
 	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 };
 
-init();
+onMounted(() => {
+	init();
+});
+
+onBeforeUnmount(() => {
+	// AI Agent：组件卸载时取消 debounce 队列，避免卸载后仍触发请求
+	onDebouncedQuery.cancel();
+});
+
+// AI Agent：使用 lodash-es 的 debounce，统一项目内防抖实现方式
+const onDebouncedQuery = debounce(() => {
+	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		pagination.current = 1;
+		// AI Agent：条件变化后触发防抖查询
+		onDebouncedQuery();
+	},
+	{ deep: true, immediate: true },
+);
 </script>
 <style lang="scss" scoped></style>

@@ -8,7 +8,7 @@ import {
 
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 
-import type { CpnUserCouponInfoData } from '../config';
+import type { CpnUserCouponInfoData, CpnUserCouponRedeemReq } from '../config';
 
 // 基础URL配置
 const baseCpnUserCouponInfo = '/api/v1/cpn-user-coupon-info';
@@ -101,17 +101,6 @@ export async function editCpnUserCouponInfo(
 			CpnUserCouponInfoEndpoints.update,
 		params,
 	);
-}
-
-// AI Agent：消费券核销数量请求（按数量核销）
-export interface CpnUserCouponRedeemReq {
-	userId: number;
-	couponId: number;
-	// AI Agent：券明细ID（对应后端 userCouponId，用于取消核销）
-	userCouponId?: number;
-	redemptionQuantity: number;
-	remarks?: string;
-	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime）暂不在该页面使用
 }
 
 /**

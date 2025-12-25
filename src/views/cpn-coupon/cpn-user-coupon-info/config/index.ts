@@ -14,9 +14,9 @@ export const columns = ref<TableColumnsType>([
 		key: 'userName',
 	},
 	{
-		title: '状态',
-		dataIndex: 'status',
-		key: 'status',
+		title: '核销数量',
+		dataIndex: 'redemptionQuantity',
+		key: 'redemptionQuantity',
 	},
 	{
 		title: '核销时间',
@@ -50,12 +50,19 @@ export const labelCol = ref({ span: 5 });
 export const wrapperCol = ref({ span: 19 });
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
-	userId: { name: 'userId', label: '领取用户ID' },
-	couponId: {
-		name: 'couponId',
-		label: '对应的消费券ID (外键关联 cpn_coupon_info_t.id)',
-	},
-	status: { name: 'status', label: '状态（UNUSED, USED, EXPIRED）' },
-	receiveTime: { name: 'receiveTime', label: '领取时间' },
-	expireTime: { name: 'expireTime', label: '有效期截止时间' },
+	userName: { name: 'userName', label: '核销用户' },
+	couponName: { name: 'couponName', label: '消费券' },
+	redemptionQuantity: { name: 'redemptionQuantity', label: '核销数量' },
+	receiveTime: { name: 'receiveTime', label: '核销时间' },
 });
+
+// AI Agent：消费券核销数量请求（按数量核销）
+export interface CpnUserCouponRedeemReq {
+	userId: number;
+	couponId: number;
+	// AI Agent：券明细ID（对应后端 userCouponId，用于取消核销）
+	userCouponId?: number;
+	redemptionQuantity: number;
+	remarks?: string;
+	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime）暂不在该页面使用
+}

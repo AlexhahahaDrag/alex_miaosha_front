@@ -115,10 +115,8 @@ import { computed } from 'vue';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from '../config';
 import { labelMap, createRulesRef, type RedeemFormState } from './config';
-import {
-	redeemCpnUserCouponInfo,
-	type CpnUserCouponRedeemReq,
-} from '@/views/finance/cpn-user-coupon-info/api';
+import { redeemCpnUserCouponInfo } from '@/views/cpn-coupon/cpn-user-coupon-info/api';
+import type { CpnUserCouponRedeemReq } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
 import { useUserStore } from '@/store/modules/user/user';
 
 const userStore = useUserStore();

@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .vscode
+.github
 yarn.lock
 package-lock.json
 stats.html

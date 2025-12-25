@@ -4,29 +4,19 @@ import type { Dayjs } from 'dayjs';
 
 export const columns = ref<TableColumnsType>([
 	{
-		title: '被核销的券实例ID (外键关联 cpn_user_coupon_info_t.id)',
-		dataIndex: 'userCouponId',
-		key: 'userCouponId',
+		title: '消费券名称',
+		dataIndex: 'couponName',
+		key: 'couponName',
 	},
 	{
-		title: '核销用户ID',
-		dataIndex: 'userId',
-		key: 'userId',
+		title: '核销用户',
+		dataIndex: 'userName',
+		key: 'userName',
 	},
 	{
-		title: '关联的订单ID',
-		dataIndex: 'orderId',
-		key: 'orderId',
-	},
-	{
-		title: '本次核销数量 (固定为1)',
+		title: '本次核销数量',
 		dataIndex: 'redemptionQuantity',
 		key: 'redemptionQuantity',
-	},
-	{
-		title: '核销券的面值（参考）',
-		dataIndex: 'redemptionValue',
-		key: 'redemptionValue',
 	},
 	{
 		title: '核销时间',
@@ -34,21 +24,16 @@ export const columns = ref<TableColumnsType>([
 		key: 'redemptionTime',
 	},
 	{
-		title: '核销商家ID',
-		dataIndex: 'merchantId',
-		key: 'merchantId',
-	},
-	{
-		title: '操作',
-		key: 'operation',
-		fixed: 'right',
-		width: '8',
+		title: '核销备注',
+		dataIndex: 'remarks',
+		key: 'remarks',
 	},
 ]);
 
 export interface CpnRedemptionRecordInfoData {
 	id?: number;
-	userCouponId?: number;
+	couponName?: string;
+	userName?: string;
 	userId?: number;
 	orderId?: number;
 	redemptionQuantity?: number;
@@ -74,4 +59,7 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	redemptionValue: { name: 'redemptionValue', label: '核销券的面值（参考）' },
 	redemptionTime: { name: 'redemptionTime', label: '核销时间' },
 	merchantId: { name: 'merchantId', label: '核销商家ID' },
+	remarks: { name: 'remarks', label: '核销备注' },
+	couponName: { name: 'couponName', label: '消费券名称' },
+	userName: { name: 'userName', label: '核销用户' },
 });
