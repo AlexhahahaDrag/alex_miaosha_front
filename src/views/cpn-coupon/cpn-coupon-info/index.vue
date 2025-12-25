@@ -255,11 +255,8 @@ const getCpnCouponInfoListPage = async (
 		},
 	);
 	if (code == '200') {
-		let curData = data;
-		dataSource.value = curData?.records || [];
-		pagination.current = curData?.current || 1;
-		pagination.pageSize = curData?.size || 10;
-		setTotal(curData?.total || 0);
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
