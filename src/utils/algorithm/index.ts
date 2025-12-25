@@ -1,4 +1,4 @@
-import type { MenuDataItem } from '@/router/typing';
+import type { MenuDataItem } from '@/router/config';
 
 interface ProxyAlgorithm {
 	increaseIndexes<T extends MenuDataItem>(val: Array<T>): Array<T>;

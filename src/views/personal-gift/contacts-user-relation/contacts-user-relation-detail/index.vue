@@ -161,8 +161,9 @@ const onSubmit = async (): Promise<void> => {
 		} else {
 			message.error(messageInfo || '操作失败！', 3);
 		}
-	} catch (error) {
-		console.error('表单提交错误:', error);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error('表单提交错误！' + (error as Error).message || '未知错误');
 	} finally {
 		loading.value = false;
 	}

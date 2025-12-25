@@ -1,7 +1,7 @@
-import Layout from '@/layout/index.vue';
+import Layout from '@/views/layout/index.vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import type { MenuDataItem } from './typing';
+import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
 import type { MenuInfo } from '@/store/modules/user/typing';
@@ -10,6 +10,7 @@ const modules = import.meta.glob([
 	'@/views/**/**.vue',
 	'!@/views/common/icons/**.vue',
 ]);
+
 export const routes: MenuDataItem[] = [
 	{
 		name: 'home',
@@ -87,7 +88,7 @@ export const routes: MenuDataItem[] = [
 	},
 	{
 		path: '/:catchAll(.*)',
-		component: modules['/src/views/common/error/Error404.vue'],
+		component: modules['/src/views/error-404/index.vue'],
 	},
 ];
 
@@ -146,11 +147,16 @@ const addRouter = () => {
 				);
 				router.addRoute(newRouter);
 				dynamicRouter.push(newRouter);
-				routes.push(newRouter);
+				routes.push(newRouter as MenuDataItem);
 			}
 		});
 		userStore.changeRouteStatus(true);
 	}
+	console.log(
+		`addRouter eeeeeeeeeeeeeeeeeeeeeeeeeeeeee`,
+		routes,
+		dynamicRouter,
+	);
 };
 
 // 根据组件路径获取组件
@@ -170,7 +176,7 @@ const getChildren = (
 	item: MenuInfo,
 	permissionList: any[],
 	roleCode: string,
-): any => {
+): RouteRecordRaw => {
 	let component = getComponent(item);
 	let routeInfo: RouteRecordRaw = {
 		path: item.path,

@@ -260,9 +260,11 @@ const fetchPersonalGiftStatistic = async () => {
 		} else {
 			message.error(messageInfo || errorMessages.statisticFail, 3);
 		}
-	} catch (error) {
-		console.error('获取统计数据失败:', error);
-		message.error(errorMessages.statisticException, 3);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'获取统计数据失败！' + (error as Error).message || '未知错误',
+		);
 	} finally {
 		isLoadingStatistic.value = false;
 	}
@@ -289,9 +291,11 @@ const fetchOccasionDistribution = async () => {
 		} else {
 			message.error(messageInfo || errorMessages.occasionFail, 3);
 		}
-	} catch (error) {
-		console.error('获取场合分布数据失败:', error);
-		message.error(errorMessages.occasionException, 3);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'获取场合分布数据失败！' + (error as Error).message || '未知错误',
+		);
 	} finally {
 		isLoadingOccasion.value = false;
 	}
@@ -309,9 +313,11 @@ const fetchPersonalGiftTrend = async () => {
 		} else {
 			message.error(messageInfo || errorMessages.trendFail, 3);
 		}
-	} catch (error) {
-		console.error('获取趋势数据失败:', error);
-		message.error(errorMessages.trendException, 3);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'获取趋势数据失败！' + (error as Error).message || '未知错误',
+		);
 	} finally {
 		isLoadingTrend.value = false;
 	}

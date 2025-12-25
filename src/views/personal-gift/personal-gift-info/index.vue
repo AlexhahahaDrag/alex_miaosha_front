@@ -242,9 +242,12 @@ const loadContactsGiftRecordList = async () => {
 		} else {
 			message.error(messageInfo || '加载数据失败！', 3);
 		}
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error('加载联系人随礼记录失败:', error);
-		message.error('加载数据异常！', 3);
+		message.error(
+			'加载联系人随礼记录失败，请重试！' + (error as Error).message ||
+				'未知错误',
+		);
 	} finally {
 		tableLoading.value = false;
 	}

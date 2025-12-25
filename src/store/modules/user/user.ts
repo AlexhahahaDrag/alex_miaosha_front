@@ -104,8 +104,12 @@ export const useUserStore = defineStore('app-user', {
 				} else {
 					message.error(messageInfo || '删除失败！', 3);
 				}
-			} catch (error: any) {
-				message.error(error?.message || '系统错误，请联系管理员！', 3);
+			} catch (error: unknown) {
+				console.error('错误信息：', error);
+				message.error(
+					'系统错误，请联系管理员！' + (error as Error).message || '未知错误',
+					3,
+				);
 				return Promise.reject(error);
 			}
 		},

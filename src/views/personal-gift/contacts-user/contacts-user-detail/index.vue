@@ -216,7 +216,11 @@ const loadRelationshipOptions = async (): Promise<void> => {
 				relationshipOptions.value = data;
 			}
 		}
-	} catch (error) {
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'获取关系分类失败！' + (error as Error).message || '未知错误',
+		);
 		console.error('获取关系分类失败:', error);
 	}
 };

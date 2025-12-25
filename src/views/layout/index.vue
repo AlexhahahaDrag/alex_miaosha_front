@@ -2,7 +2,7 @@
 	<a-layout style="height: 100%">
 		<a-layout-sider v-model:collapsed="collapsed" collapsible>
 			<div class="logo"></div>
-			<MyNavbar :routes="routes" :selectedKeys="selectedKeys"></MyNavbar>
+			<my-navbar :routes="routes" :selectedKeys="selectedKeys"></my-navbar>
 		</a-layout-sider>
 		<a-layout>
 			<a-layout-header style="background: #fff; padding: 0">
@@ -14,9 +14,9 @@
 						justify-content: space-between;
 					"
 				>
-					<MyBreadcrumb class="breadcrumb-container"></MyBreadcrumb>
+					<my-breadcrumb class="breadcrumb-container"></my-breadcrumb>
 					<div class="right-menu" style="display: flex; align-items: center">
-						<MyRightInfo></MyRightInfo>
+						<my-right-info></my-right-info>
 					</div>
 				</div>
 			</a-layout-header>

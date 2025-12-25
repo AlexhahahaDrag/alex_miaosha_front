@@ -53,7 +53,6 @@
 					>
 						记住我
 					</a-checkbox>
-					<!-- <a class="forgot-password">忘记密码?</a> -->
 				</div>
 
 				<a-form-item>

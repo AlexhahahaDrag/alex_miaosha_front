@@ -17,8 +17,10 @@ export function useUserInfo() {
 			} else {
 				message.error(messageInfo || '查询用户列表失败！');
 			}
-		} catch (error: any) {
-			message.error('获取用户信息失败！', error);
+		} catch (error: unknown) {
+			message.error(
+				'获取用户信息失败！' + (error as Error).message || '未知错误',
+			);
 		} finally {
 			loading.value = false;
 		}

@@ -108,8 +108,9 @@ const navigateToHome = async () => {
 	try {
 		await router.push('/');
 		message.success('已跳转到首页');
-	} catch (error: any) {
-		message.error('跳转失败，请重试', error);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error('跳转失败，请重试' + (error as Error).message || '未知错误');
 	}
 };
 
@@ -117,8 +118,11 @@ const navigateToHome = async () => {
 const navigateToProfile = async () => {
 	try {
 		await router.push('/profile');
-	} catch (error: any) {
-		message.error('跳转失败，请重试', error);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'跳转失败，请重试！' + (error as Error).message || '未知错误',
+		);
 	}
 };
 
@@ -165,9 +169,11 @@ const handleLogout = async () => {
 		await router.push('/login');
 
 		message.success('注销成功');
-	} catch (error) {
-		console.error('注销失败:', error);
-		message.error('注销失败，请重试');
+	} catch (error: unknown) {
+		console.error('注销失败！' + (error as Error).message || '未知错误');
+		message.error(
+			'注销失败，请重试！' + (error as Error).message || '未知错误',
+		);
 	}
 };
 
@@ -178,8 +184,13 @@ const fetchNewsCount = async () => {
 		// const response = await getNewsCountApi();
 		// newsCount.value = response.count;
 		newsCount.value = 0; // 临时设置为0
-	} catch (error) {
-		console.error('获取消息数量失败:', error);
+	} catch (error: unknown) {
+		console.error(
+			'获取消息数量失败！' + (error as Error).message || '未知错误',
+		);
+		message.error(
+			'获取消息数量失败，请重试！' + (error as Error).message || '未知错误',
+		);
 	}
 };
 

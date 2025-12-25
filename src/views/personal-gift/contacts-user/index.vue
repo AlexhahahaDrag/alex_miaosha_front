@@ -340,7 +340,8 @@ const onDownloadTemplate = async (): Promise<void> => {
 		window.URL.revokeObjectURL(blobUrl);
 		// 隐藏加载提示，显示成功提示
 		message.success('模版下载成功！');
-	} catch (error) {
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
 		// 风险4修复：详细的错误信息处理
 		let errorMsg = '下载模版失败！';
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -375,8 +376,11 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		if (code == '200' && data) {
 			relationshipOptions.value = data;
 		}
-	} catch (error) {
-		console.error('获取关系分类失败:', error);
+	} catch (error: unknown) {
+		console.error('错误信息：', error);
+		message.error(
+			'获取关系分类失败，请重试！' + (error as Error).message || '未知错误',
+		);
 	}
 };
 
