@@ -10,7 +10,7 @@ export interface SearchInfo {
 	typeCode?: string;
 	fromSource?: string;
 	isValid?: number;
-	pageNo?: number;
+	pageNum?: number;
 	pageSize?: number;
 	incomeAndExpenses?: string;
 	belongTo?: number;

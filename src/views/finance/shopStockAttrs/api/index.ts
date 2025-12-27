@@ -17,12 +17,12 @@ const ShopStockAttrsUrl = {
 
 export function getShopStockAttrsPage(
 	params: ShopStockAttrsData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<ShopStockAttrsData>>> {
 	let url = baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

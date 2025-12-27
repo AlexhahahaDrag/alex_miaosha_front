@@ -27,13 +27,13 @@ const CpnUserCouponInfoEndpoints = {
 /**
  * 获取CpnUserCouponInfo分页数据
  * @param params 查询参数
- * @param pageNo 页码，默认为1
+ * @param pageNum 页码，默认为1
  * @param pageSize 每页大小，默认为10
  * @returns Promise<ApiResponse>
  */
 export async function getCpnUserCouponInfoPage(
 	params: CpnUserCouponInfoData,
-	pageNo?: number | null,
+	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<CpnUserCouponInfoData>>> {
 	const url =
@@ -41,7 +41,7 @@ export async function getCpnUserCouponInfoPage(
 		baseCpnUserCouponInfo +
 		CpnUserCouponInfoEndpoints.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

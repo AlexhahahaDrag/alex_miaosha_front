@@ -16,12 +16,12 @@ const MenuInfoUrl = {
 
 export function getMenuInfoPage(
 	params: unknown,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
 	let url = baseService.user + baseMenuInfo + MenuInfoUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

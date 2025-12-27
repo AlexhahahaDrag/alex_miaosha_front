@@ -16,13 +16,13 @@ const AccountRecordInfoUrl = {
 
 export function getAccountRecordInfoPage(
 	params: unknown,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
 	let url =
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

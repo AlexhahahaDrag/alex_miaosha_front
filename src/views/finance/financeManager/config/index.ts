@@ -70,19 +70,19 @@ export interface FinanceManagerData {
 }
 
 export const fromSourceTransferList = [
-	{ value: 'xj', label: 'cash' },
-	{ value: 'yhk', label: 'card' },
-	{ value: 'zfb', label: 'zhifubao' },
-	{ value: 'wx', label: 'weChat' },
-	{ value: 'mt', label: 'meituan' },
-	{ value: 'hb', label: 'huabei' },
-	{ value: 'bt', label: 'whiteBar' },
-	{ value: 'hf', label: 'telCharge' },
-	{ value: 'rqf', label: 'gasCharge' },
-	{ value: 'sf', label: 'waterCharge' },
-	{ value: 'df', label: 'electricCharge' },
-	{ value: 'jd', label: 'jingdong' },
-	{ value: 'other', label: '' },
+	{ value: 'xj', label: 'cash', name: '现金' },
+	{ value: 'yhk', label: 'card', name: '银行卡' },
+	{ value: 'zfb', label: 'zhifubao', name: '支付宝' },
+	{ value: 'wx', label: 'weChat', name: '微信' },
+	{ value: 'mt', label: 'meituan', name: '美团' },
+	{ value: 'hb', label: 'huabei', name: '花呗' },
+	{ value: 'bt', label: 'whiteBar', name: '白条' },
+	{ value: 'hf', label: 'telCharge', name: '话费' },
+	{ value: 'rqf', label: 'gasCharge', name: '燃气费' },
+	{ value: 'sf', label: 'waterCharge', name: '水费' },
+	{ value: 'df', label: 'electricCharge', name: '电费' },
+	{ value: 'jd', label: 'jingdong', name: '京东' },
+	{ value: 'other', label: 'other', name: '其他' },
 ];
 
 export const labelCol: { span: number } = { span: 5 };

@@ -17,14 +17,14 @@ const ShopCartUrl = {
 
 export function getShopCartPage(
 	params: ShopCartData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<ShopCartData>>> {
 	return postData(
 		baseService.finance + baseShopCart + ShopCartUrl.page,
 		params,
 		{
-			pageNo: pageNo ? pageNo : 1,
+			pageNum: pageNum ? pageNum : 1,
 			pageSize: pageSize ? pageSize : 10,
 		},
 	);

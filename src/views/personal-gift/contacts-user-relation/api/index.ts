@@ -20,8 +20,8 @@ const ContactsUserRelationUrl = {
 // 获取关系分类列表
 export const getContactsUserRelationPage = (
 	params: ContactsUserRelationInfo,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 	userId?: number,
 ): Promise<ResponseBody<CommonPageResult<ContactsUserRelationInfo>>> => {
 	let url =
@@ -29,7 +29,7 @@ export const getContactsUserRelationPage = (
 		baseContactsUserRelation +
 		ContactsUserRelationUrl.page;
 	const queryParams: Record<string, unknown> = {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	};
 	if (userId) {

@@ -21,12 +21,12 @@ const ContactsUserUrl = {
 // 获取联系人列表
 export const getContactsUserPage = (
 	params: ContactsUserInfo,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<ContactsUserInfo>>> => {
 	let url = baseService.finance + baseContactsUser + ContactsUserUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 };

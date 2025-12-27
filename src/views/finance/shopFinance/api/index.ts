@@ -17,12 +17,12 @@ const ShopFinanceUrl = {
 
 export function getShopFinancePage(
 	params: ShopFinanceData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<ShopFinanceData>>> {
 	let url = baseService.finance + baseShopFinance + ShopFinanceUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

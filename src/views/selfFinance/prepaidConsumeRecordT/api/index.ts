@@ -17,7 +17,7 @@ const PrepaidConsumeRecordTUrl = {
 
 export function getPrepaidConsumeRecordTPage(
 	params: PrepaidConsumeRecordTData,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PrepaidConsumeRecordTData>>> {
 	let url =
@@ -25,7 +25,7 @@ export function getPrepaidConsumeRecordTPage(
 		basePrepaidConsumeRecordT +
 		PrepaidConsumeRecordTUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

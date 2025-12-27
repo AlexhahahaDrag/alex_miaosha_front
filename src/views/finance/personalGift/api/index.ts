@@ -21,12 +21,12 @@ const PersonalGiftUrl = {
 // 获取个人随礼信息表列表
 export const getPersonalGiftPage = (
 	params: PersonalGiftInfo,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<PersonalGiftInfo>>> => {
 	let url = baseService.finance + basePersonalGift + PersonalGiftUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 };

@@ -18,14 +18,14 @@ const dictUrl = {
 
 export function getDictManagerPage(
 	params: DictInfo,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<DictInfo>>> {
 	return postData(
 		baseService.finance + baseDictManager + dictUrl.page,
 		params,
 		{
-			pageNo: pageNo ? pageNo : 1,
+			pageNum: pageNum ? pageNum : 1,
 			pageSize: pageSize ? pageSize : 10,
 		},
 	);

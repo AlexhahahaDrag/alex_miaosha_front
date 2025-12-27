@@ -17,12 +17,12 @@ const PmsCategoryUrl = {
 
 export function getPmsCategoryPage(
 	params: PmsCategoryData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<PmsCategoryData>>> {
 	let url = baseService.product + basePmsCategory + PmsCategoryUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

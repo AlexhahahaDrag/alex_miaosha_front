@@ -17,12 +17,12 @@ const financeMangerUrl = {
 
 export function getFinanceMangerPage(
 	params: FinanceManagerData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<FinanceManagerData>>> {
 	let url = baseService.finance + baseFinanceManager + financeMangerUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

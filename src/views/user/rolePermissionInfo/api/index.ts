@@ -16,15 +16,15 @@ const RolePermissionInfoUrl = {
 
 export function getRolePermissionInfoPage(
 	params: any,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody> {
 	return postData(
 		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.page,
 		params,
 		{
-			pageNo: pageNo ? pageNo : 1,
-			pageSize: pageSize ? pageSize : 10,
+			pageNum: pageNum ?? 1,
+			pageSize: pageSize ?? 10,
 		},
 	);
 }

@@ -17,12 +17,12 @@ const RoleInfoUrl = {
 
 export function getRoleInfoPage(
 	params: RoleInfo,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<RoleInfo>>> {
 	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.page, params, {
-		pageNo: pageNo ? pageNo : 1,
-		pageSize: pageSize ? pageSize : 10,
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
 	});
 }
 

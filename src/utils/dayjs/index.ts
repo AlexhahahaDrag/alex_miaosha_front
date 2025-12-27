@@ -19,7 +19,7 @@ const formatDayjs = (date: string | Dayjs | undefined | null) => {
 	if (!date) {
 		return null;
 	}
-	return dayjs.utc(date);
+	return dayjs(date);
 };
 
 /**
@@ -31,7 +31,7 @@ const formatDate = (date: string | Dayjs | undefined | null) => {
 	if (!date) {
 		return '';
 	}
-	return dayjs.utc(date).format(defaultDateFormat);
+	return dayjs(date).format(defaultDateFormat);
 };
 
 /**
@@ -47,7 +47,7 @@ const formatTime = (
 	if (!date) {
 		return '';
 	}
-	return dayjs.utc(date).format(dateFormat);
+	return dayjs(date).format(dateFormat);
 };
 
 // 导出所有工具函数和常量

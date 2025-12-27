@@ -100,7 +100,7 @@ const transactions = ref<any[]>([]);
 const selectedCardId = ref<string | number | null>(null);
 
 const paginationInfo = ref<any>({
-	pageNo: 1,
+	pageNum: 1,
 	current: 1,
 	pageSize: 10,
 	total: 0,
@@ -120,7 +120,7 @@ const handleRecharge = (type: string, card?: any) => {
 const handleCardClick = (card: any) => {
 	selectedCardId.value = card.id;
 	transactions.value = [];
-	paginationInfo.value.pageNo = 1;
+	paginationInfo.value.pageNum = 1;
 	paginationInfo.value.current = 1;
 	paginationInfo.value.pageSize = 10;
 	paginationInfo.value.total = 0;
@@ -131,7 +131,7 @@ const handleCardClick = (card: any) => {
 const clearCardSelection = () => {
 	selectedCardId.value = null;
 	transactions.value = [];
-	paginationInfo.value.pageNo = 1;
+	paginationInfo.value.pageNum = 1;
 	paginationInfo.value.current = 1;
 	paginationInfo.value.pageSize = 10;
 	paginationInfo.value.total = 0;
@@ -162,7 +162,7 @@ const getPrepaidConsumeRecordTPageInfo = async () => {
 		message: messageInfo,
 	} = await getPrepaidConsumeRecordTPage(
 		{ cardId: selectedCardId.value },
-		paginationInfo.value.pageNo,
+		paginationInfo.value.pageNum,
 		paginationInfo.value.pageSize,
 	);
 	console.log(data, code, messageInfo);
@@ -190,7 +190,7 @@ const cancelRecharge = () => {
 
 // 分页
 const handleTableChange = (pagination: PageInfo) => {
-	paginationInfo.value.pageNo = pagination.current;
+	paginationInfo.value.pageNum = pagination.current;
 	paginationInfo.value.current = pagination.current;
 	paginationInfo.value.pageSize = pagination.pageSize;
 	getPrepaidConsumeRecordTPageInfo();

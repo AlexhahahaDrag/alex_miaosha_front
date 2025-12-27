@@ -92,6 +92,7 @@
 									vertical-align: middle;
 								"
 							></MySvgIcon>
+              {{ record.fromSource?.indexOf(fromSource.value) >= 0 ? fromSource.name : '' }}
 						</div>
 					</template>
 				</template>

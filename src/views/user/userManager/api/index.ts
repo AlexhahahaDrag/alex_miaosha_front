@@ -18,11 +18,11 @@ const userMangerUrl = {
 
 export function getUserManagerPage(
 	params: UserManagerInfo | null,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<UserManagerInfo>>> {
 	let url = baseService.user + baseUserManager + userMangerUrl.page;
-	return postData(url, params, { pageNo, pageSize });
+	return postData(url, params, { pageNum: pageNum ?? 1, pageSize: pageSize ?? 10 });
 }
 
 export function getUserManagerDetail(id: number): Promise<ResponseBody> {

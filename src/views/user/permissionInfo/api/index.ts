@@ -17,14 +17,14 @@ const PermissionInfoUrl = {
 
 export function getPermissionInfoPage(
 	params: PermissionInfo,
-	pageNo: number | null | undefined,
+	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PermissionInfo>>> {
 	return postData(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.page,
 		params,
 		{
-			pageNo: pageNo || 1,
+			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
 	);

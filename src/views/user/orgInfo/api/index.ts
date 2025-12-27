@@ -17,11 +17,11 @@ const OrgInfoUrl = {
 
 export function getOrgInfoPage(
 	params: OrgInfoData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<OrgInfoData>>> {
 	return postData(baseService.user + baseOrgInfo + OrgInfoUrl.page, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

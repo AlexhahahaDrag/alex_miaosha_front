@@ -17,12 +17,12 @@ const ShopStockBatchUrl = {
 
 export function getShopStockBatchPage(
 	params: ShopStockBatchData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<ShopStockBatchData>>> {
 	let url = baseService.finance + baseShopStockBatch + ShopStockBatchUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

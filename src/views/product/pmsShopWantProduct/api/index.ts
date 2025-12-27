@@ -17,13 +17,13 @@ const PmsShopWantProductUrl = {
 
 export function getPmsShopWantProductPage(
 	params: PmsShopWantProductData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<PmsShopWantProductData>>> {
 	let url =
 		baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

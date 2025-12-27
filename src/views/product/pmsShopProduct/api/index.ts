@@ -19,25 +19,25 @@ const PmsShopProductUrl = {
 
 export function getPmsShopProductPage(
 	params: PmsShopProductData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<PmsShopProductData>>> {
 	let url = baseService.product + basePmsShopProduct + PmsShopProductUrl.page;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getNewestPmsShopProductPage(
 	params: PmsShopProductData,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<PmsShopProductData>>> {
 	let url =
 		baseService.product + basePmsShopProduct + PmsShopProductUrl.newestPage;
 	return postData(url, params, {
-		pageNo: pageNo ? pageNo : 1,
+		pageNum: pageNum ? pageNum : 1,	
 		pageSize: pageSize ? pageSize : 10,
 	});
 }

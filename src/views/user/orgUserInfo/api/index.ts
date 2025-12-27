@@ -16,13 +16,14 @@ const OrgUserInfoUrl = {
 
 export function getOrgUserInfoPage(
 	params: any,
-	pageNo: number | null | undefined,
-	pageSize: number | null | undefined,
+	pageNum?: number | null,
+	pageSize?: number | null,
 ): Promise<ResponseBody> {
 	return postData(
 		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.page,
 		params,
-		{ pageNo: pageNo ? pageNo : 1, pageSize: pageSize ? pageSize : 10 },
+		{ pageNum: pageNum ? pageNum : 1, 
+			pageSize: pageSize ? pageSize : 10 },
 	);
 }
 

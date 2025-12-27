@@ -105,6 +105,7 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item name="infoDate" label="业务时间">
+              {{ formState.infoDate }}
 							<a-date-picker
 								v-model:value="formState.infoDate"
 								:format="dateFormatter"
@@ -146,8 +147,10 @@ import {
 	editFinanceManger,
 } from '@/views/finance/financeManager/api';
 import { rulesRef } from './config';
+import {labelCol, wrapperCol} from '../config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
+import { formatTime, formatDayjs } from '@/utils/dayjs';
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
 
@@ -162,7 +165,7 @@ const validList = computed(() => getDictByType('is_valid'));
 // 使用 useUserInfo 组合式函数
 const { userList } = useUserInfo();
 
-const dateFormatter = 'YYYY-MM-DD';
+const dateFormatter = 'YYYY-MM-DD HH:mm';
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
@@ -214,6 +217,7 @@ const saveFinanceManager = async () => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
+    emit('handleOk', false);
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -228,7 +232,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 		} = await getFinanceMangerDetail(modalData.id);
 		if (code == '200') {
 			formState.value = data || {};
-			formState.value.infoDate = dayjs(formState.value.infoDate);
+			formState.value.infoDate = formState.value.infoDate ? dayjs(formState.value.infoDate) : dayjs();
 			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');
