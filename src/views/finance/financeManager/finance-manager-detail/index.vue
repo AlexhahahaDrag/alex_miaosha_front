@@ -105,9 +105,9 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item name="infoDate" label="业务时间">
-              {{ formState.infoDate }}
 							<a-date-picker
 								v-model:value="formState.infoDate"
+                show-time
 								:format="dateFormatter"
 								:getPopupContainer="
 									(triggerNode: any) => {
@@ -166,6 +166,7 @@ const validList = computed(() => getDictByType('is_valid'));
 const { userList } = useUserInfo();
 
 const dateFormatter = 'YYYY-MM-DD HH:mm';
+
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
@@ -207,7 +208,11 @@ const saveFinanceManager = async () => {
 		api = editFinanceManger;
 	}
 	loading.value = true;
-	const { code, message: messageInfo } = await api(formState.value)
+	let param = {
+    ...formState.value,
+    infoDate: formatTime(formState.value.infoDate),
+  }
+	const { code, message: messageInfo } = await api(param)
 		.catch((error: any) => {
 			return error;
 		})
@@ -232,7 +237,11 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 		} = await getFinanceMangerDetail(modalData.id);
 		if (code == '200') {
 			formState.value = data || {};
-			formState.value.infoDate = formState.value.infoDate ? dayjs(formState.value.infoDate) : dayjs();
+      if (formState.value?.infoDate) {
+        formState.value.infoDate = formatDayjs(formState.value.infoDate);
+      } else {
+        formState.value.infoDate = dayjs();
+      }
 			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');
