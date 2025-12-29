@@ -73,27 +73,41 @@
 						</span>
 					</template>
 					<template v-else-if="column.key === 'fromSource'">
-						<div
-							v-for="(fromSource, index) in fromSourceTransferList"
+						<!-- AI Agent：修复 SVG 图标显示问题，将 fromSource 转换为 finance-{fromSource} 格式 -->
+						<!-- 处理 fromSource 可能包含多个值的情况（如：xj,yhk） -->
+						<template
+							v-for="(fromSourceItem, index) in fromSourceTransferList"
 							:key="index"
 						>
-							<MySvgIcon
-								v-if="
-									record.fromSource.indexOf(fromSource.value) >= 0 &&
-									fromSource.value != ''
-								"
-								:name="fromSource.label"
-								class="svg"
-								style="
-									width: 1.5em;
-									height: 1.5em;
-									font-size: 18px;
-									cursor: pointer;
-									vertical-align: middle;
-								"
-							></MySvgIcon>
-              {{ record.fromSource?.indexOf(fromSource.value) >= 0 ? fromSource.name : '' }}
-						</div>
+							<template
+								v-if="record.fromSource?.indexOf(fromSourceItem.value) >= 0"
+							>
+								<!-- AI Agent：靠左展示，使用 inline-block 确保图标和文字在同一行 -->
+								<div
+									style="
+										text-align: left;
+										margin-right: 8px;
+										vertical-align: middle;
+										display: flex;
+										align-items: center;
+										justify-content: left;
+									"
+								>
+									<component
+										v-if="iconComponentMap[`finance-${fromSourceItem.value}`]"
+										:is="iconComponentMap[`finance-${fromSourceItem.value}`]"
+										style="
+											display: inline-block;
+											vertical-align: middle;
+											margin-right: 4px;
+											width: 18px;
+											height: 18px;
+										"
+									/>
+									<span>{{ fromSourceItem.name }}</span>
+								</div>
+							</template>
+						</template>
 					</template>
 				</template>
 			</a-table>
@@ -111,16 +125,17 @@
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
-import { formatAmount } from '@/utils/amountInfo';
 import type { FinanceManagerData } from './config';
 import type { SearchInfo } from './finance-manager-filter/config';
 import { columns, fromSourceTransferList } from './config';
+import { iconComponentMap } from '@/views/common/config';
+import { formatAmount } from '@/utils/amountInfo';
+import { formatDate } from '@/utils/dayjs';
 import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
 } from '@/views/finance/financeManager/api';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
-import { formatDate } from '@/utils/dayjs';
 
 // 使用分页组合式函数
 const {
