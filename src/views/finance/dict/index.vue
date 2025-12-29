@@ -162,21 +162,19 @@ function handleTableChange(pagination: PageInfo) {
 	getDictPage(searchInfo.value, pagination);
 }
 
-function delDict(ids: string) {
-	deleteDictManager(ids)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && '删除' + res.message) || '删除成功！', 3);
-				getDictPage(searchInfo.value, pagination);
-			} else {
-				message.error((res && res.message) || '删除失败！', 3);
-			}
-		})
-		.catch((e) => {
-			message.error('删除异常，请联系管理员！', 3);
-			console.log(e);
-		});
-}
+const delDict = async (ids: string) => {
+	const { code, message: messageInfo } = await deleteDictManager(ids).catch(
+		(error: any) => {
+			return error;
+		},
+	);
+	if (code == '200') {
+		message.success(messageInfo || '删除成功！', 3);
+		getDictPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
+};
 
 function batchDelDictManager() {
 	if (!rowIds?.length) {

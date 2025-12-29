@@ -31,6 +31,11 @@ export const columns = ref<TableColumnsType>([
 		key: 'unitValue',
 	},
 	{
+		title: '支付状态',
+		dataIndex: 'paymentStatus',
+		key: 'paymentStatus',
+	},
+	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
@@ -50,6 +55,10 @@ export interface CpnCouponInfoData {
 	expireRangeStatus?: number;
 	remainingQuantity?: number; // AI Agent：剩余数量
 	consumedQuantity?: number; // AI Agent：已核销数量
+	// AI Agent：支付状态（1：已支付，0：未支付）
+	paymentStatus?: number;
+	// AI Agent：仅查询有效的、未核销完成的数据（true：还有剩余数量且未过期）
+	onlyValidAndNotFullyRedeemed?: boolean;
 }
 
 export const labelCol = ref({ span: 5 });
@@ -62,6 +71,11 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	endDate: { name: 'endDate', label: '有效期' },
 	unitValue: { name: 'unitValue', label: '面值' },
 	minSpend: { name: 'minSpend', label: '最低消费门槛' },
+	paymentStatus: { name: 'paymentStatus', label: '支付状态' },
+	onlyValidAndNotFullyRedeemed: {
+		name: 'onlyValidAndNotFullyRedeemed',
+		label: '有效状态',
+	},
 });
 
 // AI Agent：使用 lodash-es 的 debounce，避免输入频繁变化导致接口被高频调用
