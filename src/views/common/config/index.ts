@@ -25,6 +25,16 @@ import IconWeChat from '~icons/my-soft-svg/weChat';
 import IconWhiteBar from '~icons/my-soft-svg/whiteBar';
 import IconZhifubao from '~icons/my-soft-svg/zhifubao';
 
+import IconXj from '~icons/my-finance-svg/cash';
+import IconYhk from '~icons/my-finance-svg/card';
+import IconMt from '~icons/my-soft-svg/meituan';
+import IconHb from '~icons/my-soft-svg/huabei';
+import IconBt from '~icons/my-soft-svg/whiteBar';
+import IconHf from '~icons/my-finance-svg/telCharge';
+import IconRqf from '~icons/my-finance-svg/gasCharge';
+import IconSf from '~icons/my-finance-svg/waterCharge';
+import IconDf from '~icons/my-finance-svg/electricCharge';
+
 // 创建图标组件映射表;
 export const iconComponentMap: Record<string, any> = {
 	// 菜单图标
@@ -54,6 +64,19 @@ export const iconComponentMap: Record<string, any> = {
 	'soft-weChat': IconWeChat,
 	'soft-whiteBar': IconWhiteBar,
 	'soft-zhifubao': IconZhifubao,
+
+	'finance-xj': IconXj,
+	'finance-yhk': IconYhk,
+	'finance-zfb': IconZhifubao,
+	'finance-wx': IconWeChat,
+	'finance-mt': IconMt,
+	'finance-hb': IconHb,
+	'finance-bt': IconBt,
+	'finance-hf': IconHf,
+	'finance-rqf': IconRqf,
+	'finance-sf': IconSf,
+	'finance-df': IconDf,
+	'finance-jd': IconJingdong,
 };
 
 // 弹窗信息

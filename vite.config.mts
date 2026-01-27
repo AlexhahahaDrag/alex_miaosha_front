@@ -64,7 +64,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 						(svg: any) => svg,
 					),
 					'my-finance-svg': FileSystemIconLoader(
-						'src/icons/finance',
+						'src/assets/finance',
 						(svg: any) => svg,
 					),
 					'my-soft-svg': FileSystemIconLoader(

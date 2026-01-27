@@ -34,6 +34,26 @@
 								/>
 							</a-form-item>
 						</a-col>
+						<a-col :span="8">
+							<a-form-item
+								:name="labelMap['onlyValidAndNotFullyRedeemed'].name"
+								:label="labelMap['onlyValidAndNotFullyRedeemed'].label"
+							>
+								<!-- AI Agent：有效状态筛选（全部/有效） -->
+								<a-select
+									v-model:value="searchInfo.onlyValidAndNotFullyRedeemed"
+									:placeholder="
+										'请选择' + labelMap['onlyValidAndNotFullyRedeemed'].label
+									"
+									allow-clear
+								>
+									<a-select-option :value="true">有效</a-select-option>
+									<a-select-option :value="null">全部</a-select-option>
+								</a-select>
+							</a-form-item>
+						</a-col>
+					</a-row>
+					<a-row :gutter="24">
 						<a-col :span="8" style="text-align: right; margin-bottom: 20px">
 							<a-space>
 								<a-button type="primary" @click="query"> 查找</a-button>
@@ -104,6 +124,12 @@
 							{{ record.expireStatus }}
 						</a-tag>
 					</template>
+					<template v-else-if="column.key === 'paymentStatus'">
+						<!-- AI Agent：支付状态展示（1：已支付，0：未支付） -->
+						<a-tag :color="record.paymentStatus === 1 ? 'green' : 'default'">
+							{{ record.paymentStatus === 1 ? '已支付' : '未支付' }}
+						</a-tag>
+					</template>
 				</template>
 			</a-table>
 			<cpn-coupon-info-detail
@@ -162,8 +188,10 @@ let redeemCouponInfo = ref<CpnCouponInfoData | null>(null);
 
 let rowIds: (string | number)[] = [];
 
-// 搜索信息
-let searchInfo = ref<CpnCouponInfoData>({});
+// 搜索信息（AI Agent：默认查询有效的数据）
+let searchInfo = ref<CpnCouponInfoData>({
+	onlyValidAndNotFullyRedeemed: true,
+});
 
 // 行选择
 const rowSelection = ref<TableRowSelection>({
@@ -195,9 +223,11 @@ const rowSelection = ref<TableRowSelection>({
 	},
 });
 
-// 清空搜索
+// 清空搜索（AI Agent：清空后恢复默认查询有效数据）
 const cancelQuery = (): void => {
-	searchInfo.value = {};
+	searchInfo.value = {
+		onlyValidAndNotFullyRedeemed: true,
+	};
 	pagination.current = 1;
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };

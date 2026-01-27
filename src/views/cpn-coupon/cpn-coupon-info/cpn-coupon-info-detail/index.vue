@@ -98,6 +98,24 @@
 						</a-form-item>
 					</a-col>
 				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['paymentStatus'].name"
+							:label="labelMap['paymentStatus'].label"
+						>
+							<!-- AI Agent：支付状态选择（1：已支付，0：未支付） -->
+							<a-select
+								v-model:value="formState.paymentStatus"
+								:placeholder="'请选择' + labelMap['paymentStatus'].label"
+								:allowClear="true"
+							>
+								<a-select-option :value="1">已支付</a-select-option>
+								<a-select-option :value="0">未支付</a-select-option>
+							</a-select>
+						</a-form-item>
+					</a-col>
+				</a-row>
 			</a-form>
 		</a-modal>
 	</div>
@@ -206,7 +224,8 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 		}
 	} else {
 		modelConfig.confirmLoading = false;
-		formState.value = { startDate: dayjs() };
+		// AI Agent：新增时默认支付状态为未支付（0）
+		formState.value = { startDate: dayjs(), paymentStatus: 0 };
 	}
 };
 

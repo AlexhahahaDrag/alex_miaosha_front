@@ -107,8 +107,9 @@
 						<a-form-item name="infoDate" label="业务时间">
 							<a-date-picker
 								v-model:value="formState.infoDate"
-                show-time
+								show-time
 								:format="dateFormatter"
+								value-format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
 									(triggerNode: any) => {
 										return triggerNode.parentNode;
@@ -147,10 +148,10 @@ import {
 	editFinanceManger,
 } from '@/views/finance/financeManager/api';
 import { rulesRef } from './config';
-import {labelCol, wrapperCol} from '../config';
+import { labelCol, wrapperCol } from '../config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { formatTime, formatDayjs } from '@/utils/dayjs';
+import { formatDayjs } from '@/utils/dayjs';
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
 
@@ -208,11 +209,7 @@ const saveFinanceManager = async () => {
 		api = editFinanceManger;
 	}
 	loading.value = true;
-	let param = {
-    ...formState.value,
-    infoDate: formatTime(formState.value.infoDate),
-  }
-	const { code, message: messageInfo } = await api(param)
+	const { code, message: messageInfo } = await api(formState.value)
 		.catch((error: any) => {
 			return error;
 		})
@@ -222,7 +219,7 @@ const saveFinanceManager = async () => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-    emit('handleOk', false);
+		emit('handleOk', false);
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -237,11 +234,11 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 		} = await getFinanceMangerDetail(modalData.id);
 		if (code == '200') {
 			formState.value = data || {};
-      if (formState.value?.infoDate) {
-        formState.value.infoDate = formatDayjs(formState.value.infoDate);
-      } else {
-        formState.value.infoDate = dayjs();
-      }
+			if (formState.value?.infoDate) {
+				formState.value.infoDate = formatDayjs(formState.value.infoDate);
+			} else {
+				formState.value.infoDate = dayjs();
+			}
 			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');
