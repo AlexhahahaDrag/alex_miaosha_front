@@ -2,6 +2,13 @@ import { getDataOne, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 import type { FinanceManagerData } from '../../financeManager/config';
 
+
+interface BalanceData {
+	momTrend: string;
+	yoyTrend:string;
+	list: FinanceManagerData[];
+}
+
 const baseFinanceAnalysis = '/api/v1/finance-analysis';
 
 const financeAnalysisUrl = {
@@ -14,7 +21,7 @@ const financeAnalysisUrl = {
 export const getBalance = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody<FinanceManagerData[]>> => {
+): Promise<ResponseBody<BalanceData>> => {
 	let params = {
 		searchDate,
 		belongTo,

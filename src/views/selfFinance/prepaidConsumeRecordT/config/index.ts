@@ -46,7 +46,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface PrepaidConsumeRecordTData {
-	cardId?: number;
+	cardId?: number|string;
 	orderNo?: string;
 	amount?: number;
 	balanceAfter?: number;

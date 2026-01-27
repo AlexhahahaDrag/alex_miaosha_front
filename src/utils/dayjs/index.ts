@@ -19,12 +19,11 @@ const defaultTimeFormat = 'YYYY-MM-DD HH:mm:ss';
  * @param date 时间
  * @returns 格式化后的时间
  */
-const formatDayjs = (date: string | Dayjs | undefined | null): Dayjs | string | undefined => {
+const formatDayjs = (date: string | Dayjs | undefined | null) => {
 	if (!date) {
-		return undefined;
+		return null;
 	}
-	const result = dayjs(date);
-	return result.isValid() ? result : undefined;
+	return dayjs(date);
 };
 
 /**
