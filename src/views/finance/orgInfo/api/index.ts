@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { OrgInfoData } from '../config';
 
-const baseOrgInfo = '/api/v1//org-info';
+const baseOrgInfo = '/api/v1/org-info';
 
 const OrgInfoUrl = {
 	page: '/page',

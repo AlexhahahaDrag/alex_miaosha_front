@@ -95,17 +95,17 @@
 	</div>
 </template>
 <script lang="ts" setup>
+import type { FormInstance } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
+import type { ModelInfo } from '@/views/common/config';
+import { useDictInfo } from '@/composables/useDictInfo';
+import type { RoleInfoData } from '../roleInfo';
+import { labelMap, rulesRef, labelCol, wrapperCol } from '../roleInfo';
 import {
 	getRoleInfoDetail,
 	addRoleInfo,
 	editRoleInfo,
 } from '@/views/user/roleInfo/api';
-import type { FormInstance } from 'ant-design-vue';
-import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
-import { useDictInfo } from '@/composables/useDictInfo';
-import type { RoleInfo } from '../roleInfoListTs';
-import { labelMap, rulesRef, labelCol, wrapperCol } from './roleInfoDetailTs';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -124,7 +124,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<RoleInfo>({});
+let formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));

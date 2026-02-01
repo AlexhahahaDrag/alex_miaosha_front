@@ -8,11 +8,16 @@
 		@close="handleCancel"
 	>
 		<template #footer>
-			<a-button style="margin-right: 8px" key="back" @click="handleCancel"
-				>取消</a-button
+			<a-button style="margin-right: 8px" key="back" @click="handleCancel">
+				取消
+			</a-button>
+			<a-button
+				key="submit"
+				type="primary"
+				:loading="loading"
+				@click="handleOk"
 			>
-			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
-				>保存
+				保存
 			</a-button>
 		</template>
 		<menu-tree
@@ -22,7 +27,7 @@
 	</a-drawer>
 </template>
 <script lang="ts" setup>
-import type { RoleInfoDetail } from './roleInfoDetailTs';
+import type { RoleInfoData } from '../roleInfo';
 
 // 字典数据已通过 useDictInfo 自动加载
 import {
@@ -47,7 +52,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<RoleInfoDetail>({});
+let formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 
@@ -92,27 +97,71 @@ const saveRoleInfoManager = async () => {
 	}
 };
 
-const init = async () => {
-	if ((props.data as { id: string })?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getRoleInfoDetail(Number((props.data as { id: string }).id));
-		if (code == '200') {
-			formState.value = data as RoleInfoDetail;
-			permissionTree.value =
-				(data as { permissionList?: unknown[] })?.permissionList || [];
-			selectPermission.value =
-				(
-					data as { rolePermissionInfoVoList?: { id: string }[] }
-				)?.rolePermissionInfoVoList?.map((item: { id: string }) => item.id) ||
-				[];
-			modelConfig.confirmLoading = false;
+// 获取所有权限列表和已选权限
+const getAllPermissions = async () => {
+	try {
+		const roleId = (props.data as { id: string | number })?.id;
+
+		if (roleId) {
+			// 如果有角色ID，获取该角色的详情（包含所有权限列表和已选权限）
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getRoleInfoDetail(Number(roleId));
+			if (code == '200') {
+				formState.value = data as RoleInfoData;
+				// 设置所有权限列表（permissionList 包含所有权限）
+				permissionTree.value =
+					(data as { permissionList?: unknown[] })?.permissionList || [];
+				// 设置已选中的权限（rolePermissionInfoVoList 包含该角色已选中的权限）
+				selectPermission.value =
+					(
+						data as { rolePermissionInfoVoList?: { id: string }[] }
+					)?.rolePermissionInfoVoList?.map((item: { id: string }) =>
+						String(item.id),
+					) || [];
+				modelConfig.confirmLoading = false;
+			} else {
+				message.error(messageInfo || '查询失败！');
+				modelConfig.confirmLoading = false;
+			}
 		} else {
-			message.error(messageInfo || '查询失败！');
+			// 如果没有角色ID，也需要获取所有权限列表
+			// 假设可以通过一个存在的角色ID获取所有权限列表（permissionList 包含所有权限）
+			// 这里使用角色ID为1，如果后端不支持，需要调用专门的获取所有权限的API
+			// 注意：这里只获取权限列表，不设置已选权限
+			const { code, data, message: messageInfo } = await getRoleInfoDetail(1);
+			if (code == '200') {
+				// 只获取权限列表，不设置已选权限
+				permissionTree.value =
+					(data as { permissionList?: unknown[] })?.permissionList || [];
+				selectPermission.value = [];
+				modelConfig.confirmLoading = false;
+			} else {
+				// 如果获取失败，尝试清空权限列表
+				permissionTree.value = [];
+				selectPermission.value = [];
+				modelConfig.confirmLoading = false;
+				message.error(messageInfo || '获取权限列表失败！');
+			}
 		}
+	} catch (error) {
+		console.error('获取权限列表失败:', error);
+		message.error('获取权限列表失败！');
+		modelConfig.confirmLoading = false;
 	}
+};
+
+const init = async () => {
+	// 重置状态
+	permissionTree.value = [];
+	selectPermission.value = [];
+	formState.value = {};
+	modelConfig.confirmLoading = true;
+
+	// 始终获取所有权限列表
+	await getAllPermissions();
 };
 
 watch(

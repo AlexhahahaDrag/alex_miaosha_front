@@ -8,7 +8,8 @@ import type { MenuInfo } from '@/store/modules/user/typing';
 
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
-	'!@/views/common/icons/**.vue',
+	'!@/views/common/**/**.vue',
+	'!@/views/layout/index.vue',
 ]);
 
 export const routes: MenuDataItem[] = [

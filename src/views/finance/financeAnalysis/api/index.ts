@@ -1,11 +1,11 @@
 import { getDataOne, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
-import type { FinanceManagerData } from '../../financeManager/config';
-
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import { type AnalysisData } from '@/views/finance/financeAnalysis/analysis';
 
 interface BalanceData {
 	momTrend: string;
-	yoyTrend:string;
+	yoyTrend: string;
 	list: FinanceManagerData[];
 }
 
@@ -38,7 +38,7 @@ export const getIncomeAndExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
 	type?: string,
-): Promise<ResponseBody<any[]>> => {
+): Promise<ResponseBody<AnalysisData[]>> => {
 	let params = {
 		belongTo,
 		searchDate,
@@ -55,7 +55,7 @@ export const getIncomeAndExpense = (
 export const getDayExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> => {
+): Promise<ResponseBody<AnalysisData[]>> => {
 	let params = {
 		belongTo,
 		searchDate,
@@ -71,7 +71,7 @@ export const getDayExpense = (
 export const getMonthExpense = (
 	belongTo?: number | null,
 	searchDate?: string,
-): Promise<ResponseBody> => {
+): Promise<ResponseBody<AnalysisData[]>> => {
 	let params = {
 		belongTo,
 		searchDate,

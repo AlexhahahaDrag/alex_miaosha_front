@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { RoleInfo } from '../roleInfoListTs';
+import type { RoleInfoData } from '../roleInfo';
 
 const baseRoleInfo = '/api/v1/role-info';
 
@@ -16,17 +16,19 @@ const RoleInfoUrl = {
 };
 
 export function getRoleInfoPage(
-	params: RoleInfo,
+	params: RoleInfoData,
 	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
-): Promise<ResponseBody<CommonPageResult<RoleInfo>>> {
+): Promise<ResponseBody<CommonPageResult<RoleInfoData>>> {
 	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.page, params, {
 		pageNum: pageNum ?? 1,
 		pageSize: pageSize ?? 10,
 	});
 }
 
-export function getRoleInfoDetail(id: number): Promise<ResponseBody<RoleInfo>> {
+export function getRoleInfoDetail(
+	id: number,
+): Promise<ResponseBody<RoleInfoData>> {
 	return getDataOne(baseService.user + baseRoleInfo + RoleInfoUrl.url, { id });
 }
 
@@ -35,13 +37,15 @@ export function deleteRoleInfo(ids: string): Promise<ResponseBody<boolean>> {
 }
 
 // 新增角色信息
-export function addRoleInfo(params: RoleInfo): Promise<ResponseBody<RoleInfo>> {
+export function addRoleInfo(
+	params: RoleInfoData,
+): Promise<ResponseBody<RoleInfoData>> {
 	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
 }
 
 // 编辑角色信息
 export function editRoleInfo(
-	params: RoleInfo,
-): Promise<ResponseBody<RoleInfo>> {
+	params: RoleInfoData,
+): Promise<ResponseBody<RoleInfoData>> {
 	return putData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
 }

@@ -1,12 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
-import type { PermissionInfo } from '../permissionInfo/permissionInfoListTs';
-
-export interface SearchInfo {
-	roleCode?: string;
-	roleName?: string;
-	summary?: string;
-	status?: string;
-}
+import type { PermissionInfo } from '../../permissionInfo/permissionInfoListTs';
 
 export const columns = ref<TableColumnsType>([
 	{
@@ -46,7 +39,7 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	status: { name: 'status', label: '状态' },
 });
 
-export interface RoleInfo {
+export interface RoleInfoData {
 	id?: number;
 	roleCode?: string;
 	roleName?: string;
@@ -54,3 +47,33 @@ export interface RoleInfo {
 	status?: string;
 	permissionList?: PermissionInfo[];
 }
+
+export const rulesRef = reactive({
+	roleCode: [
+		{
+			required: true,
+			message: '角色编码不能为空！',
+		},
+	],
+	roleName: [
+		{
+			required: true,
+			message: '角色名称不能为空！',
+		},
+	],
+	summary: [
+		{
+			required: true,
+			message: '描述不能为空！',
+		},
+	],
+	status: [
+		{
+			required: true,
+			message: '状态不能为空！',
+		},
+	],
+});
+
+export const labelCol = ref({ span: 5 });
+export const wrapperCol = ref({ span: 19 });

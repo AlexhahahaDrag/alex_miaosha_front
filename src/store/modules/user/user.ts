@@ -7,7 +7,7 @@ import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
 import type { UserInfo } from '@/types/store';
-import type { RoleInfo } from '@/views/user/roleInfo/roleInfoListTs';
+import type { RoleInfo } from '@/views/user/roleInfo/roleInfo';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application

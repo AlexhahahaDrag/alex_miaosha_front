@@ -120,12 +120,7 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import {
-	type SearchInfo,
-	columns,
-	type RoleInfo,
-	labelMap,
-} from './roleInfoListTs';
+import { columns, type RoleInfoData, labelMap } from './roleInfo';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 
@@ -142,11 +137,11 @@ const wrapperCol = ref({ span: 19 });
 
 let rowIds: (string | number)[] = [];
 
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<RoleInfoData>({});
 
 let loading = ref<boolean>(false);
 
-let dataSource = ref<RoleInfo[]>([]);
+let dataSource = ref<RoleInfoData[]>([]);
 
 let visible = ref<boolean>(false);
 
@@ -157,13 +152,17 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: RoleInfo, selected: boolean, selectedRows: RoleInfo[]) => {
+	onSelect: (
+		record: RoleInfoData,
+		selected: boolean,
+		selectedRows: RoleInfoData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: RoleInfo[],
-		changeRows: RoleInfo[],
+		selectedRows: RoleInfoData[],
+		changeRows: RoleInfoData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
@@ -237,7 +236,7 @@ const handleAuthorizationCancel = () => {
 	authorizationModal.value.open = false;
 };
 
-const getRoleInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
+const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	loading.value = true;
 	const {
 		code,

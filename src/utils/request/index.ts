@@ -66,4 +66,6 @@ export const baseService = {
 	mission: '/api/am-mission',
 	file: '/api/am-oss',
 	product: '/api/am-product',
+	// AI Agent：AI 服务（需网关配置 am-ai -> alex-ai-${profile}）
+	ai: '/api/am-ai',
 };
