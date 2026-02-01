@@ -29,11 +29,13 @@
 					<a-col :span="8">
 						<a-card :bordered="false" class="stat-card">
 							<div class="stat-title">总金额</div>
-							<div class="stat-value text-blue">{{ sumAmount }}</div>
+							<div class="stat-value text-blue">
+								{{ sumAmount }}
+							</div>
 							<div class="stat-footer">
-								<span class="text-gray">-10.1% | 较上月</span>
+								<span class="text-gray">{{ momTrend }} | 较上月</span>
 								<span class="text-gray" style="margin-left: 10px">
-									4.7%同比
+									{{ yoyTrend }}同比
 								</span>
 							</div>
 						</a-card>
@@ -178,6 +180,11 @@ const { userList } = useUserInfo();
 // 余额列表
 const balanceList = ref<FinanceManagerData[]>([]);
 
+// 同比
+const yoyTrend = ref<string>('');
+// 环比
+const momTrend = ref<string>('');
+
 // 总金额
 let sumAmount = computed(() => {
 	return (
@@ -200,14 +207,14 @@ let searchDateTime = ref<Dayjs>(dayjs());
 // 余额列表配置
 const listConfigs = computed(() => [
 	{
-		title: '账户',
+		title: '可动产',
 		list:
-			getBalanceDetailData(balanceList.value, ['zfb', 'wx', 'yhk', 'xj']) || [],
+			getBalanceDetailData(balanceList.value, ['yhk', 'wx', 'hb', 'bt']) || [],
 		valueClass: '',
 	},
 	{
-		title: '消费',
-		list: getBalanceDetailData(balanceList.value, ['jd', 'hb', 'bt']) || [],
+		title: '不动产',
+		list: getBalanceDetailData(balanceList.value, ['xj', 'zfb', 'jd']) || [],
 		valueClass: 'text-orange',
 	},
 	{
@@ -240,6 +247,8 @@ const getBalanceInfo = async (userId: number, dateStr: string) => {
 	if (code == '200') {
 		// 余额列表数据
 		balanceList.value = data?.list || [];
+		yoyTrend.value = data?.yoyTrend || '';
+		momTrend.value = data?.momTrend || '';
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
@@ -495,9 +504,8 @@ onMounted(() => {
 		font-weight: bold;
 		line-height: 1.2;
 		margin-bottom: 8px;
-		font-family:
-			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-			Arial, sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+			'Helvetica Neue', Arial, sans-serif;
 	}
 
 	.stat-footer {
