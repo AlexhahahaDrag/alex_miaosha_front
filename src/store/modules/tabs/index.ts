@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia';
 import type { RouteLocationNormalizedLoaded } from 'vue-router';
 
 /**
@@ -29,11 +28,6 @@ export interface TabItem {
 	 * 是否可关闭
 	 */
 	closable: boolean;
-}
-
-export interface TabsState {
-	activeKey: string;
-	tabs: TabItem[];
 }
 
 const DEFAULT_HOME_KEY = 'home';
@@ -88,36 +82,36 @@ const normalizeTabsOrder = (tabs: TabItem[]): TabItem[] => {
 	return list;
 };
 
-export const useTabsStore = defineStore('app-tabs', {
-	state: (): TabsState => ({
-		activeKey: '',
-		tabs: [],
-	}),
-	getters: {
-		getActiveKey(): string {
-			return this.activeKey || '';
-		},
-		getTabs(): TabItem[] {
-			return this.tabs || [];
-		},
-	},
-	actions: {
+export const useTabsStore = defineStore(
+	'app-tabs',
+	() => {
+		const activeKey = ref<string>('');
+		const tabs = ref<TabItem[]>([]);
+
+		const getActiveKey = computed((): string => {
+			return activeKey.value || '';
+		});
+
+		const getTabs = computed((): TabItem[] => {
+			return tabs.value || [];
+		});
+
 		/**
 		 * AI Agent：初始化（首次进入页面时调用）
 		 * - 若持久化已恢复 tabs，则只同步 activeKey
 		 * - 若 tabs 为空，则以当前路由初始化（并补上首页 tab）
 		 */
-		initByRoute(route: RouteLocationNormalizedLoaded) {
+		function initByRoute(route: RouteLocationNormalizedLoaded) {
 			const key = buildKeyFromRoute(route);
-			this.activeKey = key;
+			activeKey.value = key;
 
-			if (Array.isArray(this.tabs) && this.tabs.length > 0) {
+			if (Array.isArray(tabs.value) && tabs.value.length > 0) {
 				// AI Agent：刷新恢复后也要保证 home 在最左端
-				this.tabs = normalizeTabsOrder(this.tabs);
+				tabs.value = normalizeTabsOrder(tabs.value);
 				// 已有持久化 tabs，只确保 activeKey 指向存在的 tab
-				const exist = this.tabs.find((t) => t.key === key);
+				const exist = tabs.value.find((t) => t.key === key);
 				if (!exist && key) {
-					this.upsertTabByRoute(route);
+					upsertTabByRoute(route);
 				}
 				return;
 			}
@@ -129,14 +123,14 @@ export const useTabsStore = defineStore('app-tabs', {
 				fullPath: '/',
 				closable: false,
 			};
-			this.tabs = [homeTab];
-			this.upsertTabByRoute(route);
-		},
+			tabs.value = [homeTab];
+			upsertTabByRoute(route);
+		}
 
 		/**
 		 * AI Agent：根据路由新增/更新 Tab（路由变化时调用）
 		 */
-		upsertTabByRoute(route: RouteLocationNormalizedLoaded) {
+		function upsertTabByRoute(route: RouteLocationNormalizedLoaded) {
 			const key = buildKeyFromRoute(route);
 			if (!key) {
 				return;
@@ -149,66 +143,80 @@ export const useTabsStore = defineStore('app-tabs', {
 				closable: !isHomeLike(key),
 			};
 
-			const index = this.tabs.findIndex((t) => t.key === key);
+			const index = tabs.value.findIndex((t) => t.key === key);
 			if (index > -1) {
 				// 更新 fullPath/title（例如 query 变化、title 更新）
-				this.tabs.splice(index, 1, { ...this.tabs[index], ...tab });
+				tabs.value.splice(index, 1, { ...tabs.value[index], ...tab });
 			} else {
-				this.tabs.push(tab);
+				tabs.value.push(tab);
 			}
 
 			// AI Agent：任何变更后都做一次排序归一化，确保 home 永远在最左端
-			this.tabs = normalizeTabsOrder(this.tabs);
-			this.activeKey = key;
-		},
+			tabs.value = normalizeTabsOrder(tabs.value);
+			activeKey.value = key;
+		}
 
 		/**
 		 * AI Agent：切换激活 Tab
 		 */
-		setActive(key: string) {
-			this.activeKey = key || '';
-		},
+		function setActive(key: string) {
+			activeKey.value = key || '';
+		}
 
 		/**
 		 * AI Agent：移除 Tab
 		 * @returns nextKey 删除后建议跳转的 key（为空则表示无需跳转）
 		 */
-		removeTab(key: string): string {
+		function removeTab(key: string): string {
 			if (!key) {
 				return '';
 			}
 			// 首页类 tab 不允许删除
 			if (isHomeLike(key)) {
-				return this.activeKey;
+				return activeKey.value;
 			}
 
-			const index = this.tabs.findIndex((t) => t.key === key);
+			const index = tabs.value.findIndex((t) => t.key === key);
 			if (index === -1) {
-				return this.activeKey;
+				return activeKey.value;
 			}
 
-			this.tabs.splice(index, 1);
+			tabs.value.splice(index, 1);
 			// AI Agent：删除后也要保证 home 永远在最左端
-			this.tabs = normalizeTabsOrder(this.tabs);
+			tabs.value = normalizeTabsOrder(tabs.value);
 
 			// 若删的是当前激活 tab，则激活相邻 tab
-			if (this.activeKey === key) {
-				const next = this.tabs[Math.max(0, index - 1)];
-				this.activeKey = next?.key || this.tabs[0]?.key || '';
-				return this.activeKey;
+			if (activeKey.value === key) {
+				const next = tabs.value[Math.max(0, index - 1)];
+				activeKey.value = next?.key || tabs.value[0]?.key || '';
+				return activeKey.value;
 			}
-			return this.activeKey;
-		},
+			return activeKey.value;
+		}
 
 		/**
 		 * AI Agent：通过 key 获取 tab（用于跳转）
 		 */
-		getTabByKey(key: string): TabItem | undefined {
-			return this.tabs.find((t) => t.key === key);
+		function getTabByKey(key: string): TabItem | undefined {
+			return tabs.value.find((t) => t.key === key);
+		}
+
+		return {
+			activeKey,
+			tabs,
+			getActiveKey,
+			getTabs,
+			initByRoute,
+			upsertTabByRoute,
+			setActive,
+			removeTab,
+			getTabByKey,
+		};
+	},
+	{
+		persist: {
+			key: 'app-tabs',
+			storage: window.sessionStorage,
 		},
 	},
-	persist: {
-		key: 'app-tabs',
-		storage: window.sessionStorage,
-	},
-});
+);

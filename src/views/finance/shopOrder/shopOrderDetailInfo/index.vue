@@ -145,6 +145,7 @@ import {
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
+import type { ResponseBody } from '@/types/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -269,7 +270,7 @@ const saveShopOrderManager = (): void => {
 			}
 			formState.value = {};
 		})
-		.catch((error: unknown) => {
+		.catch((error: ResponseBody) => {
 			const data = (error as { response?: { data?: { message?: string } } })
 				?.response?.data;
 			if (data) {

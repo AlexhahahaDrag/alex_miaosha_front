@@ -132,6 +132,7 @@ import {
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
+import type { ResponseBody } from '@/types/api';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -247,11 +248,8 @@ const savePrepaidConsumeRecordTManager = (): void => {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
+		.catch((error: ResponseBody) => {
+			message.error(error?.message || '保存失败！');
 		})
 		.finally(() => {
 			loading.value = false;
@@ -269,11 +267,8 @@ const init = (): void => {
 					message.error((res && res.message) || '查询失败！');
 				}
 			})
-			.catch((error: any) => {
-				let data = error?.response?.data;
-				if (data) {
-					message.error(data?.message || '查询失败！');
-				}
+			.catch((error: ResponseBody) => {
+				message.error(error?.message || '查询失败！');
 			});
 	} else {
 		modelConfig.confirmLoading = false;

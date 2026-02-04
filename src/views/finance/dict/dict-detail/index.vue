@@ -129,9 +129,9 @@ import {
 } from '@/views/finance/dict/api';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 import type { FormInstance } from 'ant-design-vue';
 import { useDictInfo } from '@/composables/useDictInfo';
+import type { ResponseBody } from '@/types/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -158,7 +158,7 @@ const handleOk = () => {
 		.then(() => {
 			saveFinanceManager();
 		})
-		.catch((error: ValidateErrorEntity<DictInfo>) => {
+		.catch((error: ResponseBody) => {
 			console.log('error', error);
 		});
 };

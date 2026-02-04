@@ -1,6 +1,7 @@
 import type { Nullable } from '@/types/global';
 import type { RoleEnum } from '@/types/role_enum';
 import type { UserInfo } from '@/types/store';
+import type { RoleInfoData } from '@/views/user/roleInfo/roleInfo';
 
 export interface UserState {
 	id?: string | number;
@@ -11,7 +12,7 @@ export interface UserState {
 	lastUpdateTime: number;
 	menuInfo: MenuInfo[] | null;
 	hasMenu: boolean;
-	roleInfo: any;
+	roleInfo: RoleInfoData;
 	orgInfo: any;
 }
 

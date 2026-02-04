@@ -1,83 +1,91 @@
 import { loginApi } from '@/views/login/api';
-import { defineStore } from 'pinia';
 import { getAuthInfo } from './typing';
-import type { MenuInfo, UserState } from './typing';
+import type { MenuInfo } from './typing';
 import type { LoginParams } from '@/views/login/config';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
 import type { UserInfo } from '@/types/store';
-import type { RoleInfo } from '@/views/user/roleInfo/roleInfo';
+import type { RoleInfoData } from '@/views/user/roleInfo/roleInfo';
 
-// useStore could be anything like useUser, useCart
-// the first argument is a unique id of the store across your application
-export const useUserStore = defineStore('app-user', {
-	state: (): UserState => ({
-		userInfo: null,
-		token: undefined,
-		roleList: [],
-		sessionTimeout: false,
-		lastUpdateTime: 0,
-		menuInfo: null,
-		hasMenu: false,
-		orgInfo: null,
-		roleInfo: null,
-	}),
+export const useUserStore = defineStore(
+	'app-user',
+	() => {
+		const userInfo = ref<UserInfo | null>(null);
+		const token = ref<string | undefined>(undefined);
+		const roleList = ref<any[]>([]);
+		const sessionTimeout = ref(false);
+		const lastUpdateTime = ref(0);
+		const menuInfo = ref<MenuInfo[] | null>(null);
+		const hasMenu = ref(false);
+		const orgInfo = ref<any>(null);
+		const roleInfo = ref<RoleInfoData | null>(null);
 
-	getters: {
-		getUserInfo(): UserInfo {
-			return this.userInfo || getAuthInfo('userInfo');
-		},
-		getToken(): string {
-			let localStorage = window.localStorage;
-			return this.token || localStorage.getItem('token') || '';
-		},
-		getMenuInfo(): MenuInfo[] | null {
-			return this.menuInfo || getAuthInfo('menuInfo');
-		},
-		getSessionTimeout(): boolean {
-			return !!this.sessionTimeout;
-		},
-		getLastUpdateTime(): number {
-			return this.lastUpdateTime;
-		},
-		getRouteStatus(): boolean {
-			return this.hasMenu || getAuthInfo('hasRoute') === 'true';
-		},
-		getRoleInfo(): RoleInfo {
-			return this.roleInfo || getAuthInfo('roleInfo');
-		},
-		getOrgInfo(): any {
-			return this.orgInfo || getAuthInfo('orgInfo');
-		},
-	},
-	actions: {
-		setToken(info: string | undefined) {
-			this.token = info ? info : '';
-			localStorage.setItem('token', this.token);
-		},
-		setMenuInfo(info: MenuInfo[]) {
-			this.menuInfo = info ? info : null;
-			localStorage.setItem('menuInfo', JSON.stringify(this.menuInfo));
-		},
-		changeRouteStatus(state: any) {
-			this.hasMenu = state;
+		const getUserInfo = computed((): UserInfo => {
+			return userInfo.value || getAuthInfo('userInfo');
+		});
+
+		const getToken = computed((): string => {
+			const localStorage = window.localStorage;
+			return token.value || localStorage.getItem('token') || '';
+		});
+
+		const getMenuInfo = computed((): MenuInfo[] | null => {
+			return menuInfo.value || getAuthInfo('menuInfo');
+		});
+
+		const getSessionTimeout = computed((): boolean => {
+			return !!sessionTimeout.value;
+		});
+
+		const getLastUpdateTime = computed((): number => {
+			return lastUpdateTime.value;
+		});
+
+		const getRouteStatus = computed((): boolean => {
+			return hasMenu.value || getAuthInfo('hasRoute') === 'true';
+		});
+
+		const getRoleInfo = computed((): RoleInfoData => {
+			return roleInfo.value || getAuthInfo('roleInfo');
+		});
+
+		const getOrgInfo = computed((): any => {
+			return orgInfo.value || getAuthInfo('orgInfo');
+		});
+
+		function setToken(info: string | undefined) {
+			token.value = info ? info : '';
+			localStorage.setItem('token', token.value);
+		}
+
+		function setMenuInfo(info: MenuInfo[]) {
+			menuInfo.value = info ? info : null;
+			localStorage.setItem('menuInfo', JSON.stringify(menuInfo.value));
+		}
+
+		function changeRouteStatus(state: any) {
+			hasMenu.value = state;
 			localStorage.setItem('hasRoute', state);
-		},
+		}
+
 		//设置用户信息
-		setUserInfo(admin: any) {
-			this.userInfo = admin;
-			localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
-		},
-		setRoleInfo(roleInfo: any) {
-			this.roleInfo = roleInfo;
-			localStorage.setItem('roleInfo', JSON.stringify(this.roleInfo));
-		},
-		setOrgInfo(orgInfo: any) {
-			this.orgInfo = orgInfo;
-			localStorage.setItem('orgInfo', JSON.stringify(this.orgInfo));
-		},
-		async login(
+		function setUserInfo(admin: any) {
+			userInfo.value = admin;
+			localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+		}
+
+		function setRoleInfo(info: any) {
+			roleInfo.value = info;
+			localStorage.setItem('roleInfo', JSON.stringify(roleInfo.value));
+		}
+
+		function setOrgInfo(info: any) {
+			orgInfo.value = info;
+			localStorage.setItem('orgInfo', JSON.stringify(orgInfo.value));
+		}
+
+		async function login(
 			params: LoginParams & {
 				goHome?: boolean;
 			},
@@ -90,15 +98,15 @@ export const useUserStore = defineStore('app-user', {
 					message: messageInfo,
 				} = await loginApi(loginParams);
 				if (code == '200') {
-					const { token, admin } = data;
+					const { token: tokenVal, admin } = data;
 					// save userInfo
-					this.setUserInfo(admin);
+					setUserInfo(admin);
 					// save token
-					this.setToken(token);
-					this.setMenuInfo(admin.menuInfoVoList);
-					this.setRoleInfo(admin.roleInfoVo);
-					this.setOrgInfo(admin.orgInfoVo);
-					this.changeRouteStatus(false);
+					setToken(tokenVal);
+					setMenuInfo(admin.menuInfoVoList);
+					setRoleInfo(admin.roleInfoVo);
+					setOrgInfo(admin.orgInfoVo);
+					changeRouteStatus(false);
 					refreshRouter();
 					return admin;
 				} else {
@@ -112,7 +120,36 @@ export const useUserStore = defineStore('app-user', {
 				);
 				return Promise.reject(error);
 			}
-		},
+		}
+
+		return {
+			userInfo,
+			token,
+			roleList,
+			sessionTimeout,
+			lastUpdateTime,
+			menuInfo,
+			hasMenu,
+			orgInfo,
+			roleInfo,
+			getUserInfo,
+			getToken,
+			getMenuInfo,
+			getSessionTimeout,
+			getLastUpdateTime,
+			getRouteStatus,
+			getRoleInfo,
+			getOrgInfo,
+			setToken,
+			setMenuInfo,
+			changeRouteStatus,
+			setUserInfo,
+			setRoleInfo,
+			setOrgInfo,
+			login,
+		};
 	},
-	persist: piniaPersistConfig('app-user'),
-});
+	{
+		persist: piniaPersistConfig('app-user'),
+	},
+);

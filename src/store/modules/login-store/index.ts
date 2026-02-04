@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 
 interface LoginState {
@@ -6,20 +5,26 @@ interface LoginState {
 }
 
 // 登录信息存储
-export const useLoginStore = defineStore('app-login', {
-	state: (): LoginState => ({
-		loginInfo: '',
-	}),
+export const useLoginStore = defineStore(
+	'app-login',
+	() => {
+		const loginInfo = ref<string>('');
 
-	getters: {
-		getLoginInfo(): string {
-			return this.loginInfo || '';
-		},
+		const getLoginInfo = computed((): string => {
+			return loginInfo.value || '';
+		});
+
+		function setLoginInfo(info: string) {
+			loginInfo.value = info;
+		}
+
+		return {
+			loginInfo,
+			getLoginInfo,
+			setLoginInfo,
+		};
 	},
-	actions: {
-		setLoginInfo(info: string) {
-			this.loginInfo = info;
-		},
+	{
+		persist: piniaPersistConfig('app-login'),
 	},
-	persist: piniaPersistConfig('app-login'),
-});
+);

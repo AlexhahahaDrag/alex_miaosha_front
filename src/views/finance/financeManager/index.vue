@@ -112,11 +112,9 @@
 				</template>
 			</a-table>
 			<finance-manager-detail
-				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="query"
 			></finance-manager-detail>
 		</div>
 	</div>
@@ -256,15 +254,6 @@ const editFinance = (type: string, id?: number) => {
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
-};
-
-const handleOk = (v: boolean) => {
-	visible.value = v;
-	getFinancePage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	visible.value = v;
 };
 
 const initPage = () => {

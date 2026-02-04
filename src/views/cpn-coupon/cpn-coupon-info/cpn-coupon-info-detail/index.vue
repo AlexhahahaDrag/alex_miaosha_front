@@ -133,6 +133,7 @@ import { labelMap } from '../config';
 import { rulesRef, labelCol, wrapperCol } from './config';
 import dayjs from 'dayjs';
 import { formatDayjs } from '@/utils/dayjs';
+import type { ResponseBody } from '@/types/api';
 
 let loading = ref<boolean>(false);
 
@@ -180,7 +181,7 @@ const saveCpnCouponInfo = async () => {
 			formState.value.endDate ? dayjs(formState.value.endDate) : undefined,
 	};
 	const { code, message: messageInfo } = await api(submitData)
-		.catch((error: unknown) => {
+		.catch((error: ResponseBody) => {
 			return error as { code: string; message: string };
 		})
 		.finally(() => {

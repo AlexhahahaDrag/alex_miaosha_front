@@ -111,6 +111,7 @@ import {
 	addOrEditPmsBrand,
 } from '@/views/product/pmsBrand/api';
 import { useDictInfo } from '@/composables/useDictInfo';
+import type { ResponseBody } from '@/types/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -198,11 +199,8 @@ function savePmsBrandManager() {
 			}
 			formState.value = {};
 		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
+		.catch((error: ResponseBody) => {
+			message.error(error?.message || '保存失败！');
 		})
 		.finally(() => {
 			loading.value = false;

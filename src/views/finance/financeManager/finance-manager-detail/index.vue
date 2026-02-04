@@ -1,14 +1,14 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
 			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
+			:confirmLoading="loading"
 			:maskClosable="false"
-			:destroyOnClose="modelConfig.destroyOnClose"
+			:destroyOnClose="true"
+			@ok="handleOk"
 			@cancel="handleCancel"
 		>
 			<template #footer>
@@ -111,8 +111,8 @@
 								:format="dateFormatter"
 								value-format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
-									(triggerNode: any) => {
-										return triggerNode.parentNode;
+									(triggerNode: HTMLElement) => {
+										return triggerNode.parentNode as HTMLElement;
 									}
 								"
 							/>
@@ -152,6 +152,9 @@ import { labelCol, wrapperCol } from '../config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { formatDayjs } from '@/utils/dayjs';
+import type { ResponseBody } from '@/types/api';
+
+const open = defineModel<boolean>('open', { default: false });
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
 
@@ -172,13 +175,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const modelConfig = {
-	confirmLoading: true,
-	destroyOnClose: true,
-};
-
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 
@@ -189,8 +186,8 @@ let formState = ref<FinanceManagerData>({});
 let currentUser = useUserStore()?.getUserInfo;
 
 const handleOk = () => {
-	loading.value = true;
 	if (formRef.value) {
+		loading.value = true;
 		formRef.value
 			.validateFields()
 			.then(() => saveFinanceManager())
@@ -199,7 +196,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存财务信息
@@ -210,7 +207,7 @@ const saveFinanceManager = async () => {
 	}
 	loading.value = true;
 	const { code, message: messageInfo } = await api(formState.value)
-		.catch((error: any) => {
+		.catch((error: ResponseBody) => {
 			return error;
 		})
 		.finally(() => {
@@ -219,7 +216,8 @@ const saveFinanceManager = async () => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -239,12 +237,10 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			} else {
 				formState.value.infoDate = dayjs();
 			}
-			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');
 		}
 	} else {
-		modelConfig.confirmLoading = false;
 		formState.value = {
 			isValid: '1',
 			incomeAndExpenses: 'expense',
@@ -254,24 +250,12 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 	}
 };
 
-const init = async () => {
-	//初始化数据
-	initDetail(props.modelInfo);
-};
+const emit = defineEmits(['success']);
 
-watch(
-	() => props.open,
-	(newVal) => {
-		if (newVal) {
-			init();
-		}
-	},
-	{
-		immediate: true,
-		deep: true,
-	},
-);
-
-const emit = defineEmits(['handleOk', 'handleCancel']);
+watch(open, (newVal) => {
+	if (newVal) {
+		initDetail(props.modelInfo);
+	}
+});
 </script>
 <style lang="scss" scoped></style>
