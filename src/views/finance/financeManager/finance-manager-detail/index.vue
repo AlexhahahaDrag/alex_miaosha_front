@@ -109,7 +109,6 @@
 								v-model:value="formState.infoDate"
 								show-time
 								:format="dateFormatter"
-								value-format="YYYY-MM-DD HH:mm:ss"
 								:getPopupContainer="
 									(triggerNode: HTMLElement) => {
 										return triggerNode.parentNode as HTMLElement;
