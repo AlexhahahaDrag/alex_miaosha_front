@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { ContactsUserRelationInfo } from '../config';
 
-const baseContactsUserRelation = '/api/v1/contacts-user-relation';
+const baseContactsUserRelation = '/contacts-user-relation';
 
 const ContactsUserRelationUrl = {
 	page: '/page',

@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PmsAttrData } from '../config';
 
-const basePmsAttr = '/api/v1//pms-attr';
+const basePmsAttr = '/pms-attr';
 
 const PmsAttrUrl = {
 	page: '/page',

@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getData,
 	postData,
 	putData,
@@ -11,7 +11,7 @@ import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { CpnCouponInfoData } from '../config';
 
 // 基础URL配置
-const baseCpnCouponInfo = '/api/v1/cpn-coupon-info';
+const baseCpnCouponInfo = '/cpn-coupon-info';
 
 // API端点配置
 const CpnCouponInfoEndpoints = {

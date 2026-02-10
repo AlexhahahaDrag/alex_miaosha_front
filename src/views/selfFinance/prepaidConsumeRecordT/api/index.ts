@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PrepaidConsumeRecordTData } from '../config';
 
-const basePrepaidConsumeRecordT = '/api/v1//prepaid-consume-record-t';
+const basePrepaidConsumeRecordT = '/prepaid-consume-record-t';
 
 const PrepaidConsumeRecordTUrl = {
 	page: '/page',

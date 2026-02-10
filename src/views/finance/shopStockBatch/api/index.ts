@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { ShopStockBatchData } from '../config';
 
-const baseShopStockBatch = '/api/v1//shop-stock-batch';
+const baseShopStockBatch = '/shop-stock-batch';
 
 const ShopStockBatchUrl = {
 	page: '/page',

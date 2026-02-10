@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { UserManagerInfo } from '../config';
 
-const baseUserManager = '/api/v1/user';
+const baseUserManager = '/user';
 
 const userMangerUrl = {
 	page: '/page',

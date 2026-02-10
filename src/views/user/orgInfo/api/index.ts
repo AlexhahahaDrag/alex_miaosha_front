@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { OrgInfoData } from '../orgInfoListTs';
 
-const baseOrgInfo = '/api/v1/org-info';
+const baseOrgInfo = '/org-info';
 
 const OrgInfoUrl = {
 	page: '/page',

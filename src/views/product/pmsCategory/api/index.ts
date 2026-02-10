@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PmsCategoryData } from '../config';
 
-const basePmsCategory = '/api/v1//pms-category';
+const basePmsCategory = '/pms-category';
 
 const PmsCategoryUrl = {
 	page: '/page',

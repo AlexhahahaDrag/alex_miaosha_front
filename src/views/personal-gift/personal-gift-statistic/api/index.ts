@@ -1,8 +1,8 @@
-import { getData, baseService } from '@/utils/request';
+﻿import { getData, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 import type { QueryParams, PersonalGiftStatisticData } from '../config/index';
 
-const basePersonalGift = '/api/v1/personal-gift';
+const basePersonalGift = '/personal-gift';
 
 const PersonalGiftUrl = {
 	occasionDistribution: '/occasion-distribution',

@@ -1,4 +1,4 @@
-import { getDataOne, baseService } from '@/utils/request';
+﻿import { getDataOne, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import { type AnalysisData } from '@/views/finance/financeAnalysis/analysis';
@@ -9,7 +9,7 @@ interface BalanceData {
 	list: FinanceManagerData[];
 }
 
-const baseFinanceAnalysis = '/api/v1/finance-analysis';
+const baseFinanceAnalysis = '/finance-analysis';
 
 const financeAnalysisUrl = {
 	getBalance: '/getBalance',

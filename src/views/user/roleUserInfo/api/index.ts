@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseRoleUserInfo = '/api/v1/role-user-info';
+const baseRoleUserInfo = '/role-user-info';
 
 const RoleUserInfoUrl = {
 	page: '/page',

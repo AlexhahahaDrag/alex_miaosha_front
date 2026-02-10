@@ -22,7 +22,7 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
     pull: if-not-exists
     image: appleboy/drone-ssh
     settings:
-      # 你服务器ip地址
+      # 你服务器ip 地址
       host:
         from_secret: ssh_ip
       # 服务器端口号

@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 	postFileData,
 } from '@/utils/request';
 
-const baseFileManager = '/api/v1/file-info';
+const baseFileManager = '/file-info';
 
 const fileUrl = {
 	page: '/page',

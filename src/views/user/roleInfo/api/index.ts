@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { RoleInfoData } from '../roleInfo';
 
-const baseRoleInfo = '/api/v1/role-info';
+const baseRoleInfo = '/role-info';
 
 const RoleInfoUrl = {
 	page: '/page',

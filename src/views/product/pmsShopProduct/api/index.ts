@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PmsShopProductData } from '../config';
 
-const basePmsShopProduct = '/api/v1//pms-shop-product';
+const basePmsShopProduct = '/pms-shop-product';
 
 const PmsShopProductUrl = {
 	page: '/page',

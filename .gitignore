@@ -33,3 +33,6 @@ components.d.ts
 .cursor/
 .husky/
 qodana.yaml
+.agent/
+.agents/
+.claude/
