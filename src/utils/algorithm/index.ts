@@ -8,13 +8,13 @@ class algorithmProxy implements ProxyAlgorithm {
 	constructor() {}
 	public increaseIndexes<T extends MenuDataItem>(val: T[]): T[] {
 		return Object.keys(val)
-			.map((v) => {
+			.map((v: string) => {
 				return {
 					...val[v],
 					key: v,
 				};
 			})
-			.filter((v) => v.meta && !v.meta.hiedInMenu);
+			.filter((v) => v.meta && !v.meta.hideInMenu);
 	}
 }
 

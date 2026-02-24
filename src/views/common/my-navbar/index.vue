@@ -33,12 +33,12 @@ const props = withDefaults(defineProps<Props>(), {
 // AI Agent：这里 routes.meta.icon 的类型是 string（见 router/config），但 a-menu items 的 icon 类型是 VNode/渲染函数。
 // 为了在不改动路由配置的前提下保持类型正确：此处不把 string 直接塞给 icon。
 // 若后续要显示图标：建议新增映射，把 meta.icon(string) -> 真实图标组件/VNode，再赋值给 icon。
-type MenuMetaWithHide = { hiedInMenu?: boolean; hideInMenu?: boolean };
+type MenuMetaWithHide = { hideInMenu?: boolean };
 const isItemType = (i: ItemType | null): i is ItemType => i !== null;
 
 const shouldHideInMenu = (meta?: MenuMetaWithHide) => {
-	// 注意：你们项目路由 meta 字段是 hiedInMenu（历史拼写），这里做兼容。
-	return meta?.hiedInMenu === true || meta?.hideInMenu === true;
+	// 注意：你们项目路由 meta 字段是 hideInMenu（历史拼写），这里做兼容。
+	return meta?.hideInMenu === true;
 };
 
 const buildMenuItem = (item: MenuDataItem): ItemType | null => {
@@ -64,7 +64,7 @@ const buildMenuItem = (item: MenuDataItem): ItemType | null => {
 };
 
 const menuItems = computed<ItemType[]>(() => {
-	// AI Agent：过滤掉 meta.hideInMenu/meta.hiedInMenu 为 true 的菜单项
+	// AI Agent：过滤掉 meta.hideInMenu/meta.hideInMenu 为 true 的菜单项
 	return props.routes?.map(buildMenuItem).filter(isItemType) || [];
 });
 

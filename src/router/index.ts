@@ -20,74 +20,32 @@ export const routes: MenuDataItem[] = [
 		component: Layout,
 		meta: {
 			title: '首页',
-			hiedInMenu: false,
+			hideInMenu: false,
 		},
 		children: [
 			{
 				path: '/dashboard',
 				component: modules['/src/views/dashboard/index.vue'],
 				name: 'dashboard',
-				meta: { title: '首页', icon: 'dashboard', hiedInMenu: true },
+				meta: { title: '首页', icon: 'dashboard', hideInMenu: true },
 			},
 		],
 	},
-	// {
-	// 	name: 'personal-gift',
-	// 	path: '/personal-gift',
-	// 	redirect: '/contacts-user',
-	// 	component: Layout,
-	// 	meta: {
-	// 		title: '个人礼物',
-	// 		hiedInMenu: false,
-	// 	},
-	// 	children: [
-	// 		{
-	// 			path: '/contacts-user-relation',
-	// 			component:
-	// 				modules['/src/views/personal-gift/contacts-user-relation/index.vue'],
-	// 			name: 'contacts-user-relation',
-	// 			meta: {
-	// 				title: '联系人关系管理',
-	// 				icon: 'contacts-user-relation',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 		{
-	// 			path: '/contacts-user',
-	// 			component: modules['/src/views/personal-gift/contacts-user/index.vue'],
-	// 			name: 'contacts-user',
-	// 			meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
-	// 		},
-	// 		{
-	// 			path: '/personal-gift-info',
-	// 			component:
-	// 				modules['/src/views/personal-gift/personal-gift-info/index.vue'],
-	// 			name: 'personal-gift-info',
-	// 			meta: {
-	// 				title: '个人礼物信息',
-	// 				icon: 'personal-gift-info',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 		{
-	// 			path: '/personal-gift-statistic',
-	// 			component:
-	// 				modules['/src/views/personal-gift/personal-gift-statistic/index.vue'],
-	// 			name: 'personal-gift-statistic',
-	// 			meta: {
-	// 				title: '个人礼物统计',
-	// 				icon: 'personal-gift-statistic',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 	],
-	// },
 	{
 		name: 'login',
 		path: '/login',
+		meta: {
+			title: '登录',
+			hideInMenu: true,
+		},
 		component: modules['/src/views/login/index.vue'],
 	},
 	{
+		name: '404',
+		meta: {
+			title: '404',
+			hideInMenu: true,
+		},
 		path: '/:catchAll(.*)',
 		component: modules['/src/views/error-404/index.vue'],
 	},
@@ -187,7 +145,7 @@ const getChildren = (
 		meta: {
 			title: item.title,
 			icon: item.icon,
-			hiedInMenu: item.hideInMenu != '0',
+			hideInMenu: item.hideInMenu != '0',
 			showInHome: item.showInHome == '1',
 			permissionCode: item.permissionCode,
 		},
