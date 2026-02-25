@@ -123,7 +123,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			open: env.VITE_OPEN === 'true',
 			proxy: {
 				'/api': {
-					target: env.VITE_APP_BASE_API || 'http://120.48.156.47:30001',
+					target: env.VITE_APP_BASE_API || 'http://localhost:30001',
 					changeOrigin: true,
 					rewrite: (path) => path.replace(/^\/api/, ''),
 				},
