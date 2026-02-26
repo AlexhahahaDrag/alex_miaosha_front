@@ -5,11 +5,11 @@ import type { AxiosRequestConfig } from 'axios';
 const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
 
 function formatUrl(url: string) {
-	if (apiPrefix && url.startsWith('/api') && !url.startsWith(apiPrefix)) {
-		return url.replace(/^\/api/, apiPrefix).replace(/\/+/g, '/');
-	}
-	return url;
+	// 将 /api/am-{service}/{path} 转换为 /api/am-{service}/{apiPrefix}/{path}
+	// 例如：/api/am-finance/dict-info/... → /api/am-finance/api/v1/dict-info/...
+	return url.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`).replace(/\/+/g, '/');
 }
+
 export function getData<T = unknown>(
 	url: string,
 	config?: Record<string, unknown>,
