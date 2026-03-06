@@ -11,7 +11,7 @@
 			:customRequest="customImageRequest"
 			@preview="handlePreview"
 		>
-			<div v-if="fileList && fileList.length < 1">
+			<div v-if="fileList && (fileList.length < 1 || !fileList[0].url)">
 				<plus-outlined />
 				<div style="margin-top: 8px">Upload</div>
 			</div>
@@ -30,10 +30,8 @@
 import { message } from 'ant-design-vue';
 import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { addOrEditFileManager } from '@/views/common/api/file';
+import { addFileManager, editFileManager } from '@/views/common/api/file';
 import type { FileInfo } from './config';
-
-const emit = defineEmits(['customImageRequest', 'handleRemove']);
 
 interface Props {
 	fileInfo?: FileInfo;
@@ -44,22 +42,17 @@ interface Props {
 const customImageRequest = async (info: any) => {
 	const formData = new FormData() as any;
 	formData.append('file', info.file);
-	let method = '';
-	let id = '';
-	if (id) {
-		method = 'put';
-	} else {
-		method = 'post';
+	let api = addFileManager;
+	let config: any = { type: props.fromSystem ? props.fromSystem : 'common' };
+	if (props.fileInfo?.id) {
+		api = editFileManager;
+		config.id = props.fileInfo.id;
 	}
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await addOrEditFileManager(
-		method,
-		props.fromSystem ? props.fromSystem : 'common',
-		formData,
-	).finally(() => {
+	} = await api(formData, config).finally(() => {
 		loading.value = false;
 	});
 	console.log(`dddddddddddddddddddddddddd`, code, messageInfo, data);
@@ -149,6 +142,12 @@ const init = () => {
 	}
 };
 
+const emit = defineEmits(['customImageRequest', 'handleRemove']);
+
+onMounted(() => {
+	init();
+});
+
 watch(
 	() => props.fileInfo,
 	() => {
@@ -156,10 +155,6 @@ watch(
 	},
 	{ deep: true, flush: 'post' },
 );
-
-onMounted(() => {
-	init();
-});
 </script>
 <style>
 .avatar-uploader > .ant-upload {

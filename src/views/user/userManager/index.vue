@@ -72,7 +72,7 @@
 					</template>
 					<template v-else-if="column.key === 'birthday'">
 						<span>
-							{{ formatTime(record.birthday) }}
+							{{ formatDate(record.birthday) }}
 						</span>
 					</template>
 					<template v-else-if="column.key === 'status'">
@@ -118,7 +118,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { UserManagerInfo } from './config';
 import { columns, labelCol, wrapperCol } from './config';
-import { formatTime } from '@/utils/dayjs';
+import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
 	deleteUserManager,

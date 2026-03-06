@@ -11,153 +11,161 @@
 	>
 		<template #footer>
 			<a-button key="back" @click="handleCancel">取消</a-button>
-			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
-				>保存
+			<a-button
+				key="submit"
+				type="primary"
+				:loading="loading"
+				@click="handleOk"
+			>
+				保存
 			</a-button>
 		</template>
-		<a-form
-			ref="formRef"
-			name="financeForm"
-			:rules="rulesRef"
-			:model="formState"
-			:label-col="labelCol"
-			:wrapper-col="wrapperCol"
-		>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="username" label="用户名">
-						<a-input
-							v-model:value="formState.username"
-							placeholder="请填写用户名"
-						></a-input>
-					</a-form-item>
-				</a-col>
-				<a-col :span="12">
-					<a-form-item name="gender" label="性别">
-						<a-select
-							ref="select"
-							v-model:value="formState.gender"
-							:field-names="{ label: 'typeName', value: 'typeCode' }"
-							:options="genderList"
-							:allowClear="true"
-							placeholder="请选择性别"
+		<a-spin :spinning="pageLoading">
+			<a-form
+				ref="formRef"
+				name="financeForm"
+				:rules="rulesRef"
+				:model="formState"
+				:label-col="labelCol"
+				:wrapper-col="wrapperCol"
+			>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="username" label="用户名">
+							<a-input
+								v-model:value="formState.username"
+								placeholder="请填写用户名"
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="gender" label="性别">
+							<a-select
+								ref="select"
+								v-model:value="formState.gender"
+								:field-names="{ label: 'typeName', value: 'typeCode' }"
+								:options="genderList"
+								:allowClear="true"
+								placeholder="请选择性别"
+							>
+							</a-select>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="nickName" label="昵称">
+							<a-input
+								v-model:value="formState.nickName"
+								placeholder="请填写昵称"
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="weChat" label="微信号">
+							<a-input
+								v-model:value="formState.weChat"
+								placeholder="请填写微信号"
+							></a-input>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="qqNumber" label="QQ号">
+							<a-input
+								v-model:value="formState.qqNumber"
+								placeholder="请填写QQ号"
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="occupation" label="职业">
+							<a-input
+								v-model:value="formState.occupation"
+								placeholder="请填写职业"
+							></a-input>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="email" label="邮箱">
+							<a-input
+								v-model:value="formState.email"
+								placeholder="请填写邮箱！"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="birthday" label="生日">
+							<a-date-picker
+								v-model:value="formState.birthday"
+								:format="defaultDateFormat"
+								:getPopupContainer="
+									(triggerNode: any) => {
+										return triggerNode.parentNode;
+									}
+								"
+							/>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="mobile" label="电话号">
+							<a-input
+								v-model:value="formState.mobile"
+								placeholder="请填写电话号"
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="status" label="状态">
+							<a-select
+								ref="select"
+								v-model:value="formState.status"
+								placeholder="请选择有效状态"
+								:field-names="{ label: 'typeName', value: 'typeCode' }"
+								:options="validList"
+								:allowClear="true"
+							>
+							</a-select>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item name="avatar" label="头像">
+							111111111111111111：{{ fileInfo }}
+							<my-upload
+								:fromSystem="fromSystem"
+								:fileInfo="fileInfo"
+								@customImageRequest="customImageRequest"
+							></my-upload>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="24">
+						<a-form-item
+							:label-col="{ span: 3 }"
+							:wrapperCol="{ span: 24 }"
+							name="summary"
+							label="个人简介"
 						>
-						</a-select>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="nickName" label="昵称">
-						<a-input
-							v-model:value="formState.nickName"
-							placeholder="请填写昵称"
-						></a-input>
-					</a-form-item>
-				</a-col>
-				<a-col :span="12">
-					<a-form-item name="weChat" label="微信号">
-						<a-input
-							v-model:value="formState.weChat"
-							placeholder="请填写微信号"
-						></a-input>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="qqNumber" label="QQ号">
-						<a-input
-							v-model:value="formState.qqNumber"
-							placeholder="请填写QQ号"
-						></a-input>
-					</a-form-item>
-				</a-col>
-				<a-col :span="12">
-					<a-form-item name="occupation" label="职业">
-						<a-input
-							v-model:value="formState.occupation"
-							placeholder="请填写职业"
-						></a-input>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="email" label="邮箱">
-						<a-input
-							v-model:value="formState.email"
-							placeholder="请填写邮箱！"
-						/>
-					</a-form-item>
-				</a-col>
-				<a-col :span="12">
-					<a-form-item name="birthday" label="生日">
-						<a-date-picker
-							v-model:value="formState.birthday"
-							:format="defaultDateFormat"
-							:getPopupContainer="
-								(triggerNode: any) => {
-									return triggerNode.parentNode;
-								}
-							"
-						/>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="mobile" label="电话号">
-						<a-input
-							v-model:value="formState.mobile"
-							placeholder="请填写电话号"
-						></a-input>
-					</a-form-item>
-				</a-col>
-				<a-col :span="12">
-					<a-form-item name="status" label="状态">
-						<a-select
-							ref="select"
-							v-model:value="formState.status"
-							placeholder="请选择有效状态"
-							:field-names="{ label: 'typeName', value: 'typeCode' }"
-							:options="validList"
-							:allowClear="true"
-						>
-						</a-select>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="12">
-					<a-form-item name="avatar" label="头像">
-						<MyUpload
-							:fromSystem="fromSystem"
-							:fileInfo="fileInfo"
-							@customImageRequest="customImageRequest"
-						></MyUpload>
-					</a-form-item>
-				</a-col>
-			</a-row>
-			<a-row :gutter="24">
-				<a-col :span="24">
-					<a-form-item
-						:label-col="{ span: 3 }"
-						:wrapperCol="{ span: 24 }"
-						name="summary"
-						label="个人简介"
-					>
-						<a-textarea
-							v-model:value="formState.summary"
-							placeholder="请添加个人简介"
-							:auto-size="{ minRows: 2, maxRows: 5 }"
-							:maxlength="500"
-							show-count
-						/>
-					</a-form-item>
-				</a-col>
-			</a-row>
-		</a-form>
+							<a-textarea
+								v-model:value="formState.summary"
+								placeholder="请添加个人简介"
+								:auto-size="{ minRows: 2, maxRows: 5 }"
+								:maxlength="500"
+								show-count
+							/>
+						</a-form-item>
+					</a-col>
+				</a-row>
+			</a-form>
+		</a-spin>
 	</a-modal>
 </template>
 <script lang="ts" setup>
@@ -166,12 +174,13 @@ import type { UserManagerInfo } from '../config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getUserManagerDetail,
-	addOrEditUserManager,
+	addUserManager,
+	editUserManager,
 } from '@/views/user/userManager/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import type { FileInfo } from '@/compoments/my-upload/config';
+import type { FileInfo } from '@/views/common/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import { defaultDateFormat } from '@/utils/dayjs';
 
@@ -185,6 +194,7 @@ const { getDictByType } = useDictInfo('is_valid');
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });
 let loading = ref<boolean>(false);
+let pageLoading = ref<boolean>(false);
 const modelConfig = {
 	confirmLoading: true,
 	destroyOnClose: true,
@@ -219,20 +229,17 @@ const handleCancel = () => {
 	emit('handleCancel', false);
 };
 
-//保存财务信息
+// 保存用户信息
 const saveUserManager = async () => {
-	let method = '';
+	let api = addUserManager;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editUserManager;
 	}
-	const { code, message: messageInfo } = await addOrEditUserManager(
-		method,
-		formState.value,
-	).finally(() => {
-		loading.value = false;
-	});
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		emit('handleOk', false);
@@ -250,29 +257,37 @@ function initForm() {
 }
 
 const init = async () => {
+	pageLoading.value = true;
 	if (props.modelInfo?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getUserManagerDetail(props.modelInfo.id);
-		if (code == '200') {
-			formState.value = data || {};
-			formState.value.birthday = dayjs(formState.value.birthday);
-			modelConfig.confirmLoading = false;
-			if (formState.value.avatar) {
-				fileInfo.value.id = formState.value.avatar;
-				fileInfo.value.url = formState.value.avatarUrl;
+		try {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getUserManagerDetail(props.modelInfo.id);
+			if (code == '200') {
+				formState.value = data || {};
+				formState.value.birthday = dayjs(formState.value.birthday);
+				modelConfig.confirmLoading = false;
+				if (formState.value.avatar) {
+					fileInfo.value.id = formState.value.avatar;
+					fileInfo.value.url = formState.value.avatarUrl;
+				} else {
+					fileInfo.value = {};
+				}
 			} else {
-				fileInfo.value = {};
+				message.error(messageInfo || '查询失败！');
 			}
-		} else {
-			message.error(messageInfo || '查询失败！');
+		} catch (error) {
+			console.error(error);
+		} finally {
+			pageLoading.value = false;
 		}
 	} else {
 		modelConfig.confirmLoading = false;
 		fileInfo.value = {};
 		initForm();
+		pageLoading.value = false;
 	}
 };
 
