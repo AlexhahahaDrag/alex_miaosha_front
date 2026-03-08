@@ -11,7 +11,7 @@
 			:customRequest="customImageRequest"
 			@preview="handlePreview"
 		>
-			<div v-if="fileList && (fileList.length < 1 || !fileList[0].url)">
+			<div v-if="fileList && fileList.length < 1">
 				<plus-outlined />
 				<div style="margin-top: 8px">Upload</div>
 			</div>
@@ -57,8 +57,17 @@ const customImageRequest = async (info: any) => {
 	});
 	console.log(`dddddddddddddddddddddddddd`, code, messageInfo, data);
 	if (code == '200') {
-		info.onSuccess(data, info.file);
-		emit('customImageRequest', data);
+		const fileData = data as FileInfo;
+		info.onSuccess(fileData, info.file);
+		// Update the specific file object in fileList with URLs
+		const uploadedFile = fileList.value?.find(
+			(f: any) => f.uid === info.file.uid,
+		);
+		if (uploadedFile) {
+			uploadedFile.url = fileData.preThumbnailUrl || fileData.preUrl;
+			(uploadedFile as any).originalUrl = fileData.preUrl;
+		}
+		emit('customImageRequest', fileData);
 	} else {
 		message.error(messageInfo || '上传错误，请联系管理员！');
 	}
@@ -124,10 +133,11 @@ const handlePreview = async (file: any) => {
 	if (!file.url && !file.preview) {
 		file.preview = (await getBase6412(file.originFileObj)) as string;
 	}
-	previewImage.value = file.url || file.preview;
+	previewImage.value = file.originalUrl || file.url || file.preview;
 	previewVisible.value = true;
 	previewTitle.value =
-		file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
+		file.name ||
+		(file.url ? file.url.substring(file.url.lastIndexOf('/') + 1) : '');
 };
 
 const init = () => {
@@ -135,10 +145,11 @@ const init = () => {
 	if (props.fileInfo?.id) {
 		fileList.value?.push({
 			uid: props.fileInfo.id + '',
-			name: 'test.png',
+			name: props.fileInfo.fileName || 'avatar.png',
 			status: 'done',
-			url: props.fileInfo.url,
-		});
+			url: props.fileInfo.preThumbnailUrl || props.fileInfo.url,
+			originalUrl: props.fileInfo.preUrl || props.fileInfo.url,
+		} as any);
 	}
 };
 

@@ -6,4 +6,7 @@ export interface FileInfo {
 	bucketName?: string;
 	fileSystem?: string;
 	url?: string;
+	thumbnailUrl?: string;
+	preUrl?: string;
+	preThumbnailUrl?: string;
 }

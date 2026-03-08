@@ -1,13 +1,12 @@
 <template>
 	<a-modal
-		:open="props.open"
+		v-model:open="open"
 		:width="props?.modelInfo?.width || '1000px'"
 		:title="props?.modelInfo?.title || 'Basic Modal'"
 		okText="保存"
 		:confirmLoading="modelConfig.confirmLoading"
 		:destroyOnClose="modelConfig.destroyOnClose"
 		@ok="handleOk"
-		@cancel="handleCancel"
 	>
 		<template #footer>
 			<a-button key="back" @click="handleCancel">取消</a-button>
@@ -137,7 +136,6 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item name="avatar" label="头像">
-							111111111111111111：{{ fileInfo }}
 							<my-upload
 								:fromSystem="fromSystem"
 								:fileInfo="fileInfo"
@@ -170,7 +168,6 @@
 </template>
 <script lang="ts" setup>
 import { rulesRef } from './config';
-import type { UserManagerInfo } from '../config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getUserManagerDetail,
@@ -182,14 +179,16 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import type { FileInfo } from '@/views/common/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
+import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { defaultDateFormat } from '@/utils/dayjs';
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 
-const { getDictByType } = useDictInfo('is_valid');
+const open = defineModel<boolean>('open', { default: false });
+
+const { getDictByType } = useDictInfo('gender,is_valid');
 
 const labelCol = ref({ span: 6 });
 const wrapperCol = ref({ span: 18 });
@@ -203,7 +202,7 @@ const props = defineProps<Props>();
 let formState = ref<UserManagerInfo>({});
 const formRef = ref<FormInstance>();
 // 字典数据已通过 useDictInfo 自动加载
-const genderList = computed(() => getDictByType('is_valid'));
+const genderList = computed(() => getDictByType('gender'));
 const validList = computed(() => getDictByType('is_valid'));
 
 let fileInfo = ref<FileInfo>({});
@@ -223,10 +222,12 @@ const handleOk = () => {
 
 const customImageRequest = (file: FileInfo) => {
 	formState.value.avatar = file.id;
+	formState.value.avatarUrl = file.preUrl;
+	formState.value.avatarThumbnailUrl = file?.preThumbnailUrl ?? '';
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 // 保存用户信息
@@ -242,7 +243,8 @@ const saveUserManager = async () => {
 	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 		initForm();
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -252,7 +254,7 @@ const saveUserManager = async () => {
 function initForm() {
 	formState.value = {
 		status: '1',
-		gender: 0,
+		gender: '0',
 	};
 }
 
@@ -267,11 +269,16 @@ const init = async () => {
 			} = await getUserManagerDetail(props.modelInfo.id);
 			if (code == '200') {
 				formState.value = data || {};
+				if (formState.value.gender !== undefined && formState.value.gender !== null) {
+					formState.value.gender = String(formState.value.gender);
+				}
 				formState.value.birthday = dayjs(formState.value.birthday);
 				modelConfig.confirmLoading = false;
 				if (formState.value.avatar) {
 					fileInfo.value.id = formState.value.avatar;
 					fileInfo.value.url = formState.value.avatarUrl;
+					fileInfo.value.preUrl = formState.value.avatarUrl;
+					fileInfo.value.preThumbnailUrl = formState.value.avatarThumbnailUrl;
 				} else {
 					fileInfo.value = {};
 				}
@@ -292,7 +299,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -304,6 +311,6 @@ watch(
 	},
 );
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

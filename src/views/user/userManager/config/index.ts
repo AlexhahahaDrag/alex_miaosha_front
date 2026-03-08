@@ -1,5 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
-import type { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';	
 
 export const columns = ref<TableColumnsType>([
 	{
@@ -64,7 +64,7 @@ export interface UserManagerInfo {
 	id?: number;
 	username?: string;
 	password?: string;
-	gender?: number;
+	gender?: string;
 	avatar?: number;
 	email?: string;
 	birthday?: Dayjs | string;
@@ -83,6 +83,7 @@ export interface UserManagerInfo {
 	orgCode?: string;
 	roleName?: string;
 	roleCode?: string;
+	avatarThumbnailUrl?: string;
 }
 
 // 表单布局配置

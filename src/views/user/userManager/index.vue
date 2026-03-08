@@ -89,24 +89,26 @@
 							:color="record.gender == 1 ? 'green' : 'red'"
 						>
 							{{
-								record.gender == 0 ? '男'
-								: record.gender == 1 ? '女'
+								record.gender == '1' ? '男'
+								: record.gender == '2' ? '女'
 								: ''
 							}}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'avatarUrl' && record.avatarUrl">
-						<image :src="record.avatarUrl"></image>
-						<a-image :width="50" :src="record.avatarUrl" />
+						<a-image
+							:width="50"
+							:src="record.avatarThumbnailUrl"
+							:preview="{ src: record.avatarUrl }"
+						/>
 					</template>
 				</template>
 			</a-table>
 			<UserManagerDetail
 				ref="editInfo"
-				:open="modelInfo.open"
+				v-model:open="modelInfo.open"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			>
 			</UserManagerDetail>
 		</div>
@@ -210,6 +212,7 @@ const getUserPage = async (param: UserManagerInfo, cur: PageInfo) => {
 	} = await getUserManagerPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
+	console.log(`data aaaaaaaaaaaaaaa`, data);
 	if (code == '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
@@ -230,13 +233,8 @@ function editUser(type: string, id?: number) {
 	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
 }
 
-const handleOk = (v: boolean) => {
-	modelInfo.value.open = v;
+const handleSuccess = () => {
 	getUserPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	modelInfo.value.open = v;
 };
 
 const initPage = () => {
@@ -250,12 +248,17 @@ const triggerDebouncedQuery = debounce(() => {
 	getUserPage(searchInfo.value, pagination);
 }, 300);
 
+// 初始化
 const init = () => {
+	// 初始化分页信息
+	initPage();
 	//获取财务管理页面数据
 	getUserPage(searchInfo.value, pagination);
 };
 
-init();
+onMounted(() => {
+	init();
+});
 
 watch(
 	() => searchInfo.value,
