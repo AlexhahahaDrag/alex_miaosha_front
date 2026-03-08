@@ -34,7 +34,11 @@ const DEFAULT_HOME_KEY = 'home';
 const DEFAULT_DASHBOARD_KEY = 'dashboard';
 
 const buildKeyFromRoute = (route: RouteLocationNormalizedLoaded): string => {
-	return String(route?.name || route?.fullPath || '');
+	const name = String(route?.name || '');
+	if (name === DEFAULT_HOME_KEY || name === DEFAULT_DASHBOARD_KEY) {
+		return DEFAULT_HOME_KEY;
+	}
+	return name || String(route?.fullPath || '');
 };
 
 const buildTitleFromRoute = (route: RouteLocationNormalizedLoaded): string => {
@@ -52,33 +56,32 @@ const isHomeLike = (key: string) =>
 const normalizeTabsOrder = (tabs: TabItem[]): TabItem[] => {
 	const list = Array.isArray(tabs) ? [...tabs] : [];
 
-	// 1) 去重：只保留一个 home
-	const firstHomeIndex = list.findIndex((t) => t.key === DEFAULT_HOME_KEY);
-	if (firstHomeIndex > -1) {
-		for (let i = list.length - 1; i >= 0; i--) {
-			if (i !== firstHomeIndex && list[i]?.key === DEFAULT_HOME_KEY) {
-				list.splice(i, 1);
-			}
+	// 1) 找出所有可能是首页的 Tab（key 为 home 或 dashboard 或 标题为 “首页”）
+	const homeLikeTabs = list.filter(
+		(t) => isHomeLike(t.key) || t.title === '首页',
+	);
+
+	// 2) 从原列表中移除所有首页类的 Tab
+	for (let i = list.length - 1; i >= 0; i--) {
+		if (isHomeLike(list[i].key) || list[i].title === '首页') {
+			list.splice(i, 1);
 		}
 	}
 
-	// 2) 若缺少 home，则补一个（永远不可关闭）
-	let homeIndex = list.findIndex((t) => t.key === DEFAULT_HOME_KEY);
-	if (homeIndex === -1) {
-		list.unshift({
-			key: DEFAULT_HOME_KEY,
-			title: '首页',
-			fullPath: '/',
-			closable: false,
-		});
-		homeIndex = 0;
-	}
+	// 3) 准备一个标准首页 Tab
+	const canonicalHome: TabItem = homeLikeTabs[0] || {
+		key: DEFAULT_HOME_KEY,
+		title: '首页',
+		fullPath: '/',
+		closable: false,
+	};
+	// 强制修正 Key 和 closable 属性
+	canonicalHome.key = DEFAULT_HOME_KEY;
+	canonicalHome.closable = false;
 
-	// 3) home 放到最左端
-	if (homeIndex > 0) {
-		const [home] = list.splice(homeIndex, 1);
-		list.unshift(home);
-	}
+	// 4) 将标准首页放回第 0 位
+	list.unshift(canonicalHome);
+
 	return list;
 };
 
