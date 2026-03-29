@@ -24,37 +24,100 @@
 		</div>
 
 		<div class="content">
-			<div style="background-color: #ececec; padding: 20px">
+			<div style="background-color: #f0f2f5; padding: 24px">
 				<a-row :gutter="24">
 					<a-col :span="8">
-						<a-card :bordered="false" class="stat-card">
+						<a-card :bordered="false" class="stat-card total-card">
 							<div class="stat-title">总金额</div>
-							<div class="stat-value text-blue">
-								{{ sumAmount }}
+							<div class="stat-value">
+								{{ formatAmount(sumAmount) }}
 							</div>
 							<div class="stat-footer">
-								<span class="text-gray">{{ momTrend }} | 较上月</span>
-								<span class="text-gray" style="margin-left: 10px">
-									{{ yoyTrend }}同比
-								</span>
+								<div :class="['trend-tag', getTrendClass(yoyTrend)]">
+									<component
+										:is="
+											yoyTrend.startsWith('+') ? CaretUpOutlined
+											: yoyTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(yoyTrend, '同比') }}</span>
+								</div>
+								<div
+									:class="['trend-tag', getTrendClass(momTrend)]"
+									style="margin-left: 8px"
+								>
+									<component
+										:is="
+											momTrend.startsWith('+') ? CaretUpOutlined
+											: momTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(momTrend, '环比') }}</span>
+								</div>
 							</div>
 						</a-card>
 					</a-col>
 					<a-col :span="8">
-						<a-card :bordered="false" class="stat-card">
+						<a-card :bordered="false" class="stat-card expense-card">
 							<div class="stat-title">月总消费</div>
-							<div class="stat-value text-orange">{{ monthExpenseSum }}</div>
+							<div class="stat-value">{{ formatAmount(monthExpenseSum) }}</div>
 							<div class="stat-footer">
-								<span class="text-green">+3.1%同比 | +0.7% 环比</span>
+								<div :class="['trend-tag', getTrendClass(expenseYoyTrend)]">
+									<component
+										:is="
+											expenseYoyTrend.startsWith('+') ? CaretUpOutlined
+											: expenseYoyTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(expenseYoyTrend, '同比') }}</span>
+								</div>
+								<div
+									:class="['trend-tag', getTrendClass(expenseMomTrend)]"
+									style="margin-left: 8px"
+								>
+									<component
+										:is="
+											expenseMomTrend.startsWith('+') ? CaretUpOutlined
+											: expenseMomTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(expenseMomTrend, '环比') }}</span>
+								</div>
 							</div>
 						</a-card>
 					</a-col>
 					<a-col :span="8">
-						<a-card :bordered="false" class="stat-card">
+						<a-card :bordered="false" class="stat-card income-card">
 							<div class="stat-title">月总收入</div>
-							<div class="stat-value text-green">{{ monthIncomeSum }}</div>
+							<div class="stat-value">{{ formatAmount(monthIncomeSum) }}</div>
 							<div class="stat-footer">
-								<span class="text-gray">0同比 | 0环比</span>
+								<div :class="['trend-tag', getTrendClass(incomeYoyTrend)]">
+									<component
+										:is="
+											incomeYoyTrend.startsWith('+') ? CaretUpOutlined
+											: incomeYoyTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(incomeYoyTrend, '同比') }}</span>
+								</div>
+								<div
+									:class="['trend-tag', getTrendClass(incomeMomTrend)]"
+									style="margin-left: 8px"
+								>
+									<component
+										:is="
+											incomeMomTrend.startsWith('+') ? CaretUpOutlined
+											: incomeMomTrend.startsWith('-') ? CaretDownOutlined
+											: MinusOutlined
+										"
+									/>
+									<span>{{ formatTrend(incomeMomTrend, '环比') }}</span>
+								</div>
 							</div>
 						</a-card>
 					</a-col>
@@ -151,7 +214,12 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { DownOutlined } from '@ant-design/icons-vue';
+import {
+	DownOutlined,
+	CaretUpOutlined,
+	CaretDownOutlined,
+	MinusOutlined,
+} from '@ant-design/icons-vue';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import type {
 	AnalysisData,
@@ -184,17 +252,48 @@ const balanceList = ref<FinanceManagerData[]>([]);
 const yoyTrend = ref<string>('');
 // 环比
 const momTrend = ref<string>('');
+// 支出同比/环比
+const expenseYoyTrend = ref<string>('');
+const expenseMomTrend = ref<string>('');
+// 收入同比/环比
+const incomeYoyTrend = ref<string>('');
+const incomeMomTrend = ref<string>('');
+
+// 趋势处理函数
+const getTrendClass = (trend?: string) => {
+	if (!trend || trend === '0.0%' || trend === '' || trend.includes('无'))
+		return 'stable';
+	return trend.startsWith('+') ? 'up' : 'down';
+};
+
+const formatTrend = (trend: string | undefined, defaultPrefix: string) => {
+	if (!trend || trend === '0.0%' || trend === '' || trend.includes('无')) {
+		return `${defaultPrefix} 无波动`;
+	}
+	return `${defaultPrefix} ${trend}`;
+};
+
+const formatAmount = (val: math.BigNumber | number) => {
+	const num =
+		typeof val === 'number' ? val : (
+			Number(math.format(val, { notation: 'fixed', precision: 2 }))
+		);
+	return num.toLocaleString(undefined, {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+};
 
 // 总金额
 let sumAmount = computed(() => {
-	return (
+	const amount =
 		balanceList.value?.reduce(
 			(acc: math.BigNumber, item: FinanceManagerData) => {
 				return math.add(acc, math.bignumber(item.amount ? item.amount : 0));
 			},
 			math.bignumber(0),
-		) || math.bignumber(0)
-	);
+		) || math.bignumber(0);
+	return amount;
 });
 // 月消费总金额
 let monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
@@ -249,6 +348,19 @@ const getBalanceInfo = async (userId: number, dateStr: string) => {
 		balanceList.value = data?.list || [];
 		yoyTrend.value = data?.yoyTrend || '';
 		momTrend.value = data?.momTrend || '';
+
+		// 额外趋势与金额（合并到获取余额接口）
+		incomeYoyTrend.value = (data as any)?.incomeYoyTrend || '';
+		incomeMomTrend.value = (data as any)?.incomeMomTrend || '';
+		expenseYoyTrend.value = (data as any)?.expenseYoyTrend || '';
+		expenseMomTrend.value = (data as any)?.expenseMomTrend || '';
+
+		if ((data as any)?.monthIncomeSum !== undefined) {
+			monthIncomeSum.value = math.bignumber((data as any).monthIncomeSum);
+		}
+		if ((data as any)?.monthExpenseSum !== undefined) {
+			monthExpenseSum.value = math.bignumber((data as any).monthExpenseSum);
+		}
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
@@ -281,33 +393,27 @@ const getIncomeAndExpenseInfo = async (userId: number, dateStr: string) => {
 		message: messageInfo,
 	} = await getIncomeAndExpense(userId, dateStr);
 	if (code == '200') {
-		if (data?.length) {
-			monthExpenseSum.value = math.bignumber(0);
-			monthIncomeSum.value = math.bignumber(0);
+		let listData = Array.isArray(data) ? data : (data as any)?.list || [];
+
+		// 提取同比/环比数据（逻辑已迁移至 getBalanceInfo）
+
+		if (listData?.length) {
 			let dd: ItemInfo[] = [];
-			data
+			listData
 				.filter(
 					(item: FinanceManagerData) => item.incomeAndExpenses == 'income',
 				)
 				.forEach((item: FinanceManagerData) => {
 					dd.push({ name: item.typeCode || '', value: item.amount || 0 });
-					monthIncomeSum.value = math.add(
-						monthIncomeSum.value,
-						math.bignumber(item.amount ? item.amount : 0),
-					);
 				});
 			pieIncomeData.value = dd;
 			let expense: ItemInfo[] = [];
-			data
+			listData
 				.filter(
 					(item: FinanceManagerData) => item.incomeAndExpenses == 'expense',
 				)
 				.forEach((item: FinanceManagerData) => {
 					expense.push({ name: item.typeCode || '', value: item.amount || 0 });
-					monthExpenseSum.value = math.add(
-						monthExpenseSum.value,
-						math.bignumber(item.amount ? item.amount : 0),
-					);
 				});
 			pieExpenseData.value = expense;
 		}
@@ -509,9 +615,96 @@ onMounted(() => {
 	}
 
 	.stat-footer {
-		font-size: 12px;
+		margin-top: 16px;
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+}
+
+.total-card {
+	background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
+	.stat-title,
+	.stat-value {
+		color: #fff !important;
+	}
+	.trend-tag {
+		background: rgba(255, 255, 255, 0.2);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(4px);
+		&.up {
+			background: rgba(255, 77, 79, 0.3);
+		}
+		&.down {
+			background: rgba(82, 196, 26, 0.3);
+		}
+	}
+}
+
+.expense-card {
+	background: linear-gradient(135deg, #ff7875 0%, #ffbb96 100%);
+	.stat-title,
+	.stat-value {
+		color: #fff !important;
+	}
+	.trend-tag {
+		background: rgba(255, 255, 255, 0.2);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(4px);
+		&.up {
+			background: rgba(255, 77, 79, 0.3);
+		}
+		&.down {
+			background: rgba(82, 196, 26, 0.3);
+		}
+	}
+}
+
+.income-card {
+	background: linear-gradient(135deg, #95de64 0%, #b7eb8f 100%);
+	.stat-title,
+	.stat-value {
+		color: #fff !important;
+	}
+	.trend-tag {
+		background: rgba(255, 255, 255, 0.2);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(4px);
+		&.up {
+			background: rgba(255, 77, 79, 0.3);
+		}
+		&.down {
+			background: rgba(82, 196, 26, 0.3);
+		}
+	}
+}
+
+.trend-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 10px;
+	border-radius: 12px;
+	font-size: 11px;
+	transition: all 0.3s;
+
+	&.up {
+		color: #f5222d;
+		background: #fff1f0;
+	}
+
+	&.down {
+		color: #52c41a;
+		background: #f6ffed;
+	}
+
+	&.stable {
+		color: #8c8c8c;
+		background: #f5f5f5;
 	}
 }
 

@@ -142,6 +142,8 @@ const {
 	setTotal,
 } = usePagination();
 
+const route = useRoute();
+
 let rowIds: (string | number)[] = [];
 
 const rowSelection = ref({
@@ -264,6 +266,13 @@ const initPage = () => {
 // 初始化页面数据
 const init = () => {
 	initPage();
+	// 如果有查询参数，则设置搜索条件
+	if (route.query.fromSource) {
+		searchInfo.value.fromSource = route.query.fromSource as string;
+	}
+	if (route.query.typeCode) {
+		searchInfo.value.typeCode = route.query.typeCode as string;
+	}
 	//获取财务管理页面数据
 	getFinancePage(searchInfo.value, pagination);
 };
