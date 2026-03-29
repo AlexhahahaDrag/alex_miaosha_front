@@ -5,110 +5,117 @@
 			@particles-loaded="particlesLoaded"
 			:options="options"
 		></vue-particles>
-		
+
 		<div class="login-container">
 			<!-- Left Side: Interactive Visuals -->
 			<div class="login-visual">
 				<div class="character-container">
-				<div
-					v-for="char in characters"
-					:key="char.id"
-					:class="['character', char.colorClass]"
-					:style="getCharacterStyle(char)"
-				>
-					<div class="eyes">
-						<div class="eye" :style="{ height: char.isBlinking ? '2px' : '15px' }">
-							<div v-if="!char.isBlinking" class="pupil" :style="getPupilStyle(char, 'left')"></div>
-						</div>
-						<div class="eye" :style="{ height: char.isBlinking ? '2px' : '15px' }">
-							<div v-if="!char.isBlinking" class="pupil" :style="getPupilStyle(char, 'right')"></div>
-						</div>
-					</div>
-					<div v-if="char.hasMouth" class="mouth"></div>
-				</div>
-			</div>
-			<!-- Optional subtle particles overlay simplified -->
-			<div class="visual-gradient"></div>
-		</div>
-
-		<!-- Right Side: Login Form -->
-		<div class="login-content">
-			<div class="login-form-wrapper">
-				<div class="title-container">
-					<h1 class="main-title">Welcome back!</h1>
-					<p class="sub-title">Please enter your details to sign in.</p>
-				</div>
-
-				<a-form
-					ref="formRef"
-					:model="loginForm"
-					class="login-form"
-					:rules="loginRules"
-					layout="vertical"
-				>
-					<a-form-item label="Username" name="username">
-						<a-input
-							v-model:value="loginForm.username"
-							placeholder="Enter your username"
-							autocomplete="on"
-							size="large"
-							@focus="isEmailFocused = true"
-							@blur="isEmailFocused = false"
-						>
-							<template #prefix>
-								<user-outlined />
-							</template>
-						</a-input>
-					</a-form-item>
-
-					<a-form-item label="Password" name="password">
-						<a-input-password
-							v-model:value="loginForm.password"
-							placeholder="••••••••"
-							autocomplete="on"
-							size="large"
-							@focus="isPasswordFocused = true"
-							@blur="isPasswordFocused = false"
-						>
-							<template #prefix>
-								<lock-outlined />
-							</template>
-						</a-input-password>
-					</a-form-item>
-
-					<div class="form-footer">
-						<a-checkbox v-model:checked="loginForm.isRememberMe">
-							Remember for 30 days
-						</a-checkbox>
-						<span class="forgot-link">Forgot password?</span>
-					</div>
-
-					<a-button
-						type="primary"
-						block
-						size="large"
-						:loading="loading"
-						@click="onSubmit"
-						class="login-btn"
+					<div
+						v-for="char in characters"
+						:key="char.id"
+						:class="['character', char.colorClass]"
+						:style="getCharacterStyle(char)"
 					>
-						Log in
-					</a-button>
+						<div class="eyes">
+							<div
+								class="eye"
+								:style="{ height: char.isBlinking ? '2px' : '15px' }"
+							>
+								<div
+									v-if="!char.isBlinking"
+									class="pupil"
+									:style="getPupilStyle(char, 'left')"
+								></div>
+							</div>
+							<div
+								class="eye"
+								:style="{ height: char.isBlinking ? '2px' : '15px' }"
+							>
+								<div
+									v-if="!char.isBlinking"
+									class="pupil"
+									:style="getPupilStyle(char, 'right')"
+								></div>
+							</div>
+						</div>
+						<div v-if="char.hasMouth" class="mouth"></div>
+					</div>
+				</div>
+				<!-- Optional subtle particles overlay simplified -->
+				<div class="visual-gradient"></div>
+			</div>
 
-					<div class="social-login">
-						<a-button block size="large" class="google-btn">
-							<template #icon><google-outlined /></template>
-							Log in with Google
-						</a-button>
+			<!-- Right Side: Login Form -->
+			<div class="login-content">
+				<div class="login-form-wrapper">
+					<div class="title-container">
+						<h1 class="main-title">Alex 管理系统</h1>
+						<p class="sub-title">一个你最需要的系统</p>
 					</div>
 
-					<p class="signup-prompt">
-						Don't have an account? <span>Sign up</span>
-					</p>
-				</a-form>
+					<a-form
+						ref="formRef"
+						:model="loginForm"
+						class="login-form"
+						:rules="loginRules"
+						layout="vertical"
+					>
+						<a-form-item label="Username" name="username">
+							<a-input
+								v-model:value="loginForm.username"
+								placeholder="Enter your username"
+								autocomplete="on"
+								size="large"
+								@focus="isEmailFocused = true"
+								@blur="isEmailFocused = false"
+							>
+								<template #prefix>
+									<user-outlined />
+								</template>
+							</a-input>
+						</a-form-item>
+
+						<a-form-item label="Password" name="password">
+							<a-input-password
+								v-model:value="loginForm.password"
+								placeholder="••••••••"
+								autocomplete="on"
+								size="large"
+								@focus="isPasswordFocused = true"
+								@blur="isPasswordFocused = false"
+							>
+								<template #prefix>
+									<lock-outlined />
+								</template>
+							</a-input-password>
+						</a-form-item>
+
+						<div class="form-footer">
+							<a-checkbox v-model:checked="loginForm.isRememberMe">
+								Remember for 30 days
+							</a-checkbox>
+							<span class="forgot-link">Forgot password?</span>
+						</div>
+
+						<a-button
+							type="primary"
+							block
+							size="large"
+							:loading="loading"
+							@click="onSubmit"
+							class="login-btn"
+						>
+							Log in
+						</a-button>
+
+						<!-- <p class="signup-prompt">
+							Don't have an account? <span>Sign up</span>
+						</p> -->
+					</a-form>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 </template>
 
 <script setup lang="ts">
@@ -152,10 +159,34 @@ const isEmailFocused = ref(false);
 const isPasswordFocused = ref(false);
 
 const characters = reactive([
-	{ id: 1, colorClass: 'coral', baseHeight: 140, hasMouth: false, isBlinking: false },
-	{ id: 2, colorClass: 'purple', baseHeight: 260, hasMouth: false, isBlinking: false },
-	{ id: 3, colorClass: 'black', baseHeight: 200, hasMouth: false, isBlinking: false },
-	{ id: 4, colorClass: 'yellow', baseHeight: 180, hasMouth: true, isBlinking: false },
+	{
+		id: 1,
+		colorClass: 'coral',
+		baseHeight: 140,
+		hasMouth: false,
+		isBlinking: false,
+	},
+	{
+		id: 2,
+		colorClass: 'purple',
+		baseHeight: 260,
+		hasMouth: false,
+		isBlinking: false,
+	},
+	{
+		id: 3,
+		colorClass: 'black',
+		baseHeight: 200,
+		hasMouth: true,
+		isBlinking: false,
+	},
+	{
+		id: 4,
+		colorClass: 'yellow',
+		baseHeight: 180,
+		hasMouth: true,
+		isBlinking: false,
+	},
 ]);
 
 const getCharacterStyle = (char: any) => {
@@ -187,11 +218,11 @@ const getPupilStyle = (char: any, side: string) => {
 	const dx = mousePos.x - (window.innerWidth / 4 + offsetX);
 	const dy = mousePos.y - window.innerHeight / 2;
 	const angle = Math.atan2(dy, dx);
-	
+
 	// Shyness factor: during password focus, eyes look away
 	let distance = Math.min(4, Math.sqrt(dx * dx + dy * dy) / 50);
 	let finalAngle = angle;
-	
+
 	if (isPasswordFocused.value) {
 		finalAngle += Math.PI; // Look opposite way
 		distance = 2; // Fixed look away
@@ -295,7 +326,7 @@ const particlesLoaded = async (container: unknown) => {
 .login-container {
 	width: 90%;
 	max-width: 1300px;
-	height: 80vh;
+	height: 70vh;
 	min-height: 650px;
 	display: flex;
 	background-color: rgba(255, 255, 255, 0.03);
@@ -303,7 +334,7 @@ const particlesLoaded = async (container: unknown) => {
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	border-radius: 32px;
 	overflow: hidden;
-	box-shadow: 
+	box-shadow:
 		0 25px 50px -12px rgba(0, 0, 0, 0.5),
 		0 0 0 1px rgba(255, 255, 255, 0.05);
 	position: relative;
@@ -363,9 +394,31 @@ const particlesLoaded = async (container: unknown) => {
 			margin-left: -20px;
 		}
 		&.black {
-			background-color: #1a1a1a;
+			background-color: #111;
 			z-index: 3;
 			margin-left: -30px;
+
+			/* Conan Shadow Man expressive eyes */
+			.eye {
+				width: 18px;
+				height: 14px;
+				border-radius: 80% 20% 80% 20%;
+			}
+			.eye:first-child {
+				transform: rotate(15deg);
+			}
+			.eye:last-child {
+				transform: scaleX(-1) rotate(15deg);
+			}
+
+			/* Shadow Man white grin */
+			.mouth {
+				width: 36px;
+				height: 16px;
+				background-color: #fff;
+				margin-top: 12px;
+				border-radius: 0 0 18px 18px;
+			}
 		}
 		&.yellow {
 			background-color: #fdd835;
