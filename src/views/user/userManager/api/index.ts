@@ -43,23 +43,6 @@ export function deleteUserManager(ids: string): Promise<ResponseBody> {
 	});
 }
 
-export function addOrEditUserManager(
-	method: string,
-	params: UserManagerInfo | null,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.user + baseUserManager + userMangerUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.user + baseUserManager + userMangerUrl.url,
-			params,
-		);
-	}
-}
-
 // 新增用户
 export function addUserManager(
 	params: UserManagerInfo | null,

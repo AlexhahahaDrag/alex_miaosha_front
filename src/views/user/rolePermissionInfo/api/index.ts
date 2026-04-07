@@ -43,19 +43,16 @@ export function deleteRolePermissionInfo(ids: string): Promise<ResponseBody> {
 	);
 }
 
-export function addOrEditRolePermissionInfo(
-	method: string,
-	params: any,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
-			params,
-		);
-	}
+export function addRolePermissionInfo(params: any): Promise<ResponseBody> {
+	return postData(
+		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
+		params,
+	);
+}
+
+export function editRolePermissionInfo(params: any): Promise<ResponseBody> {
+	return putData(
+		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
+		params,
+	);
 }

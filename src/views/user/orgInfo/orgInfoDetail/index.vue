@@ -120,7 +120,7 @@ import {
 	addOrgInfo,
 	editOrgInfo,
 } from '@/views/user/orgInfo/api';
-import type { OrgInfoData } from '../orgInfoListTs';
+import type { OrgInfoData } from '../config';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');

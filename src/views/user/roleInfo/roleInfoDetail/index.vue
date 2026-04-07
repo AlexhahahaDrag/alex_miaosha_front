@@ -88,7 +88,7 @@
 			<div>
 				<menu-tree
 					:treeData="permissionTree"
-					:selectedKeys="selectPermission"
+					v-model:selectedKeys="selectPermission"
 				></menu-tree>
 			</div>
 		</a-modal>
@@ -151,12 +151,14 @@ const handleCancel = () => {
 	emit('handleCancel', false);
 };
 
-//保存角色信息表信息
 const saveRoleInfoManager = async () => {
 	let api = addRoleInfo;
 	if (formState.value.id) {
 		api = editRoleInfo;
 	}
+	formState.value.permissionList = selectPermission.value.map(
+		(id) => ({ id: Number(id) }) as any,
+	);
 	const { code, message: messageInfo } = await api(formState.value).finally(
 		() => {
 			loading.value = false;

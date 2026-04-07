@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { OrgInfoData } from '../orgInfoListTs';
+import type { OrgInfoData } from '../config';
 
 const baseOrgInfo = '/org-info';
 
