@@ -153,7 +153,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { TableRowSelection } from 'ant-design-vue/es/table/interface';
-import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api/index';
+import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from './config';
 import {

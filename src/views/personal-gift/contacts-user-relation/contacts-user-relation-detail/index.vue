@@ -79,7 +79,7 @@ import {
 	addContactsUserRelation,
 	editContactsUserRelation,
 	getContactsUserRelationDetail,
-} from '../api/index';
+} from '../api';
 import type { ResponseBody } from '@/types/api';
 import { useUserStore } from '@/store/modules/user/user';
 

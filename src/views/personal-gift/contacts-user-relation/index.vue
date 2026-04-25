@@ -166,10 +166,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { ContactsUserRelationInfo } from './config/index';
 import { columns, importanceOptions, enabledOptions } from './config/index';
-import {
-	getContactsUserRelationPage,
-	deleteContactsUserRelation,
-} from './api/index';
+import { getContactsUserRelationPage, deleteContactsUserRelation } from './api';
 import { debounce } from 'lodash-es';
 import contactsUserRelationDetail from './contacts-user-relation-detail/index.vue';
 import { useUserStore } from '@/store/modules/user/user';

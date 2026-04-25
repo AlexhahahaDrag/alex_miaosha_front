@@ -153,10 +153,10 @@ import {
 	deleteContactsUser,
 	importContactsUser,
 	downloadContactsUserTemplate,
-} from './api/index';
+} from './api';
 import { debounce } from 'lodash-es';
 import contactsUserDetail from './contacts-user-detail/index.vue';
-import { getUserEnabledRelations } from '../contacts-user-relation/api/index';
+import { getUserEnabledRelations } from '../contacts-user-relation/api';
 import type { ContactsUserRelationInfo } from '../contacts-user-relation/config/index';
 import { useUserStore } from '@/store/modules/user/user';
 
