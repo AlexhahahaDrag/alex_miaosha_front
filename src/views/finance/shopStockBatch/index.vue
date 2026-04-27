@@ -95,13 +95,13 @@
 					</template>
 				</template>
 			</a-table>
-			<ShopStockBatchDetail
+			<shop-stock-batch-detail
 				ref="editInfo"
 				:open="visible"
 				:modelInfo="modelInfo"
 				@handleOk="handleOk"
 				@handleCancel="handleCancel"
-			></ShopStockBatchDetail>
+			></shop-stock-batch-detail>
 		</div>
 	</div>
 </template>
@@ -109,8 +109,8 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './shopStockBatchListTs';
-import { columns } from './shopStockBatchListTs';
+import type { ShopStockBatchData } from '@/views/finance/shopStockBatch/config';
+import { columns, labelMap } from '@/views/finance/shopStockBatch/config';
 import {
 	getShopStockBatchPage,
 	deleteShopStockBatch,
@@ -134,26 +134,23 @@ const rowSelection = ref({
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
+	onSelect: (
+		record: ShopStockBatchData,
+		selected: boolean,
+		selectedRows: ShopStockBatchData[],
+	) => {
 		console.log(record, selected, selectedRows);
 	},
 	onSelectAll: (
 		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
+		selectedRows: ShopStockBatchData[],
+		changeRows: ShopStockBatchData[],
 	) => {
 		console.log(selected, selectedRows, changeRows);
 	},
 });
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	batchCode: { name: 'batchCode', label: '订单编码' },
-	batchName: { name: 'batchName', label: '订单名称' },
-	isValid: { name: 'isValid', label: '状态' },
-	description: { name: 'description', label: '描述' },
-});
-
-let searchInfo = ref<SearchInfo>({});
+let searchInfo = ref<ShopStockBatchData>({});
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -168,15 +165,14 @@ const handleTableChange = (pagination: PageInfo): void => {
 	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
-const delShopStockBatch = (ids: string): void => {
-	deleteShopStockBatch(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopStockBatchListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopStockBatch = async (ids: string): Promise<void> => {
+	const { code, message: msg } = await deleteShopStockBatch(ids);
+	if (code == '200') {
+		message.success((msg && '删除' + msg) || '删除成功！', 3);
+		getShopStockBatchListPage(searchInfo.value, pagination);
+	} else {
+		message.error((msg && msg) || '删除失败！', 3);
+	}
 };
 
 const batchDelShopStockBatch = (): void => {
@@ -195,20 +191,26 @@ const cancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
-const getShopStockBatchListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getShopStockBatchListPage = async (
+	param: ShopStockBatchData,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopStockBatchPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records;
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		const {
+			code,
+			data,
+			message: msg,
+		} = await getShopStockBatchPage(param, cur.current, cur.pageSize);
+		if (code == '200') {
+			dataSource.value = data?.records;
+			setTotal(data?.total || 0);
+		} else {
+			message.error((msg && msg) || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
 };
 
 const init = (): void => {

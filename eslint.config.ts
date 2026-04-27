@@ -6,7 +6,7 @@ import vue from 'eslint-plugin-vue';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import type { Linter } from 'eslint';
 
 // 读取自动导入的全局变量

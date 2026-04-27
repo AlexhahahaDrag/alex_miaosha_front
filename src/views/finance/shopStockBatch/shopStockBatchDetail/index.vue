@@ -82,12 +82,58 @@
 						</a-form-item>
 					</a-col>
 				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['cost'].name"
+							:label="labelMap['cost'].label"
+						>
+							<a-input-number
+								v-model:value="formState.cost"
+								:placeholder="'请填写' + labelMap['cost'].label"
+								:min="0"
+								:precision="2"
+								style="width: 100%"
+							></a-input-number>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['travelExpense'].name"
+							:label="labelMap['travelExpense'].label"
+						>
+							<a-input-number
+								v-model:value="formState.travelExpense"
+								:placeholder="'请填写' + labelMap['travelExpense'].label"
+								:min="0"
+								:precision="2"
+								style="width: 100%"
+							></a-input-number>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['purchaseDate'].name"
+							:label="labelMap['purchaseDate'].label"
+						>
+							<a-date-picker
+								v-model:value="formState.purchaseDate"
+								:placeholder="'请选择' + labelMap['purchaseDate'].label"
+								style="width: 100%"
+								format="YYYY-MM-DD"
+							></a-date-picker>
+						</a-form-item>
+					</a-col>
+				</a-row>
 			</a-form>
 		</a-modal>
 	</div>
 </template>
 <script lang="ts" setup>
-import type { ShopStockBatchDetail } from './shopStockBatchDetailTs';
+import type { ShopStockBatchData } from '@/views/finance/shopStockBatch/config';
+import { labelMap, rulesRef } from '@/views/finance/shopStockBatch/config';
 import {
 	getShopStockBatchDetail,
 	addOrEditShopStockBatch,
@@ -107,40 +153,6 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	batchCode: { name: 'batchCode', label: '订单编码' },
-	batchName: { name: 'batchName', label: '订单名称' },
-	isValid: { name: 'isValid', label: '状态' },
-	description: { name: 'description', label: '描述' },
-});
-
-const rulesRef = reactive({
-	batchCode: [
-		{
-			required: true,
-			message: '订单编码不能为空！',
-		},
-	],
-	batchName: [
-		{
-			required: true,
-			message: '订单名称不能为空！',
-		},
-	],
-	isValid: [
-		{
-			required: true,
-			message: '状态不能为空！',
-		},
-	],
-	description: [
-		{
-			required: true,
-			message: '描述不能为空！',
-		},
-	],
-});
-
 const modelConfig = {
 	confirmLoading: true,
 	destroyOnClose: true,
@@ -152,22 +164,22 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-let formState = ref<ShopStockBatchDetail>({});
+let formState = ref<ShopStockBatchData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const isValidList = computed(() => getDictByType('is_valid'));
 
 const emit = defineEmits(['handleOk', 'handleCancel']);
 
-const handleOk = (): void => {
+const handleOk = async (): Promise<void> => {
 	loading.value = true;
 	if (formRef.value) {
-		formRef.value
-			.validateFields()
-			.then(() => saveShopStockBatchManager())
-			.catch(() => {
-				loading.value = false;
-			});
+		try {
+			await formRef.value.validateFields();
+			await saveShopStockBatchManager();
+		} catch {
+			loading.value = false;
+		}
 	}
 };
 
@@ -176,29 +188,26 @@ const handleCancel = (): void => {
 };
 
 //保存商店库存批次表信息
-const saveShopStockBatchManager = (): void => {
-	let method = '';
-	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
-	}
-	addOrEditShopStockBatch(method, formState.value)
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
+const saveShopStockBatchManager = async (): Promise<void> => {
+	const method = formState.value.id ? 'put' : 'post';
+	try {
+		const { code, message: msg } = await addOrEditShopStockBatch(
+			method,
+			formState.value,
+		);
+		if (code == '200') {
+			message.success(msg || '保存成功！');
+			emit('handleOk', false);
 			formState.value = {};
-		})
-		.catch((error: ResponseBody) => {
-			message.error(error?.message || '保存失败！');
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+		} else {
+			message.error(msg || '保存失败！');
+		}
+	} catch (error: unknown) {
+		const errorMsg = (error as ResponseBody)?.message || '保存失败！';
+		message.error(errorMsg);
+	} finally {
+		loading.value = false;
+	}
 };
 
 // 初始化数据
