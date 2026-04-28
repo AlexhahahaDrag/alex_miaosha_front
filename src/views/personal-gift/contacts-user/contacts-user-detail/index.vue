@@ -124,11 +124,11 @@ import {
 	getContactsUserDetail,
 	addContactsUser,
 	editContactsUser,
-} from '@/views/personal-gift/contacts-user/api/index';
+} from '@/views/personal-gift/contacts-user/api';
 import {
 	getUserEnabledRelations,
 	getPublicEnabledRelations,
-} from '@/views/personal-gift/contacts-user-relation/api/index';
+} from '@/views/personal-gift/contacts-user-relation/api';
 import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config/index';
 import { useUserStore } from '@/store/modules/user/user';
 

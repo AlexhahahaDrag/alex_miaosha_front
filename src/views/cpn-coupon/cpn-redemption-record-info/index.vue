@@ -76,7 +76,7 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { getCpnRedemptionRecordInfoPage } from './api/index';
+import { getCpnRedemptionRecordInfoPage } from './api';
 import type { CpnRedemptionRecordInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';

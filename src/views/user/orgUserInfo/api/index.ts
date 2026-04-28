@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseOrgUserInfo = '/api/v1/org-user-info';
+const baseOrgUserInfo = '/org-user-info';
 
 const OrgUserInfoUrl = {
 	page: '/page',
@@ -54,3 +54,4 @@ export function addOrEditOrgUserInfo(
 		);
 	}
 }
+

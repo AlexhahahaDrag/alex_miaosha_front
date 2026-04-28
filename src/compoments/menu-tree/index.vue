@@ -20,6 +20,8 @@ const props = withDefaults(defineProps<Props>(), {
 	selectedKeys: () => [],
 });
 
+const emit = defineEmits(['update:selectedKeys']);
+
 const expandedKeys = ref<string[]>([]);
 const checkedKeys = ref<string[]>([]);
 
@@ -46,7 +48,8 @@ watch(expandedKeys, () => {
 	console.log('expandedKeys', expandedKeys);
 });
 
-watch(checkedKeys, () => {
-	console.log('checkedKeys', checkedKeys);
+watch(checkedKeys, (newVal) => {
+	console.log('checkedKeys', newVal);
+	emit('update:selectedKeys', newVal);
 });
 </script>

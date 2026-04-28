@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 
-const baseFinanceManager = '/api/v1/finance-info';
+const baseFinanceManager = '/finance-info';
 
 const financeMangerUrl = {
 	page: '/page',

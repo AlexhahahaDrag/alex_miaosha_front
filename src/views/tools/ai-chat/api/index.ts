@@ -1,4 +1,4 @@
-import { postData, baseService } from '@/utils/request';
+﻿import { postData, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
 /**
@@ -28,7 +28,7 @@ export interface AiAnalyzeResp {
 	costMs?: number;
 }
 
-const baseAi = '/api/v1/ai';
+const baseAi = '/ai';
 
 export function analyzeAi(req: AiAnalyzeReq): Promise<ResponseBody<AiAnalyzeResp>> {
 	// AI Agent：通过网关转发到 AI 服务

@@ -169,10 +169,7 @@ import {
 	importanceOptions,
 	enabledOptions,
 } from '@/views/personal-gift/contacts-user-relation/config';
-import {
-	getContactsUserRelationPage,
-	deleteContactsUserRelation,
-} from '@/views/personal-gift/contacts-user-relation/api';
+import { getContactsUserRelationPage, deleteContactsUserRelation } from '@/views/personal-gift/contacts-user-relation/api';
 import { debounce } from 'lodash-es';
 import contactsUserRelationDetail from './contacts-user-relation-detail/index.vue';
 import { useUserStore } from '@/store/modules/user/user';

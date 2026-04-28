@@ -1,7 +1,7 @@
-import { getDataOne, baseService } from '@/utils/request';
+﻿import { getDataOne, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseFinanceAnalysis = '/api/v1/shop-finance-analysis';
+const baseFinanceAnalysis = '/shop-finance-analysis';
 
 const financeAnalysisUrl = {
 	getDayShopFinanceInfo: '/getDayShopFinanceInfo',

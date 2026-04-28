@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getData,
 	postData,
 	putData,
@@ -11,7 +11,7 @@ import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { CpnRedemptionRecordInfoData } from '../config';
 
 // 基础URL配置
-const baseCpnRedemptionRecordInfo = '/api/v1/cpn-redemption-record-info';
+const baseCpnRedemptionRecordInfo = '/cpn-redemption-record-info';
 
 // API端点配置
 const CpnRedemptionRecordInfoEndpoints = {

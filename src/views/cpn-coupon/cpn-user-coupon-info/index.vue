@@ -76,10 +76,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import {
-	getCpnUserCouponInfoPage,
-	cancelRedeemCpnUserCouponInfo,
-} from './api/index';
+import { getCpnUserCouponInfoPage, cancelRedeemCpnUserCouponInfo } from './api';
 import type { CpnUserCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';

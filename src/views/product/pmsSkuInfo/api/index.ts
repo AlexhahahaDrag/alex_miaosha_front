@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PmsSkuInfoData } from '../config';
 
-const basePmsSkuInfo = '/api/v1/pms-sku-info';
+const basePmsSkuInfo = '/pms-sku-info';
 
 const PmsSkuInfoUrl = {
 	page: '/page',

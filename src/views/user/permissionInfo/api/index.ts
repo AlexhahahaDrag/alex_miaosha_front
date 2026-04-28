@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PermissionInfo } from '../permissionInfoListTs';
 
-const basePermissionInfo = '/api/v1//permission-info';
+const basePermissionInfo = '/permission-info';
 
 const PermissionInfoUrl = {
 	page: '/page',

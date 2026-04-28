@@ -22,6 +22,10 @@ export const loginRules: Record<string, Rule[]> = {
 };
 
 export const options = {
+	fullScreen: {
+		enable: true,
+		zIndex: -1,
+	},
 	background: {
 		color: {
 			value: '#000', //粒子颜色

@@ -4,10 +4,11 @@ name: alex_miaosha_front
 
 steps: # 定义流水线执行步骤，这些步骤将顺序执行
   - name: yarn-package # 流水线名称
-    image: node:latest # 定义创建容器的Docker镜像
+    image: node:latest # 定义创建容器的Docker 镜像
     volumes: # 将容器内目录挂载到宿主机，仓库需要开启Trusted设置
       - name: yarn-package
-        path: /usr/local/soft/alex_miaosha/drone/alex_miaosha/front # 将应用打包好的Jar和执行脚本挂载出来
+        # 将应用打包好的Jar 和执行脚本挂载出来
+        path: /usr/local/soft/alex_miaosha/drone/alex_miaosha/front
     commands:
       - yarn config set registry https://registry.npmmirror.com
       - yarn install
@@ -22,7 +23,7 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
     pull: if-not-exists
     image: appleboy/drone-ssh
     settings:
-      # 你服务器ip地址
+      # 你服务器ip 地址
       host:
         from_secret: ssh_ip
       # 服务器端口号
@@ -64,7 +65,8 @@ steps: # 定义流水线执行步骤，这些步骤将顺序执行
 volumes: # 定义流水线挂载目录，用于共享数据
   - name: yarn-package
     host:
-      path: /usr/local/soft/alex_miaosha/drone/alex_miaosha/front #jar包目录可以修改从宿主机中挂载的目录
+      #jar 包目录可以修改从宿主机中挂载的目录
+      path: /usr/local/soft/alex_miaosha/drone/alex_miaosha/front
 
   - name: retry
     image: drone/retry
@@ -76,7 +78,7 @@ plugins:
   retriable:
     enabled: true
 
-# 可限制哪些分支可以推送自动CICD
+# 可限制哪些分支可以推送自动 CICD
 trigger:
   branch:
     - master

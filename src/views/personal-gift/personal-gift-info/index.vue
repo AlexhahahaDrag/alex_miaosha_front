@@ -188,7 +188,7 @@ import { message } from 'ant-design-vue';
 import { GiftOutlined, HistoryOutlined } from '@ant-design/icons-vue';
 import { usePagination } from '@/composables/usePagination';
 import type { PageInfo } from '@/composables/usePagination';
-import { getContactsGiftRecordList } from './api/index';
+import { getContactsGiftRecordList } from './api';
 import {
 	type ContactsGiftRecord,
 	getRelationshipColor,

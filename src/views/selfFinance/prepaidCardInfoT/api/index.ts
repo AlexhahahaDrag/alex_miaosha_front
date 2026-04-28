@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PrepaidCardInfoTData } from '../config';
 
-const basePrepaidCardInfoT = '/api/v1/prepaid-card-info-t';
+const basePrepaidCardInfoT = '/prepaid-card-info-t';
 
 const PrepaidCardInfoTUrl = {
 	page: '/page',

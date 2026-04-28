@@ -30,10 +30,8 @@
 import { message } from 'ant-design-vue';
 import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { addOrEditFileManager } from '@/views/common/api/file';
+import { addFileManager, editFileManager } from '@/views/common/api/file';
 import type { FileInfo } from './config';
-
-const emit = defineEmits(['customImageRequest', 'handleRemove']);
 
 interface Props {
 	fileInfo?: FileInfo;
@@ -44,28 +42,32 @@ interface Props {
 const customImageRequest = async (info: any) => {
 	const formData = new FormData() as any;
 	formData.append('file', info.file);
-	let method = '';
-	let id = '';
-	if (id) {
-		method = 'put';
-	} else {
-		method = 'post';
+	let api = addFileManager;
+	let config: any = { type: props.fromSystem ? props.fromSystem : 'common' };
+	if (props.fileInfo?.id) {
+		api = editFileManager;
+		config.id = props.fileInfo.id;
 	}
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await addOrEditFileManager(
-		method,
-		props.fromSystem ? props.fromSystem : 'common',
-		formData,
-	).finally(() => {
+	} = await api(formData, config).finally(() => {
 		loading.value = false;
 	});
 	console.log(`dddddddddddddddddddddddddd`, code, messageInfo, data);
 	if (code == '200') {
-		info.onSuccess(data, info.file);
-		emit('customImageRequest', data);
+		const fileData = data as FileInfo;
+		info.onSuccess(fileData, info.file);
+		// Update the specific file object in fileList with URLs
+		const uploadedFile = fileList.value?.find(
+			(f: any) => f.uid === info.file.uid,
+		);
+		if (uploadedFile) {
+			uploadedFile.url = fileData.preThumbnailUrl || fileData.preUrl;
+			(uploadedFile as any).originalUrl = fileData.preUrl;
+		}
+		emit('customImageRequest', fileData);
 	} else {
 		message.error(messageInfo || '上传错误，请联系管理员！');
 	}
@@ -131,10 +133,11 @@ const handlePreview = async (file: any) => {
 	if (!file.url && !file.preview) {
 		file.preview = (await getBase6412(file.originFileObj)) as string;
 	}
-	previewImage.value = file.url || file.preview;
+	previewImage.value = file.originalUrl || file.url || file.preview;
 	previewVisible.value = true;
 	previewTitle.value =
-		file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
+		file.name ||
+		(file.url ? file.url.substring(file.url.lastIndexOf('/') + 1) : '');
 };
 
 const init = () => {
@@ -142,12 +145,19 @@ const init = () => {
 	if (props.fileInfo?.id) {
 		fileList.value?.push({
 			uid: props.fileInfo.id + '',
-			name: 'test.png',
+			name: props.fileInfo.fileName || 'avatar.png',
 			status: 'done',
-			url: props.fileInfo.url,
-		});
+			url: props.fileInfo.preThumbnailUrl || props.fileInfo.url,
+			originalUrl: props.fileInfo.preUrl || props.fileInfo.url,
+		} as any);
 	}
 };
+
+const emit = defineEmits(['customImageRequest', 'handleRemove']);
+
+onMounted(() => {
+	init();
+});
 
 watch(
 	() => props.fileInfo,
@@ -156,10 +166,6 @@ watch(
 	},
 	{ deep: true, flush: 'post' },
 );
-
-onMounted(() => {
-	init();
-});
 </script>
 <style>
 .avatar-uploader > .ant-upload {

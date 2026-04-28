@@ -1,15 +1,12 @@
-import { getDataOne, baseService } from '@/utils/request';
+import { getData, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
-import type { FinanceManagerData } from '@/views/finance/financeManager/config';
-import { type AnalysisData } from '@/views/finance/financeAnalysis/analysis';
 
-interface BalanceData {
-	momTrend: string;
-	yoyTrend: string;
-	list: FinanceManagerData[];
-}
+import {
+	type AnalysisData,
+	type BalanceData,
+} from '@/views/finance/financeAnalysis/analysis';
 
-const baseFinanceAnalysis = '/api/v1/finance-analysis';
+const baseFinanceAnalysis = '/finance-analysis';
 
 const financeAnalysisUrl = {
 	getBalance: '/getBalance',
@@ -26,7 +23,7 @@ export const getBalance = (
 		searchDate,
 		belongTo,
 	} as Record<string, unknown>;
-	return getDataOne(
+	return getData(
 		baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getBalance,
 		params,
 	);
@@ -44,7 +41,7 @@ export const getIncomeAndExpense = (
 		searchDate,
 		type,
 	} as Record<string, unknown>;
-	return getDataOne(
+	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
 			financeAnalysisUrl.getIncomeAndExpense,
@@ -60,7 +57,7 @@ export const getDayExpense = (
 		belongTo,
 		searchDate,
 	} as Record<string, unknown>;
-	return getDataOne(
+	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
 			financeAnalysisUrl.getDayExpense,
@@ -76,7 +73,7 @@ export const getMonthExpense = (
 		belongTo,
 		searchDate,
 	} as Record<string, unknown>;
-	return getDataOne(
+	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
 			financeAnalysisUrl.getMonthExpense,

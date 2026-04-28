@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseAccountRecordInfo = '/api/v1//account-record-info';
+const baseAccountRecordInfo = '/account-record-info';
 
 const AccountRecordInfoUrl = {
 	page: '/page',

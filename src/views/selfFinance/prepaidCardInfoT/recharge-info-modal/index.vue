@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { consumeAndRecharge } from '@/views/selfFinance/prepaidCardInfoT/api/index';
+import { consumeAndRecharge } from '@/views/selfFinance/prepaidCardInfoT/api';
 import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
 import { useUserStore } from '@/store/modules/user/user';
 

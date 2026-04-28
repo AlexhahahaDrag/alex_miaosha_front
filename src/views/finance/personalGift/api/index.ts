@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -9,7 +9,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { PersonalGiftInfo } from '../config';
 
-const basePersonalGift = '/api/v1/personal-gift';
+const basePersonalGift = '/personal-gift';
 
 const PersonalGiftUrl = {
 	page: '/page',

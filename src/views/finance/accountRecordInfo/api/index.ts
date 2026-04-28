@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { AccountRecordInfo } from '../config';
 
-const baseAccountRecordInfo = '/api/v1//account-record-info';
+const baseAccountRecordInfo = '/account-record-info';
 
 const AccountRecordInfoUrl = {
 	page: '/page',

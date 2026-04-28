@@ -1,8 +1,8 @@
-import { postData, baseService } from '@/utils/request';
+﻿import { postData, baseService } from '@/utils/request';
 import type { ResponseBody, CommonPageResult } from '@/types/api';
 import type { ContactsGiftRecord } from '../config/index';
 
-const basePersonalGift = '/api/v1/personal-gift';
+const basePersonalGift = '/personal-gift';
 
 const PersonalGiftUrl = {
 	contactsGiftRecordList: '/contacts-gift-record-list',

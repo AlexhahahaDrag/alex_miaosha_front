@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseMenuInfo = '/api/v1/menu-info';
+const baseMenuInfo = '/menu-info';
 
 const MenuInfoUrl = {
 	page: '/page',

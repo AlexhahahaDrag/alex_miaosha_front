@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { DictInfo } from '../config';
 
-const baseDictManager = '/api/v1/dict-info';
+const baseDictManager = '/dict-info';
 
 const dictUrl = {
 	page: '/page',

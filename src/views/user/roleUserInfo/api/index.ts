@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -7,7 +7,7 @@ import {
 } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
-const baseRoleUserInfo = '/api/v1/role-user-info';
+const baseRoleUserInfo = '/role-user-info';
 
 const RoleUserInfoUrl = {
 	page: '/page',
@@ -41,19 +41,16 @@ export function deleteRoleUserInfo(ids: string): Promise<ResponseBody> {
 	});
 }
 
-export function addOrEditRoleUserInfo(
-	method: string,
-	params: any,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url,
-			params,
-		);
-	}
+export function addRoleUserInfo(params: any): Promise<ResponseBody> {
+	return postData(
+		baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url,
+		params,
+	);
+}
+
+export function editRoleUserInfo(params: any): Promise<ResponseBody> {
+	return putData(
+		baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url,
+		params,
+	);
 }

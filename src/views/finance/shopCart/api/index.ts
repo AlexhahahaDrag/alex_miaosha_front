@@ -1,4 +1,4 @@
-import {
+﻿import {
 	getDataOne,
 	postData,
 	putData,
@@ -8,7 +8,7 @@ import {
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type { ShopCartData } from '../config';
 
-const baseShopCart = '/api/v1/shop-cart';
+const baseShopCart = '/shop-cart';
 
 const ShopCartUrl = {
 	page: '/page',

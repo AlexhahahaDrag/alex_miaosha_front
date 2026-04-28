@@ -2,19 +2,30 @@ import type { Params } from '@/types/global';
 import request, { requestFile } from '@/utils/request/request';
 import type { ResponseBody } from '@/types/api';
 import type { AxiosRequestConfig } from 'axios';
+const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
+
+function formatUrl(url: string) {
+	// 将 /api/am-{service}/{path} 转换为 /api/am-{service}/{apiPrefix}/{path}
+	// 例如：/api/am-finance/dict-info/... → /api/am-finance/api/v1/dict-info/...
+	return url.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`).replace(/\/+/g, '/');
+}
 
 export function getData<T = unknown>(
 	url: string,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return request.get<Params, ResponseBody<T>>(url, { params: config });
+	return request.get<Params, ResponseBody<T>>(formatUrl(url), {
+		params: config,
+	});
 }
 
 export function getDataOne<T = unknown>(
 	url: string,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return request.get<Params, ResponseBody<T>>(url, { params: config });
+	return request.get<Params, ResponseBody<T>>(formatUrl(url), {
+		params: config,
+	});
 }
 
 export function postData<T = unknown>(
@@ -22,7 +33,9 @@ export function postData<T = unknown>(
 	params: unknown,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return request.post<Params, ResponseBody<T>>(url, params, { params: config });
+	return request.post<Params, ResponseBody<T>>(formatUrl(url), params, {
+		params: config,
+	});
 }
 
 export function putData<T = unknown>(
@@ -30,14 +43,18 @@ export function putData<T = unknown>(
 	params: unknown,
 	config?: AxiosRequestConfig,
 ): Promise<ResponseBody<T>> {
-	return request.put<Params, ResponseBody<T>>(url, params, { params: config });
+	return request.put<Params, ResponseBody<T>>(formatUrl(url), params, {
+		params: config,
+	});
 }
 
 export function deleteData<T = unknown>(
 	url: string,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return request.delete<Params, ResponseBody<T>>(url, { params: config });
+	return request.delete<Params, ResponseBody<T>>(formatUrl(url), {
+		params: config,
+	});
 }
 
 export function postFileData<T = unknown>(
@@ -45,7 +62,11 @@ export function postFileData<T = unknown>(
 	params: unknown,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return requestFile.post<Params, ResponseBody<T>>(url, params, config);
+	return requestFile.post<Params, ResponseBody<T>>(
+		formatUrl(url),
+		params,
+		config,
+	);
 }
 
 // 文件下载方法 - 绕过响应解密拦截器，直接返回Blob
@@ -53,7 +74,7 @@ export function downloadFile(
 	url: string,
 	config?: Record<string, unknown>,
 ): Promise<any> {
-	return requestFile.get(url, {
+	return requestFile.get(formatUrl(url), {
 		...config,
 		// 关键：告诉axios直接返回Blob，不经过响应拦截器处理
 		responseType: 'blob',

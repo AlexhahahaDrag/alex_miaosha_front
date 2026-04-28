@@ -14,7 +14,6 @@ dist-ssr
 
 # Editor directories and files
 .vscode/*
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -33,3 +32,6 @@ components.d.ts
 .cursor/
 .husky/
 qodana.yaml
+.agent/
+.agents/
+.claude/

@@ -136,7 +136,7 @@ import {
 	getOccasionDistribution,
 	getPersonalGiftTrend,
 	getPersonalGiftStatistic,
-} from './api/index';
+} from './api';
 import {
 	type StatisticData,
 	initialStatisticData,

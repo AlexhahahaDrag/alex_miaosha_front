@@ -22,7 +22,7 @@
 		</template>
 		<menu-tree
 			:treeData="permissionTree"
-			:selectedKeys="selectPermission"
+			v-model:selectedKeys="selectPermission"
 		></menu-tree>
 	</a-drawer>
 </template>
@@ -35,11 +35,8 @@ import {
 	addRoleInfo,
 	editRoleInfo,
 } from '@/views/user/roleInfo/api';
-import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 let loading = ref<boolean>(false);
-
-const formRef = ref<FormInstance>();
 
 const modelConfig = {
 	confirmLoading: true,
@@ -65,26 +62,21 @@ const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
-	if (formRef.value) {
-		formRef.value
-			.validateFields()
-			.then(() => saveRoleInfoManager())
-			.catch(() => {
-				loading.value = false;
-			});
-	}
+	saveRoleInfoManager();
 };
 
 const handleCancel = () => {
 	open.value = false;
 };
 
-//保存角色信息表信息
 const saveRoleInfoManager = async () => {
 	let api = addRoleInfo;
 	if (formState.value?.id) {
 		api = editRoleInfo;
 	}
+	formState.value.permissionList = selectPermission.value.map(
+		(id) => ({ id: Number(id) }) as any,
+	);
 	const { code, message: messageInfo } = await api(formState.value).finally(
 		() => {
 			loading.value = false;

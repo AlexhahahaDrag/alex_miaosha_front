@@ -20,94 +20,146 @@ export const routes: MenuDataItem[] = [
 		component: Layout,
 		meta: {
 			title: '首页',
-			hiedInMenu: false,
+			hideInMenu: false,
 		},
 		children: [
 			{
 				path: '/dashboard',
 				component: modules['/src/views/dashboard/index.vue'],
 				name: 'dashboard',
-				meta: { title: '首页', icon: 'dashboard', hiedInMenu: true },
+				meta: { title: '首页', icon: 'dashboard', hideInMenu: true },
 			},
 		],
 	},
-	// {
-	// 	name: 'personal-gift',
-	// 	path: '/personal-gift',
-	// 	redirect: '/contacts-user',
-	// 	component: Layout,
-	// 	meta: {
-	// 		title: '个人礼物',
-	// 		hiedInMenu: false,
-	// 	},
-	// 	children: [
-	// 		{
-	// 			path: '/contacts-user-relation',
-	// 			component:
-	// 				modules['/src/views/personal-gift/contacts-user-relation/index.vue'],
-	// 			name: 'contacts-user-relation',
-	// 			meta: {
-	// 				title: '联系人关系管理',
-	// 				icon: 'contacts-user-relation',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 		{
-	// 			path: '/contacts-user',
-	// 			component: modules['/src/views/personal-gift/contacts-user/index.vue'],
-	// 			name: 'contacts-user',
-	// 			meta: { title: '联系人管理', icon: 'contacts-user', hiedInMenu: false },
-	// 		},
-	// 		{
-	// 			path: '/personal-gift-info',
-	// 			component:
-	// 				modules['/src/views/personal-gift/personal-gift-info/index.vue'],
-	// 			name: 'personal-gift-info',
-	// 			meta: {
-	// 				title: '个人礼物信息',
-	// 				icon: 'personal-gift-info',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 		{
-	// 			path: '/personal-gift-statistic',
-	// 			component:
-	// 				modules['/src/views/personal-gift/personal-gift-statistic/index.vue'],
-	// 			name: 'personal-gift-statistic',
-	// 			meta: {
-	// 				title: '个人礼物统计',
-	// 				icon: 'personal-gift-statistic',
-	// 				hiedInMenu: false,
-	// 			},
-	// 		},
-	// 	],
-	// },
 	{
 		name: 'login',
 		path: '/login',
+		meta: {
+			title: '登录',
+			hideInMenu: true,
+		},
 		component: modules['/src/views/login/index.vue'],
 	},
-	{
-		path: '/:catchAll(.*)',
-		component: modules['/src/views/error-404/index.vue'],
-	},
 ];
+
+/** 静态路由数量，冻结在模块初始化时，用于区分静态/动态路由 */
+const BASE_ROUTE_COUNT = routes.length;
 
 const router = createRouter({
 	history: createWebHashHistory(),
 	routes,
 });
 
-let dynamicRouter = [] as any[];
+let dynamicRouter: RouteRecordRaw[] = [];
 
-router.beforeEach((to: any, _from: any, next) => {
-	console.log(`router.beforeEach`, to);
+// ─── 工具函数（定义在使用之前）─────────────────────────────────────────────────
+
+/** 根据 permissionCode 判断是否有权限 */
+const judgePermission = (
+	permissionSet: Set<string>,
+	permissionCode: string | undefined,
+	roleCode: string,
+): boolean => {
+	if (roleCode === 'super_super') return true;
+	if (!permissionCode || !permissionSet.size) return false;
+	return permissionSet.has(permissionCode);
+};
+
+/** 根据 MenuInfo 解析对应的 Vue 组件 */
+const getComponent = (item: MenuInfo) => {
+	if (!item.component) {
+		return modules['/src/views/common/error/Error404.vue'];
+	}
+	if (item.component === 'Layout') {
+		return Layout;
+	}
+	return modules[item.component];
+};
+
+/** 递归将 MenuInfo 转换为 RouteRecordRaw */
+const buildRouteRecord = (
+	item: MenuInfo,
+	permissionSet: Set<string>,
+	roleCode: string,
+): RouteRecordRaw => {
+	const routeInfo: RouteRecordRaw = {
+		path: item.path,
+		component: getComponent(item),
+		redirect: item.redirect,
+		name: item.name,
+		meta: {
+			title: item.title,
+			icon: item.icon,
+			hideInMenu: item.hideInMenu !== '0',
+			showInHome: item.showInHome === '1',
+			permissionCode: item.permissionCode,
+		},
+		children: [],
+	};
+
+	if (item.children?.length) {
+		item.children.forEach((childItem: MenuInfo) => {
+			if (judgePermission(permissionSet, childItem.permissionCode, roleCode)) {
+				routeInfo.children!.push(buildRouteRecord(childItem, permissionSet, roleCode));
+			}
+		});
+	}
+
+	return routeInfo;
+};
+
+// ─── 动态路由注册 ──────────────────────────────────────────────────────────────
+
+const addRouter = () => {
+	const userStore = useUserStore();
+	if (!userStore.getMenuInfo?.length) return;
+
+	const roleInfo = userStore.getRoleInfo;
+	const roleCode = roleInfo?.roleCode || '';
+	const permissionList = roleInfo?.permissionList || [];
+
+	if (roleCode !== 'super_super' && !permissionList.length) return;
+
+	const permissionSet = new Set<string>(
+		permissionList.map((p: any) => p?.permissionCode as string),
+	);
+
+	userStore.getMenuInfo.forEach((item: MenuInfo) => {
+		if (judgePermission(permissionSet, item.permissionCode, roleCode)) {
+			const newRoute = buildRouteRecord(item, permissionSet, roleCode);
+			router.addRoute(newRoute);
+			dynamicRouter.push(newRoute);
+			routes.push(newRoute as MenuDataItem);
+		}
+	});
+
+	// 添加 404 兜底路由，必须在所有动态路由之后添加
+	const catchAllRoute: RouteRecordRaw = {
+		name: '404',
+		meta: {
+			title: '404',
+			hideInMenu: true,
+		},
+		path: '/:catchAll(.*)',
+		component: modules['/src/views/error-404/index.vue'],
+	};
+	router.addRoute(catchAllRoute);
+	dynamicRouter.push(catchAllRoute);
+	routes.push(catchAllRoute as MenuDataItem);
+
+	userStore.changeRouteStatus(true);
+};
+
+// ─── 导航守卫 ──────────────────────────────────────────────────────────────────
+
+router.beforeEach((to: any, _from, next) => {
 	const userStore = useUserStore();
 	NProgress.start();
-	if (to.path == '/login') {
+
+	if (to.path === '/login') {
 		next();
 	} else if (userStore.getToken) {
-		if (!userStore.getRouteStatus || routes.length <= 3) {
+		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
 			addRouter();
 			next({ ...to, replace: true });
@@ -123,119 +175,20 @@ router.afterEach(() => {
 	NProgress.done();
 });
 
-const addRouter = () => {
-	const userStore = useUserStore();
-	if (userStore.getMenuInfo?.length) {
-		let roleInfo = userStore.getRoleInfo;
-		if (
-			roleInfo?.roleCode !== 'super_super' &&
-			!roleInfo?.permissionList?.length
-		) {
-			return;
-		}
-		userStore.getMenuInfo.forEach((item: MenuInfo) => {
-			if (
-				judgePermission(
-					roleInfo?.permissionList || [],
-					item?.permissionCode,
-					roleInfo?.roleCode || '',
-				)
-			) {
-				let newRouter = getChildren(
-					item,
-					roleInfo?.permissionList || [],
-					roleInfo?.roleCode || '',
-				);
-				router.addRoute(newRouter);
-				dynamicRouter.push(newRouter);
-				routes.push(newRouter as MenuDataItem);
-			}
-		});
-		userStore.changeRouteStatus(true);
-	}
-	console.log(
-		`addRouter eeeeeeeeeeeeeeeeeeeeeeeeeeeeee`,
-		routes,
-		dynamicRouter,
-	);
-};
+// ─── 导出 ──────────────────────────────────────────────────────────────────────
 
-// 根据组件路径获取组件
-const getComponent = (item: MenuInfo) => {
-	if (item.component) {
-		if (item.component === 'Layout') {
-			return Layout;
-		} else {
-			return modules[item.component];
-		}
-	} else {
-		return modules['/src/views/common/error/Error404.vue'];
-	}
-};
-
-const getChildren = (
-	item: MenuInfo,
-	permissionList: any[],
-	roleCode: string,
-): RouteRecordRaw => {
-	let component = getComponent(item);
-	let routeInfo: RouteRecordRaw = {
-		path: item.path,
-		component: component,
-		redirect: item.redirect,
-		name: item.name,
-		meta: {
-			title: item.title,
-			icon: item.icon,
-			hiedInMenu: item.hideInMenu != '0',
-			showInHome: item.showInHome == '1',
-			permissionCode: item.permissionCode,
-		},
-		children: [],
-	};
-	if (item?.children?.length) {
-		item.children.forEach((childItem: any) => {
-			if (
-				judgePermission(permissionList, childItem?.permissionCode, roleCode)
-			) {
-				let cur = getChildren(childItem, permissionList, roleCode);
-				if (!router.hasRoute(routeInfo?.name || '')) {
-					routeInfo.children?.push(cur);
-				}
-			}
-		});
-	}
-	return routeInfo;
-};
-
-const judgePermission = (
-	permissionList: any[],
-	permissionCode: string,
-	roleCode: string,
-) => {
-	if (roleCode === 'super_super') {
-		return true;
-	}
-	if (!permissionList?.length) {
-		return false;
-	}
-	for (const item of permissionList) {
-		if (item?.permissionCode === permissionCode) {
-			return true;
-		}
-	}
-	return false;
-};
-
+/**
+ * 清除所有动态路由，退出登录时调用。
+ * 使用 splice(BASE_ROUTE_COUNT) 一次性移除全部动态路由，避免逐条遍历。
+ */
 export const refreshRouter = () => {
 	dynamicRouter.forEach((route) => {
-		router.removeRoute(route.name);
-		let index = routes.findIndex((item) => item.name === route.name);
-		if (index > -1) {
-			routes.splice(index);
-		}
+		if (route.name) router.removeRoute(route.name);
 	});
-	dynamicRouter = []; // 清空引用
+	dynamicRouter = [];
+	// 一次性裁剪 routes 数组，保留静态路由部分
+	routes.splice(BASE_ROUTE_COUNT);
+	useUserStore().changeRouteStatus(false);
 };
 
 export default router;
