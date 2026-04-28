@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -234,14 +234,14 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<ShopOrderDetailData>({});
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = (): void => {
 	loading.value = true;
@@ -256,7 +256,7 @@ const handleOk = (): void => {
 };
 
 const handleCancel = (): void => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存商店订单明细表信息
@@ -276,7 +276,8 @@ const saveShopOrderDetailManager = async (): Promise<void> => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 		formState.value = {};
@@ -304,7 +305,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

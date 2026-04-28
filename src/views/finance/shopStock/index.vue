@@ -121,10 +121,9 @@
 			</a-table>
 			<ShopStockDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></ShopStockDetail>
 		</div>
 	</div>
@@ -258,9 +257,8 @@ const init = () => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editShopStock(type: string, id?: number) {
@@ -275,13 +273,10 @@ function editShopStock(type: string, id?: number) {
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
-	getShopStockListPage(searchInfo.value, pagination);
+const handleSuccess = () => {
+getShopStockListPage(searchInfo.value, pagination);
+
 };
 
-const handleCancel = (v: boolean) => {
-	visible.value = v;
-};
 </script>
 <style lang="scss" scoped></style>

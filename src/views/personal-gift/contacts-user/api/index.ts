@@ -33,7 +33,7 @@ export const getContactsUserPage = (
 
 // 获取联系人详情
 export const getContactsUserDetail = (
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ContactsUserInfo>> => {
 	return getDataOne(
 		baseService.finance + baseContactsUser + ContactsUserUrl.url,

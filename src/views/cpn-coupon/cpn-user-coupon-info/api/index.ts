@@ -52,7 +52,7 @@ export async function getCpnUserCouponInfoPage(
  * @returns Promise<ApiResponse>
  */
 export async function getCpnUserCouponInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<CpnUserCouponInfoData>> {
 	const url =
 		baseService.finance +

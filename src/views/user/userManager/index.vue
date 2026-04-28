@@ -103,10 +103,9 @@
 			</a-table>
 			<UserManagerDetail
 				ref="editInfo"
-				:open="modelInfo.open"
+				v-model:open="modelInfo.open"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			>
 			</UserManagerDetail>
 		</div>
@@ -230,13 +229,8 @@ function editUser(type: string, id?: number) {
 	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
 }
 
-const handleOk = (v: boolean) => {
-	modelInfo.value.open = v;
+const handleSuccess = () => {
 	getUserPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	modelInfo.value.open = v;
 };
 
 const initPage = () => {

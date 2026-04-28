@@ -2,6 +2,7 @@
 	<div class="login-container">
 		<!--引入粒子特效-->
 		<vue-particles
+			v-if="particlesReady"
 			id="tsparticles"
 			@particles-loaded="particlesLoaded"
 			:options="options"
@@ -73,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { getCurrentInstance } from 'vue';
 import type { UnwrapRef } from 'vue';
 import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 import type { LoginParams } from '@/views/login/config';
@@ -86,6 +88,29 @@ const router = useRouter();
 const userStore = useUserStore();
 const loginStore = useLoginStore();
 const formRef = ref();
+const particlesReady = ref(false);
+
+const initParticles = async () => {
+	const instance = getCurrentInstance();
+	const app = instance?.appContext.app;
+	if (!app) return;
+
+	const globalKey = '__particles_installed__';
+	const win = window as unknown as Record<string, unknown>;
+	if (!win[globalKey]) {
+		const [{ default: Particles }, { loadSlim }] = await Promise.all([
+			import('@tsparticles/vue3'),
+			import('@tsparticles/slim'),
+		]);
+		app.use(Particles, {
+			init: async (engine) => {
+				await loadSlim(engine);
+			},
+		});
+		win[globalKey] = true;
+	}
+	particlesReady.value = true;
+};
 
 // 登录表单
 const loginForm: UnwrapRef<LoginParams> = reactive({
@@ -151,7 +176,9 @@ const onSubmit = () => {
 };
 
 // 生命周期钩子
-onMounted(() => {
+onMounted(async () => {
+	await initParticles();
+
 	// 绑定回车登录
 	window.addEventListener('keydown', onKeydownEnter);
 

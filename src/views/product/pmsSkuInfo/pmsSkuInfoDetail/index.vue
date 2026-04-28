@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -212,10 +212,11 @@ interface Props {
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<PmsSkuInfoDetail>({});
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -230,7 +231,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存sku信息信息
@@ -250,7 +251,8 @@ const savePmsSkuInfoManager = async (): Promise<void> => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 		formState.value = {};
@@ -278,7 +280,7 @@ const init = async (): Promise<void> => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

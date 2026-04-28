@@ -64,7 +64,6 @@
 					<a-col :span="12">
 						<a-form-item name="fromSource" label="支付方式">
 							<a-select
-								ref="select"
 								v-model:value="formState.fromSource"
 								placeholder="请选择来源"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -79,7 +78,6 @@
 					<a-col :span="12">
 						<a-form-item name="incomeAndExpenses" label="收支类型">
 							<a-select
-								ref="select"
 								v-model:value="formState.incomeAndExpenses"
 								placeholder="请选择收支类型"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -91,7 +89,6 @@
 					<a-col :span="12">
 						<a-form-item name="isValid" label="状态">
 							<a-select
-								ref="select"
 								v-model:value="formState.isValid"
 								placeholder="请选择有效状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -120,7 +117,6 @@
 					<a-col :span="12">
 						<a-form-item name="belongTo" label="属于">
 							<a-select
-								ref="select"
 								v-model:value="formState.belongTo"
 								:field-names="{ label: 'nickName', value: 'id' }"
 								:options="userList"
@@ -146,8 +142,11 @@ import {
 	addFinanceManger,
 	editFinanceManger,
 } from '@/views/finance/financeManager/api';
-import { rulesRef } from './config';
-import { labelCol, wrapperCol } from '../config';
+import {
+	rulesRef,
+	labelCol,
+	wrapperCol,
+} from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { formatDayjs } from '@/utils/dayjs';
@@ -170,7 +169,7 @@ const { userList } = useUserInfo();
 
 const dateFormatter = 'YYYY-MM-DD HH:mm';
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
@@ -180,9 +179,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
-let formState = ref<FinanceManagerData>({});
+const currentUser = useUserStore()?.getUserInfo;
+const formState = ref<FinanceManagerData>({});
 
-let currentUser = useUserStore()?.getUserInfo;
+const createDefaultFormState = (): FinanceManagerData => ({
+	isValid: '1',
+	incomeAndExpenses: 'expense',
+	infoDate: dayjs(),
+	belongTo: String(currentUser?.id ?? 2),
+});
 
 const handleOk = () => {
 	if (formRef.value) {
@@ -212,7 +217,7 @@ const saveFinanceManager = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -223,38 +228,35 @@ const saveFinanceManager = async () => {
 };
 
 const initDetail = async (modalData: ModelInfo | undefined) => {
-	if (modalData?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getFinanceMangerDetail(modalData.id);
-		if (code == '200') {
-			formState.value = data || {};
-			if (formState.value?.infoDate) {
-				formState.value.infoDate = formatDayjs(formState.value.infoDate);
-			} else {
-				formState.value.infoDate = dayjs();
-			}
-		} else {
-			message.error(messageInfo || '查询失败！');
-		}
-	} else {
-		formState.value = {
-			isValid: '1',
-			incomeAndExpenses: 'expense',
-			infoDate: dayjs(),
-			belongTo: currentUser ? currentUser.id + '' : '2',
-		};
+	if (!modalData?.id) {
+		formState.value = createDefaultFormState();
+		return;
 	}
-};
 
-const emit = defineEmits(['success']);
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getFinanceMangerDetail(String(modalData.id));
+
+	if (code !== '200') {
+		message.error(messageInfo || '查询失败！');
+		return;
+	}
+
+	const detailData = data || {};
+	formState.value = {
+		...detailData,
+		infoDate: detailData.infoDate ? formatDayjs(detailData.infoDate) : dayjs(),
+	};
+};
 
 watch(open, (newVal) => {
 	if (newVal) {
 		initDetail(props.modelInfo);
 	}
 });
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

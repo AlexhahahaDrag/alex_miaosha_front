@@ -127,10 +127,9 @@
 			</a-table>
 			<ShopCartDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></ShopCartDetail>
 		</div>
 	</div>
@@ -140,7 +139,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopCartListTs';
 import type { ModelInfo } from '@/views/common/config';
-import { columns } from './shopCartListTs';
+import { columns } from '@/views/finance/shopCart/config';
 import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
 import { message } from 'ant-design-vue';
 
@@ -246,9 +245,8 @@ const init = (): void => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopCart = (type: string, id?: number): void => {
@@ -257,19 +255,14 @@ const editShopCart = (type: string, id?: number): void => {
 		modelInfo.value.id = undefined;
 	} else if (type == 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 };
 
-const handleOk = (v: boolean): void => {
-	visible.value = v;
+const handleSuccess = (): void => {
 	getShopCartListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean): void => {
-	visible.value = v;
 };
 </script>
 <style lang="scss" scoped></style>

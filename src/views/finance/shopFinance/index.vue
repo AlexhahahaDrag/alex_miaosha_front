@@ -17,7 +17,7 @@
 									v-model:value="searchInfo.saleAmountFrom"
 									:placeholder="'请填写' + labelMap['saleAmountFrom'].label"
 									:formatter="(value) => `${value}`"
-									style="width: 100%"
+									class="full-width"
 									allow-clear
 								/>
 							</a-form-item>
@@ -31,7 +31,7 @@
 									v-model:value="searchInfo.saleAmountEnd"
 									:placeholder="'请填写' + labelMap['saleAmountEnd'].label"
 									:formatter="(value) => `${value}`"
-									style="width: 100%"
+									class="full-width"
 									allow-clear
 								/>
 							</a-form-item>
@@ -57,7 +57,7 @@
 								<a-date-picker v-model:value="saleDateEnd" @change="initPage" />
 							</a-form-item>
 						</a-col>
-						<a-col :span="20" style="text-align: right">
+						<a-col :span="20" class="actions-col">
 							<a-space>
 								<a-button type="primary" @click="query"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -145,14 +145,7 @@
 									fromSource.value != ''
 								"
 								:name="fromSource.label"
-								class="svg"
-								style="
-									width: 1.5em;
-									height: 1.5em;
-									font-size: 18px;
-									cursor: pointer;
-									vertical-align: middle;
-								"
+								class="pay-way-icon"
 							></MySvgIcon>
 						</div>
 					</template>
@@ -160,10 +153,9 @@
 			</a-table>
 			<ShopFinanceDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></ShopFinanceDetail>
 		</div>
 	</div>
@@ -174,7 +166,10 @@ import type { ModelInfo } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
 import type { SearchInfo, DataItem } from './shopFinanceListTs';
-import { columns, fromSourceTransferList } from './shopFinanceListTs';
+import {
+	columns,
+	fromSourceTransferList,
+} from '@/views/finance/shopFinance/config';
 import { formatTime, formatDate } from '@/utils/dayjs';
 import {
 	getShopFinancePage,
@@ -193,22 +188,12 @@ const {
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let rowIds: (string | number)[] = [];
+const selectedRowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		selectedRowIds.value = selectedRowKeys;
 	},
 });
 
@@ -224,61 +209,64 @@ const labelMap = ref<Record<string, { name: string; label: string }>>({
 	saleDateEnd: { name: 'saleDateEnd', label: '销售日期到' },
 });
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<SearchInfo>({});
 
-function cancelQuery() {
+const cancelQuery = () => {
 	searchInfo.value = {};
-}
+	saleDateFrom.value = undefined;
+	saleDateEnd.value = undefined;
+	initPage();
+	query();
+};
 
-let saleDateFrom = ref<string | Dayjs>();
-let saleDateEnd = ref<string | Dayjs>();
+const saleDateFrom = ref<string | Dayjs>();
+const saleDateEnd = ref<string | Dayjs>();
 
-function query() {
+const query = () => {
 	searchInfo.value.saleDateFrom =
 		saleDateFrom.value ? formatDate(saleDateFrom.value) : null;
 	searchInfo.value.saleDateEnd =
 		saleDateEnd.value ? formatDate(saleDateEnd.value) : null;
 	getShopFinanceListPage(searchInfo.value, pagination);
-}
+};
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getShopFinanceListPage(searchInfo.value, pagination);
-}
+const handleTableChange = (paginationInfo: PageInfo) => {
+	paginationChange(paginationInfo);
+	getShopFinanceListPage(searchInfo.value, paginationInfo);
+};
 
-function delShopFinance(ids: string) {
+const delShopFinance = (ids: string) => {
 	deleteShopFinance(ids).then((res) => {
-		if (res.code == '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
+			selectedRowIds.value = [];
 			getShopFinanceListPage(searchInfo.value, pagination);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
 	});
-}
+};
 
 const batchDelShopFinance = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopFinance(rowIds.join(','));
+	delShopFinance(selectedRowIds.value.join(','));
 };
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
-let dataSource = ref();
+const dataSource = ref<DataItem[]>([]);
 
-const cancel = (e: MouseEvent) => {
-	console.log(e);
-};
+const cancel = () => {};
 
-function getShopFinanceListPage(param: SearchInfo, cur: PageInfo) {
+const getShopFinanceListPage = (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
 	getShopFinancePage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
+			if (res.code === '200') {
+				dataSource.value = (res.data?.records || []) as DataItem[];
 				setTotal(res.data?.total || 0);
 			} else {
 				message.error((res && res.message) || '查询列表失败！');
@@ -287,7 +275,7 @@ function getShopFinanceListPage(param: SearchInfo, cur: PageInfo) {
 		.finally(() => {
 			loading.value = false;
 		});
-}
+};
 
 const initPage = () => {
 	pagination.current = 1;
@@ -301,35 +289,44 @@ const init = () => {
 };
 
 init();
-
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
-function editShopFinance(type: string, id?: number) {
-	if (type == 'add') {
+const editShopFinance = (type: string, id?: number) => {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
-}
-
-const handleOk = (v: boolean) => {
-	visible.value = v;
-	getShopFinanceListPage(searchInfo.value, pagination);
 };
 
-const handleCancel = (v: boolean) => {
-	visible.value = v;
+const handleSuccess = () => {
+	getShopFinanceListPage(searchInfo.value, pagination);
 };
 </script>
 <style lang="scss" scoped>
 .button {
 	padding-left: 10px;
+}
+
+.full-width {
+	width: 100%;
+}
+
+.actions-col {
+	text-align: right;
+}
+
+.pay-way-icon {
+	width: 1.5em;
+	height: 1.5em;
+	font-size: 18px;
+	cursor: pointer;
+	vertical-align: middle;
 }
 </style>

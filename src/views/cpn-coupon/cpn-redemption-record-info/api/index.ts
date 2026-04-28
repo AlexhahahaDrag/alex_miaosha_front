@@ -50,7 +50,7 @@ export async function getCpnRedemptionRecordInfoPage(
  * @returns Promise<ApiResponse>
  */
 export async function getCpnRedemptionRecordInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<CpnRedemptionRecordInfoData>> {
 	const url =
 		baseService.finance +

@@ -114,10 +114,9 @@
 			</div>
 			<org-info-detail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></org-info-detail>
 		</div>
 	</div>
@@ -128,8 +127,8 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { OrgInfoData } from './orgInfoListTs';
-import { columns } from './orgInfoListTs';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
+import { columns } from '@/views/user/orgInfo/config';
 import { getOrgInfoPage, deleteOrgInfo } from '@/views/user/orgInfo/api';
 import { message } from 'ant-design-vue';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
@@ -283,9 +282,8 @@ const init = async () => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editOrgInfo(type: string, id?: number) {
@@ -294,19 +292,14 @@ function editOrgInfo(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type == 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
+const handleSuccess = () => {
 	getOrgInfoListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	visible.value = v;
 };
 </script>
 <style lang="scss" scoped>

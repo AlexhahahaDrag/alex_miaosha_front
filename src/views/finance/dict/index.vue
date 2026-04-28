@@ -89,10 +89,9 @@
 			</a-table>
 			<DictDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			>
 			</DictDetail>
 		</div>
@@ -103,7 +102,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
-import { columns } from './config';
+import { columns } from '@/views/finance/dict/config';
 import {
 	getDictManagerPage,
 	deleteDictManager,
@@ -116,9 +115,8 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 // 使用分页组合式函数
 const {
@@ -212,19 +210,14 @@ function editDict(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type == 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
+const handleSuccess = () => {
 	getDictPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	visible.value = v;
 };
 
 // 初始化页面数据

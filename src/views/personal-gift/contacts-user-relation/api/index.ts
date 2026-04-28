@@ -40,7 +40,7 @@ export const getContactsUserRelationPage = (
 
 // 获取关系分类详情
 export const getContactsUserRelationDetail = (
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ContactsUserRelationInfo>> => {
 	return getDataOne(
 		baseService.finance +
@@ -104,7 +104,7 @@ export const getPublicEnabledRelations = (): Promise<
 
 // 查询用户的启用关系分类（公共+私有）
 export const getUserEnabledRelations = (
-	userId: number | string,
+	userId: string,
 ): Promise<ResponseBody<ContactsUserRelationInfo[]>> => {
 	return getDataOne(
 		baseService.finance +

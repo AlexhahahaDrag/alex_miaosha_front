@@ -24,7 +24,7 @@ export function getPmsShopProductPage(
 ): Promise<ResponseBody<CommonPageResult<PmsShopProductData>>> {
 	let url = baseService.product + basePmsShopProduct + PmsShopProductUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
@@ -37,13 +37,13 @@ export function getNewestPmsShopProductPage(
 	let url =
 		baseService.product + basePmsShopProduct + PmsShopProductUrl.newestPage;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsShopProductDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PmsShopProductData>> {
 	return getDataOne(
 		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,

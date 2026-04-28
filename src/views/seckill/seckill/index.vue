@@ -147,7 +147,7 @@ function cancelQuery() {
 
 function query() {}
 
-// const confirm = (id: number) => {
+// const confirm = (id: string) => {
 // deleteBlogById(id).then((res) => {
 //   if (res.code == "success") {
 //     message.success(res.message);

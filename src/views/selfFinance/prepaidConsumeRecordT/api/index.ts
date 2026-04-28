@@ -31,7 +31,7 @@ export function getPrepaidConsumeRecordTPage(
 }
 
 export function getPrepaidConsumeRecordTDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
 	return getDataOne(
 		baseService.finance +

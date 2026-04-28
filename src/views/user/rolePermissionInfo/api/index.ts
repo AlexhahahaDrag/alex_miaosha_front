@@ -29,7 +29,7 @@ export function getRolePermissionInfoPage(
 	);
 }
 
-export function getRolePermissionInfoDetail(id: number): Promise<ResponseBody> {
+export function getRolePermissionInfoDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(
 		baseService.user + baseRolePermissionInfo + RolePermissionInfoUrl.url,
 		{ id },

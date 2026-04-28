@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { OrgInfoData } from '../orgInfoListTs';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
 
 const baseOrgInfo = '/api/v1/org-info';
 
@@ -27,7 +27,7 @@ export function getOrgInfoPage(
 }
 
 export function getOrgInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<OrgInfoData>> {
 	return getDataOne(baseService.user + baseOrgInfo + OrgInfoUrl.url, { id });
 }

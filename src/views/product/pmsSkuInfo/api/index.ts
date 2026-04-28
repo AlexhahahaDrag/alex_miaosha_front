@@ -22,13 +22,13 @@ export function getPmsSkuInfoPage(
 ): Promise<ResponseBody<CommonPageResult<PmsSkuInfoData>>> {
 	let url = baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsSkuInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PmsSkuInfoData>> {
 	return getDataOne(baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url, {
 		id,

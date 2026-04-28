@@ -6,12 +6,11 @@
 		"strict": true,
 		"jsx": "preserve",
 		"importHelpers": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"allowJs": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
-		"baseUrl": ".",
 		"types": [
 			"vite/client"
 			// "src/auto-imports.d.ts", // 添加这一行
@@ -27,8 +26,8 @@
 		"skipLibCheck": true,
 		"removeComments": true,
 		"paths": {
-			"@/*": ["src/*"],
-			"#/*": ["types/*"]
+			"@/*": ["./src/*"],
+			"#/*": ["./types/*"]
 		},
 		"lib": ["esnext", "dom", "dom.iterable", "scripthost"]
 	},
@@ -43,7 +42,6 @@
 		"build/**/*.ts",
 		"build/**/*.d.ts",
 		"mock/**/*.ts",
-		"vite.config.mts",
 		"components.d.ts",
 		"src/auto-imports.d.ts",
 		"src/env.d.ts",

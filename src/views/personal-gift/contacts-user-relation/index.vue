@@ -147,10 +147,9 @@
 		<!-- 详情模态框 -->
 		<contacts-user-relation-detail
 			ref="detailRef"
-			:open="modelInfo?.open"
+			v-modelv-model:open="modelInfo.open"
 			:modelInfo="modelInfo"
-			@handleOk="handleOk"
-			@handleCancel="handleCancel"
+			@success="handleSuccess"
 		></contacts-user-relation-detail>
 	</div>
 </template>
@@ -164,12 +163,16 @@ import {
 } from '@ant-design/icons-vue';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { ContactsUserRelationInfo } from './config/index';
-import { columns, importanceOptions, enabledOptions } from './config/index';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config';
+import {
+	columns,
+	importanceOptions,
+	enabledOptions,
+} from '@/views/personal-gift/contacts-user-relation/config';
 import {
 	getContactsUserRelationPage,
 	deleteContactsUserRelation,
-} from './api/index';
+} from '@/views/personal-gift/contacts-user-relation/api';
 import { debounce } from 'lodash-es';
 import contactsUserRelationDetail from './contacts-user-relation-detail/index.vue';
 import { useUserStore } from '@/store/modules/user/user';
@@ -197,9 +200,6 @@ const searchInfo = ref<ContactsUserRelationInfo>({
 });
 
 // 详情模态框相关
-const detailRef = ref<InstanceType<typeof contactsUserRelationDetail> | null>(
-	null,
-);
 const modelInfo = ref<{
 	open: boolean;
 	title?: string;
@@ -210,15 +210,10 @@ const modelInfo = ref<{
 });
 
 // 处理详情页面保存成功
-const handleOk = (v: boolean): void => {
-	modelInfo.value = { open: v };
-	// 重新加载列表
+const handleSuccess = (): void => {
+// 重新加载列表
 	getRelationListPage(searchInfo.value, pagination);
-};
 
-// 处理详情页面取消
-const handleCancel = (v: boolean): void => {
-	modelInfo.value = { open: v };
 };
 
 // 清空查询条件
@@ -251,7 +246,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 };
 
 // 删除单个关系分类
-const onDeleteRelation = async (id: number | undefined): Promise<void> => {
+const onDeleteRelation = async (id: string | undefined): Promise<void> => {
 	if (!id) {
 		message.error('ID不存在！', 3);
 		return;

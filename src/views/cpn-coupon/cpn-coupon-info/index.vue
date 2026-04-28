@@ -134,18 +134,16 @@
 			</a-table>
 			<cpn-coupon-info-detail
 				ref="editInfo"
-				:open="modelInfo.open"
+				v-model:open="modelInfo.open"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			>
 			</cpn-coupon-info-detail>
 			<cpn-coupon-redeem-quantity-detail
-				:open="redeemModelInfo.open"
+				v-model:open="redeemModelInfo.open"
 				:modelInfo="redeemModelInfo"
 				:coupon-info="redeemCouponInfo || undefined"
-				@handleOk="onRedeemOk"
-				@handleCancel="onRedeemCancel"
+				@success="handleSuccess"
 			/>
 		</div>
 	</div>
@@ -311,9 +309,6 @@ const handleOk = (v: boolean): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
-const handleCancel = (v: boolean): void => {
-	modelInfo.value.open = v;
-};
 
 // AI Agent：打开“消费券核销数量”弹窗（事件处理函数以 on 开头）
 const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
@@ -327,17 +322,14 @@ const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
 };
 
 // AI Agent：核销弹窗 - 保存成功回调
-const onRedeemOk = (v: boolean): void => {
-	redeemModelInfo.value.open = v;
-	// 核销成功后刷新列表（接口接入后保持同样逻辑）
+const onRedeemSuccess = (): void => {
+// 核销成功后刷新列表（接口接入后保持同样逻辑）
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
+
 };
 
 // AI Agent：核销弹窗 - 取消回调
-const onRedeemCancel = (v: boolean): void => {
-	redeemModelInfo.value.open = v;
-	redeemCouponInfo.value = null;
-};
+
 
 const init = (): void => {
 	//获取消费券信息表页面数据

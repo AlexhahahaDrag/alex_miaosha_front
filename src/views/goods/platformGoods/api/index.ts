@@ -14,6 +14,6 @@ export function getPlatformList(params: any): Promise<ResponseBody> {
 	);
 }
 
-export function deleteBlogById(id: number): Promise<ResponseBody> {
+export function deleteBlogById(id: string): Promise<ResponseBody> {
 	return deleteData('/api/blog/delete?id=' + id);
 }

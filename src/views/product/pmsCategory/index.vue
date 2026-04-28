@@ -146,10 +146,9 @@
 			</a-table>
 			<PmsCategoryDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></PmsCategoryDetail>
 		</div>
 	</div>
@@ -269,9 +268,8 @@ const init = () => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsCategory(type: string, id?: number) {
@@ -286,9 +284,9 @@ function editPmsCategory(type: string, id?: number) {
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
-	getPmsCategoryListPage(searchInfo.value, pagination);
+const handleSuccess = () => {
+getPmsCategoryListPage(searchInfo.value, pagination);
+
 };
 
 const initPage = () => {
@@ -296,8 +294,5 @@ const initPage = () => {
 	pagination.pageSize = 10;
 };
 
-const handleCancel = (v: boolean) => {
-	visible.value = v;
-};
 </script>
 <style lang="scss" scoped></style>

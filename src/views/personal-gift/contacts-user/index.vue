@@ -128,10 +128,9 @@
 		<!-- 详情模态框 -->
 		<contacts-user-detail
 			ref="detailRef"
-			:open="modelInfo?.open"
+			v-modelv-model:open="modelInfo.open"
 			:modelInfo="modelInfo"
-			@handleOk="handleOk"
-			@handleCancel="handleCancel"
+			@success="handleSuccess"
 		></contacts-user-detail>
 	</div>
 </template>
@@ -146,18 +145,21 @@ import {
 } from '@ant-design/icons-vue';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { ContactsUserInfo } from './config/index';
-import { columns, getRelationshipTagColor } from './config/index';
+import type { ContactsUserInfo } from '@/views/personal-gift/contacts-user/config';
+import {
+	columns,
+	getRelationshipTagColor,
+} from '@/views/personal-gift/contacts-user/config';
 import {
 	getContactsUserPage,
 	deleteContactsUser,
 	importContactsUser,
 	downloadContactsUserTemplate,
-} from './api/index';
+} from '@/views/personal-gift/contacts-user/api';
 import { debounce } from 'lodash-es';
 import contactsUserDetail from './contacts-user-detail/index.vue';
-import { getUserEnabledRelations } from '../contacts-user-relation/api/index';
-import type { ContactsUserRelationInfo } from '../contacts-user-relation/config/index';
+import { getUserEnabledRelations } from '@/views/personal-gift/contacts-user-relation/api';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config';
 import { useUserStore } from '@/store/modules/user/user';
 
 const userStore = useUserStore();
@@ -186,26 +188,20 @@ const searchInfo = ref<ContactsUserInfo>({
 });
 
 // 详情模态框相关
-const detailRef = ref<InstanceType<typeof contactsUserDetail> | null>(null);
 const modelInfo = ref<{
 	open: boolean;
 	title?: string;
 	record?: ContactsUserInfo;
-	id?: number;
+	id?: string;
 }>({
 	open: false,
 });
 
 // 处理详情页面保存成功
-const handleOk = (v: boolean): void => {
-	modelInfo.value = { open: v };
-	// 重新加载列表
+const handleSuccess = (): void => {
+// 重新加载列表
 	getContactsUserListPage(searchInfo.value, pagination);
-};
 
-// 处理详情页面取消
-const handleCancel = (v: boolean): void => {
-	modelInfo.value = { open: v };
 };
 
 // 清空查询条件
@@ -236,7 +232,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 };
 
 // 删除单个联系人
-const onDeleteContact = async (id: number | undefined): Promise<void> => {
+const onDeleteContact = async (id: string | undefined): Promise<void> => {
 	if (!id) {
 		message.error('ID不存在！', 3);
 		return;
@@ -306,7 +302,7 @@ const onEditContact = (record: ContactsUserInfo): void => {
 		open: true,
 		title: '编辑联系人',
 		record,
-		id: record.id,
+		id: record.id ? String(record.id) : undefined,
 	};
 };
 
@@ -371,7 +367,7 @@ const loadRelationshipOptions = async (): Promise<void> => {
 	try {
 		// 获取用户的所有启用的关系分类（公共+私有）
 		const { code, data } = await getUserEnabledRelations(
-			userInfo.value?.id ?? 0,
+			String(userInfo.value?.id ?? ''),
 		);
 		if (code == '200' && data) {
 			relationshipOptions.value = data;

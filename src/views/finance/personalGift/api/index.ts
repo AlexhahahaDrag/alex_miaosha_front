@@ -26,14 +26,14 @@ export const getPersonalGiftPage = (
 ): Promise<ResponseBody<CommonPageResult<PersonalGiftInfo>>> => {
 	let url = baseService.finance + basePersonalGift + PersonalGiftUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 };
 
 // 获取个人随礼信息表详情
 export const getPersonalGiftDetail = (
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PersonalGiftInfo>> => {
 	return getDataOne(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.url,
@@ -57,7 +57,7 @@ export const deletePersonalGift = (
 
 // 通知个人随礼信息表信息
 export const noticePersonalGift = (
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PersonalGiftInfo>> => {
 	return getDataOne(
 		baseService.finance + basePersonalGift + PersonalGiftUrl.notice,

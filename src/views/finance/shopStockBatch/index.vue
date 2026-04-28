@@ -97,10 +97,9 @@
 			</a-table>
 			<shop-stock-batch-detail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></shop-stock-batch-detail>
 		</div>
 	</div>
@@ -220,9 +219,8 @@ const init = (): void => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopStockBatch = (type: string, id?: number): void => {
@@ -231,19 +229,14 @@ const editShopStockBatch = (type: string, id?: number): void => {
 		modelInfo.value.id = undefined;
 	} else if (type == 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 };
 
-const handleOk = (v: boolean): void => {
-	visible.value = v;
+const handleSuccess = (): void => {
 	getShopStockBatchListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean): void => {
-	visible.value = v;
 };
 </script>
 <style lang="scss" scoped></style>

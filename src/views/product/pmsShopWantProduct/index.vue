@@ -115,10 +115,9 @@
 			</a-table>
 			<PmsShopWantProductDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			>
 			</PmsShopWantProductDetail>
 		</div>
@@ -248,9 +247,8 @@ const init = () => {
 
 init();
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsShopWantProduct(type: string, id?: number) {
@@ -265,14 +263,11 @@ function editPmsShopWantProduct(type: string, id?: number) {
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
-	getPmsShopWantProductListPage(searchInfo.value, pagination);
+const handleSuccess = () => {
+getPmsShopWantProductListPage(searchInfo.value, pagination);
+
 };
 
-const handleCancel = (v: boolean) => {
-	visible.value = v;
-};
 
 const initPage = () => {
 	pagination.current = 1;

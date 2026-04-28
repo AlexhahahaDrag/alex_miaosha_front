@@ -23,13 +23,13 @@ export function getPmsShopWantProductPage(
 	let url =
 		baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsShopWantProductDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PmsShopWantProductData>> {
 	return getDataOne(
 		baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.url,

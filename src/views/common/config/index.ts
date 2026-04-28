@@ -84,6 +84,6 @@ export interface ModelInfo {
 	open?: boolean;
 	title?: string;
 	width?: string;
-	id?: number | undefined | null;
+	id?: string | null;
 	confirmLoading?: boolean;
 }

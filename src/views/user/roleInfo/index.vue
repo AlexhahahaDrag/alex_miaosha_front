@@ -101,17 +101,15 @@
 			</a-table>
 			<role-info-detail
 				ref="editInfo"
-				:open="visible"
+				v-modelv-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></role-info-detail>
 			<authorization-detail
 				ref="authorizationInfo"
 				:open="authorizationModal.open"
 				:data="authorizationModal"
-				@handleOk="handleOk"
-				@handleCancel="handleAuthorizationCancel"
+				@success="handleSuccess"
 			></authorization-detail>
 		</div>
 	</div>
@@ -143,9 +141,8 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref<RoleInfoData[]>([]);
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -216,18 +213,13 @@ const editRoleInfo = (type: string, id?: number) => {
 	visible.value = true;
 };
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
+const handleSuccess = () => {
 	getRoleInfoListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	visible.value = v;
 };
 
 const authorizationModal = ref<any>({ open: false });
 
-const roleAuthorizationInfo = (id: number) => {
+const roleAuthorizationInfo = (id: string) => {
 	authorizationModal.value.open = true;
 	authorizationModal.value.id = id;
 };

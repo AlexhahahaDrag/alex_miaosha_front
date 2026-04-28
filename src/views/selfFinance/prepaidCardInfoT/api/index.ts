@@ -42,7 +42,7 @@ export function getPrepaidCardInfoList(
 }
 
 export function getPrepaidCardInfoTDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PrepaidCardInfoTData>> {
 	return getDataOne(
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,

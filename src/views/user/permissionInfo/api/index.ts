@@ -31,7 +31,7 @@ export function getPermissionInfoPage(
 }
 
 export function getPermissionInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PermissionInfo>> {
 	return getDataOne(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.url,

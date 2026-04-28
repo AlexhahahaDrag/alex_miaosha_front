@@ -208,7 +208,8 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
 import * as echarts from 'echarts';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import {
 	UserOutlined,
 	ShoppingCartOutlined,
@@ -227,7 +228,9 @@ const { userInfo } = storeToRefs(useUserStore());
 const chartContainer = ref<HTMLElement>();
 
 // 当前日期
-const currentDate = computed(() => moment().format('YYYY年MM月DD日 dddd'));
+const currentDate = computed(() =>
+	dayjs().locale('zh-cn').format('YYYY年MM月DD日 dddd'),
+);
 
 // 统计数据
 const statsData = ref({
@@ -291,7 +294,7 @@ const navigateTo = (path: string) => {
 };
 
 // 完成待办事项
-const completetdo = (id: number) => {
+const completetdo = (id: string) => {
 	tdoList.value = tdoList.value.filter((item) => item.id !== id);
 };
 

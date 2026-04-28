@@ -22,13 +22,13 @@ export function getPmsAttrPage(
 ): Promise<ResponseBody<CommonPageResult<PmsAttrData>>> {
 	let url = baseService.product + basePmsAttr + PmsAttrUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsAttrDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<PmsAttrData>> {
 	return getDataOne(baseService.product + basePmsAttr + PmsAttrUrl.url, {
 		id,

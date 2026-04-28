@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -257,6 +257,7 @@ interface Props {
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<ShopStockDetail>({});
 
@@ -267,7 +268,7 @@ const categoryList = computed(() => getDictByType('shop_category'));
 // 字典数据已通过 useDictInfo 自动加载
 const purchasePlaceList = computed(() => getDictByType('stock_place'));
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -282,7 +283,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存商店库存表信息
@@ -297,7 +298,8 @@ function saveShopStockManager() {
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
+				open.value = false;
+		emit('success');
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
@@ -335,7 +337,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

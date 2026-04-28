@@ -55,7 +55,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	cardId: number;
+	cardId: string;
 	orderNo: string;
 	amount: number;
 	balanceAfter: number;

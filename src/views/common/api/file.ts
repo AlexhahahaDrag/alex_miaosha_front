@@ -26,7 +26,7 @@ export function getFilePage(
 	});
 }
 
-export function getFileDetail(id: number | string): Promise<any> {
+export function getFileDetail(id: string): Promise<any> {
 	return getDataOne(
 		baseService.file + baseFileManager + fileUrl.url + '?id=' + id,
 	);

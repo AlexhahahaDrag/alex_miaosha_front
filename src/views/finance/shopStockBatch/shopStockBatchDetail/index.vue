@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -159,17 +159,17 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<ShopStockBatchData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const isValidList = computed(() => getDictByType('is_valid'));
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = async (): Promise<void> => {
 	loading.value = true;
@@ -184,7 +184,7 @@ const handleOk = async (): Promise<void> => {
 };
 
 const handleCancel = (): void => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存商店库存批次表信息
@@ -197,7 +197,8 @@ const saveShopStockBatchManager = async (): Promise<void> => {
 		);
 		if (code == '200') {
 			message.success(msg || '保存成功！');
-			emit('handleOk', false);
+			open.value = false;
+			emit('success');
 			formState.value = {};
 		} else {
 			message.error(msg || '保存失败！');
@@ -231,7 +232,7 @@ const init = async (): Promise<void> => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

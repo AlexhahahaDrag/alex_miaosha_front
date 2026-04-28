@@ -41,7 +41,7 @@ export function getDictList(
 }
 
 export function getDictManagerDetail(
-	id: number | undefined,
+	id: string | undefined,
 ): Promise<ResponseBody<DictInfo>> {
 	return getDataOne(baseService.finance + baseDictManager + dictUrl.url, {
 		id,

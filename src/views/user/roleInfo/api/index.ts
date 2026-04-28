@@ -27,7 +27,7 @@ export function getRoleInfoPage(
 }
 
 export function getRoleInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<RoleInfoData>> {
 	return getDataOne(baseService.user + baseRoleInfo + RoleInfoUrl.url, { id });
 }

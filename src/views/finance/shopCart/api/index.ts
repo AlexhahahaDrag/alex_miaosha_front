@@ -31,7 +31,7 @@ export function getShopCartPage(
 }
 
 export function getShopCartDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ShopCartData>> {
 	return getDataOne(baseService.finance + baseShopCart + ShopCartUrl.url, {
 		id,

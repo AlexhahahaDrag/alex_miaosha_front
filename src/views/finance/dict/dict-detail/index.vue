@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props?.modelInfo?.width || '1000px'"
 			:title="props?.modelInfo?.title || 'Basic Modal'"
 			okText="保存"
@@ -121,7 +121,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { DictInfo } from '../config';
+import type { DictInfo } from '@/views/finance/dict/config';
 import {
 	getDictManagerDetail,
 	addDictManager,
@@ -145,10 +145,10 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<DictInfo>({});
 
@@ -164,7 +164,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存财务信息
@@ -183,7 +183,8 @@ const saveFinanceManager = async () => {
 		});
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -196,7 +197,7 @@ const init = async () => {
 			code,
 			data,
 			message: messageInfo,
-		} = await getDictManagerDetail(props.modelInfo.id);
+		} = await getDictManagerDetail(Number(props.modelInfo.id));
 		if (code == '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
@@ -212,7 +213,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -224,5 +225,5 @@ watch(
 	},
 );
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 </script>

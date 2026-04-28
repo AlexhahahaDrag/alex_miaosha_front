@@ -22,10 +22,13 @@ export function getUserManagerPage(
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<UserManagerInfo>>> {
 	let url = baseService.user + baseUserManager + userMangerUrl.page;
-	return postData(url, params, { pageNum: pageNum ?? 1, pageSize: pageSize ?? 10 });
+	return postData(url, params, {
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
+	});
 }
 
-export function getUserManagerDetail(id: number): Promise<ResponseBody> {
+export function getUserManagerDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(
 		baseService.user + baseUserManager + userMangerUrl.url + '?id=' + id,
 	);

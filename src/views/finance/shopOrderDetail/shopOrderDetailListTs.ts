@@ -68,7 +68,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	orderId: number;
+	orderId: string;
 	shopName: string;
 	shopCode: string;
 	saleAmount: number;
@@ -76,5 +76,5 @@ export interface DataItem {
 	saleDate?: Dayjs | string;
 	payWay: string;
 	saleNum: number;
-	shopStockId: number;
+	shopStockId: string;
 }

@@ -26,7 +26,7 @@ export function getMenuInfoPage(
 	});
 }
 
-export function getMenuInfoDetail(id: number): Promise<ResponseBody> {
+export function getMenuInfoDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(
 		baseService.user + baseMenuInfo + MenuInfoUrl.url + '?id=' + id,
 	);

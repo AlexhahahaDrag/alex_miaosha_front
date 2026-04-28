@@ -22,13 +22,13 @@ export function getPmsCategoryPage(
 ): Promise<ResponseBody<CommonPageResult<PmsCategoryData>>> {
 	let url = baseService.product + basePmsCategory + PmsCategoryUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsCategoryDetail(
-	id: number | string,
+	id: string,
 ): Promise<ResponseBody<PmsCategoryData>> {
 	return getDataOne(
 		baseService.product + basePmsCategory + PmsCategoryUrl.url,

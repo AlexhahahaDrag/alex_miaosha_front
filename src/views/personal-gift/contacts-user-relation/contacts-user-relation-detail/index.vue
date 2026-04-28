@@ -100,8 +100,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-	handleOk: [boolean];
-	handleCancel: [boolean];
+	success: [];
 }>();
 
 const formRef = ref<FormInstance>();
@@ -115,7 +114,7 @@ const formData = ref<ContactsUserRelationInfo>({
 });
 
 // 加载详情
-const loadDetail = async (id: number): Promise<void> => {
+const loadDetail = async (id: string): Promise<void> => {
 	const { code, data } = await getContactsUserRelationDetail(id);
 	if (code == '200' && data) {
 		formData.value = { ...data };
@@ -157,7 +156,8 @@ const onSubmit = async (): Promise<void> => {
 				messageInfo || (props.modelInfo?.id ? '编辑成功！' : '添加成功！'),
 				3,
 			);
-			emit('handleOk', false);
+			open.value = false;
+		emit('success');
 		} else {
 			message.error(messageInfo || '操作失败！', 3);
 		}
@@ -171,12 +171,12 @@ const onSubmit = async (): Promise<void> => {
 
 // 取消
 const onCancel = (): void => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 // 监听 open 状态变化
 watch(
-	() => props.open,
+	() => open.value,
 	async (newVal) => {
 		if (newVal && props.modelInfo?.id) {
 			// 编辑模式 - 获取详情

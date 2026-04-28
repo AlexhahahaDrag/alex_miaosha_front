@@ -1,0 +1,66 @@
+# Alex Miaosha Front - AI 协作协议 (V2.0)
+
+## 0. 核心原则：Agent-First & Documentation-Driven
+- **文档先行**：任何功能变动、接口调整或架构重构，**必须同步更新**根目录下的 `FEATURES.md` 或 `DEVELOPMENT.md`。
+- **状态感知**：AI 在执行指令前，应先通过 `ls -R` 确认当前模块结构，严禁生成重复的工具类或组合式函数。
+
+---
+
+## 1. 技术栈与性能约束 (Vite 8 + Rolldown)
+- **引擎意识**：当前构建引擎为 **Rolldown**。避免使用 Rollup 特有的 Node.js 动态插件钩子；优先编写符合 ESM 标准的代码。
+- **资源处理**：图片、SVG 优先通过 `unplugin-icons` 处理；大文件通过 `import.meta.url` 引入，确保持续的构建性能。
+- **动态加载**：非首页核心依赖（如 `@tsparticles`、`echarts`）**严禁**同步导入，必须使用异步 `import()` 或 `defineAsyncComponent`。
+
+---
+
+## 2. Ant Design Vue (PC端) 组件规范
+### 📌 Table & Form 模式
+- **配置驱动**：表格列定义 (`columns`) 与表单项配置必须提取为独立的 `const`，禁止直接内联在 `<template>`。
+- **Form 校验**：统一使用 `reactive` 定义 `rules`。对于复杂的业务校验，抽取到 `src/utils/validators.ts`。
+- **状态同步**：搜索表单的查询参数必须与 `usePagination` 的 `params` 响应式绑定。
+
+### 📌 Modal/Drawer 强化
+- **统一入口**：遵循现有的 `defineModel` 规范。
+- **性能回收**：弹窗关闭后必须通过 `destroyOnClose: true` 或逻辑手段释放内存，防止秒杀系统高频操作下的内存溢出。
+
+---
+
+## 3. 数据看板与可视化逻辑 (偏离管理视角)
+- **管理逻辑**：在实现 Dashboard 或数据报表时，遵循“管理由偏离产生”原则。
+- **视觉增强**：对于超出预警阈值（如库存异常、秒杀接口延迟偏高）的数据，必须通过样式（如 `AntD Badge`、颜色变体）进行显著标识，而非单纯展示数字。
+
+---
+
+## 4. Script Setup 深度排序 (严格执行)
+AI 在生成 Vue 组件时，**必须**遵循以下物理行顺序，以保持 `alex_miaosha_front` 极致的可读性：
+
+1.  **Imports**: 按“框架依赖 > 公共组件 > 业务组件 > 工具函数 > 类型定义”分组。
+2.  **Types & Constants**: 仅限当前组件私有的类型与静态配置。
+3.  **Hooks**: 
+    - `usePagination`, `useStore`, `useRouter`, `useModal`。
+    - 紧随其后是解构出来的 `const { ... } = props` (如有必要)。
+4.  **State**: `ref`, `reactive`, `computed`。
+5.  **Actions (Methods)**: 
+    - 业务处理逻辑。
+    - `init()` 或 `fetchData()` 函数必须放在 Actions 区块的最底部。
+6.  **Lifecycle**: `onMounted`, `onUnmounted`。
+7.  **Watchers**: 监听逻辑。
+8.  **Expose & Emits**: 
+    - `defineExpose` 置于此处。
+    - `defineEmits` **永远是最后一行代码**。
+
+---
+
+## 5. 构建质量与安全
+- **严格 Lint**：提交必须满足 `--max-warnings=0`。
+- **安全检查**：涉及金额、库存、加密（`crypto-js`）的逻辑，AI 必须主动检查是否存在前端暴露敏感 Key 的风险。
+- **构建命令**：优先使用 `npm run build:prod` 进行环境模拟测试。
+
+---
+
+## 6. UI/UX Pro Max 触发规则
+- 当涉及“数据展示”、“表单排版”或“可视化看板”时，自动启用该技能。
+- **检查项**：
+  - 是否使用了 `v-ant-loading` 覆盖加载状态？
+  - 表单项是否配置了 `allowClear`？
+  - 按钮是否具备 `loading` 状态防止重复提交（尤其是秒杀相关操作）？

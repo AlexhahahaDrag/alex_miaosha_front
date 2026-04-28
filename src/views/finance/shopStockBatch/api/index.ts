@@ -28,7 +28,7 @@ export function getShopStockBatchPage(
 }
 
 export function getShopStockBatchDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ShopStockBatchData>> {
 	return getDataOne(
 		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,

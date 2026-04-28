@@ -73,8 +73,6 @@
 						</span>
 					</template>
 					<template v-else-if="column.key === 'fromSource'">
-						<!-- AI Agent：修复 SVG 图标显示问题，将 fromSource 转换为 finance-{fromSource} 格式 -->
-						<!-- 处理 fromSource 可能包含多个值的情况（如：xj,yhk） -->
 						<template
 							v-for="(fromSourceItem, index) in fromSourceTransferList"
 							:key="index"
@@ -82,27 +80,11 @@
 							<template
 								v-if="record.fromSource?.indexOf(fromSourceItem.value) >= 0"
 							>
-								<!-- AI Agent：靠左展示，使用 inline-block 确保图标和文字在同一行 -->
-								<div
-									style="
-										text-align: left;
-										margin-right: 8px;
-										vertical-align: middle;
-										display: flex;
-										align-items: center;
-										justify-content: left;
-									"
-								>
+								<div class="from-source-item">
 									<component
 										v-if="iconComponentMap[`finance-${fromSourceItem.value}`]"
 										:is="iconComponentMap[`finance-${fromSourceItem.value}`]"
-										style="
-											display: inline-block;
-											vertical-align: middle;
-											margin-right: 4px;
-											width: 18px;
-											height: 18px;
-										"
+										class="from-source-icon"
 									/>
 									<span>{{ fromSourceItem.name }}</span>
 								</div>
@@ -123,9 +105,11 @@
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
-import type { FinanceManagerData } from './config';
-import type { SearchInfo } from './finance-manager-filter/config';
-import { columns, fromSourceTransferList } from './config';
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import {
+	columns,
+	fromSourceTransferList,
+} from '@/views/finance/financeManager/config';
 import { iconComponentMap } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
 import { formatDate } from '@/utils/dayjs';
@@ -142,39 +126,22 @@ const {
 	setTotal,
 } = usePagination();
 
-let rowIds: (string | number)[] = [];
+const selectedRowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: FinanceManagerData,
-		selected: boolean,
-		selectedRows: FinanceManagerData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: FinanceManagerData[],
-		changeRows: FinanceManagerData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		selectedRowIds.value = selectedRowKeys;
 	},
 });
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<FinanceManagerData>({});
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
-let dataSource = ref<FinanceManagerData[]>([]);
-
-// 查看详情弹窗
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const dataSource = ref<FinanceManagerData[]>([]);
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = () => {
 	searchInfo.value = {};
@@ -195,8 +162,9 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 // 删除
 const delFinance = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteFinanceManger(ids);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
+		selectedRowIds.value = [];
 		getFinancePage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -205,20 +173,18 @@ const delFinance = async (ids: string) => {
 
 //批量删除
 const batchDelFinanceManager = () => {
-	if (!rowIds?.length) {
+	if (!selectedRowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delFinance(rowIds.join(','));
+	delFinance(selectedRowIds.value.join(','));
 };
 
-const cancel = (e: MouseEvent) => {
-	console.log(e);
-};
+const cancel = () => {};
 
-const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
+const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 	loading.value = true;
-	let queryParam = {
+	const queryParam = {
 		...param,
 		infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
 		infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
@@ -232,8 +198,8 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
-		let curData = data;
+	if (code === '200') {
+		const curData = data;
 		dataSource.value = curData?.records || [];
 		pagination.current = curData?.current || 1;
 		pagination.pageSize = curData?.size || 10;
@@ -245,12 +211,12 @@ const getFinancePage = async (param: SearchInfo, cur: PageInfo) => {
 
 //新增和修改弹窗
 const editFinance = (type: string, id?: number) => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
@@ -270,4 +236,21 @@ const init = () => {
 
 init();
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.from-source-item {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin-right: 8px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.from-source-icon {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+	vertical-align: middle;
+}
+</style>

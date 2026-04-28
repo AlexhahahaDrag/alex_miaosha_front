@@ -22,13 +22,13 @@ export function getOrgInfoPage(
 ): Promise<ResponseBody<CommonPageResult<OrgInfoData>>> {
 	let url = baseService.finance + baseOrgInfo + OrgInfoUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getOrgInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<OrgInfoData>> {
 	return getDataOne(baseService.finance + baseOrgInfo + OrgInfoUrl.url, {
 		id,

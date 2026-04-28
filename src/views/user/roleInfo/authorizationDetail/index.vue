@@ -3,7 +3,7 @@
 		:width="500"
 		title="角色权限配置"
 		placement="right"
-		:open="props.open"
+		v-model:open="open"
 		:footer-style="{ textAlign: 'right' }"
 		@close="handleCancel"
 	>
@@ -51,6 +51,7 @@ interface Props {
 	data?: unknown;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<RoleInfoData>({});
 
@@ -60,7 +61,7 @@ const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -75,7 +76,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存角色信息表信息
@@ -91,7 +92,8 @@ const saveRoleInfoManager = async () => {
 	);
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -165,7 +167,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

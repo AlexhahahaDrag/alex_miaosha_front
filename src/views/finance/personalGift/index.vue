@@ -86,10 +86,9 @@
 		</div>
 		<personal-gift-detail
 			ref="editInfo"
-			:open="modelInfo?.open"
+			v-model:open="modelInfo.open"
 			:modelInfo="modelInfo"
-			@handleOk="handleOk"
-			@handleCancel="handleCancel"
+			@success="handleSuccess"
 		></personal-gift-detail>
 	</div>
 </template>
@@ -100,7 +99,7 @@ import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { PersonalGiftInfo } from './config';
-import { columns } from './config';
+import { columns } from '@/views/finance/personalGift/config';
 import type { DictInfo } from '@/views/finance/dict/config';
 import {
 	getPersonalGiftPage,
@@ -176,7 +175,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
-const noticePersonalInfo = async (id: number): Promise<void> => {
+const noticePersonalInfo = async (id: string): Promise<void> => {
 	const { code, message: messageInfo } = await noticePersonalGift(id);
 	if (code == '200') {
 		message.success(messageInfo || '通知成功！', 3);
@@ -246,7 +245,7 @@ const getPersonalGiftListPage = async (
 };
 
 //新增和修改弹窗
-const editPersonalGift = (type: string, id?: number): void => {
+const editPersonalGift = (type: string, id?: string): void => {
 	if (type == 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -258,14 +257,8 @@ const editPersonalGift = (type: string, id?: number): void => {
 };
 
 // 保存个人随礼信息表信息
-const handleOk = (v: boolean): void => {
-	modelInfo.value.open = v;
+const handleSuccess = (): void => {
 	getPersonalGiftListPage(searchInfo.value, pagination);
-};
-
-// 取消个人随礼信息表信息
-const handleCancel = (v: boolean): void => {
-	modelInfo.value.open = v;
 };
 
 const init = (): void => {

@@ -22,13 +22,13 @@ export function getShopFinancePage(
 ): Promise<ResponseBody<CommonPageResult<ShopFinanceData>>> {
 	let url = baseService.finance + baseShopFinance + ShopFinanceUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getShopFinanceDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ShopFinanceData>> {
 	return getDataOne(
 		baseService.finance + baseShopFinance + ShopFinanceUrl.url,

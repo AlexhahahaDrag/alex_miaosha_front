@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="'min(600px, 60%)'"
 			:confirmLoading="loading"
 			:destroyOnClose="true"
@@ -131,6 +131,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 const loading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
@@ -195,7 +196,7 @@ const onOk = () => {
 
 // 取消按钮事件
 const onCancel = () => {
-	emits('handleCancel', false);
+	open.value = false;
 };
 
 // 提交（调用后端“消费券核销数量（按数量核销）”接口）
@@ -216,7 +217,8 @@ const onSubmit = async () => {
 		const { code, message: messageInfo } = await redeemCpnUserCouponInfo(req);
 		if (code === '200') {
 			message.success(messageInfo || '核销成功！');
-			emits('handleOk', false);
+			open.value = false;
+		emit('success');
 		} else {
 			message.error(messageInfo || '核销失败！');
 		}
@@ -239,10 +241,10 @@ const initDetail = () => {
 	};
 };
 
-const emits = defineEmits(['handleOk', 'handleCancel']);
+const emits = defineEmits(['success']);
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			initDetail();

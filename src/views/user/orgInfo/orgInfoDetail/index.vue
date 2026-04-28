@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -114,13 +114,18 @@
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import { labelMap, labelCol, wrapperCol, rulesRef } from './orgInfoDetailTs';
+import {
+	labelMap,
+	labelCol,
+	wrapperCol,
+	rulesRef,
+} from '@/views/user/orgInfo/config';
 import {
 	getOrgInfoDetail,
 	addOrgInfo,
 	editOrgInfo,
 } from '@/views/user/orgInfo/api';
-import type { OrgInfoData } from '../orgInfoListTs';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
@@ -138,14 +143,15 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 
+const open = defineModel<boolean>('open', { default: false });
+
 let formState = ref<OrgInfoData>({});
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -160,7 +166,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存机构表信息
@@ -180,7 +186,8 @@ const saveOrgInfoManager = async () => {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		loading.value = false;
-		emit('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -206,7 +213,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

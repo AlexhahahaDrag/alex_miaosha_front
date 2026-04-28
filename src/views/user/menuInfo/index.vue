@@ -199,10 +199,9 @@
 			</a-table>
 			<MenuInfoDetail
 				ref="editInfo"
-				:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
-				@handleOk="handleOk"
-				@handleCancel="handleCancel"
+				@success="handleSuccess"
 			></MenuInfoDetail>
 		</div>
 	</div>
@@ -210,8 +209,8 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import type { MenuInfoData } from './config';
-import { columns, labelMap } from './config';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
+import { columns, labelMap } from '@/views/user/menuInfo/config';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
@@ -242,9 +241,8 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref<MenuInfoData[]>([]);
 
-let visible = ref<boolean>(false);
-
-let modelInfo = ref<ModelInfo>({});
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -344,19 +342,14 @@ function editMenuInfo(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type == 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 }
 
-const handleOk = (v: boolean) => {
-	visible.value = v;
+const handleSuccess = () => {
 	getMenuInfoListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	visible.value = v;
 };
 
 // 查询条件防抖：任意查询条件变化时，300ms 内只触发一次请求，并将页码重置为第一页

@@ -123,10 +123,9 @@
 		</div>
 		<account-record-info-detail
 			ref="editInfo"
-			:open="modelInfo.open"
+			v-model:open="modelInfo.open"
 			:modelInfo="modelInfo"
-			@handleOk="handleOk"
-			@handleCancel="handleCancel"
+			@success="handleSuccess"
 		>
 		</account-record-info-detail>
 	</div>
@@ -265,13 +264,8 @@ const editAccountRecordInfo = (type: string, id?: number) => {
 	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
 };
 
-const handleOk = (v: boolean) => {
-	modelInfo.value.open = v;
+const handleSuccess = () => {
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
-};
-
-const handleCancel = (v: boolean) => {
-	modelInfo.value.open = v;
 };
 
 // 初始化页面数据

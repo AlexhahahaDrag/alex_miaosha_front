@@ -22,13 +22,13 @@ export function getPmsBrandPage(
 ): Promise<ResponseBody<CommonPageResult<PmsBrandData>>> {
 	let url = baseService.product + basePmsBrand + PmsBrandUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getPmsBrandDetail(
-	id: number | string,
+	id: string,
 ): Promise<ResponseBody<PmsBrandData>> {
 	return getDataOne(baseService.product + basePmsBrand + PmsBrandUrl.url, {
 		id,

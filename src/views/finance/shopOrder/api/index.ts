@@ -22,13 +22,13 @@ export function getShopOrderPage(
 ): Promise<ResponseBody<CommonPageResult<ShopOrderData>>> {
 	let url = baseService.finance + baseShopOrder + ShopOrderUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getShopOrderDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ShopOrderData>> {
 	return getDataOne(baseService.finance + baseShopOrder + ShopOrderUrl.url, {
 		id,

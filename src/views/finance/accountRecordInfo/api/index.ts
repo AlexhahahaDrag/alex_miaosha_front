@@ -29,7 +29,7 @@ export function getAccountRecordInfoPage(
 }
 
 export function getAccountRecordInfoDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<AccountRecordInfo>> {
 	return getDataOne(
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,

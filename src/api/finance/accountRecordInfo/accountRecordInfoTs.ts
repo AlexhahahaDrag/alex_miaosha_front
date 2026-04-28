@@ -27,7 +27,7 @@ export function getAccountRecordInfoPage(
 	});
 }
 
-export function getAccountRecordInfoDetail(id: number): Promise<ResponseBody> {
+export function getAccountRecordInfoDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(
 		baseService.finance +
 			baseAccountRecordInfo +

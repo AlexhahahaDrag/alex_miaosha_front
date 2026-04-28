@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { FinanceManagerData } from '../config';
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 
 const baseFinanceManager = '/api/v1/finance-info';
 
@@ -22,13 +22,13 @@ export function getFinanceMangerPage(
 ): Promise<ResponseBody<CommonPageResult<FinanceManagerData>>> {
 	let url = baseService.finance + baseFinanceManager + financeMangerUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,	
+		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
 }
 
 export function getFinanceMangerDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<FinanceManagerData>> {
 	return getDataOne(
 		baseService.finance + baseFinanceManager + financeMangerUrl.url,

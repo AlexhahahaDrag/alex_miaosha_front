@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || '1000px'"
 			:title="props.modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
@@ -239,14 +239,14 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<ShopFinanceDetail>({});
 
-const emit = defineEmits(['handleOk', 'handleCancel']);
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -261,7 +261,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	emit('handleCancel', false);
+	open.value = false;
 };
 
 //保存商店财务表信息
@@ -276,7 +276,8 @@ function saveShopFinanceManager() {
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');
-				emit('handleOk', false);
+				open.value = false;
+				emit('success');
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
@@ -318,7 +319,7 @@ const init = async () => {
 };
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();

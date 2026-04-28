@@ -22,12 +22,11 @@ export function getOrgUserInfoPage(
 	return postData(
 		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.page,
 		params,
-		{ pageNum: pageNum ? pageNum : 1, 
-			pageSize: pageSize ? pageSize : 10 },
+		{ pageNum: pageNum ? pageNum : 1, pageSize: pageSize ? pageSize : 10 },
 	);
 }
 
-export function getOrgUserInfoDetail(id: number): Promise<ResponseBody> {
+export function getOrgUserInfoDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, {
 		id,
 	});

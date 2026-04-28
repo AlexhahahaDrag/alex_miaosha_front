@@ -67,6 +67,6 @@ export interface DataItem {
 	valueSelect: string;
 	attrType: number;
 	enable: number;
-	catelogId: number;
+	catelogId: string;
 	showDesc: number;
 }

@@ -10,8 +10,7 @@
 						@change="changeMonth"
 					/>
 					<a-select
-						style="width: 100px"
-						ref="select"
+						class="search-user-select"
 						v-model:value="searchUser"
 						:field-names="{ label: 'nickName', value: 'id' }"
 						:options="userList"
@@ -24,7 +23,7 @@
 		</div>
 
 		<div class="content">
-			<div style="background-color: #ececec; padding: 20px">
+			<div class="content-card">
 				<a-row :gutter="24">
 					<a-col :span="8">
 						<a-card :bordered="false" class="stat-card">
@@ -34,9 +33,7 @@
 							</div>
 							<div class="stat-footer">
 								<span class="text-gray">{{ momTrend }} | 较上月</span>
-								<span class="text-gray" style="margin-left: 10px">
-									{{ yoyTrend }}同比
-								</span>
+								<span class="text-gray trend-gap"> {{ yoyTrend }}同比 </span>
 							</div>
 						</a-card>
 					</a-col>
@@ -60,7 +57,7 @@
 					</a-col>
 				</a-row>
 
-				<a-row :gutter="24" style="margin-top: 20px">
+				<a-row :gutter="24" class="section-gap-top-lg">
 					<a-col :span="6" v-for="(config, index) in listConfigs" :key="index">
 						<a-card
 							:bordered="false"
@@ -93,7 +90,7 @@
 					</a-col>
 				</a-row>
 
-				<a-row :gutter="24" style="padding-top: 20px">
+				<a-row :gutter="24" class="section-padding-top-lg">
 					<a-col :span="12">
 						<div class="chart-card">
 							<pie-chart
@@ -119,7 +116,7 @@
 						</div>
 					</a-col>
 				</a-row>
-				<a-row :gutter="24" style="padding-top: 10px">
+				<a-row :gutter="24" class="section-padding-top-sm">
 					<a-col :span="12">
 						<div class="chart-card">
 							<bar-chart
@@ -162,7 +159,11 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/bar';
-import { dateFormatter, tooltip, type ItemInfo } from './analysis/index';
+import {
+	dateFormatter,
+	tooltip,
+	type ItemInfo,
+} from '@/views/finance/financeAnalysis/analysis/index';
 import {
 	getBalance,
 	getIncomeAndExpense,
@@ -186,7 +187,7 @@ const yoyTrend = ref<string>('');
 const momTrend = ref<string>('');
 
 // 总金额
-let sumAmount = computed(() => {
+const sumAmount = computed(() => {
 	return (
 		balanceList.value?.reduce(
 			(acc: math.BigNumber, item: FinanceManagerData) => {
@@ -197,12 +198,12 @@ let sumAmount = computed(() => {
 	);
 });
 // 月消费总金额
-let monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
+const monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
 // 月收入总金额
-let monthIncomeSum = ref<math.BigNumber>(math.bignumber(0));
+const monthIncomeSum = ref<math.BigNumber>(math.bignumber(0));
 
-let searchUser = ref<number>(userInfo?.id || 0);
-let searchDateTime = ref<Dayjs>(dayjs());
+const searchUser = ref<number>(userInfo?.id || 0);
+const searchDateTime = ref<Dayjs>(dayjs());
 
 // 余额列表配置
 const listConfigs = computed(() => [
@@ -233,18 +234,18 @@ const listConfigs = computed(() => [
 // 初始化用户列表，添加"所有人"选项
 userList.value = [{ id: 0, nickName: '所有人' }];
 // 支出分析数据
-let pieExpenseData = ref<ItemInfo[]>([]);
+const pieExpenseData = ref<ItemInfo[]>([]);
 // 收入分析数据
-let pieIncomeData = ref<ItemInfo[]>([]);
+const pieIncomeData = ref<ItemInfo[]>([]);
 
 // 获取余额信息
-const getBalanceInfo = async (userId: number, dateStr: string) => {
+const getBalanceInfo = async (userid: string, dateStr: string) => {
 	const {
 		code,
 		data,
 		message: messageInfo,
 	} = await getBalance(userId, dateStr);
-	if (code == '200') {
+	if (code === '200') {
 		// 余额列表数据
 		balanceList.value = data?.list || [];
 		yoyTrend.value = data?.yoyTrend || '';
@@ -274,33 +275,33 @@ const getBalanceDetailData = (
 };
 
 // 获取收入和支出信息
-const getIncomeAndExpenseInfo = async (userId: number, dateStr: string) => {
+const getIncomeAndExpenseInfo = async (userid: string, dateStr: string) => {
 	const {
 		code,
 		data,
 		message: messageInfo,
 	} = await getIncomeAndExpense(userId, dateStr);
-	if (code == '200') {
+	if (code === '200') {
 		if (data?.length) {
 			monthExpenseSum.value = math.bignumber(0);
 			monthIncomeSum.value = math.bignumber(0);
-			let dd: ItemInfo[] = [];
+			const income: ItemInfo[] = [];
 			data
 				.filter(
-					(item: FinanceManagerData) => item.incomeAndExpenses == 'income',
+					(item: FinanceManagerData) => item.incomeAndExpenses === 'income',
 				)
 				.forEach((item: FinanceManagerData) => {
-					dd.push({ name: item.typeCode || '', value: item.amount || 0 });
+					income.push({ name: item.typeCode || '', value: item.amount || 0 });
 					monthIncomeSum.value = math.add(
 						monthIncomeSum.value,
 						math.bignumber(item.amount ? item.amount : 0),
 					);
 				});
-			pieIncomeData.value = dd;
-			let expense: ItemInfo[] = [];
+			pieIncomeData.value = income;
+			const expense: ItemInfo[] = [];
 			data
 				.filter(
-					(item: FinanceManagerData) => item.incomeAndExpenses == 'expense',
+					(item: FinanceManagerData) => item.incomeAndExpenses === 'expense',
 				)
 				.forEach((item: FinanceManagerData) => {
 					expense.push({ name: item.typeCode || '', value: item.amount || 0 });
@@ -317,9 +318,22 @@ const getIncomeAndExpenseInfo = async (userId: number, dateStr: string) => {
 };
 
 // 日消费数据
-let dayData = ref<number[]>([]);
+const dayData = ref<number[]>([]);
+const buildTooltipFormatter = (unitSuffix: string) => {
+	return (param: TooltipParam[]) => {
+		let tip = '';
+		const unit = '元';
+		const name = '花费';
+		tip += `<p style="margin: 0">${param[0].axisValue}${unitSuffix}</p>`;
+		param.forEach((element: TooltipParam) => {
+			tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.0}${unit}</p>`;
+		});
+		return tip;
+	};
+};
+
 // 日消费配置
-let dayConfig = ref<barItem>({
+const dayConfig = ref<barItem>({
 	xAxis: [],
 	series: [],
 	xTile: '天数',
@@ -330,25 +344,16 @@ let dayConfig = ref<barItem>({
 		axisPointer: {
 			type: 'shadow',
 		},
-		formatter(param: TooltipParam[]) {
-			let tip = '';
-			let unit = '元';
-			let name = '花费';
-			tip += `<p style="margin: 0">${param[0].axisValue}日</p>`;
-			param.forEach((element: TooltipParam) => {
-				tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.0}${unit}</p>`;
-			});
-			return tip;
-		},
+		formatter: buildTooltipFormatter('日'),
 	},
 	legend: [],
 	color: '#aa55ff',
 });
 
 // 月消费数据
-let monthData = ref<number[]>([]);
+const monthData = ref<number[]>([]);
 // 月消费配置
-let monthConfig = ref<barItem>({
+const monthConfig = ref<barItem>({
 	xAxis: [],
 	series: [],
 	xTile: '月份',
@@ -359,67 +364,61 @@ let monthConfig = ref<barItem>({
 		axisPointer: {
 			type: 'shadow',
 		},
-		formatter(param: TooltipParam[]) {
-			let tip = '';
-			let unit = '元';
-			let name = '花费';
-			tip += `<p style="margin: 0">${param[0].axisValue}月</p>`;
-			param.forEach((element: TooltipParam) => {
-				tip += `<p style="margin: 0">${element.marker}${name}: ${element.value ? element.value : 0.0}${unit}</p>`;
-			});
-			return tip;
-		},
+		formatter: buildTooltipFormatter('月'),
 	},
 	legend: [],
 	color: '#5555ff',
 });
 
-// 获取日消费信息
-const getDayExpenseInfo = async (userId: number, dateStr: string) => {
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getDayExpense(userId, dateStr);
-	if (code == '200') {
-		if (data?.length) {
-			let series: number[] = [];
-			let xAxis: string[] = [];
-			data.forEach((item: AnalysisData) => {
-				series.push(item.amount);
-				xAxis.push(item.infoDate);
-			});
-			dayConfig.value.xAxis = xAxis;
-			dayConfig.value.series = series;
-			dayData.value = series;
-		}
+const getExpenseSeries = async (
+	requestFn: (
+		userid: string,
+		dateStr: string,
+	) => Promise<{
+		code: string;
+		data?: AnalysisData[];
+		message?: string;
+	}>,
+	userid: string,
+	dateStr: string,
+) => {
+	const { code, data, message: messageInfo } = await requestFn(userId, dateStr);
+	if (code === '200') {
+		const series: number[] = [];
+		const xAxis: string[] = [];
+		(data || []).forEach((item: AnalysisData) => {
+			series.push(item.amount);
+			xAxis.push(item.infoDate);
+		});
+		return { xAxis, series };
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
+	return { xAxis: [], series: [] };
+};
+
+// 获取日消费信息
+const getDayExpenseInfo = async (userid: string, dateStr: string) => {
+	const { xAxis, series } = await getExpenseSeries(
+		getDayExpense,
+		userId,
+		dateStr,
+	);
+	dayConfig.value.xAxis = xAxis;
+	dayConfig.value.series = series;
+	dayData.value = series;
 };
 
 // 获取月消费信息
-const getMonthExpenseInfo = async (userId: number, dateStr: string) => {
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getMonthExpense(userId, dateStr);
-	if (code == '200') {
-		if (data?.length) {
-			let series: number[] = [];
-			let xAxis: string[] = [];
-			data.forEach((item: AnalysisData) => {
-				series.push(item.amount);
-				xAxis.push(item.infoDate);
-			});
-			monthConfig.value.xAxis = xAxis;
-			monthConfig.value.series = series;
-			monthData.value = series;
-		}
-	} else {
-		message.error(messageInfo || '查询列表失败！');
-	}
+const getMonthExpenseInfo = async (userid: string, dateStr: string) => {
+	const { xAxis, series } = await getExpenseSeries(
+		getMonthExpense,
+		userId,
+		dateStr,
+	);
+	monthConfig.value.xAxis = xAxis;
+	monthConfig.value.series = series;
+	monthData.value = series;
 };
 
 const changeMonth = () => {
@@ -428,7 +427,7 @@ const changeMonth = () => {
 
 function getInfo() {
 	// 获取日期
-	let dateStr = searchDateTime.value.format(dateFormatter);
+	const dateStr = searchDateTime.value.format(dateFormatter);
 	// 获取余额信息
 	getBalanceInfo(searchUser.value, dateStr);
 	// 获取收入和支出信息
@@ -465,6 +464,31 @@ onMounted(() => {
 	.content {
 		margin-top: 10px;
 	}
+}
+
+.search-user-select {
+	width: 100px;
+}
+
+.content-card {
+	padding: 20px;
+	background-color: #ececec;
+}
+
+.trend-gap {
+	margin-left: 10px;
+}
+
+.section-gap-top-lg {
+	margin-top: 20px;
+}
+
+.section-padding-top-lg {
+	padding-top: 20px;
+}
+
+.section-padding-top-sm {
+	padding-top: 10px;
 }
 </style>
 
@@ -504,8 +528,9 @@ onMounted(() => {
 		font-weight: bold;
 		line-height: 1.2;
 		margin-bottom: 8px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-			'Helvetica Neue', Arial, sans-serif;
+		font-family:
+			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+			Arial, sans-serif;
 	}
 
 	.stat-footer {

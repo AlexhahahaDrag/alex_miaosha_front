@@ -7,12 +7,11 @@ import AutoImport from 'unplugin-auto-import/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import type { ConfigEnv, UserConfig } from 'vite';
-import * as dotenv from 'dotenv';
 import Icons from 'unplugin-icons/vite';
 import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import IconsResolver from 'unplugin-icons/resolver';
 
-const pathResolve = (dir: string): any => {
+const pathResolve = (dir: string): string => {
 	return resolve(__dirname, './', dir);
 };
 
@@ -24,25 +23,22 @@ const alias: Record<string, string> = {
 	'@a': pathResolve('src/api'),
 	'@r': pathResolve('src/router'),
 };
+const vendorLibs = ['axios', 'lodash-es', 'dayjs', 'bignumber.js', 'crypto-js'];
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
-	// 直接加载环境变量文件
-	dotenv.config({ path: `.env.${mode}` });
-
 	// 使用 Vite 的方式加载环境变量
 	const env = loadEnv(mode, process.cwd(), 'VITE_');
 
-	console.log('Environment variables:', env);
-
 	const isProduction = mode === 'production';
 	const isBuild = command === 'build';
+	const isAnalyze = env.VITE_ANALYZE === 'true';
 
 	return {
 		define: {
 			__VUE_OPTIONS_API__: JSON.stringify(true), // 启用或禁用 Vue 2 的 Options API
 			__VUE_PROD_DEVTOOLS__: JSON.stringify(false), // 生产环境下启用或禁用 Vue Devtools
-			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(true), // 生产环境下，当水合错误发生时提供额外的信息
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(!isProduction), // 生产环境关闭水合详情以减小体积
 		},
 		plugins: [
 			vue(),
@@ -93,24 +89,34 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 						customCollections: ['my-menu-svg', 'my-finance-svg', 'my-soft-svg'],
 					}),
 				],
-				dirs: ['src/views', 'src/layout', 'src/router'],
+				dirs: ['src/components', 'src/layout'],
 			}),
-			// 只在开发环境或需要分析时启用 visualizer
-			!isBuild && visualizer(),
+			// 仅在构建分析模式下启用，避免影响日常开发
+			isBuild &&
+				isAnalyze &&
+				visualizer({
+					filename: 'dist/stats.html',
+					open: false,
+					gzipSize: true,
+					brotliSize: true,
+				}),
 			// 条件性启用压缩插件
 			isProduction &&
 				viteCompression({
 					algorithm: 'gzip',
 					threshold: 10240, // 只压缩大于10kb的文件
 				}),
+			isProduction &&
+				viteCompression({
+					algorithm: 'brotliCompress',
+					ext: '.br',
+					threshold: 10240,
+				}),
 		].filter(Boolean),
 		css: {
 			preprocessorOptions: {
 				less: {
 					javascriptEnabled: true,
-				},
-				scss: {
-					api: 'modern-compiler',
 				},
 			},
 		},
@@ -130,46 +136,78 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			},
 		},
 		build: {
-			// 使用 esbuild 替代 terser 来减少内存使用
-			minify: isProduction ? 'esbuild' : false,
+			target: 'esnext',
+			minify: isProduction,
+			modulePreload: {
+				polyfill: false,
+			},
 			// 增加构建内存限制
 			rollupOptions: {
-				// 限制并行处理的文件数
-				maxParallelFileOps: 3,
 				output: {
 					//静态资源分类打包
 					chunkFileNames: 'static/js/[name]-[hash].js',
 					entryFileNames: 'static/js/[name]-[hash].js',
 					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
 					// 优化代码分割策略，减少chunk数量
-					manualChunks: {
-						// 将 Vue 相关库打包在一起
-						vue: ['vue', 'vue-router'],
-						// 将 Ant Design Vue 单独打包
-						'ant-design': ['ant-design-vue'],
-						// 将工具库打包在一起
-						utils: ['lodash', 'moment', 'dayjs', 'axios'],
-						// 将图表库打包在一起
-						charts: ['echarts'],
-						// 将其他第三方库打包在一起
-						vendor: ['crypto-js', 'mathjs', 'bignumber.js'],
+					manualChunks(id) {
+						if (id.includes('node_modules')) {
+							// 核心框架
+							if (
+								id.includes('node_modules/vue') ||
+								id.includes('node_modules/pinia') ||
+								id.includes('node_modules/vue-router')
+							) {
+								return 'framework';
+							}
+							// UI 组件库
+							if (
+								id.includes('node_modules/ant-design-vue') ||
+								id.includes('node_modules/@ant-design/icons-vue')
+							) {
+								return 'ui-antd';
+							}
+							// 图表库
+							if (
+								id.includes('node_modules/echarts') ||
+								id.includes('node_modules/zrender')
+							) {
+								return 'charts';
+							}
+							// 常用工具库
+							if (
+								vendorLibs.some((lib) => id.includes(`node_modules/${lib}`))
+							) {
+								return 'utils';
+							}
+							return 'vendor';
+						}
 					},
 				},
 				// 优化构建性能
-				treeshake: {
-					preset: 'smallest',
-				},
+				treeshake: true,
 			},
 			outDir: env.VITE_OUTPUT_DIR || 'dist',
+			// 减少构建阶段体积统计开销
+			reportCompressedSize: false,
 			// 增加构建超时时间
-			chunkSizeWarningLimit: 1500,
+			chunkSizeWarningLimit: 1000,
 			// 启用源码映射（可选，会增加构建时间和内存使用）
 			sourcemap: false,
+			// 移除 console/debugger
+			terserOptions:
+				isProduction ?
+					{
+						compress: {
+							drop_console: true,
+							drop_debugger: true,
+						},
+					}
+				:	undefined,
 		},
 		envPrefix: 'VITE_',
 		// 优化依赖处理
 		optimizeDeps: {
-			include: ['vue', 'vue-router', 'ant-design-vue'],
+			include: ['vue', 'vue-router', 'ant-design-vue', 'dayjs', 'axios'],
 			exclude: ['@tsparticles/slim'],
 		},
 	};

@@ -73,12 +73,12 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	skuId: number;
-	spuId: number;
+	skuId: string;
+	spuId: string;
 	skuName: string;
 	skuDesc: string;
-	catalogId: number;
-	brandId: number;
+	catalogId: string;
+	brandId: string;
 	skuDefaultImg: string;
 	skuTitle: string;
 	skuSubtitle: string;

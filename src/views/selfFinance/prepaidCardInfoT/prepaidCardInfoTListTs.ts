@@ -62,7 +62,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	cardId: number;
+	cardId: string;
 	cardName: string;
 	userId: string;
 	initialBalance: number;

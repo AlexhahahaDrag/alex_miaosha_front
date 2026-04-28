@@ -28,7 +28,7 @@ export function getShopStockAttrsPage(
 }
 
 export function getShopStockAttrsDetail(
-	id: number,
+	id: string,
 ): Promise<ResponseBody<ShopStockAttrsData>> {
 	return getDataOne(
 		baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,

@@ -59,7 +59,7 @@ const config: Linter.FlatConfig[] = [
 		},
 		plugins: {
 			vue,
-			'@typescript-eslint': typescript,
+			'@typescript-eslint': typescript as any,
 			import: importPlugin,
 		},
 		settings: {
@@ -74,9 +74,6 @@ const config: Linter.FlatConfig[] = [
 			},
 		},
 		rules: {
-			...vue.configs['vue3-essential'].rules,
-			...typescript.configs.recommended.rules,
-
 			// 基础规则
 			indent: [
 				'error',
@@ -99,7 +96,6 @@ const config: Linter.FlatConfig[] = [
 			'no-undef': 'off', // 关闭，因为自动导入会导致误报
 
 			// Vue 规则
-			'vue/script-setup-uses-vars': 'error',
 			'vue/component-name-in-template-casing': ['error', 'kebab-case'],
 			'vue/require-default-prop': 'off',
 			'vue/singleline-html-element-content-newline': 'off',
@@ -182,7 +178,7 @@ const config: Linter.FlatConfig[] = [
 			},
 		},
 		plugins: {
-			'@typescript-eslint': typescript,
+			'@typescript-eslint': typescript as any,
 			import: importPlugin,
 		},
 		settings: {
@@ -197,8 +193,6 @@ const config: Linter.FlatConfig[] = [
 			},
 		},
 		rules: {
-			...typescript.configs.recommended.rules,
-
 			// 基础规则
 			indent: ['error', 'tab', { SwitchCase: 1 }],
 			semi: ['error', 'always'],

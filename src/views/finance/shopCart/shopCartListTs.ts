@@ -43,9 +43,9 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	shopId: number;
-	userId: number;
-	customerId: number;
+	shopId: string;
+	userId: string;
+	customerId: string;
 	isValid: string;
 	saleNum: number;
 }

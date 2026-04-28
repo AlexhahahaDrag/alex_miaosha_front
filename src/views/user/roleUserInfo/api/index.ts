@@ -29,7 +29,7 @@ export function getRoleUserInfoPage(
 	);
 }
 
-export function getRoleUserInfoDetail(id: number): Promise<ResponseBody> {
+export function getRoleUserInfoDetail(id: string): Promise<ResponseBody> {
 	return getDataOne(baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url, {
 		id,
 	});

@@ -30,7 +30,6 @@
 					<a-col :span="6">
 						<a-form-item name="fromSource" label="来源">
 							<a-select
-								ref="select"
 								v-model:value="searchInfo.fromSource"
 								placeholder="请选择来源"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -43,7 +42,6 @@
 					<a-col :span="6">
 						<a-form-item name="incomeAndExpenses" label="收支类型">
 							<a-select
-								ref="select"
 								v-model:value="searchInfo.incomeAndExpenses"
 								placeholder="请选择收支类型"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
@@ -58,7 +56,6 @@
 					<a-col :span="6">
 						<a-form-item name="belongTo" label="属于">
 							<a-select
-								ref="select"
 								v-model:value="searchInfo.belongTo"
 								placeholder="请选择归属人"
 								:field-names="{ label: 'nickName', value: 'id' }"
@@ -84,7 +81,7 @@
 							/>
 						</a-form-item>
 					</a-col>
-					<a-col :span="6" style="text-align: right">
+					<a-col :span="6" class="actions-col">
 						<a-space>
 							<a-button type="primary" @click="handleQuery"> 查找</a-button>
 							<a-button type="primary" @click="handleCancelQuery">
@@ -99,8 +96,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchInfo } from './config';
-import { labelCol, wrapperCol } from './config';
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import { labelCol, wrapperCol } from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { debounce } from 'lodash-es';
@@ -119,18 +116,10 @@ const incomeAndExpensesList = computed(() =>
 
 // Props
 interface Props {
-	searchInfo: SearchInfo;
-}
-
-// Emits
-interface Emits {
-	(e: 'update:searchInfo', value: SearchInfo): void;
-	(e: 'query'): void;
-	(e: 'cancelQuery'): void;
+	searchInfo: FinanceManagerData;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
 
 // 响应式数据
 const searchInfo = computed({
@@ -150,14 +139,29 @@ const handleSearchChange = () => {
 };
 
 const handleQuery = () => {
+	debouncedQuery.cancel();
 	emit('query');
 };
 
 const handleCancelQuery = () => {
+	debouncedQuery.cancel();
 	// 清空搜索信息
 	searchInfo.value = {};
-	emit('query');
+	emit('cancelQuery');
 };
+
+onUnmounted(() => {
+	debouncedQuery.cancel();
+});
+
+// Emits
+interface Emits {
+	(e: 'update:searchInfo', value: FinanceManagerData): void;
+	(e: 'query'): void;
+	(e: 'cancelQuery'): void;
+}
+
+const emit = defineEmits<Emits>();
 </script>
 
 <style lang="scss" scoped>
@@ -170,5 +174,9 @@ const handleCancelQuery = () => {
 	padding: 16px;
 	border-radius: 6px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.actions-col {
+	text-align: right;
 }
 </style>

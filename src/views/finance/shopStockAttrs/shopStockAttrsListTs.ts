@@ -49,7 +49,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface DataItem {
-	stockId: number;
+	stockId: string;
 	attrCode: string;
 	attrName: string;
 	attrValue: string;

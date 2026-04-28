@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<a-modal
-			:open="props.open"
+			v-model:open="open"
 			:width="props.modelInfo?.width || 'min(800px, 60%)'"
 			okText="保存"
 			:confirmLoading="loading"
@@ -149,6 +149,7 @@ interface Props {
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<CpnCouponInfoData>({});
 
@@ -162,7 +163,7 @@ const handleOk = () => {
 	}
 };
 const handleCancel = () => {
-	emits('handleCancel', false);
+	open.value = false;
 };
 
 //保存消费券信息表信息
@@ -190,7 +191,8 @@ const saveCpnCouponInfo = async () => {
 	if (code == '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		emits('handleOk', false);
+		open.value = false;
+		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
 	}
@@ -235,12 +237,12 @@ const init = async () => {
 	initDetail(props.modelInfo);
 };
 
-const emits = defineEmits(['handleOk', 'handleCancel']);
+const emits = defineEmits(['success']);
 
 defineExpose({ handleOk, handleCancel });
 
 watch(
-	() => props.open,
+	() => open.value,
 	(newVal) => {
 		if (newVal) {
 			init();
