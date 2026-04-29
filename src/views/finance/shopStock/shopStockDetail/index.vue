@@ -161,7 +161,8 @@
 import type { ShopStockDetail } from './shopStockDetailTs';
 import {
 	getShopStockDetail,
-	addOrEditShopStock,
+	addShopStock,
+	editShopStock,
 } from '@/views/finance/shopStock/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -253,7 +254,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -267,8 +267,6 @@ const isValidList = computed(() => getDictByType('is_valid'));
 const categoryList = computed(() => getDictByType('shop_category'));
 // 字典数据已通过 useDictInfo 自动加载
 const purchasePlaceList = computed(() => getDictByType('stock_place'));
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -288,15 +286,13 @@ const handleCancel = () => {
 
 //保存商店库存表信息
 function saveShopStockManager() {
-	let method = '';
+	let api = addShopStock;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopStock;
 	}
-	addOrEditShopStock(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -324,7 +320,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopStockDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -348,5 +344,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

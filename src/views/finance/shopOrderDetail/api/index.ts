@@ -49,19 +49,20 @@ export function deleteShopOrderDetail(
 	);
 }
 
-export function addOrEditShopOrderDetail(
-	method: string,
+export function addShopOrderDetail(
 	params: ShopOrderDetailData,
 ): Promise<ResponseBody<ShopOrderDetailData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
+		params,
+	);
+}
+
+export function editShopOrderDetail(
+	params: ShopOrderDetailData,
+): Promise<ResponseBody<ShopOrderDetailData>> {
+	return putData(
+		baseService.finance + baseShopOrderDetail + ShopOrderDetailUrl.url,
+		params,
+	);
 }

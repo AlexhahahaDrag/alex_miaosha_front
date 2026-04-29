@@ -114,7 +114,8 @@
 import type { ShopStockAttrsDetail } from './shopStockAttrsDetailTs';
 import {
 	getShopStockAttrsDetail,
-	addOrEditShopStockAttrs,
+	addShopStockAttrs,
+	editShopStockAttrs,
 } from '@/views/finance/shopStockAttrs/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -185,7 +186,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -195,8 +195,6 @@ let formState = ref<ShopStockAttrsDetail>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const isValidList = computed(() => getDictByType('is_valid'));
-
-const emit = defineEmits(['success']);
 
 const handleOk = (): void => {
 	loading.value = true;
@@ -216,15 +214,13 @@ const handleCancel = (): void => {
 
 //保存商店库存属性表信息
 const saveShopStockAttrsManager = (): void => {
-	let method = '';
+	let api = addShopStockAttrs;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopStockAttrs;
 	}
-	addOrEditShopStockAttrs(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -248,7 +244,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopStockAttrsDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -272,5 +268,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

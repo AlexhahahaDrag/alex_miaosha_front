@@ -136,7 +136,8 @@ import type { ShopStockBatchData } from '@/views/finance/shopStockBatch/config';
 import { labelMap, rulesRef } from '@/views/finance/shopStockBatch/config';
 import {
 	getShopStockBatchDetail,
-	addOrEditShopStockBatch,
+	addShopStockBatch,
+	editShopStockBatch,
 } from '@/views/finance/shopStockBatch/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -189,12 +190,12 @@ const handleCancel = (): void => {
 
 //保存商店库存批次表信息
 const saveShopStockBatchManager = async (): Promise<void> => {
-	const method = formState.value.id ? 'put' : 'post';
+	let api = addShopStockBatch;
+	if (formState.value.id) {
+		api = editShopStockBatch;
+	}
 	try {
-		const { code, message: msg } = await addOrEditShopStockBatch(
-			method,
-			formState.value,
-		);
+		const { code, message: msg } = await api(formState.value);
 		if (code == '200') {
 			message.success(msg || '保存成功！');
 			open.value = false;

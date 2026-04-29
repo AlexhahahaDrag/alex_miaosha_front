@@ -195,7 +195,7 @@ import {
 	getRelationshipLabel,
 	defaultPageConfig,
 	tableColumns,
-} from './config/index';
+} from './config';
 
 // 使用分页组合式函数 - 参考 contacts-user 的实现
 const { pagination, handleTableChange: paginationChange } = usePagination();

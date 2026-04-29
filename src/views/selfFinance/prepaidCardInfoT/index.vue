@@ -83,13 +83,13 @@
 
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { columns } from '@/views/selfFinance/prepaidCardInfoT/config/index';
+import { columns } from '@/views/selfFinance/prepaidCardInfoT/config';
 import { getPrepaidCardInfoList } from './api';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api';
 import { message } from 'ant-design-vue';
 import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';
 import dayjs from 'dayjs';
-import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config/index';
+import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config';
 
 // 消费卡数据
 const cards = ref<any[]>([]);

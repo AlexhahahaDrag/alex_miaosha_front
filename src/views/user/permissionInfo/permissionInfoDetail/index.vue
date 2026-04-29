@@ -119,7 +119,7 @@ import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
@@ -134,11 +134,9 @@ interface Props {
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<PermissionInfo>({});
+const formState = ref<PermissionInfo>({});
 
 const statusList = computed(() => getDictByType('is_valid'));
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -163,7 +161,7 @@ const savePermissionInfoManager = async () => {
 		api = editPermissionInfo;
 	}
 	const { code, message: messageInfo } = await api(formState.value);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -180,7 +178,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPermissionInfoDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -204,5 +202,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

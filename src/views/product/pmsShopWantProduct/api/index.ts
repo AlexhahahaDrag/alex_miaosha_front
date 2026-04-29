@@ -50,19 +50,20 @@ export function deletePmsShopWantProduct(
 	);
 }
 
-export function addOrEditPmsShopWantProduct(
-	method: string,
+export function addPmsShopWantProduct(
 	params: PmsShopWantProductData,
 ): Promise<ResponseBody<PmsShopWantProductData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.url,
+		params,
+	);
+}
+
+export function editPmsShopWantProduct(
+	params: PmsShopWantProductData,
+): Promise<ResponseBody<PmsShopWantProductData>> {
+	return putData(
+		baseService.product + basePmsShopWantProduct + PmsShopWantProductUrl.url,
+		params,
+	);
 }

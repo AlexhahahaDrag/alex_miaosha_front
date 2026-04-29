@@ -18,6 +18,7 @@
 - **配置驱动**：表格列定义 (`columns`) 与表单项配置必须提取为独立的 `const`，禁止直接内联在 `<template>`。
 - **Form 校验**：统一使用 `reactive` 定义 `rules`。对于复杂的业务校验，抽取到 `src/utils/validators.ts`。
 - **状态同步**：搜索表单的查询参数必须与 `usePagination` 的 `params` 响应式绑定。
+- **插件约束**：遵循现有 `AutoImport` 与 `unplugin-vue-components` 配置；已由插件自动引入/注册的 API 与组件不得重复手动导入，新增组件目录或解析器时必须同步更新 `vite.config.mts` 对应插件配置。
 
 ### 📌 Modal/Drawer 强化
 - **统一入口**：遵循现有的 `defineModel` 规范。

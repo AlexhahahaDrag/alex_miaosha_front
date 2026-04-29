@@ -41,19 +41,14 @@ export function deleteShopOrder(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditShopOrder(
-	method: string,
+export function addShopOrder(
 	params: ShopOrderData,
 ): Promise<ResponseBody<ShopOrderData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopOrder + ShopOrderUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopOrder + ShopOrderUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.finance + baseShopOrder + ShopOrderUrl.url, params);
+}
+
+export function editShopOrder(
+	params: ShopOrderData,
+): Promise<ResponseBody<ShopOrderData>> {
+	return putData(baseService.finance + baseShopOrder + ShopOrderUrl.url, params);
 }

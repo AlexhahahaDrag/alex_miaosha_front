@@ -41,19 +41,14 @@ export function deletePmsBrand(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditPmsBrand(
-	method: string,
+export function addPmsBrand(
 	params: PmsBrandData,
 ): Promise<ResponseBody<PmsBrandData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.product + basePmsBrand + PmsBrandUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.product + basePmsBrand + PmsBrandUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.product + basePmsBrand + PmsBrandUrl.url, params);
+}
+
+export function editPmsBrand(
+	params: PmsBrandData,
+): Promise<ResponseBody<PmsBrandData>> {
+	return putData(baseService.product + basePmsBrand + PmsBrandUrl.url, params);
 }

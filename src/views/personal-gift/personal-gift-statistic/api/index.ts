@@ -1,6 +1,6 @@
 ﻿import { getData, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
-import type { QueryParams, PersonalGiftStatisticData } from '../config/index';
+import type { QueryParams, PersonalGiftStatisticData } from '../config';
 
 const basePersonalGift = '/personal-gift';
 

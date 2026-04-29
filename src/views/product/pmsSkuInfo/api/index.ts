@@ -41,19 +41,14 @@ export function deletePmsSkuInfo(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditPmsSkuInfo(
-	method: string,
+export function addPmsSkuInfo(
 	params: PmsSkuInfoData,
 ): Promise<ResponseBody<PmsSkuInfoData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url, params);
+}
+
+export function editPmsSkuInfo(
+	params: PmsSkuInfoData,
+): Promise<ResponseBody<PmsSkuInfoData>> {
+	return putData(baseService.product + basePmsSkuInfo + PmsSkuInfoUrl.url, params);
 }

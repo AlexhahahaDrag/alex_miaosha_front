@@ -145,7 +145,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -188,7 +187,7 @@ const saveCpnCouponInfo = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -205,7 +204,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			data,
 			message: messageInfo,
 		} = await getCpnCouponInfoDetail(modalData.id);
-		if (code == '200') {
+		if (code === '200') {
 			// AI Agent：将后端返回的字符串日期转换为 dayjs 对象，以便日期选择器正确显示
 			const formattedData = { ...(data || {}) };
 			if (data?.startDate) {
@@ -237,8 +236,6 @@ const init = async () => {
 	initDetail(props.modelInfo);
 };
 
-const emits = defineEmits(['success']);
-
 defineExpose({ handleOk, handleCancel });
 
 watch(
@@ -253,6 +250,8 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped>
 /* AI Agent: 弹窗标题字号调大“两号”（默认约 16px -> 18px），并添加分割线 */

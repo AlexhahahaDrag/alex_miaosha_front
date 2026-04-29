@@ -65,7 +65,7 @@ import {
 import type { MenuProps } from 'ant-design-vue';
 import { logoutApi } from '@/views/login/api';
 import { useUserStore } from '@/store/modules/user/user';
-import { refreshRouter } from '@/router/index';
+import { refreshRouter } from '@/router';
 import { storeToRefs } from 'pinia';
 
 // 响应式数据

@@ -68,21 +68,22 @@ export const noticePersonalGift = (
 };
 
 // 添加或编辑个人随礼信息表信息
-export const addOrEditPersonalGift = (
-	method: string,
+export const addPersonalGift = (
 	params: PersonalGiftInfo,
 ): Promise<ResponseBody<PersonalGiftInfo>> => {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + basePersonalGift + PersonalGiftUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + basePersonalGift + PersonalGiftUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + basePersonalGift + PersonalGiftUrl.url,
+		params,
+	);
+};
+
+export const editPersonalGift = (
+	params: PersonalGiftInfo,
+): Promise<ResponseBody<PersonalGiftInfo>> => {
+	return putData(
+		baseService.finance + basePersonalGift + PersonalGiftUrl.url,
+		params,
+	);
 };
 
 // 导入个人随礼信息表信息

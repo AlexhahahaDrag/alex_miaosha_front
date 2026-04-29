@@ -109,7 +109,8 @@
 import type { PmsCategoryDetail } from './pmsCategoryDetailTs';
 import {
 	getPmsCategoryDetail,
-	addOrEditPmsCategory,
+	addPmsCategory,
+	editPmsCategory,
 } from '@/views/product/pmsCategory/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -178,15 +179,12 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<PmsCategoryDetail>({});
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -206,19 +204,14 @@ const handleCancel = () => {
 
 //保存商品三级分类信息
 const savePmsCategoryManager = async () => {
-	let method = '';
+	let api = addPmsCategory;
 	if (formState.value.catId) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsCategory;
 	}
-	const { code, message: messageInfo } = await addOrEditPmsCategory(
-		method,
-		formState.value,
-	).finally(() => {
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -235,7 +228,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPmsCategoryDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -260,5 +253,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

@@ -108,7 +108,8 @@ import type { ModelInfo } from '@/views/common/config';
 import type { PmsBrandData } from '../pmsBrandListTs';
 import {
 	getPmsBrandDetail,
-	addOrEditPmsBrand,
+	addPmsBrand,
+	editPmsBrand,
 } from '@/views/product/pmsBrand/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { ResponseBody } from '@/types/api';
@@ -152,7 +153,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -163,8 +163,6 @@ let formState = ref<PmsBrandData>({});
 let fileInfo = ref<FileInfo>({});
 
 let fromSystem = ref<string>('product');
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -184,15 +182,13 @@ const handleCancel = () => {
 
 //保存品牌信息
 function savePmsBrandManager() {
-	let method = '';
+	let api = addPmsBrand;
 	if (formState.value.brandId) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsBrand;
 	}
-	addOrEditPmsBrand(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -226,7 +222,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPmsBrandDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -254,5 +250,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

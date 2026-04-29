@@ -41,13 +41,14 @@ export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditOrgInfo(
-	method: string,
+export function addOrgInfo(
 	params: OrgInfoData,
 ): Promise<ResponseBody<OrgInfoData>> {
-	if ('put' == method) {
-		return putData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, params);
-	} else {
-		return postData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, params);
-	}
+	return postData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, params);
+}
+
+export function editOrgInfo(
+	params: OrgInfoData,
+): Promise<ResponseBody<OrgInfoData>> {
+	return putData(baseService.finance + baseOrgInfo + OrgInfoUrl.url, params);
 }

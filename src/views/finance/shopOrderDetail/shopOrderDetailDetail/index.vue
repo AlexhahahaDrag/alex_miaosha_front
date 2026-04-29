@@ -146,7 +146,8 @@
 import type { ShopOrderDetailData } from '../config';
 import {
 	getShopOrderDetailDetail,
-	addOrEditShopOrderDetail,
+	addShopOrderDetail,
+	editShopOrderDetail,
 } from '@/views/finance/shopOrderDetail/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -261,16 +262,11 @@ const handleCancel = (): void => {
 
 //保存商店订单明细表信息
 const saveShopOrderDetailManager = async (): Promise<void> => {
-	let method = '';
+	let api = addShopOrderDetail;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopOrderDetail;
 	}
-	const { code, message: messageInfo } = await addOrEditShopOrderDetail(
-		method,
-		formState.value,
-	).finally(() => {
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		loading.value = false;
 	});
 	if (code == '200') {

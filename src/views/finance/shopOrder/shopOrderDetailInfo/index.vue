@@ -140,7 +140,8 @@ import { useDictInfo } from '@/composables/useDictInfo';
 
 import {
 	getShopOrderDetail,
-	addOrEditShopOrder,
+	addShopOrder,
+	editShopOrder,
 } from '@/views/finance/shopOrder/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -255,18 +256,16 @@ const handleCancel = (): void => {
 
 //保存商店订单表信息
 const saveShopOrderManager = (): void => {
-	let method = '';
+	let api = addShopOrder;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopOrder;
 	}
-	addOrEditShopOrder(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
-		emit('success');
+				emit('success');
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
@@ -292,7 +291,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopOrderDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

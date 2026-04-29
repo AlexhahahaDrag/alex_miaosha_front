@@ -47,19 +47,16 @@ export function deleteAccountRecordInfo(ids: string): Promise<ResponseBody> {
 	);
 }
 
-export function addOrEditAccountRecordInfo(
-	method: string,
-	params: unknown,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
-			params,
-		);
-	}
+export function addAccountRecordInfo(params: unknown): Promise<ResponseBody> {
+	return postData(
+		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
+		params,
+	);
+}
+
+export function editAccountRecordInfo(params: unknown): Promise<ResponseBody> {
+	return putData(
+		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
+		params,
+	);
 }

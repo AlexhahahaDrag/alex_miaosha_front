@@ -223,7 +223,7 @@ import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import type {
 	AnalysisData,
 	TooltipParam,
-} from '@/views/finance/financeAnalysis/analysis/index';
+} from '@/views/finance/financeAnalysis/analysis';
 import * as math from 'mathjs';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -233,7 +233,7 @@ import {
 	dateFormatter,
 	tooltip,
 	type ItemInfo,
-} from '@/views/finance/financeAnalysis/analysis/index';
+} from '@/views/finance/financeAnalysis/analysis';
 import {
 	getBalance,
 	getIncomeAndExpense,

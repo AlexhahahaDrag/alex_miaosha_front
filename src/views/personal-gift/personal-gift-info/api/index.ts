@@ -1,6 +1,6 @@
 ﻿import { postData, baseService } from '@/utils/request';
 import type { ResponseBody, CommonPageResult } from '@/types/api';
-import type { ContactsGiftRecord } from '../config/index';
+import type { ContactsGiftRecord } from '../config';
 
 const basePersonalGift = '/personal-gift';
 

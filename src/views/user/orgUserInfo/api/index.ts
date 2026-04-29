@@ -38,20 +38,13 @@ export function deleteOrgUserInfo(ids: string): Promise<ResponseBody> {
 	});
 }
 
-export function addOrEditOrgUserInfo(
-	method: string,
+export function addOrgUserInfo(
 	params: any,
 ): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(
-			baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, params);
+}
+
+export function editOrgUserInfo(params: any): Promise<ResponseBody> {
+	return putData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, params);
 }
 

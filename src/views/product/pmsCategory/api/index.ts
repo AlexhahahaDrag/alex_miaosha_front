@@ -47,19 +47,20 @@ export function deletePmsCategory(ids: string): Promise<ResponseBody<boolean>> {
 	);
 }
 
-export function addOrEditPmsCategory(
-	method: string,
+export function addPmsCategory(
 	params: PmsCategoryData,
 ): Promise<ResponseBody<PmsCategoryData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.product + basePmsCategory + PmsCategoryUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.product + basePmsCategory + PmsCategoryUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.product + basePmsCategory + PmsCategoryUrl.url,
+		params,
+	);
+}
+
+export function editPmsCategory(
+	params: PmsCategoryData,
+): Promise<ResponseBody<PmsCategoryData>> {
+	return putData(
+		baseService.product + basePmsCategory + PmsCategoryUrl.url,
+		params,
+	);
 }

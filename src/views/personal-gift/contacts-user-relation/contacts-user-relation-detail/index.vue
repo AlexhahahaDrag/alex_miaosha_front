@@ -1,6 +1,6 @@
 <template>
 	<a-modal
-		:open="open"
+		v-model:open="open"
 		:title="modelInfo?.title || '关系分类'"
 		:confirm-loading="loading"
 		@ok="onSubmit"
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { FormInstance } from 'ant-design-vue';
-import type { ContactsUserRelationInfo } from '../config/index';
+import type { ContactsUserRelationInfo } from '../config';
 import {
 	addContactsUserRelation,
 	editContactsUserRelation,
@@ -86,7 +86,6 @@ import { useUserStore } from '@/store/modules/user/user';
 const userId = useUserStore()?.getUserInfo?.id;
 
 interface Props {
-	open?: boolean;
 	modelInfo?: {
 		open: boolean;
 		title?: string;
@@ -95,13 +94,8 @@ interface Props {
 	};
 }
 
-const props = withDefaults(defineProps<Props>(), {
-	open: false,
-});
-
-const emit = defineEmits<{
-	success: [];
-}>();
+const props = defineProps<Props>();
+const open = defineModel<boolean>('open', { default: false });
 
 const formRef = ref<FormInstance>();
 const loading = ref<boolean>(false);
@@ -116,7 +110,7 @@ const formData = ref<ContactsUserRelationInfo>({
 // 加载详情
 const loadDetail = async (id: string): Promise<void> => {
 	const { code, data } = await getContactsUserRelationDetail(id);
-	if (code == '200' && data) {
+		if (code === '200' && data) {
 		formData.value = { ...data };
 	} else {
 		message.error('加载详情失败！');
@@ -151,7 +145,7 @@ const onSubmit = async (): Promise<void> => {
 		}
 
 		const { code, message: messageInfo } = response;
-		if (code == '200') {
+		if (code === '200') {
 			message.success(
 				messageInfo || (props.modelInfo?.id ? '编辑成功！' : '添加成功！'),
 				3,
@@ -187,6 +181,10 @@ watch(
 		}
 	},
 );
+
+const emit = defineEmits<{
+	success: [];
+}>();
 </script>
 
 <style scoped>

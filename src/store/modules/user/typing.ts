@@ -1,7 +1,7 @@
 import type { Nullable } from '@/types/global';
 import type { RoleEnum } from '@/types/role_enum';
 import type { UserInfo } from '@/types/store';
-import type { RoleInfoData } from '@/views/user/roleInfo/roleInfo';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
 export interface UserState {
 	id?: string | number;

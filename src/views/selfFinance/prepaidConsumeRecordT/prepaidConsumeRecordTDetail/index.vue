@@ -98,7 +98,7 @@
 								v-model:value="formState.consumeTime"
 								:format="'YYYY-MM-DD'"
 								:getPopupContainer="
-									(triggerNode: any) => {
+									(triggerNode: HTMLElement) => {
 										return triggerNode.parentNode;
 									}
 								"
@@ -127,7 +127,8 @@
 import type { PrepaidConsumeRecordTDetail } from './prepaidConsumeRecordTDetailTs';
 import {
 	getPrepaidConsumeRecordTDetail,
-	addOrEditPrepaidConsumeRecordT,
+	addPrepaidConsumeRecordT,
+	editPrepaidConsumeRecordT,
 } from '../api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -205,15 +206,12 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<PrepaidConsumeRecordTDetail>({});
-
-const emit = defineEmits(['success']);
 
 const handleOk = (): void => {
 	loading.value = true;
@@ -233,15 +231,13 @@ const handleCancel = (): void => {
 
 //保存消费卡交易记录表信息
 const savePrepaidConsumeRecordTManager = (): void => {
-	let method = '';
+	let api = addPrepaidConsumeRecordT;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPrepaidConsumeRecordT;
 	}
-	addOrEditPrepaidConsumeRecordT(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -262,7 +258,7 @@ const init = (): void => {
 	if (props.modelInfo?.id) {
 		getPrepaidConsumeRecordTDetail(props.modelInfo.id)
 			.then((res) => {
-				if (res.code == '200') {
+				if (res.code === '200') {
 					formState.value = res.data || {};
 					modelConfig.confirmLoading = false;
 				} else {
@@ -290,5 +286,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

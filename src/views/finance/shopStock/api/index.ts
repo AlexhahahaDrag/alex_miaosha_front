@@ -41,19 +41,14 @@ export function deleteShopStock(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditShopStock(
-	method: string,
+export function addShopStock(
 	params: ShopStockData,
 ): Promise<ResponseBody<ShopStockData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopStock + ShopStockUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopStock + ShopStockUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.finance + baseShopStock + ShopStockUrl.url, params);
+}
+
+export function editShopStock(
+	params: ShopStockData,
+): Promise<ResponseBody<ShopStockData>> {
+	return putData(baseService.finance + baseShopStock + ShopStockUrl.url, params);
 }

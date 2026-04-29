@@ -133,7 +133,8 @@
 import type { PmsAttrDetail } from './pmsAttrDetailTs';
 import {
 	getPmsAttrDetail,
-	addOrEditPmsAttr,
+	addPmsAttr,
+	editPmsAttr,
 } from '@/views/product/pmsAttr/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -249,13 +250,11 @@ const handleCancel = () => {
 
 //保存商品属性信息
 function savePmsAttrManager() {
-	let method = '';
+	let api = addPmsAttr;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsAttr;
 	}
-	addOrEditPmsAttr(method, formState.value)
+	api(formState.value)
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');

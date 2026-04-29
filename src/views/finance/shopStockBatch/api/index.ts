@@ -49,19 +49,20 @@ export function deleteShopStockBatch(
 	);
 }
 
-export function addOrEditShopStockBatch(
-	method: string,
+export function addShopStockBatch(
 	params: ShopStockBatchData,
 ): Promise<ResponseBody<ShopStockBatchData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
+		params,
+	);
+}
+
+export function editShopStockBatch(
+	params: ShopStockBatchData,
+): Promise<ResponseBody<ShopStockBatchData>> {
+	return putData(
+		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
+		params,
+	);
 }

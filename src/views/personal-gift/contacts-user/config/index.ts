@@ -1,5 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
-import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config/index';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config';
 
 export const columns = ref<TableColumnsType>([
 	{

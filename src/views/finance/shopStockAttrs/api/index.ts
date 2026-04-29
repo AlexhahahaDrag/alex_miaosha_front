@@ -49,19 +49,20 @@ export function deleteShopStockAttrs(
 	);
 }
 
-export function addOrEditShopStockAttrs(
-	method: string,
+export function addShopStockAttrs(
 	params: ShopStockAttrsData,
 ): Promise<ResponseBody<ShopStockAttrsData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
+		params,
+	);
+}
+
+export function editShopStockAttrs(
+	params: ShopStockAttrsData,
+): Promise<ResponseBody<ShopStockAttrsData>> {
+	return putData(
+		baseService.finance + baseShopStockAttrs + ShopStockAttrsUrl.url,
+		params,
+	);
 }

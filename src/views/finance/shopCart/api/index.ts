@@ -44,19 +44,14 @@ export function deleteShopCart(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditShopCart(
-	method: string,
+export function addShopCart(
 	params: ShopCartData,
 ): Promise<ResponseBody<ShopCartData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopCart + ShopCartUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopCart + ShopCartUrl.url,
-			params,
-		);
-	}
+	return postData(baseService.finance + baseShopCart + ShopCartUrl.url, params);
+}
+
+export function editShopCart(
+	params: ShopCartData,
+): Promise<ResponseBody<ShopCartData>> {
+	return putData(baseService.finance + baseShopCart + ShopCartUrl.url, params);
 }

@@ -27,7 +27,7 @@
 	</a-drawer>
 </template>
 <script lang="ts" setup>
-import type { RoleInfoData } from '../roleInfo';
+import type { RoleInfoData } from '../config';
 
 // 字典数据已通过 useDictInfo 自动加载
 import {
@@ -36,7 +36,7 @@ import {
 	editRoleInfo,
 } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const modelConfig = {
 	confirmLoading: true,
@@ -44,21 +44,18 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	data?: unknown;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<RoleInfoData>({});
+const formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 
 const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -82,7 +79,7 @@ const saveRoleInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -94,7 +91,7 @@ const saveRoleInfoManager = async () => {
 // 获取所有权限列表和已选权限
 const getAllPermissions = async () => {
 	try {
-		const roleId = (props.data as { id: string | number })?.id;
+		const roleId = (props.data as { id: string })?.id;
 
 		if (roleId) {
 			// 如果有角色ID，获取该角色的详情（包含所有权限列表和已选权限）
@@ -102,8 +99,8 @@ const getAllPermissions = async () => {
 				code,
 				data,
 				message: messageInfo,
-			} = await getRoleInfoDetail(Number(roleId));
-			if (code == '200') {
+			} = await getRoleInfoDetail(roleId);
+			if (code === '200') {
 				formState.value = data as RoleInfoData;
 				// 设置所有权限列表（permissionList 包含所有权限）
 				permissionTree.value =
@@ -125,8 +122,8 @@ const getAllPermissions = async () => {
 			// 假设可以通过一个存在的角色ID获取所有权限列表（permissionList 包含所有权限）
 			// 这里使用角色ID为1，如果后端不支持，需要调用专门的获取所有权限的API
 			// 注意：这里只获取权限列表，不设置已选权限
-			const { code, data, message: messageInfo } = await getRoleInfoDetail(1);
-			if (code == '200') {
+			const { code, data, message: messageInfo } = await getRoleInfoDetail('1');
+			if (code === '200') {
 				// 只获取权限列表，不设置已选权限
 				permissionTree.value =
 					(data as { permissionList?: unknown[] })?.permissionList || [];
@@ -170,5 +167,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

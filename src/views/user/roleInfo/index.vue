@@ -55,7 +55,7 @@
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record: any) => record.id"
+				:row-key="(record: RoleInfoData) => record.id || 0"
 				:pagination="pagination"
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content', y: 520 }"
@@ -92,22 +92,22 @@
 					<template v-else-if="column.key === 'status'">
 						<a-tag
 							:key="record.status"
-							:color="record.status == '1' ? '#87d068' : 'grey'"
+							:color="record.status === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.status == '1' ? '有效' : '失效' }}
+							{{ record.status === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 				</template>
 			</a-table>
 			<role-info-detail
 				ref="editInfo"
-				v-modelv-model:open="visible"
+				v-model:open="visible"
 				:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></role-info-detail>
 			<authorization-detail
 				ref="authorizationInfo"
-				:open="authorizationModal.open"
+				v-model:open="authorizationModal.open"
 				:data="authorizationModal"
 				@success="handleSuccess"
 			></authorization-detail>
@@ -118,7 +118,11 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import { columns, type RoleInfoData, labelMap } from './roleInfo';
+import {
+	columns,
+	type RoleInfoData,
+	labelMap,
+} from '@/views/user/roleInfo/config';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 
@@ -133,7 +137,7 @@ const {
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let rowIds: (string | number)[] = [];
+const rowIds = ref<(string | number)[]>([]);
 
 let searchInfo = ref<RoleInfoData>({});
 
@@ -147,7 +151,7 @@ const modelInfo = ref<ModelInfo>({});
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
+		rowIds.value = selectedRowKeys;
 	},
 	onSelect: (
 		record: RoleInfoData,
@@ -178,7 +182,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delRoleInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteRoleInfo(ids);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		// 刷新列表
 		setCurrent(1);
@@ -189,11 +193,11 @@ const delRoleInfo = async (ids: string) => {
 };
 
 const batchDelRoleInfo = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delRoleInfo(rowIds.join(','));
+	delRoleInfo(rowIds.value.join(','));
 };
 
 const cancel = (e: MouseEvent) => {
@@ -202,12 +206,12 @@ const cancel = (e: MouseEvent) => {
 
 //新增和修改弹窗
 const editRoleInfo = (type: string, id?: number) => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
@@ -217,15 +221,11 @@ const handleSuccess = () => {
 	getRoleInfoListPage(searchInfo.value, pagination);
 };
 
-const authorizationModal = ref<any>({ open: false });
+const authorizationModal = ref<{ open: boolean; id?: string }>({ open: false });
 
 const roleAuthorizationInfo = (id: string) => {
 	authorizationModal.value.open = true;
 	authorizationModal.value.id = id;
-};
-
-const handleAuthorizationCancel = () => {
-	authorizationModal.value.open = false;
 };
 
 const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
@@ -237,7 +237,7 @@ const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	} = await getRoleInfoPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

@@ -102,8 +102,8 @@
 								v-model:value="formState.birthday"
 								:format="defaultDateFormat"
 								:getPopupContainer="
-									(triggerNode: any) => {
-										return triggerNode.parentNode;
+									(triggerNode: HTMLElement) => {
+										return triggerNode.parentNode as HTMLElement;
 									}
 								"
 							/>
@@ -167,7 +167,7 @@
 	</a-modal>
 </template>
 <script lang="ts" setup>
-import { rulesRef } from './config';
+import { rulesRef } from '@/views/user/userManager/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	getUserManagerDetail,
@@ -199,7 +199,6 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
 let formState = ref<UserManagerInfo>({});
 const formRef = ref<FormInstance>();
 // 字典数据已通过 useDictInfo 自动加载
@@ -242,7 +241,7 @@ const saveUserManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -268,9 +267,12 @@ const init = async () => {
 				data,
 				message: messageInfo,
 			} = await getUserManagerDetail(props.modelInfo.id);
-			if (code == '200') {
+			if (code === '200') {
 				formState.value = data || {};
-				if (formState.value.gender !== undefined && formState.value.gender !== null) {
+				if (
+					formState.value.gender !== undefined &&
+					formState.value.gender !== null
+				) {
 					formState.value.gender = String(formState.value.gender);
 				}
 				formState.value.birthday = dayjs(formState.value.birthday);

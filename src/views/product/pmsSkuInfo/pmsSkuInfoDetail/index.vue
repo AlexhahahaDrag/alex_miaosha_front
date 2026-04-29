@@ -127,7 +127,8 @@
 import type { PmsSkuInfoDetail } from './pmsSkuInfoDetailTs';
 import {
 	getPmsSkuInfoDetail,
-	addOrEditPmsSkuInfo,
+	addPmsSkuInfo,
+	editPmsSkuInfo,
 } from '@/views/product/pmsSkuInfo/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -208,15 +209,12 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<PmsSkuInfoDetail>({});
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -236,19 +234,14 @@ const handleCancel = () => {
 
 //保存sku信息信息
 const savePmsSkuInfoManager = async (): Promise<void> => {
-	let method = '';
+	let api = addPmsSkuInfo;
 	if (formState.value.skuId) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsSkuInfo;
 	}
-	const { code, message: messageInfo } = await addOrEditPmsSkuInfo(
-		method,
-		formState.value,
-	).finally(() => {
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -267,7 +260,7 @@ const init = async (): Promise<void> => {
 			data,
 			message: messageInfo,
 		} = await getPmsSkuInfoDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -291,5 +284,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

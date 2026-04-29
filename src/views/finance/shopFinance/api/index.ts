@@ -47,19 +47,20 @@ export function deleteShopFinance(ids: string): Promise<ResponseBody<boolean>> {
 	);
 }
 
-export function addOrEditShopFinance(
-	method: string,
+export function addShopFinance(
 	params: ShopFinanceData,
 ): Promise<ResponseBody<ShopFinanceData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + baseShopFinance + ShopFinanceUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + baseShopFinance + ShopFinanceUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + baseShopFinance + ShopFinanceUrl.url,
+		params,
+	);
+}
+
+export function editShopFinance(
+	params: ShopFinanceData,
+): Promise<ResponseBody<ShopFinanceData>> {
+	return putData(
+		baseService.finance + baseShopFinance + ShopFinanceUrl.url,
+		params,
+	);
 }

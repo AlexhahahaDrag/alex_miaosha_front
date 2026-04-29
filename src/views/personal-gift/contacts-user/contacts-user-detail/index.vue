@@ -116,9 +116,9 @@
 <script setup lang="ts">
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { rulesRef } from './config/index';
-import { labelCol, wrapperCol } from '../config/index';
-import type { ContactsUserInfo } from '../config/index';
+import { rulesRef } from './config';
+import { labelCol, wrapperCol } from '../config';
+import type { ContactsUserInfo } from '../config';
 import type { ModelInfo } from '@/views/common/config';
 import {
 	getContactsUserDetail,
@@ -129,7 +129,7 @@ import {
 	getUserEnabledRelations,
 	getPublicEnabledRelations,
 } from '@/views/personal-gift/contacts-user-relation/api';
-import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config/index';
+import type { ContactsUserRelationInfo } from '@/views/personal-gift/contacts-user-relation/config';
 import { useUserStore } from '@/store/modules/user/user';
 
 const formRef = ref<FormInstance>();
@@ -141,7 +141,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 
@@ -188,7 +187,7 @@ const saveContactsUserManager = async (): Promise<void> => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -208,13 +207,13 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		if (userId) {
 			// 获取用户的所有启用的关系分类（公共+私有）
 			const { code, data } = await getUserEnabledRelations(userId);
-			if (code == '200' && data) {
+			if (code === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		} else {
 			// 如果没有用户ID，获取公共的关系分类
 			const { code, data } = await getPublicEnabledRelations();
-			if (code == '200' && data) {
+			if (code === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		}
@@ -238,7 +237,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getContactsUserDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 		} else {
 			message.error(messageInfo || '查询失败！');

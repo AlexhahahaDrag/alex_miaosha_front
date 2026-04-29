@@ -79,7 +79,7 @@
 							:format="defaultDateFormat"
 							style="width: 100%"
 							:getPopupContainer="
-								(triggerNode: any) => {
+								(triggerNode: HTMLElement) => {
 									return triggerNode.parentNode;
 								}
 							"
@@ -139,14 +139,15 @@
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { watch, computed, ref } from 'vue';
-import { rulesRef } from './config/index';
-import { labelCol, wrapperCol, labelMap } from './config/index';
-import type { PersonalGiftInfo } from './config/index';
+import { rulesRef } from './config';
+import { labelCol, wrapperCol, labelMap } from './config';
+import type { PersonalGiftInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
 import { defaultDateFormat } from '@/utils/dayjs';
 import {
 	getPersonalGiftDetail,
-	addOrEditPersonalGift,
+	addPersonalGift,
+	editPersonalGift,
 } from '@/views/finance/personalGift/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 
@@ -162,7 +163,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo & {
 		contactsUserId?: number | string;
 	};
@@ -198,20 +198,15 @@ const handleCancel = (): void => {
 
 // 保存个人随礼信息表信息
 const savePersonalGiftManager = async (): Promise<void> => {
-	let method = '';
+	let api = addPersonalGift;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPersonalGift;
 	}
-	const { code, message: messageInfo } = await addOrEditPersonalGift(
-		method,
-		formState.value,
-	).finally(() => {
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		confirmLoading.value = false;
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -229,7 +224,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPersonalGiftDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 		} else {
 			message.error(messageInfo || '查询失败！');

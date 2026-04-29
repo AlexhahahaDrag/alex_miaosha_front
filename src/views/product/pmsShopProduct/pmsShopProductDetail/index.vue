@@ -122,7 +122,8 @@
 import type { PmsShopProductDetail } from './pmsShopProductDetailTs';
 import {
 	getPmsShopProductDetail,
-	addOrEditPmsShopProduct,
+	addPmsShopProduct,
+	editPmsShopProduct,
 	getProductHisInfo,
 } from '@/views/product/pmsShopProduct/api';
 import type { FormInstance } from 'ant-design-vue';
@@ -147,7 +148,6 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
@@ -182,8 +182,6 @@ let dayConfig = ref<barItem>({
 //   ]
 // };
 
-const emit = defineEmits(['success']);
-
 const handleOk = () => {
 	loading.value = true;
 	if (formRef.value) {
@@ -202,15 +200,13 @@ const handleCancel = () => {
 
 //保存商品网上商品信息信息
 function savePmsShopProductManager() {
-	let method = '';
+	let api = addPmsShopProduct;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsShopProduct;
 	}
-	addOrEditPmsShopProduct(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -232,7 +228,7 @@ let sourceName = ref<string>('');
 function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
 	getProductHisInfo(skuId, dateStr).then(
 		(res: { code: string; data: any[]; message: any }) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				if (res.data) {
 					let series = [] as any;
 					let xAxis = [] as any;
@@ -289,10 +285,10 @@ const init = async () => {
 			getDictList('shop_type'),
 			getPmsShopProductDetail(props.modelInfo.id),
 		]).then((res: any[]) => {
-			if (res[0].code == '200' && res[0].data?.length && res[1].data) {
+			if (res[0].code === '200' && res[0].data?.length && res[1].data) {
 				res[0].data.forEach(
 					(item: { typeCode: string; typeName: Ref<string> }) => {
-						if (item.typeCode == res[1].data.source) {
+						if (item.typeCode === res[1].data.source) {
 							sourceName.value = item.typeName.value;
 						}
 					},
@@ -300,7 +296,7 @@ const init = async () => {
 			} else {
 				message.error((res[0] && res[0].message) || '查询列表失败！');
 			}
-			if (res[1].code == '200') {
+			if (res[1].code === '200') {
 				formState.value = res[1].data;
 				modelConfig.confirmLoading = false;
 			} else {
@@ -328,6 +324,8 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>
 <style lang="scss" scoped>

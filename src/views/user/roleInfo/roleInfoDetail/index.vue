@@ -99,8 +99,13 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import type { RoleInfoData } from '../roleInfo';
-import { labelMap, rulesRef, labelCol, wrapperCol } from '../roleInfo';
+import type { RoleInfoData } from '../config';
+import {
+	labelMap,
+	rulesRef,
+	labelCol,
+	wrapperCol,
+} from '@/views/user/roleInfo/config';
 import {
 	getRoleInfoDetail,
 	addRoleInfo,
@@ -109,7 +114,7 @@ import {
 
 const { getDictByType } = useDictInfo('is_valid');
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
@@ -124,16 +129,14 @@ interface Props {
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<RoleInfoData>({});
+const formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
 
-const permissionTree = ref<any[]>([]);
+const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -156,15 +159,15 @@ const saveRoleInfoManager = async () => {
 	if (formState.value.id) {
 		api = editRoleInfo;
 	}
-	formState.value.permissionList = selectPermission.value.map(
-		(id) => ({ id: Number(id) }) as any,
-	);
+	formState.value.permissionList = selectPermission.value.map((id) => ({
+		id: Number(id),
+	}));
 	const { code, message: messageInfo } = await api(formState.value).finally(
 		() => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -180,7 +183,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getRoleInfoDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			permissionTree.value =
 				(data as { permissionList?: unknown[] })?.permissionList || [];
@@ -211,5 +214,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

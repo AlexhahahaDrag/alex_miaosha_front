@@ -136,7 +136,8 @@ import type { ModelInfo } from '@/views/common/config';
 import { defaultDateFormat } from '@/utils/dayjs';
 import {
 	getPersonalGiftDetail,
-	addOrEditPersonalGift,
+	addPersonalGift,
+	editPersonalGift,
 } from '@/views/finance/personalGift/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 
@@ -183,13 +184,14 @@ const handleCancel = (): void => {
 
 //保存个人随礼信息表信息
 const savePersonalGiftManager = async (): Promise<void> => {
-	const { code, message: messageInfo } = await addOrEditPersonalGift(
-		formState.value.id ? 'put' : 'post',
-		formState.value,
-	).finally(() => {
+	let api = addPersonalGift;
+	if (formState.value.id) {
+		api = editPersonalGift;
+	}
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -207,7 +209,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPersonalGiftDetail(Number(props.modelInfo.id));
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

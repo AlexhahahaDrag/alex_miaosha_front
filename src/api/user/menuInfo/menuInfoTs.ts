@@ -38,13 +38,10 @@ export function deleteMenuInfo(ids: string): Promise<ResponseBody> {
 	);
 }
 
-export function addOrEditMenuInfo(
-	method: string,
-	params: unknown,
-): Promise<ResponseBody> {
-	if ('put' == method) {
-		return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
-	} else {
-		return postData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
-	}
+export function addMenuInfo(params: unknown): Promise<ResponseBody> {
+	return postData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
+}
+
+export function editMenuInfo(params: unknown): Promise<ResponseBody> {
+	return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
 }

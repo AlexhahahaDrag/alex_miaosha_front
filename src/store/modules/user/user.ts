@@ -6,7 +6,7 @@ import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
 import type { UserInfo } from '@/types/store';
-import type { RoleInfoData } from '@/views/user/roleInfo/roleInfo';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
 export const useUserStore = defineStore(
 	'app-user',

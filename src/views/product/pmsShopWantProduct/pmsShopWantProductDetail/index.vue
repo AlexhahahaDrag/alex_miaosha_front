@@ -78,7 +78,8 @@ import type { PmsShopWantProductDetail } from './pmsShopWantProductDetailTs';
 
 import {
 	getPmsShopWantProductDetail,
-	addOrEditPmsShopWantProduct,
+	addPmsShopWantProduct,
+	editPmsShopWantProduct,
 } from '@/views/product/pmsShopWantProduct/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -118,15 +119,12 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
 let formState = ref<PmsShopWantProductDetail>({});
-
-const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -146,15 +144,13 @@ const handleCancel = () => {
 
 //保存商品想买网上商品信息信息
 function savePmsShopWantProductManager() {
-	let method = '';
+	let api = addPmsShopWantProduct;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editPmsShopWantProduct;
 	}
-	addOrEditPmsShopWantProduct(method, formState.value)
+	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -178,7 +174,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPmsShopWantProductDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -202,5 +198,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

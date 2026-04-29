@@ -56,23 +56,24 @@ export function deletePrepaidConsumeRecordT(
 	);
 }
 
-export function addOrEditPrepaidConsumeRecordT(
-	method: string,
+export function addPrepaidConsumeRecordT(
 	params: PrepaidConsumeRecordTData,
 ): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance +
-				basePrepaidConsumeRecordT +
-				PrepaidConsumeRecordTUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance +
-				basePrepaidConsumeRecordT +
-				PrepaidConsumeRecordTUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance +
+			basePrepaidConsumeRecordT +
+			PrepaidConsumeRecordTUrl.url,
+		params,
+	);
+}
+
+export function editPrepaidConsumeRecordT(
+	params: PrepaidConsumeRecordTData,
+): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
+	return putData(
+		baseService.finance +
+			basePrepaidConsumeRecordT +
+			PrepaidConsumeRecordTUrl.url,
+		params,
+	);
 }

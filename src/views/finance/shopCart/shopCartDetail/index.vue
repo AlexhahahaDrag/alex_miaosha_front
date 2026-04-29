@@ -98,7 +98,8 @@
 import type { ShopCartDetail } from './shopCartDetailTs';
 import {
 	getShopCartDetail,
-	addOrEditShopCart,
+	addShopCart,
+	editShopCart,
 } from '@/views/finance/shopCart/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -185,13 +186,11 @@ const handleCancel = (): void => {
 
 //保存购物车表信息
 const saveShopCartManager = (): void => {
-	let method = '';
+	let api = addShopCart;
 	if (formState.value.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopCart;
 	}
-	addOrEditShopCart(method, formState.value)
+	api(formState.value)
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');

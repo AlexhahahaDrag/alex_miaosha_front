@@ -41,13 +41,14 @@ export function deletePmsAttr(ids: string): Promise<ResponseBody<boolean>> {
 	});
 }
 
-export function addOrEditPmsAttr(
-	method: string,
+export function addPmsAttr(
 	params: PmsAttrData,
 ): Promise<ResponseBody<PmsAttrData>> {
-	if ('put' == method) {
-		return putData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
-	} else {
-		return postData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
-	}
+	return postData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
+}
+
+export function editPmsAttr(
+	params: PmsAttrData,
+): Promise<ResponseBody<PmsAttrData>> {
+	return putData(baseService.product + basePmsAttr + PmsAttrUrl.url, params);
 }

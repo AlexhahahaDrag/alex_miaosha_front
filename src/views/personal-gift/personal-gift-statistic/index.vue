@@ -148,7 +148,7 @@ import {
 	pieChartColors,
 	lineChartColors,
 	statisticCards,
-} from './config/index';
+} from './config';
 
 // 用户信息
 const userName = ref(defaultUserInfo.name);

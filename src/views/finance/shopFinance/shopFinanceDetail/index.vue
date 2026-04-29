@@ -153,7 +153,8 @@
 import type { ShopFinanceDetail } from './shopFinanceDetailTs';
 import {
 	getShopFinanceDetail,
-	addOrEditShopFinance,
+	addShopFinance,
+	editShopFinance,
 } from '@/views/finance/shopFinance/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
@@ -266,13 +267,11 @@ const handleCancel = () => {
 
 //保存商店财务表信息
 function saveShopFinanceManager() {
-	let method = '';
+	let api = addShopFinance;
 	if (formState.value?.id) {
-		method = 'put';
-	} else {
-		method = 'post';
+		api = editShopFinance;
 	}
-	addOrEditShopFinance(method, formState.value || {})
+	api(formState.value || {})
 		.then((res) => {
 			if (res.code == '200') {
 				message.success((res && res.message) || '保存成功！');

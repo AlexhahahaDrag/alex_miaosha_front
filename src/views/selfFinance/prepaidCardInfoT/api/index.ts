@@ -70,19 +70,20 @@ export function consumeAndRecharge(
 	);
 }
 
-export function addOrEditPrepaidCardInfoT(
-	method: string,
+export function addPrepaidCardInfoT(
 	params: PrepaidCardInfoTData,
 ): Promise<ResponseBody<PrepaidCardInfoTData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
+		params,
+	);
+}
+
+export function editPrepaidCardInfoT(
+	params: PrepaidCardInfoTData,
+): Promise<ResponseBody<PrepaidCardInfoTData>> {
+	return putData(
+		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
+		params,
+	);
 }

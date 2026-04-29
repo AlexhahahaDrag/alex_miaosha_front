@@ -128,7 +128,7 @@
 		<!-- 详情模态框 -->
 		<contacts-user-detail
 			ref="detailRef"
-			v-modelv-model:open="modelInfo.open"
+			v-model:open="modelInfo.open"
 			:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></contacts-user-detail>
@@ -199,9 +199,8 @@ const modelInfo = ref<{
 
 // 处理详情页面保存成功
 const handleSuccess = (): void => {
-// 重新加载列表
+	// 重新加载列表
 	getContactsUserListPage(searchInfo.value, pagination);
-
 };
 
 // 清空查询条件
@@ -238,7 +237,7 @@ const onDeleteContact = async (id: string | undefined): Promise<void> => {
 		return;
 	}
 	const { code, message: messageInfo } = await deleteContactsUser(String(id));
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getContactsUserListPage(searchInfo.value, pagination);
 	} else {
@@ -251,7 +250,7 @@ const customImportRequest = async (info: unknown): Promise<void> => {
 	const formData = new FormData();
 	formData.append('file', (info as { file: File }).file);
 	const { code, message: messageInfo } = await importContactsUser(formData);
-	if (code == '200') {
+	if (code === '200') {
 		message.success(messageInfo || '导入成功！', 3);
 		const params: ContactsUserInfo = {};
 		getContactsUserListPage(params, pagination);
@@ -279,7 +278,7 @@ const getContactsUserListPage = async (
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (code === '200') {
 		contactList.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -369,7 +368,7 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		const { code, data } = await getUserEnabledRelations(
 			String(userInfo.value?.id ?? ''),
 		);
-		if (code == '200' && data) {
+		if (code === '200' && data) {
 			relationshipOptions.value = data;
 		}
 	} catch (error: unknown) {

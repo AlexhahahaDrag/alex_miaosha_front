@@ -77,19 +77,20 @@ export function getProductHisInfo(
 	);
 }
 
-export function addOrEditPmsShopProduct(
-	method: string,
+export function addPmsShopProduct(
 	params: PmsShopProductData,
 ): Promise<ResponseBody<PmsShopProductData>> {
-	if ('put' == method) {
-		return putData(
-			baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
-			params,
-		);
-	} else {
-		return postData(
-			baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
-			params,
-		);
-	}
+	return postData(
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
+		params,
+	);
+}
+
+export function editPmsShopProduct(
+	params: PmsShopProductData,
+): Promise<ResponseBody<PmsShopProductData>> {
+	return putData(
+		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
+		params,
+	);
 }

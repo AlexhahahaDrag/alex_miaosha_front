@@ -124,7 +124,6 @@ const userStore = useUserStore();
 const userInfo = computed(() => userStore.getUserInfo);
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 	// 从列表行传入，用于初始化弹窗展示/校验
 	couponInfo?: CpnCouponInfoData;
@@ -241,8 +240,6 @@ const initDetail = () => {
 	};
 };
 
-const emits = defineEmits(['success']);
-
 watch(
 	() => open.value,
 	(newVal) => {
@@ -252,6 +249,8 @@ watch(
 	},
 	{ immediate: true },
 );
+
+const emit = defineEmits(['success']);
 </script>
 
 <style lang="scss" scoped>
