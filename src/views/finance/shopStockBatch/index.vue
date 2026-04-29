@@ -88,9 +88,9 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid == 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === 1 ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid == 1 ? '有效' : '失效' }}
+							{{ record.isValid === 1 ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 				</template>
@@ -166,7 +166,7 @@ const handleTableChange = (pagination: PageInfo): void => {
 
 const delShopStockBatch = async (ids: string): Promise<void> => {
 	const { code, message: msg } = await deleteShopStockBatch(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success((msg && '删除' + msg) || '删除成功！', 3);
 		getShopStockBatchListPage(searchInfo.value, pagination);
 	} else {
@@ -201,7 +201,7 @@ const getShopStockBatchListPage = async (
 			data,
 			message: msg,
 		} = await getShopStockBatchPage(param, cur.current, cur.pageSize);
-		if (code == '200') {
+		if (String(code) === '200') {
 			dataSource.value = data?.records;
 			setTotal(data?.total || 0);
 		} else {
@@ -224,10 +224,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopStockBatch = (type: string, id?: number): void => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id ? String(id) : undefined;
 	}

@@ -72,7 +72,7 @@
 						</a-col>
 					</a-row>
 					<a-row :gutter="24">
-						<a-col :span="20" style="text-align: right">
+						<a-col :span="20" class="actions-col">
 							<a-space>
 								<a-button type="primary" @click="query"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './shopCartListTs';
+import type { ShopCartData } from '@/views/finance/shopCart/config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns } from '@/views/finance/shopCart/config';
 import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
@@ -153,34 +153,29 @@ const {
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let rowIds: (string | number)[] = [];
+const rowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		rowIds.value = selectedRowKeys;
 	},
 });
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap: Record<string, { name: string; label: string }> = {
 	shopId: { name: 'shopId', label: '商品id' },
 	userId: { name: 'userId', label: '人员id' },
 	customerId: { name: 'customerId', label: '客户id' },
 	isValid: { name: 'isValid', label: '是否有效' },
 	saleNum: { name: 'saleNum', label: '数量' },
-});
+};
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<ShopCartData>({});
+
+const loading = ref<boolean>(false);
+const dataSource = ref<ShopCartData[]>([]);
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -192,68 +187,54 @@ const query = (): void => {
 
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
-	getShopCartListPage(searchInfo.value, pagination);
+	getShopCartListPage(searchInfo.value, paginationInfo);
 };
 
-const delShopCart = (ids: string): void => {
-	deleteShopCart(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopCartListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopCart = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopCart(ids);
+	if (String(code) === '200') {
+		message.success(('删除' + messageInfo) || '删除成功！', 3);
+		rowIds.value = [];
+		getShopCartListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
 };
 
 const batchDelShopCart = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopCart(rowIds.join(','));
+	delShopCart(rowIds.value.join(','));
 };
 
-let loading = ref<boolean>(false);
+const cancel = (): void => {};
 
-let dataSource = ref();
-
-const cancel = (e: MouseEvent): void => {
-	console.log(e);
-};
-
-const getShopCartListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getShopCartListPage = async (
+	param: ShopCartData,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopCartPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records;
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
+	const res = await getShopCartPage(param, cur.current, cur.pageSize).finally(
+		() => {
 			loading.value = false;
-		});
+		},
+	);
+	if (res.String(code) === '200') {
+		dataSource.value = res.data?.records || [];
+		setTotal(res.data?.total || 0);
+	} else {
+		message.error((res && res.message) || '查询列表失败！');
+	}
 };
-
-const init = (): void => {
-	//获取购物车表页面数据
-	getShopCartListPage(searchInfo.value, pagination);
-};
-
-init();
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopCart = (type: string, id?: number): void => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
@@ -264,5 +245,18 @@ const editShopCart = (type: string, id?: number): void => {
 const handleSuccess = (): void => {
 	getShopCartListPage(searchInfo.value, pagination);
 };
+
+const init = (): void => {
+	//获取购物车表页面数据
+	getShopCartListPage(searchInfo.value, pagination);
+};
+
+onMounted(() => {
+	init();
+});
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.actions-col {
+	text-align: right;
+}
+</style>

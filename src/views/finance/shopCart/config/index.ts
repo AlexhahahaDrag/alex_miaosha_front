@@ -35,9 +35,10 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface ShopCartData {
+	id?: number;
 	shopId?: number;
-	userId?: number;
-	customerId?: number;
+	userId?: string;
+	customerId?: string;
 	isValid?: string;
 	saleNum?: number;
 }

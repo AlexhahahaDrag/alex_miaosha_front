@@ -104,7 +104,7 @@ import {
 	getShopNameInfo,
 	getPayWayInfo,
 } from '@/views/finance/shopFinanceAnalysis/api';
-import type { ShopFinanceDetail } from '@/views/finance/shopFinance/shopFinanceDetail/shopFinanceDetailTs';
+import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import type { ItemInfo } from './shopAnalysis';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -112,54 +112,57 @@ import { formatTime } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/shopBar';
 
+interface ApiResult<T> {
+	code: string;
+	data?: T;
+	message?: string;
+}
+
+interface PayWayInfoItem {
+	payWayName?: string;
+	saleAmount?: number;
+}
+
+interface TrendPoint {
+	saleAmount?: number;
+	saleNum?: number;
+	infoDate?: string;
+}
+
+interface TooltipItem {
+	axisValue: string;
+	marker: string;
+	value?: number;
+	seriesName: string;
+}
+
 const dateFormatter = 'YYYY-MM';
 
-let sum = ref<any>(0);
+const searchDateTime = ref<Dayjs>(dayjs());
+const pieShopData = ref<ItemInfo[]>([]);
+const piePayWayData = ref<ItemInfo[]>([]);
+const dayData = ref<number[][]>([]);
+const monthData = ref<number[][]>([]);
 
-let searchDateTime = ref<Dayjs>(dayjs());
+const tooltip = ref({
+	trigger: 'item',
+	formatter: '{b} : {c}元({d}%)',
+});
 
-let pieShopData = ref<object[]>([]);
-
-const getShopNameInfoInfo = (dateStr: string) => {
-	getShopNameInfo(dateStr).then(
-		(res: { code: string; data: ShopFinanceDetail[]; message: any }) => {
-			if (res.code == '200') {
-				sum.value = 0;
-				if (res.data && res.data.length) {
-					let shop: ItemInfo[] = [];
-					res.data.forEach((item: { shopName: any; saleAmount: any }) => {
-						shop.push({ name: item.shopName, value: item.saleAmount });
-					});
-					pieShopData.value = shop;
-				}
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		},
-	);
+const buildTooltipFormatter = (dateUnit: string) => {
+	return (param: TooltipItem[]) => {
+		const axisValue = param[0]?.axisValue || '';
+		let tip = `<p style="margin: 0;text-align: left">${axisValue}${dateUnit}</p>`;
+		param.forEach((item) => {
+			const value = item.value ?? 0;
+			const unit = item.seriesName === '销售额' ? '元' : '件';
+			tip += `<p style="margin: 0;text-align: left">${item.marker}${item.seriesName}: ${value}${unit}</p>`;
+		});
+		return tip;
+	};
 };
 
-let piePayWayData = ref<object[]>([]);
-
-const getPayWayInfoInfo = (dateStr: string) => {
-	getPayWayInfo(dateStr).then(
-		(res: { code: string; data: any[]; message: any }) => {
-			if (res.code == '200') {
-				if (res.data) {
-					let shop: ItemInfo[] = [];
-					res.data.forEach((item: { payWayName: any; saleAmount: any }) => {
-						shop.push({ name: item.payWayName, value: item.saleAmount });
-					});
-					piePayWayData.value = shop;
-				}
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		},
-	);
-};
-
-let dayConfig = ref<barItem>({
+const dayConfig = ref<barItem>({
 	xAxis: [],
 	series: [[]],
 	xTile: '天数',
@@ -170,30 +173,14 @@ let dayConfig = ref<barItem>({
 		axisPointer: {
 			type: 'shadow',
 		},
-		formatter(param: any) {
-			let tip = '';
-			tip += `<p style="margin: 0;text-align: left">${param[0].axisValue}日</p>`;
-			param.forEach(
-				(element: {
-					axisValue: any;
-					marker: any;
-					value: any;
-					seriesName: string;
-				}) => {
-					tip += `<p style="margin: 0;text-align: left">${element.marker}${element.seriesName}: ${element.value ? element.value : 0.0}${element.seriesName === '销售额' ? '元' : '件'}</p>`;
-				},
-			);
-			return tip;
-		},
+		formatter: buildTooltipFormatter('日'),
 	},
 	legend: [],
 	dataType: ['bar', 'line'],
 	color: '#aa55ff',
 });
 
-let monthData = ref<any>([]);
-
-let monthConfig = ref<barItem>({
+const monthConfig = ref<barItem>({
 	xAxis: [],
 	series: [[]],
 	xTile: '月份',
@@ -204,108 +191,113 @@ let monthConfig = ref<barItem>({
 		axisPointer: {
 			type: 'shadow',
 		},
-		formatter(param: any) {
-			let tip = '';
-			tip += `<p style="margin: 0;text-align: left">${param[0].axisValue}日</p>`;
-			param.forEach(
-				(element: {
-					axisValue: any;
-					marker: any;
-					value: any;
-					seriesName: any;
-				}) => {
-					tip += `<p style="margin: 0;text-align: left">${element.marker}${element.seriesName}: ${element.value ? element.value : 0.0}${element.seriesName === '销售额' ? '元' : '件'}</p>`;
-				},
-			);
-			return tip;
-		},
+		formatter: buildTooltipFormatter('月'),
 	},
 	legend: [],
 	dataType: ['bar', 'line'],
 	color: '#5555ff',
 });
 
-let dayData = ref<any>([]);
+const buildSeriesData = (
+	data: TrendPoint[],
+	getXAxisLabel: (item: TrendPoint) => string,
+) => {
+	const saleAmountSeries: number[] = [];
+	const saleNumSeries: number[] = [];
+	const xAxis: string[] = [];
 
-const getDayShopFinanceInfoInfo = (dateStr: string) => {
-	getDayShopFinanceInfo(dateStr).then(
-		(res: { code: string; data: any[]; message: any }) => {
-			if (res.code == '200') {
-				if (res.data) {
-					let series = [] as any;
-					let numSeries = [] as any;
-					let xAxis = [] as any;
-					res.data.forEach((item) => {
-						series.push(item.saleAmount);
-						xAxis.push(formatTime(item.infoDate));
-						numSeries.push(item.saleNum);
-					});
-					let seriesAll = [] as any[];
-					seriesAll[0] = series;
-					seriesAll[1] = numSeries;
-					dayConfig.value.xAxis = xAxis;
-					dayConfig.value.series = seriesAll;
-					dayData.value = seriesAll;
-				}
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		},
-	);
+	data.forEach((item) => {
+		saleAmountSeries.push(item.saleAmount || 0);
+		saleNumSeries.push(item.saleNum || 0);
+		xAxis.push(getXAxisLabel(item));
+	});
+
+	return {
+		xAxis,
+		seriesAll: [saleAmountSeries, saleNumSeries] as number[][],
+	};
 };
 
-const getMonthShopFinanceInfoInfo = (dateStr: string) => {
-	getMonthShopFinanceInfo(dateStr).then(
-		(res: { code: string; data: any[]; message: any }) => {
-			if (res.code == '200') {
-				if (res.data) {
-					let series = [] as any;
-					let numSeries = [] as any;
-					let xAxis = [] as any;
-					res.data.forEach((item) => {
-						series.push(item.saleAmount);
-						xAxis.push(item.infoDate);
-						numSeries.push(item.saleNum);
-					});
-					let seriesAll = [] as any[];
-					seriesAll[0] = series;
-					seriesAll[1] = numSeries;
-					monthConfig.value.xAxis = xAxis;
-					monthConfig.value.series = seriesAll;
-					monthData.value = seriesAll;
-				}
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		},
-	);
+const getShopNameInfoInfo = async (dateStr: string) => {
+	const { code, data, message: messageInfo } = (await getShopNameInfo(
+		dateStr,
+	)) as ApiResult<ShopFinanceData[]>;
+	if (String(code) === '200') {
+		pieShopData.value = (data || []).map((item) => ({
+			name: item.shopName || '',
+			value: item.saleAmount || 0,
+		}));
+		return;
+	}
+	message.error(messageInfo || '查询列表失败！');
 };
 
-function getInfo() {
-	let dateStr = searchDateTime.value.format(dateFormatter);
-	getShopNameInfoInfo(dateStr);
-	getPayWayInfoInfo(dateStr);
-	getDayShopFinanceInfoInfo(dateStr);
-	getMonthShopFinanceInfoInfo(dateStr);
-}
+const getPayWayInfoInfo = async (dateStr: string) => {
+	const { code, data, message: messageInfo } = (await getPayWayInfo(
+		dateStr,
+	)) as ApiResult<PayWayInfoItem[]>;
+	if (String(code) === '200') {
+		piePayWayData.value = (data || []).map((item) => ({
+			name: item.payWayName || '',
+			value: item.saleAmount || 0,
+		}));
+		return;
+	}
+	message.error(messageInfo || '查询列表失败！');
+};
+
+const getDayShopFinanceInfoInfo = async (dateStr: string) => {
+	const { code, data, message: messageInfo } = (await getDayShopFinanceInfo(
+		dateStr,
+	)) as ApiResult<TrendPoint[]>;
+	if (String(code) === '200') {
+		const { xAxis, seriesAll } = buildSeriesData(data || [], (item) =>
+			formatTime(item.infoDate),
+		);
+		dayConfig.value.xAxis = xAxis;
+		dayConfig.value.series = seriesAll as unknown as string[][];
+		dayData.value = seriesAll;
+		return;
+	}
+	message.error(messageInfo || '查询列表失败！');
+};
+
+const getMonthShopFinanceInfoInfo = async (dateStr: string) => {
+	const { code, data, message: messageInfo } = (await getMonthShopFinanceInfo(
+		dateStr,
+	)) as ApiResult<TrendPoint[]>;
+	if (String(code) === '200') {
+		const { xAxis, seriesAll } = buildSeriesData(
+			data || [],
+			(item) => item.infoDate || '',
+		);
+		monthConfig.value.xAxis = xAxis;
+		monthConfig.value.series = seriesAll as unknown as string[][];
+		monthData.value = seriesAll;
+		return;
+	}
+	message.error(messageInfo || '查询列表失败！');
+};
+
+const getInfo = async () => {
+	const dateStr = searchDateTime.value.format(dateFormatter);
+	await Promise.all([
+		getShopNameInfoInfo(dateStr),
+		getPayWayInfoInfo(dateStr),
+		getDayShopFinanceInfoInfo(dateStr),
+		getMonthShopFinanceInfoInfo(dateStr),
+	]);
+};
 
 const changeMonth = () => {
-	getInfo();
+	void getInfo();
 };
 
 onMounted(() => {
-	getInfo();
-});
-
-const tooltip = ref({
-	trigger: 'item',
-	formatter: '{b} : {c}元({d}%)',
+	void getInfo();
 });
 </script>
 <style lang="scss" scoped>
-.search-box {
-}
-
 .page-info {
 	width: 100%;
 
@@ -363,6 +355,3 @@ const tooltip = ref({
 	}
 }
 </style>
-
-<style lang="scss" scoped></style>
-@/views/finance/financeManager/financeManagerDetail/detail

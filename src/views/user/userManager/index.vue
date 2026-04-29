@@ -63,7 +63,7 @@
 								ok-text="确认"
 								cancel-text="取消"
 								@confirm="delUser(record.id)"
-								v-if="record.username != 'superman'"
+								v-if="record.username !== 'superman'"
 							>
 								<a-button type="primary" size="small" danger>删除</a-button>
 							</a-popconfirm>
@@ -78,19 +78,19 @@
 					<template v-else-if="column.key === 'status'">
 						<a-tag
 							:key="record.status"
-							:color="record.status == 1 ? '#87d068' : 'grey'"
+							:color="record.status === 1 ? '#87d068' : 'grey'"
 						>
-							{{ record.status == 1 ? '有效' : '失效' }}
+							{{ record.status === 1 ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'gender'">
 						<a-tag
 							:key="record.gender"
-							:color="record.gender == 1 ? 'green' : 'red'"
+							:color="record.gender === 1 ? 'green' : 'red'"
 						>
 							{{
-								record.gender == '1' ? '男'
-								: record.gender == '2' ? '女'
+								record.gender === '1' ? '男'
+								: record.gender === '2' ? '女'
 								: ''
 							}}
 						</a-tag>
@@ -104,13 +104,12 @@
 					</template>
 				</template>
 			</a-table>
-			<UserManagerDetail
+			<user-manager-detail
 				ref="editInfo"
-				v-model:open="modelInfo.open"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
-			</UserManagerDetail>
+			</user-manager-detail>
 		</div>
 	</div>
 </template>
@@ -118,8 +117,8 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { UserManagerInfo } from './config';
-import { columns, labelCol, wrapperCol } from './config';
+import type { UserManagerInfo } from '@/views/user/userManager/config';
+import { columns, labelCol, wrapperCol } from '@/views/user/userManager/config';
 import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
@@ -184,7 +183,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delUser = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteUserManager(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		pagination.current = 1;
 		getUserPage(searchInfo.value, pagination);
@@ -212,8 +211,7 @@ const getUserPage = async (param: UserManagerInfo, cur: PageInfo) => {
 	} = await getUserManagerPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	console.log(`data aaaaaaaaaaaaaaa`, data);
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -222,15 +220,14 @@ const getUserPage = async (param: UserManagerInfo, cur: PageInfo) => {
 };
 
 //新增和修改弹窗
-function editUser(type: string, id?: number) {
-	if (type == 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type == 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
-	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
+function editUser(type: string, id?: string) {
+	const isAdd = type === 'add';
+	modelInfo.value = {
+		title: isAdd ? '新增明细' : '修改明细',
+		id: isAdd ? undefined : id,
+		confirmLoading: true,
+		open: true,
+	};
 }
 
 const handleSuccess = () => {

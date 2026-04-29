@@ -110,7 +110,7 @@ const formData = ref<ContactsUserRelationInfo>({
 // 加载详情
 const loadDetail = async (id: string): Promise<void> => {
 	const { code, data } = await getContactsUserRelationDetail(id);
-		if (code === '200' && data) {
+		if (String(code) === '200' && data) {
 		formData.value = { ...data };
 	} else {
 		message.error('加载详情失败！');
@@ -145,7 +145,7 @@ const onSubmit = async (): Promise<void> => {
 		}
 
 		const { code, message: messageInfo } = response;
-		if (code === '200') {
+		if (String(code) === '200') {
 			message.success(
 				messageInfo || (props.modelInfo?.id ? '编辑成功！' : '添加成功！'),
 				3,

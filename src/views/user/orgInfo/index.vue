@@ -101,25 +101,25 @@
 							<a-tag
 								:key="record.status"
 								:style="{
-									backgroundColor: record.status == 1 ? '#f6ffed' : '#f5f5f5',
-									color: record.status == 1 ? '#52c41a' : '#00000040',
-									borderColor: record.status == 1 ? '#b7eb8f' : '#d9d9d9',
+									backgroundColor: record.status === 1 ? '#f6ffed' : '#f5f5f5',
+									color: record.status === 1 ? '#52c41a' : '#00000040',
+									borderColor: record.status === 1 ? '#b7eb8f' : '#d9d9d9',
 								}"
 							>
-								{{ record.status == 1 ? '有效' : '失效' }}
+								{{ record.status === 1 ? '有效' : '失效' }}
 							</a-tag>
 						</template>
 						<template v-else-if="column.key === 'gender'">
 							<a-tag
 								:key="record.gender"
 								:style="
-									record.gender == '1' ?
+									record.gender === '1' ?
 										{
 											backgroundColor: '#e6f7ff',
 											color: '#1890ff',
 											border: 'none',
 										}
-									: record.gender == '2' ?
+									: record.gender === '2' ?
 										{
 											backgroundColor: '#fff0f6',
 											color: '#eb2f96',
@@ -131,8 +131,8 @@
 								"
 							>
 								{{
-									record.gender == '1' ? '男'
-									: record.gender == '2' ? '女'
+									record.gender === '1' ? '男'
+									: record.gender === '2' ? '女'
 									: ''
 								}}
 							</a-tag>
@@ -237,7 +237,7 @@ function delOrgInfo(ids: string) {
 		return;
 	}
 	deleteOrgInfo(ids).then((res) => {
-		if (res.code == '200') {
+		if (res.String(code) === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getOrgTreeData();
 		} else {
@@ -275,7 +275,7 @@ const getUserDataPage = async () => {
 	).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -292,9 +292,9 @@ const buildTree = (
 		const itemParentIdStr = item.parentId ? String(item.parentId) : null;
 		const parentIdStr = parentId ? String(parentId) : null;
 		if (
-			itemParentIdStr == parentIdStr ||
-			(parentIdStr == null && !itemParentIdStr) ||
-			(parentIdStr == '0' && !itemParentIdStr)
+			itemParentIdStr === parentIdStr ||
+			(parentIdStr === null && !itemParentIdStr) ||
+			(parentIdStr === '0' && !itemParentIdStr)
 		) {
 			const children = buildTree(data, item.id);
 			if (children.length > 0) {
@@ -309,7 +309,7 @@ const buildTree = (
 const getOrgTreeData = async () => {
 	// Fetch arbitrarily large number for generating tree
 	const { code, data } = await getOrgInfoPage({}, 1, 1000);
-	if (code == '200' && data && data.records) {
+	if (String(code) === '200' && data && data.records) {
 		const rawRecords = data.records;
 		// Some root nodes might have parentId '0' or null
 		const rootNodes = rawRecords.filter(
@@ -347,10 +347,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editOrgInfo(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id ? String(id) : undefined;
 	}

@@ -290,7 +290,7 @@ const delMenuInfo = async (ids: string) => {
 			return error;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getMenuInfoListPage(searchInfo.value, pagination);
 	} else {
@@ -322,7 +322,7 @@ const getMenuInfoListPage = async (
 	} = await getMenuInfoPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -337,10 +337,10 @@ const init = () => {
 
 //新增和修改弹窗
 function editMenuInfo(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id ? String(id) : undefined;
 	}

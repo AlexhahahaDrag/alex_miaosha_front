@@ -92,9 +92,9 @@
 					<template v-else-if="column.key === 'isSend'">
 						<a-tag
 							:key="record.isSend"
-							:color="record.isSend == 1 ? 'grey' : '#87d068'"
+							:color="record.isSend === 1 ? 'grey' : '#87d068'"
 						>
-							{{ record.isSend == 1 ? '是' : '否' }}
+							{{ record.isSend === 1 ? '是' : '否' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'avliDate'">
@@ -106,14 +106,14 @@
 						<a-tag
 							:key="record.status"
 							:color="
-								record.status == 0 ? '#C0C0C0'
-								: record.status == 1 ? '#f50'
+								record.status === 0 ? '#C0C0C0'
+								: record.status === 1 ? '#f50'
 								: '#87d068'
 							"
 						>
 							{{
-								record.status == 0 ? '过期'
-								: record.status == 1 ? '待过期'
+								record.status === 0 ? '过期'
+								: record.status === 1 ? '待过期'
 								: '有效'
 							}}
 						</a-tag>
@@ -208,7 +208,7 @@ function handleTableChange(pagination: PageInfo) {
 //删除
 const delAccountRecordInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteAccountRecordInfo(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getAccountRecordInfoListPage(searchInfo.value, pagination);
 	} else {
@@ -239,7 +239,7 @@ const getAccountRecordInfoListPage = async (
 		data,
 		message: messageInfo,
 	} = await getAccountRecordInfoPage(param, cur.current, cur.pageSize);
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -254,10 +254,10 @@ const initPage = () => {
 
 //新增和修改弹窗
 const editAccountRecordInfo = (type: string, id?: number) => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

@@ -247,7 +247,7 @@ const handleTableChange = (paginationInfo: PageInfo): void => {
 
 const delCpnCouponInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteCpnCouponInfo(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		rowIds = [];
 		getCpnCouponInfoListPage(searchInfo.value, pagination);
@@ -282,7 +282,7 @@ const getCpnCouponInfoListPage = async (
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -293,7 +293,7 @@ const getCpnCouponInfoListPage = async (
 //新增和修改弹窗
 const editCpnCouponInfo = (type: string, id?: number): void => {
 	let add = '新增';
-	if (type == 'update') {
+	if (type === 'update') {
 		add = '修改';
 	}
 	modelInfo.value = {

@@ -167,7 +167,7 @@ const saveRoleInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -183,7 +183,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getRoleInfoDetail(props.modelInfo.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			permissionTree.value =
 				(data as { permissionList?: unknown[] })?.permissionList || [];

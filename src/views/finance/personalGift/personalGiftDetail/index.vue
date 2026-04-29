@@ -125,7 +125,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { rulesRef } from '@/views/finance/personalGift/personalGiftDetail/config';
+import { rulesRef } from '@/views/finance/personalGift/config';
 import {
 	labelCol,
 	wrapperCol,
@@ -188,10 +188,12 @@ const savePersonalGiftManager = async (): Promise<void> => {
 	if (formState.value.id) {
 		api = editPersonalGift;
 	}
-	const { code, message: messageInfo } = await api(formState.value).finally(() => {
-		loading.value = false;
-	});
-	if (code === '200') {
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -208,8 +210,8 @@ const init = async () => {
 			code,
 			data,
 			message: messageInfo,
-		} = await getPersonalGiftDetail(Number(props.modelInfo.id));
-		if (code === '200') {
+		} = await getPersonalGiftDetail(props.modelInfo.id);
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

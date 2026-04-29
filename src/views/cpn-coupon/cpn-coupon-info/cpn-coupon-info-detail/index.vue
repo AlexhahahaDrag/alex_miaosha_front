@@ -187,7 +187,7 @@ const saveCpnCouponInfo = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -204,7 +204,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			data,
 			message: messageInfo,
 		} = await getCpnCouponInfoDetail(modalData.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			// AI Agent：将后端返回的字符串日期转换为 dayjs 对象，以便日期选择器正确显示
 			const formattedData = { ...(data || {}) };
 			if (data?.startDate) {

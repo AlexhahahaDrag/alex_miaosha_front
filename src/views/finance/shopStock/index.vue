@@ -205,7 +205,7 @@ function handleTableChange(pagination: PageInfo) {
 
 const delShopStock = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopStock(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success((messageInfo && '删除' + messageInfo) || '删除成功！', 3);
 		getShopStockListPage(searchInfo.value, pagination);
 	} else {
@@ -241,7 +241,7 @@ const getShopStockListPage = async (
 	} = await getShopStockPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -262,10 +262,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editShopStock(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

@@ -135,7 +135,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { ShopOrderDetail } from './shopOrderDetailTs';
+import type { ShopOrderData } from '@/views/finance/shopOrder/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 import {
@@ -146,18 +146,17 @@ import {
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import type { ResponseBody } from '@/types/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap: Record<string, { name: string; label: string }> = {
 	saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
 	saleOrderName: { name: 'saleOrderName', label: '订单名称' },
 	saleAmount: { name: 'saleAmount', label: '总销售金额' },
@@ -166,7 +165,7 @@ const labelMap = ref<Record<string, { name: string; label: string }>>({
 	description: { name: 'description', label: '描述' },
 	payWay: { name: 'payWay', label: '支付方式' },
 	saleCount: { name: 'saleCount', label: '销售数量' },
-});
+};
 
 const rulesRef = reactive({
 	saleOrderCode: [
@@ -225,18 +224,15 @@ const modelConfig = {
 };
 
 interface Props {
-	open?: boolean;
 	modelInfo?: ModelInfo;
 }
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<ShopOrderDetail>({});
+const formState = ref<ShopOrderData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const isValidList = computed(() => getDictByType('is_valid'));
-
-const emit = defineEmits(['success']);
 
 const handleOk = (): void => {
 	loading.value = true;
@@ -255,32 +251,31 @@ const handleCancel = (): void => {
 };
 
 //保存商店订单表信息
-const saveShopOrderManager = (): void => {
+const saveShopOrderManager = async (): Promise<void> => {
 	let api = addShopOrder;
-	if (formState.value.id) {
+	if (props.modelInfo?.id) {
 		api = editShopOrder;
 	}
-	api(formState.value)
-		.then((res) => {
-			if (res.code === '200') {
-				message.success((res && res.message) || '保存成功！');
-				open.value = false;
-				emit('success');
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: ResponseBody) => {
-			const data = (error as { response?: { data?: { message?: string } } })
-				?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		const { code, message: messageInfo } = await api(formState.value);
+		if (String(code) === '200') {
+			message.success(messageInfo || '保存成功！');
+			open.value = false;
+			emit('success');
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+		formState.value = {};
+	} catch (error: unknown) {
+		const responseData = (
+			error as { response?: { data?: { message?: string } } }
+		)?.response?.data;
+		if (responseData) {
+			message.error(responseData.message || '保存失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
 };
 
 // 初始化数据
@@ -291,7 +286,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopOrderDetail(props.modelInfo.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -315,5 +310,7 @@ watch(
 		deep: true,
 	},
 );
+
+const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped></style>

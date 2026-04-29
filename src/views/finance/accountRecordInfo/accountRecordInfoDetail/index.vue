@@ -140,7 +140,7 @@ const saveAccountRecordInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -158,7 +158,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getAccountRecordInfoDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			formState.value.avliDate = dayjs(formState.value.avliDate);
 			modelConfig.confirmLoading = false;

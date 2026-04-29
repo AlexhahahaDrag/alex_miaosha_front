@@ -54,17 +54,17 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid == 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === 1 ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid == 1 ? '有效' : '失效' }}
+							{{ record.isValid === 1 ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'incomeAndExpenses'">
 						<a-tag
 							:key="record.incomeAndExpenses"
-							:color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
+							:color="record.incomeAndExpenses === 'income' ? 'green' : 'red'"
 						>
-							{{ record.incomeAndExpenses == 'income' ? '收入' : '支出' }}
+							{{ record.incomeAndExpenses === 'income' ? '收入' : '支出' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'infoDate'">
@@ -165,7 +165,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 // 删除
 const delFinance = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteFinanceManger(ids);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		selectedRowIds.value = [];
 		getFinancePage(searchInfo.value, pagination);
@@ -201,7 +201,7 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		const curData = data;
 		dataSource.value = curData?.records || [];
 		pagination.current = curData?.current || 1;

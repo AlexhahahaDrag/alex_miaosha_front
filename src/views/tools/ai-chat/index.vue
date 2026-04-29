@@ -365,7 +365,7 @@ const onSend = async () => {
 
 	try {
 		const { code, data, message: msg } = await analyzeAi(req);
-		if (code === '200') {
+		if (String(code) === '200') {
 			assistantMsg.content = buildAssistantText(data);
 			assistantMsg.status = 'done';
 		} else {

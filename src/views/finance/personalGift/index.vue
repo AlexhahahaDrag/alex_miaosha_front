@@ -71,7 +71,7 @@
 					<template v-else-if="column.key === 'action'">
 						<a-tag
 							:key="record.action"
-							:color="record.action == 'give' ? 'red' : 'green'"
+							:color="record.action === 'give' ? 'red' : 'green'"
 						>
 							{{ actionMap[record.action] }}
 						</a-tag>
@@ -177,7 +177,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const noticePersonalInfo = async (id: string): Promise<void> => {
 	const { code, message: messageInfo } = await noticePersonalGift(id);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '通知成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -188,7 +188,7 @@ const noticePersonalInfo = async (id: string): Promise<void> => {
 // 删除个人随礼信息表信息
 const delPersonalGift = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deletePersonalGift(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -210,7 +210,7 @@ const customImportRequest = async (info: unknown): Promise<void> => {
 	const formData = new FormData();
 	formData.append('file', (info as { file: File }).file);
 	const { code, message: messageInfo } = await importPersonalGift(formData);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '导入成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -236,7 +236,7 @@ const getPersonalGiftListPage = async (
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -246,10 +246,10 @@ const getPersonalGiftListPage = async (
 
 //新增和修改弹窗
 const editPersonalGift = (type: string, id?: string): void => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

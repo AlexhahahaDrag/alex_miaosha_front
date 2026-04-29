@@ -187,7 +187,7 @@ const saveContactsUserManager = async (): Promise<void> => {
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -207,13 +207,13 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		if (userId) {
 			// 获取用户的所有启用的关系分类（公共+私有）
 			const { code, data } = await getUserEnabledRelations(userId);
-			if (code === '200' && data) {
+			if (String(code) === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		} else {
 			// 如果没有用户ID，获取公共的关系分类
 			const { code, data } = await getPublicEnabledRelations();
-			if (code === '200' && data) {
+			if (String(code) === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		}
@@ -237,7 +237,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getContactsUserDetail(props.modelInfo.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 		} else {
 			message.error(messageInfo || '查询失败！');
@@ -260,7 +260,6 @@ watch(
 	},
 );
 
-const emit = defineEmits(['success']);
-</script>
+const emit = defineEmits(['success']);</script>
 
 <style lang="scss" scoped></style>

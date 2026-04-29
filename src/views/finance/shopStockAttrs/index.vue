@@ -225,7 +225,7 @@ const handleTableChange = (pagination: PageInfo): void => {
 
 const delShopStockAttrs = (ids: string): void => {
 	deleteShopStockAttrs(ids).then((res) => {
-		if (res.code == '200') {
+		if (res.String(code) === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getShopStockAttrsListPage(searchInfo.value, pagination);
 		} else {
@@ -254,7 +254,7 @@ const getShopStockAttrsListPage = (param: SearchInfo, cur: PageInfo): void => {
 	loading.value = true;
 	getShopStockAttrsPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.String(code) === '200') {
 				dataSource.value = res.data?.records || [];
 				setTotal(res.data?.total || 0);
 			} else {
@@ -278,10 +278,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopStockAttrs = (type: string, id?: number): void => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

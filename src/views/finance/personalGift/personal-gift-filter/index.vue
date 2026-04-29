@@ -63,7 +63,11 @@
 import { computed, onBeforeUnmount } from 'vue';
 import { debounce } from 'lodash-es';
 import type { PersonalGiftInfo } from '../config';
-import { labelCol, wrapperCol, labelMap } from '../config';
+import {
+	labelCol,
+	wrapperCol,
+	labelMap,
+} from '@/views/finance/personalGift/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 // 防抖延迟时间配置（毫秒）

@@ -116,17 +116,17 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid == 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === 1 ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid == 1 ? '有效' : '失效' }}
+							{{ record.isValid === 1 ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'incomeAndExpenses'">
 						<a-tag
 							:key="record.incomeAndExpenses"
-							:color="record.incomeAndExpenses == 'income' ? 'green' : 'red'"
+							:color="record.incomeAndExpenses === 'income' ? 'green' : 'red'"
 						>
-							{{ record.incomeAndExpenses == 'income' ? '收入' : '支出' }}
+							{{ record.incomeAndExpenses === 'income' ? '收入' : '支出' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'saleDate'">
@@ -142,7 +142,7 @@
 							<MySvgIcon
 								v-if="
 									record.payWay.indexOf(fromSource.value) >= 0 &&
-									fromSource.value != ''
+									fromSource.value !== ''
 								"
 								:name="fromSource.label"
 								class="pay-way-icon"
@@ -153,7 +153,7 @@
 			</a-table>
 			<ShopFinanceDetail
 				ref="editInfo"
-				v-model:open="visible"
+				v-model:open="oepnModel"
 				:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopFinanceDetail>
@@ -165,7 +165,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './shopFinanceListTs';
+import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import {
 	columns,
 	fromSourceTransferList,
@@ -197,7 +197,7 @@ const rowSelection = ref({
 	},
 });
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap: Record<string, { name: string; label: string }> = {
 	shopName: { name: 'shopName', label: '商品名称' },
 	shopCode: { name: 'shopCode', label: '商品编码' },
 	saleAmount: { name: 'saleAmount', label: '售价' },
@@ -207,9 +207,15 @@ const labelMap = ref<Record<string, { name: string; label: string }>>({
 	saleDate: { name: 'saleDate', label: '销售日期' },
 	saleDateFrom: { name: 'saleDateFrom', label: '销售日期从' },
 	saleDateEnd: { name: 'saleDateEnd', label: '销售日期到' },
-});
+};
 
-const searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<ShopFinanceData>({});
+const saleDateFrom = ref<string | Dayjs>();
+const saleDateEnd = ref<string | Dayjs>();
+const loading = ref<boolean>(false);
+const dataSource = ref<ShopFinanceData[]>([]);
+const oepnModel = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = () => {
 	searchInfo.value = {};
@@ -218,9 +224,6 @@ const cancelQuery = () => {
 	initPage();
 	query();
 };
-
-const saleDateFrom = ref<string | Dayjs>();
-const saleDateEnd = ref<string | Dayjs>();
 
 const query = () => {
 	searchInfo.value.saleDateFrom =
@@ -235,16 +238,15 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getShopFinanceListPage(searchInfo.value, paginationInfo);
 };
 
-const delShopFinance = (ids: string) => {
-	deleteShopFinance(ids).then((res) => {
-		if (res.code === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			selectedRowIds.value = [];
-			getShopFinanceListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopFinance = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopFinance(ids);
+	if (String(code) === '200') {
+		message.success('删除' + messageInfo || '删除成功！', 3);
+		selectedRowIds.value = [];
+		getShopFinanceListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
 };
 
 const batchDelShopFinance = (): void => {
@@ -255,26 +257,26 @@ const batchDelShopFinance = (): void => {
 	delShopFinance(selectedRowIds.value.join(','));
 };
 
-const loading = ref<boolean>(false);
-
-const dataSource = ref<DataItem[]>([]);
-
 const cancel = () => {};
 
-const getShopFinanceListPage = (param: SearchInfo, cur: PageInfo) => {
+const getShopFinanceListPage = async (
+	param: ShopFinanceData,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopFinancePage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code === '200') {
-				dataSource.value = (res.data?.records || []) as DataItem[];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getShopFinancePage(param, cur.current, cur.pageSize).finally(() => {
+		loading.value = false;
+	});
+	if (String(code) === '200') {
+		dataSource.value = (data?.records || []) as ShopFinanceData[];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
 };
 
 const initPage = () => {
@@ -288,10 +290,6 @@ const init = () => {
 	getShopFinanceListPage(searchInfo.value, pagination);
 };
 
-init();
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
 const editShopFinance = (type: string, id?: number) => {
 	if (type === 'add') {
@@ -302,12 +300,16 @@ const editShopFinance = (type: string, id?: number) => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	oepnModel.value = true;
 };
 
 const handleSuccess = () => {
 	getShopFinanceListPage(searchInfo.value, pagination);
 };
+
+onMounted(() => {
+	init();
+});
 </script>
 <style lang="scss" scoped>
 .button {

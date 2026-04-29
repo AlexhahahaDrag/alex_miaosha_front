@@ -206,7 +206,7 @@ function savePmsShopProductManager() {
 	}
 	api(formState.value)
 		.then((res) => {
-			if (res.code === '200') {
+			if (res.String(code) === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 		emit('success');
@@ -228,7 +228,7 @@ let sourceName = ref<string>('');
 function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
 	getProductHisInfo(skuId, dateStr).then(
 		(res: { code: string; data: any[]; message: any }) => {
-			if (res.code === '200') {
+			if (res.String(code) === '200') {
 				if (res.data) {
 					let series = [] as any;
 					let xAxis = [] as any;
@@ -285,7 +285,7 @@ const init = async () => {
 			getDictList('shop_type'),
 			getPmsShopProductDetail(props.modelInfo.id),
 		]).then((res: any[]) => {
-			if (res[0].code === '200' && res[0].data?.length && res[1].data) {
+			if (res[0].String(code) === '200' && res[0].data?.length && res[1].data) {
 				res[0].data.forEach(
 					(item: { typeCode: string; typeName: Ref<string> }) => {
 						if (item.typeCode === res[1].data.source) {
@@ -296,7 +296,7 @@ const init = async () => {
 			} else {
 				message.error((res[0] && res[0].message) || '查询列表失败！');
 			}
-			if (res[1].code === '200') {
+			if (res[1].String(code) === '200') {
 				formState.value = res[1].data;
 				modelConfig.confirmLoading = false;
 			} else {
@@ -327,7 +327,6 @@ watch(
 
 const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped></style>
 <style lang="scss" scoped>
 .mainGrid {
 	width: 100%;

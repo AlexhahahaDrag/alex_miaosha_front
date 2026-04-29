@@ -35,3 +35,5 @@ qodana.yaml
 .agent/
 .agents/
 .claude/
+.codex/
+graphify-out/

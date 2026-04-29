@@ -214,7 +214,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delPermissionInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deletePermissionInfo(ids);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getPermissionInfoListPage(searchInfo.value, pagination);
 	} else {
@@ -249,7 +249,7 @@ const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 			loading.value = false;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -269,10 +269,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPermissionInfo(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

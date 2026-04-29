@@ -63,7 +63,7 @@
 							v-if="
 								record.tagList &&
 								record.tagList.length > 0 &&
-								record.tagList[0] != null
+								record.tagList[0] !== null
 							"
 						>
 							<!-- <a-tag
@@ -80,7 +80,7 @@
 							v-if="
 								record.blogSortList &&
 								record.blogSortList.length > 0 &&
-								record.blogSortList[0] != null
+								record.blogSortList[0] !== null
 							"
 						>
 							<!-- <a-tag
@@ -119,7 +119,7 @@
 					<!-- <template v-else-if="column.key === 'level'">
             <div v-for="(level, index) in levelInfo">
               <a-tag
-                v-if="record.level == level.value && level.value !== ''"
+                v-if="record.level === level.value && level.value !== ''"
                 :key="level"
                 :color="colorInfo[index]"
               >
@@ -149,7 +149,7 @@ function query() {}
 
 // const confirm = (id: string) => {
 // deleteBlogById(id).then((res) => {
-//   if (res.code == "success") {
+//   if (res.code === "success") {
 //     message.success(res.message);
 //     blogList(searchInfo.value);
 //   } else {

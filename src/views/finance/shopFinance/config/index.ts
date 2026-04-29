@@ -51,6 +51,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface ShopFinanceData {
+	id?: string;
 	shopName?: string;
 	shopCode?: string;
 	saleAmount?: number;

@@ -19,6 +19,9 @@
 - **Form 校验**：统一使用 `reactive` 定义 `rules`。对于复杂的业务校验，抽取到 `src/utils/validators.ts`。
 - **状态同步**：搜索表单的查询参数必须与 `usePagination` 的 `params` 响应式绑定。
 - **插件约束**：遵循现有 `AutoImport` 与 `unplugin-vue-components` 配置；已由插件自动引入/注册的 API 与组件不得重复手动导入，新增组件目录或解析器时必须同步更新 `vite.config.mts` 对应插件配置。
+- **响应解构**：接口返回值优先使用解构赋值（如 `const { code, data, message } = await api()`），避免使用 `res.code`/`res.data` 的点取链式写法。
+- **组件命名**：`<template>` 中引用的自定义组件标签统一使用 kebab-case（`xx-xx`）格式，禁止使用 PascalCase（如 `UserManagerDetail`）。
+- **字典引用**：涉及字典项时统一使用 `const { getDictByType } = useDictInfo('a,b,c')` 声明字典来源，并通过 `computed(() => getDictByType('xxx'))` 提供给表单/表格；禁止在页面内分散写字典请求与重复映射逻辑。
 
 ### 📌 Modal/Drawer 强化
 - **统一入口**：遵循现有的 `defineModel` 规范。

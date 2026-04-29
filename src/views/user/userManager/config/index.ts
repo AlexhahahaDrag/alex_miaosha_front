@@ -61,7 +61,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface UserManagerInfo {
-	id?: number;
+	id?: string;
 	username?: string;
 	password?: string;
 	gender?: string;

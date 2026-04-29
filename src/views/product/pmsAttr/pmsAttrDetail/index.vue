@@ -256,7 +256,7 @@ function savePmsAttrManager() {
 	}
 	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.String(code) === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 				emit('success');
@@ -281,7 +281,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPmsAttrDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

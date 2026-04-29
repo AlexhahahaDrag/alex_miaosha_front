@@ -1,5 +1,4 @@
 import type { Nullable } from '@/types/global';
-import type { RoleEnum } from '@/types/role_enum';
 import type { UserInfo } from '@/types/store';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
@@ -7,32 +6,13 @@ export interface UserState {
 	id?: string | number;
 	userInfo: Nullable<UserInfo>;
 	token?: string;
-	roleList: RoleEnum[];
+	roleList: RoleInfoData[];
 	sessionTimeout?: boolean;
 	lastUpdateTime: number;
 	menuInfo: MenuInfo[] | null;
 	hasMenu: boolean;
 	roleInfo: RoleInfoData;
 	orgInfo: any;
-}
-
-export interface RoleInfo {
-	roleName: string;
-	value: string;
-}
-
-export interface GetUserInfoModel {
-	roles: RoleInfo[];
-	// 用户id
-	userId: string | number;
-	// 用户名
-	username: string;
-	// 昵称
-	nickName: string;
-	// 头像
-	avatar?: string;
-	// 介绍
-	desc?: string;
 }
 
 export interface MenuInfo {

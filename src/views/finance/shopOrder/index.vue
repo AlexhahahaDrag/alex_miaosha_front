@@ -114,7 +114,7 @@
 						</a-col>
 					</a-row>
 					<a-row :gutter="24">
-						<a-col :span="20" style="text-align: right">
+						<a-col :span="20" class="actions-col">
 							<a-space>
 								<a-button type="primary" @click="query"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -181,8 +181,8 @@ import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import type { SearchInfo, DataItem } from './shopOrderListTs';
-import { columns } from './shopOrderListTs';
+import type { ShopOrderData } from '@/views/finance/shopOrder/config';
+import { columns } from '@/views/finance/shopOrder/config';
 import {
 	getShopOrderPage,
 	deleteShopOrder,
@@ -204,26 +204,16 @@ const {
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let rowIds: (string | number)[] = [];
+const rowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		rowIds.value = selectedRowKeys;
 	},
 });
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
+const labelMap: Record<string, { name: string; label: string }> = {
 	saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
 	saleOrderName: { name: 'saleOrderName', label: '订单名称' },
 	saleAmount: { name: 'saleAmount', label: '总销售金额' },
@@ -232,9 +222,13 @@ const labelMap = ref<Record<string, { name: string; label: string }>>({
 	description: { name: 'description', label: '描述' },
 	payWay: { name: 'payWay', label: '支付方式' },
 	saleCount: { name: 'saleCount', label: '销售数量' },
-});
+};
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<ShopOrderData>({});
+const loading = ref<boolean>(false);
+const dataSource = ref<ShopOrderData[]>([]);
+const visible = ref<boolean>(false);
+const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
@@ -244,52 +238,50 @@ const query = (): void => {
 	getShopOrderListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (pagination: PageInfo): void => {
-	paginationChange(pagination);
-	getShopOrderListPage(searchInfo.value, pagination);
+const handleTableChange = (paginationInfo: PageInfo): void => {
+	paginationChange(paginationInfo);
+	getShopOrderListPage(searchInfo.value, paginationInfo);
 };
 
-const delShopOrder = (ids: string): void => {
-	deleteShopOrder(ids).then((res) => {
-		if (res.code == '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopOrderListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopOrder = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopOrder(ids);
+	if (code === '200') {
+		message.success(('删除' + messageInfo) || '删除成功！', 3);
+		rowIds.value = [];
+		getShopOrderListPage(searchInfo.value, pagination);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
 };
 
 const batchDelShopOrder = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopOrder(rowIds.join(','));
+	delShopOrder(rowIds.value.join(','));
 };
 
-let loading = ref<boolean>(false);
+const cancel = (): void => {};
 
-let dataSource = ref();
-
-const cancel = (e: MouseEvent): void => {
-	console.log(e);
-};
-
-const getShopOrderListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getShopOrderListPage = async (
+	param: ShopOrderData,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopOrderPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code == '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	const { code, data, message: messageInfo } = await getShopOrderPage(
+		param,
+		cur.current,
+		cur.pageSize,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code === '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
 };
 
 const init = (): void => {
@@ -297,28 +289,29 @@ const init = (): void => {
 	getShopOrderListPage(searchInfo.value, pagination);
 };
 
-init();
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
 const editShopOrder = (type: string, id?: number): void => {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	visible.value = true;
 };
 
 const handleSuccess = (): void => {
-getShopOrderListPage(searchInfo.value, pagination);
-
+	getShopOrderListPage(searchInfo.value, pagination);
 };
 
+onMounted(() => {
+	init();
+});
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.actions-col {
+	text-align: right;
+}
+</style>

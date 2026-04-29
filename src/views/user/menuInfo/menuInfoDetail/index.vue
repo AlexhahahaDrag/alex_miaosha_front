@@ -241,7 +241,7 @@ const saveMenuInfoManager = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -259,7 +259,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getMenuInfoDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

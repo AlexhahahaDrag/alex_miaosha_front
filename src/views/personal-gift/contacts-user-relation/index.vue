@@ -251,7 +251,7 @@ const onDeleteRelation = async (id: string | undefined): Promise<void> => {
 	const { code, message: messageInfo } = await deleteContactsUserRelation(
 		String(id),
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getRelationListPage(searchInfo.value, pagination);
 	} else {
@@ -280,7 +280,7 @@ const getRelationListPage = async (
 	).finally(() => {
 		loading.value = false;
 	});
-	if (code === '200') {
+	if (String(code) === '200') {
 		relationList.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

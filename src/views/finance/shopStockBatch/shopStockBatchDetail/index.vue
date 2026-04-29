@@ -196,7 +196,7 @@ const saveShopStockBatchManager = async (): Promise<void> => {
 	}
 	try {
 		const { code, message: msg } = await api(formState.value);
-		if (code == '200') {
+		if (String(code) === '200') {
 			message.success(msg || '保存成功！');
 			open.value = false;
 			emit('success');
@@ -220,7 +220,7 @@ const init = async (): Promise<void> => {
 			data,
 			message: messageInfo,
 		} = await getShopStockBatchDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

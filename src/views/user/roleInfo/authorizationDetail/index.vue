@@ -79,7 +79,7 @@ const saveRoleInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -100,7 +100,7 @@ const getAllPermissions = async () => {
 				data,
 				message: messageInfo,
 			} = await getRoleInfoDetail(roleId);
-			if (code === '200') {
+			if (String(code) === '200') {
 				formState.value = data as RoleInfoData;
 				// 设置所有权限列表（permissionList 包含所有权限）
 				permissionTree.value =
@@ -123,7 +123,7 @@ const getAllPermissions = async () => {
 			// 这里使用角色ID为1，如果后端不支持，需要调用专门的获取所有权限的API
 			// 注意：这里只获取权限列表，不设置已选权限
 			const { code, data, message: messageInfo } = await getRoleInfoDetail('1');
-			if (code === '200') {
+			if (String(code) === '200') {
 				// 只获取权限列表，不设置已选权限
 				permissionTree.value =
 					(data as { permissionList?: unknown[] })?.permissionList || [];

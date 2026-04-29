@@ -217,7 +217,7 @@ const saveFinanceManager = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;

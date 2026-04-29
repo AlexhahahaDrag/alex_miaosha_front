@@ -235,7 +235,7 @@ const loadContactsGiftRecordList = async () => {
 			pagination.current || defaultPageConfig.pageNum,
 			pagination.pageSize || defaultPageConfig.pageSize,
 		);
-		if (code === '200' && data) {
+		if (String(code) === '200' && data) {
 			contactTableData.value = data.records || [];
 			pagination.total = data.total || 0;
 		} else {

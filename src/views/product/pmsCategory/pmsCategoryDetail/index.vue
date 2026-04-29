@@ -211,7 +211,7 @@ const savePmsCategoryManager = async () => {
 	const { code, message: messageInfo } = await api(formState.value).finally(() => {
 		loading.value = false;
 	});
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		open.value = false;
@@ -228,7 +228,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPmsCategoryDetail(props.modelInfo.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

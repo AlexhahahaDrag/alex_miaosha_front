@@ -25,7 +25,7 @@
 								<div
 									v-if="!char.isBlinking"
 									class="pupil"
-									:style="getPupilStyle(char, 'left')"
+									:style="getPupilStyle()"
 								></div>
 							</div>
 							<div
@@ -35,7 +35,7 @@
 								<div
 									v-if="!char.isBlinking"
 									class="pupil"
-									:style="getPupilStyle(char, 'right')"
+									:style="getPupilStyle()"
 								></div>
 							</div>
 						</div>
@@ -64,6 +64,7 @@
 						<a-form-item label="Username" name="username">
 							<a-input
 								v-model:value="loginForm.username"
+								allow-clear
 								placeholder="Enter your username"
 								autocomplete="on"
 								size="large"
@@ -121,46 +122,28 @@
 
 <script setup lang="ts">
 import { getCurrentInstance } from 'vue';
+import type { FormInstance } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
-import type { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 import type { LoginParams } from '@/views/login/config';
 import { loginRules, options } from '@/views/login/config';
 import { useUserStore } from '@/store/modules/user/user';
-import {
-	UserOutlined,
-	LockOutlined,
-	GoogleOutlined,
-} from '@ant-design/icons-vue';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { decryptSimple, encrypt } from '@/utils/crypto';
 import { useLoginStore } from '@/store/modules/login-store';
+
+interface CharacterItem {
+	id: number;
+	colorClass: 'coral' | 'purple' | 'black' | 'yellow';
+	baseHeight: number;
+	hasMouth: boolean;
+	isBlinking: boolean;
+}
+
+const particlesGlobalKey = '__particles_installed__';
 
 const router = useRouter();
 const userStore = useUserStore();
 const loginStore = useLoginStore();
-const formRef = ref();
-const particlesReady = ref(false);
-
-const initParticles = async () => {
-	const instance = getCurrentInstance();
-	const app = instance?.appContext.app;
-	if (!app) return;
-
-	const globalKey = '__particles_installed__';
-	const win = window as unknown as Record<string, unknown>;
-	if (!win[globalKey]) {
-		const [{ default: Particles }, { loadSlim }] = await Promise.all([
-			import('@tsparticles/vue3'),
-			import('@tsparticles/slim'),
-		]);
-		app.use(Particles, {
-			init: async (engine) => {
-				await loadSlim(engine);
-			},
-		});
-		win[globalKey] = true;
-	}
-	particlesReady.value = true;
-};
 
 // 登录表单
 const loginForm: UnwrapRef<LoginParams> = reactive({
@@ -171,19 +154,16 @@ const loginForm: UnwrapRef<LoginParams> = reactive({
 
 // 登录按钮加载状态
 const loading = ref<boolean>(false);
+const particlesReady = ref(false);
+const formRef = ref<FormInstance>();
+const blinkTimerIds = ref<number[]>([]);
 
 // Mouse tracking for eyes
 const mousePos = reactive({ x: 0, y: 0 });
-const handleMouseMove = (e: MouseEvent) => {
-	mousePos.x = e.clientX;
-	mousePos.y = e.clientY;
-};
-
-// Form focus states for characters
 const isEmailFocused = ref(false);
 const isPasswordFocused = ref(false);
 
-const characters = reactive([
+const characters = reactive<CharacterItem[]>([
 	{
 		id: 1,
 		colorClass: 'coral',
@@ -214,7 +194,12 @@ const characters = reactive([
 	},
 ]);
 
-const getCharacterStyle = (char: any) => {
+const handleMouseMove = (e: MouseEvent) => {
+	mousePos.x = e.clientX;
+	mousePos.y = e.clientY;
+};
+
+const getCharacterStyle = (char: CharacterItem) => {
 	let transform = 'translateY(20px)';
 	let height = `${char.baseHeight}px`;
 
@@ -234,8 +219,7 @@ const getCharacterStyle = (char: any) => {
 	};
 };
 
-const getPupilStyle = (char: any, side: string) => {
-	// Calculate relative mouse position considering character movement
+const getPupilStyle = () => {
 	let offsetX = 0;
 	if (isEmailFocused.value) offsetX = 40;
 	if (isPasswordFocused.value) offsetX = -20;
@@ -259,22 +243,45 @@ const getPupilStyle = (char: any, side: string) => {
 	};
 };
 
-// Blinking logic
 const scheduleBlink = (charIndex: number) => {
 	const delay = Math.random() * 4000 + 2000;
-	setTimeout(() => {
+	const blinkStartTimer = window.setTimeout(() => {
 		characters[charIndex].isBlinking = true;
-		setTimeout(() => {
+		const blinkEndTimer = window.setTimeout(() => {
 			characters[charIndex].isBlinking = false;
 			scheduleBlink(charIndex);
 		}, 150);
+		blinkTimerIds.value.push(blinkEndTimer);
 	}, delay);
+	blinkTimerIds.value.push(blinkStartTimer);
 };
 
-/**
- * AI Agent
- * 监听键盘 Enter，触发登录
- */
+const clearBlinkTimers = () => {
+	blinkTimerIds.value.forEach((timerId) => window.clearTimeout(timerId));
+	blinkTimerIds.value = [];
+};
+
+const initParticles = async () => {
+	const instance = getCurrentInstance();
+	const app = instance?.appContext.app;
+	if (!app) return;
+
+	const win = window as unknown as Record<string, unknown>;
+	if (!win[particlesGlobalKey]) {
+		const [{ default: Particles }, { loadSlim }] = await Promise.all([
+			import('@tsparticles/vue3'),
+			import('@tsparticles/slim'),
+		]);
+		app.use(Particles, {
+			init: async (engine) => {
+				await loadSlim(engine);
+			},
+		});
+		win[particlesGlobalKey] = true;
+	}
+	particlesReady.value = true;
+};
+
 const onKeydownEnter = (e: KeyboardEvent) => {
 	if (e.isComposing) return;
 	if (e.key !== 'Enter') return;
@@ -282,41 +289,31 @@ const onKeydownEnter = (e: KeyboardEvent) => {
 	onSubmit();
 };
 
-// 登录提交
-const onSubmit = () => {
+const onSubmit = async () => {
+	if (loading.value) return;
+
 	loading.value = true;
-	formRef.value
-		.validate()
-		.then(async () => {
-			let param: LoginParams = {
-				username: loginForm.username,
-				password: loginForm.password,
-				isRememberMe: loginForm.isRememberMe,
-			};
-			if (loginForm.isRememberMe) {
-				loginStore.setLoginInfo(encrypt(param));
-			} else {
-				loginStore.setLoginInfo('');
-			}
-			const res = await userStore.login(param);
-			if (res) {
-				router.push('/');
-			}
-		})
-		.catch((error: ValidateErrorEntity<LoginParams>) => {
-			console.log('error', error);
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		await formRef.value?.validate();
+		const params: LoginParams = {
+			username: loginForm.username,
+			password: loginForm.password,
+			isRememberMe: loginForm.isRememberMe,
+		};
+		loginStore.setLoginInfo(loginForm.isRememberMe ? encrypt(params) : '');
+		const success = await userStore.login(params);
+		if (success) {
+			await router.push('/');
+		}
+	} catch (error) {
+		console.error('login failed', error);
+	} finally {
+		loading.value = false;
+	}
 };
 
-// 生命周期钩子
 onMounted(async () => {
 	await initParticles();
-
-	// 绑定回车登录
-onMounted(() => {
 	window.addEventListener('keydown', onKeydownEnter);
 	const loginInfo = loginStore.getLoginInfo;
 	if (loginInfo) {
@@ -327,21 +324,20 @@ onMounted(() => {
 			loginForm.isRememberMe = info.isRememberMe || false;
 		}
 	}
-	// Start blinking for each character
 	characters.forEach((_, index) => scheduleBlink(index));
 });
 
 onUnmounted(() => {
 	window.removeEventListener('keydown', onKeydownEnter);
+	clearBlinkTimers();
 });
 
-// 粒子加载完成
-const particlesLoaded = async (container: unknown) => {
+const particlesLoaded = (container: unknown) => {
 	console.log('Particles container loaded', container);
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .login-wrapper {
 	display: flex;
 	height: 100vh;

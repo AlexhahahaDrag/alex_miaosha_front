@@ -180,7 +180,7 @@ const saveOrgInfoManager = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
 		loading.value = false;
@@ -198,7 +198,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getOrgInfoDetail(props.modelInfo.id);
-		if (code === '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

@@ -80,9 +80,9 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid == 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === 1 ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid == 1 ? '有效' : '失效' }}
+							{{ record.isValid === 1 ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 				</template>
@@ -166,7 +166,7 @@ const delDict = async (ids: string) => {
 			return error;
 		},
 	);
-	if (code == '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getDictPage(searchInfo.value, pagination);
 	} else {
@@ -195,7 +195,7 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 	} = await getDictManagerPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (code == '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -205,10 +205,10 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 
 //新增和修改弹窗
 function editDict(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id ? String(id) : undefined;
 	}

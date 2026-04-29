@@ -95,9 +95,9 @@
 					<template v-else-if="column.key === 'showStatus'">
 						<a-tag
 							:key="record.showStatus"
-							:color="record.showStatus == '1' ? '#87d068' : 'grey'"
+							:color="record.showStatus === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.showStatus == '1' ? '有效' : '失效' }}
+							{{ record.showStatus === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'logoUrl' && record.logoUrl">
@@ -179,7 +179,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 function delPmsBrand(ids: string) {
 	deletePmsBrand(ids).then((res) => {
-		if (res.code == '200') {
+		if (res.String(code) === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getPmsBrandListPage(searchInfo.value, pagination);
 		} else {
@@ -208,7 +208,7 @@ function getPmsBrandListPage(param: SearchInfo, cur: PageInfo) {
 	loading.value = true;
 	getPmsBrandPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.String(code) === '200') {
 				dataSource.value = res.data?.records || [];
 				setTotal(res.data?.total || 0);
 			} else {
@@ -234,10 +234,10 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsBrand(type: string, id?: number) {
-	if (type == 'add') {
+	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
-	} else if (type == 'update') {
+	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}

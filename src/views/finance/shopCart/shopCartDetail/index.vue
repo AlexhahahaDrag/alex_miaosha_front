@@ -95,7 +95,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { ShopCartDetail } from './shopCartDetailTs';
+import type { ShopCartData } from '@/views/finance/shopCart/config';
 import {
 	getShopCartDetail,
 	addShopCart,
@@ -164,7 +164,7 @@ interface Props {
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<ShopCartDetail>({});
+let formState = ref<ShopCartData>({});
 
 const emit = defineEmits(['success']);
 
@@ -192,7 +192,7 @@ const saveShopCartManager = (): void => {
 	}
 	api(formState.value)
 		.then((res) => {
-			if (res.code == '200') {
+			if (res.String(code) === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
 				emit('success');
@@ -220,7 +220,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopCartDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {

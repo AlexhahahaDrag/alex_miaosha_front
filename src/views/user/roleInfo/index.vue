@@ -182,7 +182,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delRoleInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteRoleInfo(ids);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		// 刷新列表
 		setCurrent(1);
@@ -237,7 +237,7 @@ const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	} = await getRoleInfoPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (code === '200') {
+	if (String(code) === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

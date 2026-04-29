@@ -150,7 +150,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { ShopFinanceDetail } from './shopFinanceDetailTs';
+import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import {
 	getShopFinanceDetail,
 	addShopFinance,
@@ -161,6 +161,7 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
+import { defaultDateFormat } from '@/utils/dayjs';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -180,7 +181,7 @@ let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const dateFormatter = 'YYYY-MM-DD';
+const dateFormatter = defaultDateFormat;
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
@@ -245,7 +246,7 @@ interface Props {
 const props = defineProps<Props>();
 const open = defineModel<boolean>('open', { default: false });
 
-let formState = ref<ShopFinanceDetail>({});
+let formState = ref<ShopFinanceData>({});
 
 const emit = defineEmits(['success']);
 
@@ -266,31 +267,31 @@ const handleCancel = () => {
 };
 
 //保存商店财务表信息
-function saveShopFinanceManager() {
+async function saveShopFinanceManager() {
 	let api = addShopFinance;
 	if (formState.value?.id) {
 		api = editShopFinance;
 	}
-	api(formState.value || {})
-		.then((res) => {
-			if (res.code == '200') {
-				message.success((res && res.message) || '保存成功！');
-				open.value = false;
-				emit('success');
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
-			formState.value = {};
-		})
-		.catch((error: any) => {
-			let data = error?.response?.data;
-			if (data) {
-				message.error(data?.message || '保存失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		const { code, message: messageInfo } = await api(formState.value || {});
+		if (String(code) === '200') {
+			message.success(messageInfo || '保存成功！');
+			open.value = false;
+			emit('success');
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+		formState.value = {};
+	} catch (error: unknown) {
+		const responseData = (
+			error as { response?: { data?: { message?: string } } }
+		)?.response?.data;
+		if (responseData) {
+			message.error(responseData.message || '保存失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
 }
 
 const init = async () => {
@@ -300,7 +301,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getShopFinanceDetail(props.modelInfo.id);
-		if (code == '200') {
+		if (String(code) === '200') {
 			formState.value = data || {};
 			formState.value.saleDate = dayjs(formState.value.saleDate);
 			modelConfig.confirmLoading = false;

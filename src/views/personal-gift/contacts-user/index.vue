@@ -237,7 +237,7 @@ const onDeleteContact = async (id: string | undefined): Promise<void> => {
 		return;
 	}
 	const { code, message: messageInfo } = await deleteContactsUser(String(id));
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getContactsUserListPage(searchInfo.value, pagination);
 	} else {
@@ -250,7 +250,7 @@ const customImportRequest = async (info: unknown): Promise<void> => {
 	const formData = new FormData();
 	formData.append('file', (info as { file: File }).file);
 	const { code, message: messageInfo } = await importContactsUser(formData);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '导入成功！', 3);
 		const params: ContactsUserInfo = {};
 		getContactsUserListPage(params, pagination);
@@ -278,7 +278,7 @@ const getContactsUserListPage = async (
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		contactList.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -368,7 +368,7 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		const { code, data } = await getUserEnabledRelations(
 			String(userInfo.value?.id ?? ''),
 		);
-		if (code === '200' && data) {
+		if (String(code) === '200' && data) {
 			relationshipOptions.value = data;
 		}
 	} catch (error: unknown) {

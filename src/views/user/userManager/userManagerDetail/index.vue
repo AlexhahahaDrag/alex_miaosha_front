@@ -1,8 +1,8 @@
 <template>
 	<a-modal
-		v-model:open="open"
-		:width="props?.modelInfo?.width || '1000px'"
-		:title="props?.modelInfo?.title || 'Basic Modal'"
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
 		okText="保存"
 		:confirmLoading="modelConfig.confirmLoading"
 		:destroyOnClose="modelConfig.destroyOnClose"
@@ -182,11 +182,9 @@ import type { ModelInfo } from '@/views/common/config';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { defaultDateFormat } from '@/utils/dayjs';
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', {
+	default: () => ({}),
+});
 
 const { getDictByType } = useDictInfo('gender,is_valid');
 
@@ -198,7 +196,6 @@ const modelConfig = {
 	confirmLoading: true,
 	destroyOnClose: true,
 };
-const props = defineProps<Props>();
 let formState = ref<UserManagerInfo>({});
 const formRef = ref<FormInstance>();
 // 字典数据已通过 useDictInfo 自动加载
@@ -227,7 +224,7 @@ const customImageRequest = (file: FileInfo) => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 // 保存用户信息
@@ -241,9 +238,9 @@ const saveUserManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (code === '200') {
+	if (String(code) === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 		initForm();
 	} else {
@@ -260,14 +257,14 @@ function initForm() {
 
 const init = async () => {
 	pageLoading.value = true;
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		try {
 			const {
 				code,
 				data,
 				message: messageInfo,
-			} = await getUserManagerDetail(props.modelInfo.id);
-			if (code === '200') {
+			} = await getUserManagerDetail(String(modelInfo.value.id));
+			if (String(code) === '200') {
 				formState.value = data || {};
 				if (
 					formState.value.gender !== undefined &&
@@ -302,7 +299,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();
