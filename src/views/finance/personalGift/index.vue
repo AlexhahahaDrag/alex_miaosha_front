@@ -87,7 +87,7 @@
 		<personal-gift-detail
 			ref="editInfo"
 			v-model:open="modelInfo.open"
-			:modelInfo="modelInfo"
+			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></personal-gift-detail>
 	</div>
@@ -177,7 +177,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const noticePersonalInfo = async (id: string): Promise<void> => {
 	const { code, message: messageInfo } = await noticePersonalGift(id);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '通知成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -188,7 +188,7 @@ const noticePersonalInfo = async (id: string): Promise<void> => {
 // 删除个人随礼信息表信息
 const delPersonalGift = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deletePersonalGift(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -210,7 +210,7 @@ const customImportRequest = async (info: unknown): Promise<void> => {
 	const formData = new FormData();
 	formData.append('file', (info as { file: File }).file);
 	const { code, message: messageInfo } = await importPersonalGift(formData);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '导入成功！', 3);
 		getPersonalGiftListPage(searchInfo.value, pagination);
 	} else {
@@ -236,7 +236,7 @@ const getPersonalGiftListPage = async (
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

@@ -128,7 +128,7 @@
 			<ShopCartDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopCartDetail>
 		</div>
@@ -192,8 +192,8 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delShopCart = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopCart(ids);
-	if (String(code) === '200') {
-		message.success(('删除' + messageInfo) || '删除成功！', 3);
+	if (code === '200') {
+		message.success('删除' + messageInfo || '删除成功！', 3);
 		rowIds.value = [];
 		getShopCartListPage(searchInfo.value, pagination);
 	} else {
@@ -221,7 +221,7 @@ const getShopCartListPage = async (
 			loading.value = false;
 		},
 	);
-	if (res.String(code) === '200') {
+	if (res.code === '200') {
 		dataSource.value = res.data?.records || [];
 		setTotal(res.data?.total || 0);
 	} else {

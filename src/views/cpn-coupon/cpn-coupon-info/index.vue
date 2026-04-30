@@ -39,17 +39,12 @@
 								:name="labelMap['onlyValidAndNotFullyRedeemed'].name"
 								:label="labelMap['onlyValidAndNotFullyRedeemed'].label"
 							>
-								<!-- AI Agent：有效状态筛选（全部/有效） -->
-								<a-select
+								<a-radio-group
 									v-model:value="searchInfo.onlyValidAndNotFullyRedeemed"
-									:placeholder="
-										'请选择' + labelMap['onlyValidAndNotFullyRedeemed'].label
-									"
-									allow-clear
 								>
-									<a-select-option :value="true">有效</a-select-option>
-									<a-select-option :value="null">全部</a-select-option>
-								</a-select>
+									<a-radio :value="true">有效</a-radio>
+									<a-radio :value="null">全部</a-radio>
+								</a-radio-group>
 							</a-form-item>
 						</a-col>
 					</a-row>
@@ -134,8 +129,7 @@
 			</a-table>
 			<cpn-coupon-info-detail
 				ref="editInfo"
-				v-model:open="modelInfo.open"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
 			</cpn-coupon-info-detail>
@@ -151,16 +145,19 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { TableRowSelection } from 'ant-design-vue/es/table/interface';
-import { getCpnCouponInfoPage, deleteCpnCouponInfo } from './api';
+import {
+	getCpnCouponInfoPage,
+	deleteCpnCouponInfo,
+} from '@/views/cpn-coupon/cpn-coupon-info/api';
 import type { ModelInfo } from '@/views/common/config';
-import type { CpnCouponInfoData } from './config';
+import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import {
 	columns,
 	labelMap,
 	labelCol,
 	wrapperCol,
 	getExpireStatusColor,
-} from './config';
+} from '@/views/cpn-coupon/cpn-coupon-info/config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
@@ -247,7 +244,7 @@ const handleTableChange = (paginationInfo: PageInfo): void => {
 
 const delCpnCouponInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteCpnCouponInfo(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		rowIds = [];
 		getCpnCouponInfoListPage(searchInfo.value, pagination);
@@ -282,7 +279,7 @@ const getCpnCouponInfoListPage = async (
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -299,16 +296,10 @@ const editCpnCouponInfo = (type: string, id?: number): void => {
 	modelInfo.value = {
 		confirmLoading: true,
 		open: true,
-		id: id || undefined,
+		id: id ? String(id) : undefined,
 		title: add + '消费券信息',
 	};
 };
-
-const handleOk = (v: boolean): void => {
-	modelInfo.value.open = v;
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
-};
-
 
 // AI Agent：打开“消费券核销数量”弹窗（事件处理函数以 on 开头）
 const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
@@ -316,20 +307,16 @@ const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
 		open: true,
 		title: '消费券核销',
 		width: 'min(600px, 60%)',
-		id: record.id || undefined,
+		id: record.id ? String(record.id) : undefined,
 	};
 	redeemCouponInfo.value = record;
 };
 
-// AI Agent：核销弹窗 - 保存成功回调
-const onRedeemSuccess = (): void => {
-// 核销成功后刷新列表（接口接入后保持同样逻辑）
+const handleSuccess = (): void => {
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
-
 };
 
 // AI Agent：核销弹窗 - 取消回调
-
 
 const init = (): void => {
 	//获取消费券信息表页面数据

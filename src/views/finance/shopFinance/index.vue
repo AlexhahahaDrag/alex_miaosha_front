@@ -154,7 +154,7 @@
 			<ShopFinanceDetail
 				ref="editInfo"
 				v-model:open="oepnModel"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopFinanceDetail>
 		</div>
@@ -240,7 +240,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delShopFinance = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopFinance(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success('删除' + messageInfo || '删除成功！', 3);
 		selectedRowIds.value = [];
 		getShopFinanceListPage(searchInfo.value, pagination);
@@ -271,7 +271,7 @@ const getShopFinanceListPage = async (
 	} = await getShopFinancePage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = (data?.records || []) as ShopFinanceData[];
 		setTotal(data?.total || 0);
 	} else {

@@ -126,7 +126,7 @@ const getCpnRedemptionRecordInfoListPage = async (
 		loading.value = false;
 	});
 	console.log(`data aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:`, data);
-	if (String(code) === '200') {
+	if (code === '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
 		pagination.current = curData?.current || 1;

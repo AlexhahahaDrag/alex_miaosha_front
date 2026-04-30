@@ -98,7 +98,7 @@
 			<shop-stock-batch-detail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></shop-stock-batch-detail>
 		</div>
@@ -166,7 +166,7 @@ const handleTableChange = (pagination: PageInfo): void => {
 
 const delShopStockBatch = async (ids: string): Promise<void> => {
 	const { code, message: msg } = await deleteShopStockBatch(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success((msg && '删除' + msg) || '删除成功！', 3);
 		getShopStockBatchListPage(searchInfo.value, pagination);
 	} else {
@@ -201,7 +201,7 @@ const getShopStockBatchListPage = async (
 			data,
 			message: msg,
 		} = await getShopStockBatchPage(param, cur.current, cur.pageSize);
-		if (String(code) === '200') {
+		if (code === '200') {
 			dataSource.value = data?.records;
 			setTotal(data?.total || 0);
 		} else {

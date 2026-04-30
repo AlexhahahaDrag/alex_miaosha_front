@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -123,11 +123,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 const formState = ref<RoleInfoData>({});
 
@@ -151,7 +147,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 const saveRoleInfoManager = async () => {
@@ -167,9 +163,9 @@ const saveRoleInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -177,13 +173,13 @@ const saveRoleInfoManager = async () => {
 };
 
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getRoleInfoDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getRoleInfoDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			permissionTree.value =
 				(data as { permissionList?: unknown[] })?.permissionList || [];
@@ -203,7 +199,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

@@ -219,10 +219,12 @@ const buildSeriesData = (
 };
 
 const getShopNameInfoInfo = async (dateStr: string) => {
-	const { code, data, message: messageInfo } = (await getShopNameInfo(
-		dateStr,
-	)) as ApiResult<ShopFinanceData[]>;
-	if (String(code) === '200') {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = (await getShopNameInfo(dateStr)) as ApiResult<ShopFinanceData[]>;
+	if (code === '200') {
 		pieShopData.value = (data || []).map((item) => ({
 			name: item.shopName || '',
 			value: item.saleAmount || 0,
@@ -233,10 +235,12 @@ const getShopNameInfoInfo = async (dateStr: string) => {
 };
 
 const getPayWayInfoInfo = async (dateStr: string) => {
-	const { code, data, message: messageInfo } = (await getPayWayInfo(
-		dateStr,
-	)) as ApiResult<PayWayInfoItem[]>;
-	if (String(code) === '200') {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = (await getPayWayInfo(dateStr)) as ApiResult<PayWayInfoItem[]>;
+	if (code === '200') {
 		piePayWayData.value = (data || []).map((item) => ({
 			name: item.payWayName || '',
 			value: item.saleAmount || 0,
@@ -247,10 +251,12 @@ const getPayWayInfoInfo = async (dateStr: string) => {
 };
 
 const getDayShopFinanceInfoInfo = async (dateStr: string) => {
-	const { code, data, message: messageInfo } = (await getDayShopFinanceInfo(
-		dateStr,
-	)) as ApiResult<TrendPoint[]>;
-	if (String(code) === '200') {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = (await getDayShopFinanceInfo(dateStr)) as ApiResult<TrendPoint[]>;
+	if (code === '200') {
 		const { xAxis, seriesAll } = buildSeriesData(data || [], (item) =>
 			formatTime(item.infoDate),
 		);
@@ -263,10 +269,12 @@ const getDayShopFinanceInfoInfo = async (dateStr: string) => {
 };
 
 const getMonthShopFinanceInfoInfo = async (dateStr: string) => {
-	const { code, data, message: messageInfo } = (await getMonthShopFinanceInfo(
-		dateStr,
-	)) as ApiResult<TrendPoint[]>;
-	if (String(code) === '200') {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = (await getMonthShopFinanceInfo(dateStr)) as ApiResult<TrendPoint[]>;
+	if (code === '200') {
 		const { xAxis, seriesAll } = buildSeriesData(
 			data || [],
 			(item) => item.infoDate || '',

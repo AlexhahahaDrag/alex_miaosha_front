@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -118,11 +118,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<PmsShopWantProductDetail>({});
 
@@ -139,7 +135,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存商品想买网上商品信息信息
@@ -150,10 +146,10 @@ function savePmsShopWantProductManager() {
 	}
 	api(formState.value)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (String(res.code) === '200') {
 				message.success((res && res.message) || '保存成功！');
-				open.value = false;
-		emit('success');
+				modelInfo.value.open = false;
+				emit('success');
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
@@ -168,13 +164,13 @@ function savePmsShopWantProductManager() {
 }
 
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getPmsShopWantProductDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getPmsShopWantProductDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -187,7 +183,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

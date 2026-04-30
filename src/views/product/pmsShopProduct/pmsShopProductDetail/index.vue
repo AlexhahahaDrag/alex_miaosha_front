@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '3000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '3000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -119,43 +119,48 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { PmsShopProductDetail } from './pmsShopProductDetailTs';
 import {
 	getPmsShopProductDetail,
 	addPmsShopProduct,
 	editPmsShopProduct,
 	getProductHisInfo,
 } from '@/views/product/pmsShopProduct/api';
+import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { getDictList } from '@/views/finance/dict/api';
+import type { DictInfo } from '@/views/finance/dict/config';
 import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
 import type { ModelInfo } from '@/views/common/config';
-import type { ResponseBody } from '@/types/api';
+
+type ProductHistoryItem = {
+	price?: number;
+	createDate?: string;
+};
+
+type PmsShopProductDetail = PmsShopProductData & {
+	id?: string | number;
+	comparePrice?: number;
+	lowestPrice?: number;
+	highestPrice?: number;
+	skuId?: string;
+};
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let loading = ref<boolean>(false);
-
+const loading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
+const dayData = ref<number[]>([]);
+const sourceName = ref<string>('');
 
-let dayData = ref<any>([]);
-
-const modelConfig = {
+const modelConfig = reactive({
 	confirmLoading: true,
 	destroyOnClose: true,
-};
+});
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
-
-let formState = ref<PmsShopProductDetail>({});
-
-let dayConfig = ref<barItem>({
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
+const formState = ref<PmsShopProductDetail>({});
+const dayConfig = ref<barItem>({
 	xAxis: [],
 	series: [],
 	xTile: '天数',
@@ -166,21 +171,7 @@ let dayConfig = ref<barItem>({
 	color: '#aa55ff',
 });
 
-// const options = {
-//   xAxis: {
-//     type: 'category',
-//     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-//   },
-//   yAxis: {
-//     type: 'value'
-//   },
-//   series: [
-//     {
-//       data: [150, 230, 224, 218, 135, 147, 260],
-//       type: 'line'
-//     }
-//   ]
-// };
+const emit = defineEmits(['success']);
 
 const handleOk = () => {
 	loading.value = true;
@@ -195,125 +186,109 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
-//保存商品网上商品信息信息
-function savePmsShopProductManager() {
-	let api = addPmsShopProduct;
-	if (formState.value.id) {
-		api = editPmsShopProduct;
-	}
-	api(formState.value)
-		.then((res) => {
-			if (res.String(code) === '200') {
-				message.success((res && res.message) || '保存成功！');
-				open.value = false;
-		emit('success');
-			} else {
-				message.error((res && res.message) || '保存失败！');
-			}
+// 保存商品网上商品信息
+const savePmsShopProductManager = async () => {
+	try {
+		const api = formState.value.id ? editPmsShopProduct : addPmsShopProduct;
+		const { code, message: messageInfo } = await api(formState.value);
+		if (code === '200') {
+			message.success(messageInfo || '保存成功！');
+			modelInfo.value.open = false;
+			emit('success');
 			formState.value = {};
-		})
-		.catch((error: ResponseBody) => {
-			message.error(error?.message || '保存失败！');
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
+};
 
-let sourceName = ref<string>('');
-
-function getProductHisDaysInfo(skuId: string, dateStr: string | null) {
-	getProductHisInfo(skuId, dateStr).then(
-		(res: { code: string; data: any[]; message: any }) => {
-			if (res.String(code) === '200') {
-				if (res.data) {
-					let series = [] as any;
-					let xAxis = [] as any;
-					res.data.forEach((item) => {
-						series.push(item.price);
-						xAxis.push(item.createDate);
-					});
-					dayConfig.value = {
-						xAxis: xAxis,
-						series: series,
-						xTile: '天数',
-						yTitle: '金钱(元)',
-						yNameGap: 50,
-						tooltip: {
-							trigger: 'axis',
-							axisPointer: {
-								type: 'shadow',
-							},
-							formatter(param: any) {
-								let tip = '';
-								let unit = '元';
-								let name = '花费';
-								tip += `<p style="margin: 0">${param[0].axisValue}日</p>`;
-								param.forEach(
-									(element: {
-										axisValue: any;
-										marker: any;
-										value: any;
-										seriesName: any;
-									}) => {
-										tip += `<p style="margin: 0">${element.marker}${name}: ${
-											element.value ? element.value : 0.0
-										}${unit}</p>`;
-									},
-								);
-								return tip;
-							},
-						},
-						color: '#aa55ff',
-					};
-					dayData.value = series;
-				}
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
+const getProductHisDaysInfo = async (skuId: string, dateStr: string | null) => {
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getProductHisInfo(skuId, dateStr);
+	if (String(code) !== '200') {
+		message.error(messageInfo || '查询列表失败！');
+		return;
+	}
+	const records = (data || []) as ProductHistoryItem[];
+	const series = records.map((item) => item.price ?? 0);
+	const xAxis = records.map((item) => item.createDate ?? '');
+	dayConfig.value = {
+		xAxis,
+		series,
+		xTile: '天数',
+		yTitle: '金钱(元)',
+		yNameGap: 50,
+		tooltip: {
+			trigger: 'axis',
+			axisPointer: {
+				type: 'shadow',
+			},
+			formatter(
+				param: Array<{ axisValue: string; marker: string; value: number }>,
+			) {
+				let tip = `<p style="margin: 0">${param[0]?.axisValue || ''}日</p>`;
+				param.forEach((element) => {
+					tip += `<p style="margin: 0">${element.marker}花费: ${
+						element.value ?? 0
+					}元</p>`;
+				});
+				return tip;
+			},
 		},
-	);
-}
+		color: '#aa55ff',
+	};
+	dayData.value = series;
+};
 
 // 初始化数据
 const init = async () => {
-	if (props.modelInfo?.id) {
-		Promise.all([
-			getDictList('shop_type'),
-			getPmsShopProductDetail(props.modelInfo.id),
-		]).then((res: any[]) => {
-			if (res[0].String(code) === '200' && res[0].data?.length && res[1].data) {
-				res[0].data.forEach(
-					(item: { typeCode: string; typeName: Ref<string> }) => {
-						if (item.typeCode === res[1].data.source) {
-							sourceName.value = item.typeName.value;
-						}
-					},
-				);
-			} else {
-				message.error((res[0] && res[0].message) || '查询列表失败！');
-			}
-			if (res[1].String(code) === '200') {
-				formState.value = res[1].data;
-				modelConfig.confirmLoading = false;
-			} else {
-				message.error((res[1] && res[1].message) || '查询失败！');
-			}
-		});
-	} else {
+	const id = modelInfo.value?.id;
+	if (!id) {
 		modelConfig.confirmLoading = false;
 		formState.value = {};
+		sourceName.value = '';
+		dayData.value = [];
+		return;
 	}
-	if (formState.value?.skuId) {
-		getProductHisDaysInfo(formState.value.skuId, '');
+	const [dictRes, detailRes] = await Promise.all([
+		getDictList('shop_type'),
+		getPmsShopProductDetail(String(id)),
+	]);
+
+	if (String(detailRes.code) !== '200' || !detailRes.data) {
+		message.error(detailRes.message || '查询失败！');
+		return;
+	}
+
+	formState.value = detailRes.data;
+	modelConfig.confirmLoading = false;
+
+	if (String(dictRes.code) === '200' && dictRes.data?.length) {
+		const matched = (dictRes.data as DictInfo[]).find(
+			(item) => String(item.typeCode) === String(detailRes.data?.source),
+		);
+		sourceName.value = matched?.typeName || '';
+	} else {
+		sourceName.value = '';
+	}
+
+	if (formState.value.skuId) {
+		await getProductHisDaysInfo(formState.value.skuId, '');
+	} else {
+		dayData.value = [];
 	}
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -321,11 +296,8 @@ watch(
 	},
 	{
 		immediate: true,
-		deep: true,
 	},
 );
-
-const emit = defineEmits(['success']);
 </script>
 <style lang="scss" scoped>
 .mainGrid {

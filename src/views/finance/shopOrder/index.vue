@@ -170,7 +170,7 @@
 			<ShopOrderDetailInfo
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailInfo>
 		</div>

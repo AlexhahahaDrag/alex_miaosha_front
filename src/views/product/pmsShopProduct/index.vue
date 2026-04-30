@@ -9,36 +9,42 @@
 				>
 					<a-row :gutter="24">
 						<a-col :span="6">
-							<a-form-item name="name" label="name">
+							<a-form-item
+								:name="searchFieldMap.name.name"
+								:label="searchFieldMap.name.label"
+							>
 								<a-input
 									v-model:value="searchInfo.name"
-									placeholder="name"
-									@change="initPage"
+									:placeholder="`请输入${searchFieldMap.name.label}`"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="6">
-							<a-form-item name="shop" label="商铺">
+							<a-form-item
+								:name="searchFieldMap.shop.name"
+								:label="searchFieldMap.shop.label"
+							>
 								<a-input
 									v-model:value="searchInfo.shop"
-									placeholder="商铺"
-									@change="initPage"
+									:placeholder="`请输入${searchFieldMap.shop.label}`"
 									allow-clear
 								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="6">
-							<a-form-item name="source" label="来源">
+							<a-form-item
+								:name="searchFieldMap.source.name"
+								:label="searchFieldMap.source.label"
+							>
 								<a-select
 									ref="select"
 									v-model:value="searchInfo.source"
-									placeholder="请选择来源类型"
+									:placeholder="`请选择${searchFieldMap.source.label}`"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="sourceList"
-									@change="initPage"
-									:allowClear="true"
-								></a-select>
+									allow-clear
+								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="6" style="text-align: right">
@@ -119,7 +125,8 @@
 						<div v-for="source in sourceTransferList" :key="source.value">
 							<MySvgIcon
 								v-if="
-									record.source.indexOf(source.value) >= 0 && source.value !== ''
+									record.source.indexOf(source.value) >= 0 &&
+									source.value !== ''
 								"
 								:name="source.label"
 								class="svg"
@@ -148,8 +155,7 @@
 			</a-table>
 			<PmsShopProductDetail
 				ref="editInfo"
-				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
 			</PmsShopProductDetail>
@@ -158,8 +164,11 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import type { SearchInfo, PmsShopProductData } from './pmsShopProductListTs';
-import { columns, sourceTransferList } from './pmsShopProductListTs';
+import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
+import {
+	columns,
+	sourceTransferList,
+} from '@/views/product/pmsShopProduct/config';
 import {
 	getNewestPmsShopProductPage,
 	deletePmsShopProduct,
@@ -180,35 +189,30 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
+const searchFieldMap = {
+	name: { name: 'name', label: '商品名称' },
+	shop: { name: 'shop', label: '商铺' },
+	source: { name: 'source', label: '来源' },
+} as const;
+const rowIds = ref<(string | number)[]>([]);
+let queryTimer: ReturnType<typeof setTimeout> | null = null;
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: PmsShopProductData,
-		selected: boolean,
-		selectedRows: PmsShopProductData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: PmsShopProductData[],
-		changeRows: PmsShopProductData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		rowIds.value = selectedRowKeys;
 	},
 });
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<PmsShopProductData>({});
+const loading = ref<boolean>(false);
+const dataSource = ref<PmsShopProductData[]>([]);
+const modelInfo = ref<ModelInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -223,59 +227,58 @@ function handleTableChange(pagination: PageInfo) {
 	getPmsShopProductListPage(searchInfo.value, pagination);
 }
 
-function delPmsShopProduct(ids: string) {
-	deletePmsShopProduct(ids).then((res) => {
-		if (res.String(code) === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
+async function delPmsShopProduct(ids: string) {
+	try {
+		const { code, message: messageInfo } = await deletePmsShopProduct(ids);
+		if (code === '200') {
+			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+			rowIds.value = [];
 			getPmsShopProductListPage(searchInfo.value, pagination);
 		} else {
-			message.error((res && res.message) || '删除失败！', 3);
+			message.error(messageInfo || '删除失败！', 3);
 		}
-	});
+	} catch {
+		message.error('删除失败，请稍后重试！', 3);
+	}
 }
 
 const batchDelPmsShopProduct = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsShopProduct(rowIds.join(','));
+	delPmsShopProduct(rowIds.value.join(','));
 };
+const cancel = () => {};
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref<PmsShopProductData[]>();
-
-const cancel = (e: MouseEvent) => {
-	console.log(e);
-};
-
-function getPmsShopProductListPage(param: SearchInfo, cur: PageInfo) {
+async function getPmsShopProductListPage(
+	param: PmsShopProductData,
+	cur: PageInfo,
+) {
 	loading.value = true;
-	getNewestPmsShopProductPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.String(code) === '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getNewestPmsShopProductPage(
+		param,
+		cur.current,
+		cur.pageSize,
+	).finally(() => {
+		loading.value = false;
+	});
+	if (code === '200') {
+		dataSource.value = data?.records || [];
+		setTotal(data?.total || 0);
+	} else {
+		message.error(messageInfo || '查询列表失败！');
+	}
 }
 
 const init = () => {
 	//获取商品网上商品信息页面数据
 	getPmsShopProductListPage(searchInfo.value, pagination);
-	//获取字典信息
 };
-
-init();
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsShopProduct(type: string, id?: number) {
@@ -284,21 +287,37 @@ function editPmsShopProduct(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
-getPmsShopProductListPage(searchInfo.value, pagination);
-
+	getPmsShopProductListPage(searchInfo.value, pagination);
 };
 
+onMounted(() => {
+	init();
+});
 
-const initPage = () => {
-	pagination.current = 1;
-	pagination.pageSize = 10;
-};
+onUnmounted(() => {
+	if (queryTimer) {
+		clearTimeout(queryTimer);
+	}
+});
+
+watch(
+	() => [searchInfo.value.name, searchInfo.value.shop, searchInfo.value.source],
+	() => {
+		if (queryTimer) {
+			clearTimeout(queryTimer);
+		}
+		queryTimer = setTimeout(() => {
+			resetPagination();
+			query();
+		}, 300);
+	},
+);
 </script>
 <style lang="scss" scoped></style>

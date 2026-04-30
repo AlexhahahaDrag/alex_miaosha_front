@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '860px'"
+			:title="modelInfo?.title || '机构信息'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -86,6 +86,8 @@
 							<a-input
 								v-model:value="formState.summary"
 								:placeholder="'请填写' + labelMap['summary'].label"
+								:maxlength="150"
+								show-count
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -94,15 +96,15 @@
 							:name="labelMap['status'].name"
 							:label="labelMap['status'].label"
 						>
-							<a-select
-								ref="select"
-								v-model:value="formState.status"
-								:placeholder="'请选择' + labelMap['status'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="statusList"
-								:allowClear="true"
-							>
-							</a-select>
+							<a-radio-group v-model:value="formState.status">
+								<a-radio
+									v-for="item in statusList"
+									:key="item.typeCode"
+									:value="item.typeCode"
+								>
+									{{ item.typeName }}
+								</a-radio>
+							</a-radio-group>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -137,17 +139,14 @@ const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const modelConfig = {
+const modelConfig = reactive({
 	confirmLoading: true,
 	destroyOnClose: true,
-};
+});
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', {
+	default: () => ({}),
+});
 
 const formState = ref<OrgInfoData>({});
 
@@ -164,41 +163,35 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存机构表信息
 const saveOrgInfoManager = async () => {
-	let api = addOrgInfo;
-	if (formState.value.id) {
-		api = editOrgInfo;
-	}
-	const { code, message: messageInfo } = await api(formState.value)
-		.catch((error) => {
-			return error;
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-	if (String(code) === '200') {
-		message.success(messageInfo || '保存成功！');
-		formState.value = {};
+	try {
+		const api = formState.value.id ? editOrgInfo : addOrgInfo;
+		const { code, message: messageInfo } = await api(formState.value);
+		if (code === '200') {
+			message.success(messageInfo || '保存成功！');
+			formState.value = {};
+			modelInfo.value.open = false;
+			emit('success');
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+	} finally {
 		loading.value = false;
-		open.value = false;
-		emit('success');
-	} else {
-		message.error(messageInfo || '保存失败！');
 	}
 };
 
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getOrgInfoDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getOrgInfoDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -211,7 +204,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -219,7 +212,6 @@ watch(
 	},
 	{
 		immediate: true,
-		deep: true,
 	},
 );
 

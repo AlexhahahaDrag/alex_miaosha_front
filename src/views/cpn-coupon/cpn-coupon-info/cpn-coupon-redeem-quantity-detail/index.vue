@@ -214,10 +214,10 @@ const onSubmit = async () => {
 		};
 
 		const { code, message: messageInfo } = await redeemCpnUserCouponInfo(req);
-		if (String(code) === '200') {
+		if (code === '200') {
 			message.success(messageInfo || '核销成功！');
 			open.value = false;
-		emit('success');
+			emit('success');
 		} else {
 			message.error(messageInfo || '核销失败！');
 		}
@@ -250,7 +250,8 @@ watch(
 	{ immediate: true },
 );
 
-const emit = defineEmits(['success']);</script>
+const emit = defineEmits(['success']);
+</script>
 
 <style lang="scss" scoped>
 // 弹窗样式升级（按截图风格）

@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props?.modelInfo?.width || '1000px'"
-			:title="props?.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
 			:destroyOnClose="modelConfig.destroyOnClose"
@@ -144,11 +144,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<DictInfo>({});
 
@@ -164,7 +160,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存财务信息
@@ -181,9 +177,9 @@ const saveFinanceManager = async () => {
 		.finally(() => {
 			modelConfig.confirmLoading = false;
 		});
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -192,13 +188,13 @@ const saveFinanceManager = async () => {
 
 // 初始化数据
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getDictManagerDetail(Number(props.modelInfo.id));
-		if (String(code) === '200') {
+		} = await getDictManagerDetail(Number(modelInfo.value.id));
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -213,7 +209,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

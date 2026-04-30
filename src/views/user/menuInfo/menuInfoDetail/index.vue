@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -180,8 +180,8 @@
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
-import type { MenuInfoData } from '../config';
-import { labelMap, labelCol, wrapperCol, rulesRef } from './menuInfoDetailTs';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
+import { labelMap, labelCol, wrapperCol } from '@/views/user/menuInfo/config';
 import {
 	getMenuInfoDetail,
 	addMenuInfo,
@@ -194,23 +194,20 @@ const { getDictByType } = useDictInfo('true_or_false,is_valid');
 // 字典数据已通过 useDictInfo 自动加载
 const hideInMenuList = computed(() => getDictByType('true_or_false'));
 const statusList = computed(() => getDictByType('is_valid'));
+const rulesRef = reactive({});
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
 
-const modelConfig = {
+const modelConfig = reactive({
 	confirmLoading: true,
 	destroyOnClose: true,
-};
+});
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
-let formState = ref<MenuInfoData>({});
+const formState = ref<MenuInfoData>({});
 
 const handleOk = () => {
 	loading.value = true;
@@ -225,41 +222,36 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存菜单管理表信息
 const saveMenuInfoManager = async () => {
-	let api = addMenuInfo;
-	if (formState.value.id) {
-		api = editMenuInfo;
-	}
-	const { code, message: messageInfo } = await api(formState.value)
-		.catch((error) => {
-			return error;
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-	if (String(code) === '200') {
-		message.success(messageInfo || '保存成功！');
-		open.value = false;
-		emit('success');
-		formState.value = {};
-	} else {
-		message.error(messageInfo || '保存失败！');
+	try {
+		const api = formState.value.id ? editMenuInfo : addMenuInfo;
+		const { code, message: messageInfo } = await api(formState.value);
+		if (code === '200') {
+			message.success(messageInfo || '保存成功！');
+			modelInfo.value.open = false;
+			emit('success');
+			formState.value = {};
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 // 初始化数据
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getMenuInfoDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getMenuInfoDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -272,7 +264,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -280,7 +272,6 @@ watch(
 	},
 	{
 		immediate: true,
-		deep: true,
 	},
 );
 

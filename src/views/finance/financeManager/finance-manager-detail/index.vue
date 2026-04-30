@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			okText="保存"
 			:confirmLoading="loading"
 			:maskClosable="false"
@@ -152,7 +152,7 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import { formatDayjs } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
 
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
 
@@ -200,7 +200,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存财务信息
@@ -217,10 +217,10 @@ const saveFinanceManager = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -253,7 +253,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 
 watch(open, (newVal) => {
 	if (newVal) {
-		initDetail(props.modelInfo);
+		initDetail(modelInfo.value);
 	}
 });
 

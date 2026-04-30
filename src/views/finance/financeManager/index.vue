@@ -95,7 +95,7 @@
 			</a-table>
 			<finance-manager-detail
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="query"
 			></finance-manager-detail>
 		</div>
@@ -165,7 +165,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 // 删除
 const delFinance = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteFinanceManger(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		selectedRowIds.value = [];
 		getFinancePage(searchInfo.value, pagination);
@@ -201,7 +201,7 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		const curData = data;
 		dataSource.value = curData?.records || [];
 		pagination.current = curData?.current || 1;

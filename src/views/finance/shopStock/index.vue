@@ -122,7 +122,7 @@
 			<ShopStockDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopStockDetail>
 		</div>
@@ -205,7 +205,7 @@ function handleTableChange(pagination: PageInfo) {
 
 const delShopStock = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopStock(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success((messageInfo && '删除' + messageInfo) || '删除成功！', 3);
 		getShopStockListPage(searchInfo.value, pagination);
 	} else {
@@ -241,7 +241,7 @@ const getShopStockListPage = async (
 	} = await getShopStockPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -274,9 +274,7 @@ function editShopStock(type: string, id?: number) {
 }
 
 const handleSuccess = () => {
-getShopStockListPage(searchInfo.value, pagination);
-
+	getShopStockListPage(searchInfo.value, pagination);
 };
-
 </script>
 <style lang="scss" scoped></style>

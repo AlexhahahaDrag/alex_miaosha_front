@@ -134,7 +134,7 @@
 			<PermissionInfoDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PermissionInfoDetail>
 		</div>
@@ -214,7 +214,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delPermissionInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deletePermissionInfo(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getPermissionInfoListPage(searchInfo.value, pagination);
 	} else {
@@ -249,7 +249,7 @@ const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

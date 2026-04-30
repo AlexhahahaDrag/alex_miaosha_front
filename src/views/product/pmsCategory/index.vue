@@ -147,7 +147,7 @@
 			<PmsCategoryDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PmsCategoryDetail>
 		</div>
@@ -215,7 +215,7 @@ function handleTableChange(pagination: PageInfo) {
 
 function delPmsCategory(ids: string) {
 	deletePmsCategory(ids).then((res) => {
-		if (res.String(code) === '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getPmsCategoryListPage(searchInfo.value, pagination);
 		} else {
@@ -252,7 +252,7 @@ const getPmsCategoryListPage = async (
 	} = await getPmsCategoryPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -285,14 +285,12 @@ function editPmsCategory(type: string, id?: number) {
 }
 
 const handleSuccess = () => {
-getPmsCategoryListPage(searchInfo.value, pagination);
-
+	getPmsCategoryListPage(searchInfo.value, pagination);
 };
 
 const initPage = () => {
 	pagination.current = 1;
 	pagination.pageSize = 10;
 };
-
 </script>
 <style lang="scss" scoped></style>

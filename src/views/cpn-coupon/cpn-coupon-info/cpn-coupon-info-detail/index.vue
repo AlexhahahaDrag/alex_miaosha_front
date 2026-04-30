@@ -1,8 +1,8 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || 'min(800px, 60%)'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || 'min(800px, 60%)'"
 			okText="保存"
 			:confirmLoading="loading"
 			:destroyOnClose="true"
@@ -13,7 +13,7 @@
 			<template #title>
 				<div class="ai-agent-modal-title-wrap">
 					<span class="ai-agent-modal-title">
-						{{ props.modelInfo?.title || 'Basic Modal' }}
+						{{ modelInfo?.title || 'Basic Modal' }}
 					</span>
 					<!-- AI Agent: 标题下方横线（顶到两端） -->
 					<div class="ai-agent-modal-title-divider"></div>
@@ -129,8 +129,12 @@ import {
 } from '@/views/cpn-coupon/cpn-coupon-info/api';
 import type { ModelInfo } from '@/views/common/config';
 import type { CpnCouponInfoData } from '../config';
-import { labelMap } from '../config';
-import { rulesRef, labelCol, wrapperCol } from './config';
+import { labelMap } from '@/views/cpn-coupon/cpn-coupon-info/config';
+import {
+	rulesRef,
+	labelCol,
+	wrapperCol,
+} from '@/views/cpn-coupon/cpn-coupon-info/config';
 import dayjs from 'dayjs';
 import { formatDayjs } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
@@ -144,11 +148,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<CpnCouponInfoData>({});
 
@@ -162,7 +162,7 @@ const handleOk = () => {
 	}
 };
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存消费券信息表信息
@@ -187,10 +187,10 @@ const saveCpnCouponInfo = async () => {
 		.finally(() => {
 			loading.value = false;
 		});
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -204,7 +204,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 			data,
 			message: messageInfo,
 		} = await getCpnCouponInfoDetail(modalData.id);
-		if (String(code) === '200') {
+		if (code === '200') {
 			// AI Agent：将后端返回的字符串日期转换为 dayjs 对象，以便日期选择器正确显示
 			const formattedData = { ...(data || {}) };
 			if (data?.startDate) {
@@ -233,13 +233,13 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 
 const init = async () => {
 	//初始化数据
-	initDetail(props.modelInfo);
+	initDetail(modelInfo.value);
 };
 
 defineExpose({ handleOk, handleCancel });
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

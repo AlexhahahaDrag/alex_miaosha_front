@@ -97,7 +97,8 @@
 						<div v-for="source in sourceTransferList" :key="source.value">
 							<MySvgIcon
 								v-if="
-									record.source.indexOf(source.value) >= 0 && source.value !== ''
+									record.source.indexOf(source.value) >= 0 &&
+									source.value !== ''
 								"
 								:name="source.label"
 								class="svg"
@@ -115,8 +116,7 @@
 			</a-table>
 			<PmsShopWantProductDetail
 				ref="editInfo"
-				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
 			</PmsShopWantProductDetail>
@@ -132,14 +132,16 @@ import { usePagination } from '@/composables/usePagination';
 import type {
 	SearchInfo,
 	PmsShopWantProductData,
-} from './pmsShopWantProductListTs';
-import { columns, sourceTransferList } from './pmsShopWantProductListTs';
+} from '@/views/product/pmsShopWantProduct/pmsShopWantProductListTs';
+import {
+	columns,
+	sourceTransferList,
+} from '@/views/product/pmsShopWantProduct/pmsShopWantProductListTs';
 import {
 	getPmsShopWantProductPage,
 	deletePmsShopWantProduct,
 } from '@/views/product/pmsShopWantProduct/api';
 import { message } from 'ant-design-vue';
-import type { DictInfo } from '@/views/finance/dict/dict';
 
 // 使用分页组合式函数
 const {
@@ -150,35 +152,27 @@ const {
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
+const rowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: PmsShopWantProductData,
-		selected: boolean,
-		selectedRows: PmsShopWantProductData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: PmsShopWantProductData[],
-		changeRows: PmsShopWantProductData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
+		rowIds.value = selectedRowKeys;
 	},
 });
 
-let searchInfo = ref<SearchInfo>({});
-const sourceList = ref<DictInfo[]>([{ typeName: '请填写', typeCode: '' }]);
+const searchInfo = ref<SearchInfo>({});
+const sourceList = ref<Array<{ typeName: string; typeCode: string }>>([
+	{ typeName: '请填写', typeCode: '' },
+]);
+const loading = ref<boolean>(false);
+const dataSource = ref<PmsShopWantProductData[]>([]);
+const modelInfo = ref<ModelInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
+	initPage();
+	query();
 }
 
 function query() {
@@ -190,32 +184,30 @@ function handleTableChange(paginationInfo: PageInfo) {
 	getPmsShopWantProductListPage(searchInfo.value, paginationInfo);
 }
 
-function delPmsShopWantProduct(ids: string) {
-	deletePmsShopWantProduct(ids).then((res) => {
-		if (res.String(code) === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
+async function delPmsShopWantProduct(ids: string) {
+	try {
+		const { code, message: messageInfo } = await deletePmsShopWantProduct(ids);
+		if (code === '200') {
+			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+			rowIds.value = [];
 			getPmsShopWantProductListPage(searchInfo.value, pagination);
 		} else {
-			message.error((res && res.message) || '删除失败！', 3);
+			message.error(messageInfo || '删除失败！', 3);
 		}
-	});
+	} catch {
+		message.error('删除失败，请稍后重试！', 3);
+	}
 }
 
 const batchDelPmsShopWantProduct = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsShopWantProduct(rowIds.join(','));
+	delPmsShopWantProduct(rowIds.value.join(','));
 };
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
-
-const cancel = (e: MouseEvent) => {
-	console.log(e);
-};
+const cancel = () => {};
 
 const getPmsShopWantProductListPage = async (
 	param: SearchInfo,
@@ -231,24 +223,13 @@ const getPmsShopWantProductListPage = async (
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
 		message.error(messageInfo || '查询列表失败！');
 	}
 };
-
-// 初始化页面数据
-const init = () => {
-	//获取商品想买网上商品信息页面数据
-	getPmsShopWantProductListPage(searchInfo.value, pagination);
-};
-
-init();
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsShopWantProduct(type: string, id?: number) {
@@ -257,21 +238,29 @@ function editPmsShopWantProduct(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
-getPmsShopWantProductListPage(searchInfo.value, pagination);
-
+	getPmsShopWantProductListPage(searchInfo.value, pagination);
 };
-
 
 const initPage = () => {
 	pagination.current = 1;
 	pagination.pageSize = 10;
 };
+
+// 初始化页面数据
+const init = () => {
+	//获取商品想买网上商品信息页面数据
+	getPmsShopWantProductListPage(searchInfo.value, pagination);
+};
+
+onMounted(() => {
+	init();
+});
 </script>
 <style lang="scss" scoped></style>

@@ -135,7 +135,7 @@ const onCancelRedeem = async (record: CpnUserCouponInfoData) => {
 			redemptionQuantity,
 			remarks: '取消核销',
 		});
-		if (String(code) === '200') {
+		if (code === '200') {
 			message.success(messageInfo || '取消核销成功！');
 			getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 		} else {
@@ -178,7 +178,7 @@ const getCpnUserCouponInfoListPage = async (
 	).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		let curData = data;
 		dataSource.value = curData?.records || [];
 		pagination.current = curData?.current || 1;

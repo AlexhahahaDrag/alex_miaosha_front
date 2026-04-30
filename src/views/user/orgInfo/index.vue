@@ -28,23 +28,40 @@
 			<div class="top-area">
 				<div class="search">
 					<a-form :model="searchInfo" layout="inline" class="search-form">
-						<a-form-item name="username" label="用户名：">
+						<a-form-item name="orgName" label="机构名称：">
 							<a-input
-								v-model:value="searchInfo.username"
-								placeholder="请填写用户名"
+								v-model:value="searchInfo.orgName"
+								placeholder="请输入机构名称"
 								allow-clear
 							/>
 						</a-form-item>
-						<a-form-item name="nickName" label="昵称：">
+						<a-form-item name="orgCode" label="机构编码：">
 							<a-input
-								v-model:value="searchInfo.nickName"
-								placeholder="请填写昵称"
+								v-model:value="searchInfo.orgCode"
+								placeholder="请输入机构编码"
+								allow-clear
+							/>
+						</a-form-item>
+						<a-form-item name="status" label="状态：">
+							<a-select
+								v-model:value="searchInfo.status"
+								placeholder="请选择状态"
+								:field-names="{ label: 'typeName', value: 'typeCode' }"
+								:options="statusList"
+								allow-clear
+								style="width: 140px"
+							/>
+						</a-form-item>
+						<a-form-item name="parentId" label="所属上级：">
+							<a-input
+								v-model:value="searchInfo.parentId"
+								placeholder="请输入上级机构ID"
 								allow-clear
 							/>
 						</a-form-item>
 						<a-form-item>
 							<a-space>
-								<a-button type="primary" @click="query">查找</a-button>
+								<a-button type="primary" @click="query()">查找</a-button>
 								<a-button @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-form-item>
@@ -60,7 +77,7 @@
 						<a-button
 							type="primary"
 							@click="editOrgInfo('update', Number(selectedKeys[0]))"
-							:disabled="!selectedKeys.length"
+							:disabled="!hasSelectedNode"
 						>
 							<template #icon><edit-outlined /></template>
 							编辑
@@ -70,9 +87,9 @@
 							ok-text="确认"
 							cancel-text="取消"
 							@confirm="delOrgInfo(selectedKeys.join(','))"
-							:disabled="!selectedKeys.length"
+							:disabled="!hasSelectedNode"
 						>
-							<a-button type="primary" danger :disabled="!selectedKeys.length">
+							<a-button type="primary" danger :disabled="!hasSelectedNode">
 								<template #icon><delete-outlined /></template>
 								删除
 							</a-button>
@@ -92,75 +109,48 @@
 					class="custom-table"
 				>
 					<template #bodyCell="{ column, record }">
-						<template v-if="column.key === 'birthday'">
-							<span>
-								{{ formatDate(record.birthday) }}
-							</span>
-						</template>
-						<template v-else-if="column.key === 'status'">
+						<template v-if="column.key === 'status'">
 							<a-tag
-								:key="record.status"
+								:key="String(record.status)"
 								:style="{
-									backgroundColor: record.status === 1 ? '#f6ffed' : '#f5f5f5',
-									color: record.status === 1 ? '#52c41a' : '#00000040',
-									borderColor: record.status === 1 ? '#b7eb8f' : '#d9d9d9',
+									backgroundColor:
+										String(record.status) === '1' ? '#f6ffed' : '#f5f5f5',
+									color: String(record.status) === '1' ? '#52c41a' : '#00000040',
+									borderColor:
+										String(record.status) === '1' ? '#b7eb8f' : '#d9d9d9',
 								}"
 							>
-								{{ record.status === 1 ? '有效' : '失效' }}
+								{{ String(record.status) === '1' ? '启用' : '禁用' }}
 							</a-tag>
-						</template>
-						<template v-else-if="column.key === 'gender'">
-							<a-tag
-								:key="record.gender"
-								:style="
-									record.gender === '1' ?
-										{
-											backgroundColor: '#e6f7ff',
-											color: '#1890ff',
-											border: 'none',
-										}
-									: record.gender === '2' ?
-										{
-											backgroundColor: '#fff0f6',
-											color: '#eb2f96',
-											border: 'none',
-											padding: '0 8px',
-											borderRadius: '10px',
-										}
-									:	{}
-								"
-							>
-								{{
-									record.gender === '1' ? '男'
-									: record.gender === '2' ? '女'
-									: ''
-								}}
-							</a-tag>
-						</template>
-						<template
-							v-else-if="column.key === 'avatarUrl' && record.avatarUrl"
-						>
-							<a-image
-								:width="50"
-								:src="record.avatarThumbnailUrl"
-								:preview="{ src: record.avatarUrl }"
-							/>
-						</template>
-						<template v-else-if="column.key === 'occupation'">
-							<span>{{ record.occupation || '-' }}</span>
 						</template>
 						<template v-else-if="column.key === 'operation'">
-							<a-button type="link" size="small" style="padding: 0">
-								查看
-							</a-button>
+							<a-space>
+								<a-button
+									type="link"
+									size="small"
+									style="padding: 0"
+									@click="editOrgInfo('update', record.id)"
+								>
+									编辑
+								</a-button>
+								<a-popconfirm
+									title="确认删除该机构?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delOrgInfo(String(record.id || ''))"
+								>
+									<a-button type="link" danger size="small" style="padding: 0">
+										删除
+									</a-button>
+								</a-popconfirm>
+							</a-space>
 						</template>
 					</template>
 				</a-table>
 			</div>
 			<org-info-detail
 				ref="editInfo"
-				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></org-info-detail>
 		</div>
@@ -181,113 +171,126 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { columns } from '@/views/user/orgInfo/config';
-import { formatDate } from '@/utils/dayjs';
-import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { getOrgInfoPage, deleteOrgInfo } from '@/views/user/orgInfo/api';
-import { getUserManagerPage } from '@/views/user/userManager/api';
+import { useDictInfo } from '@/composables/useDictInfo';
 import { message } from 'ant-design-vue';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
+import type { TreeProps } from 'ant-design-vue';
+import type { Key } from 'ant-design-vue/es/_util/type';
 import OrgInfoDetail from './orgInfoDetail/index.vue';
 
-const treeData = ref<TreeDataItem[]>([]);
+type OrgTreeNode = OrgInfoData &
+	TreeDataItem & {
+		id: Key;
+		parentId?: Key | null;
+		orgCode?: string;
+		children?: OrgTreeNode[];
+	};
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
+const { getDictByType } = useDictInfo('is_valid');
+const statusList = computed(() => getDictByType('is_valid'));
 
-const expandedKeys = ref<string[]>([]);
-const selectedKeys = ref<string[]>([]);
-const checkedKeys = ref<string[]>([]);
-watch(expandedKeys, () => {
-	console.log('expandedKeys', expandedKeys);
-});
-watch(selectedKeys, () => {
-	console.log('selectedKeys', selectedKeys);
-});
-watch(checkedKeys, () => {
-	console.log('checkedKeys', checkedKeys);
-});
+const treeData = ref<TreeDataItem[]>([]);
+const expandedKeys = ref<Key[]>([]);
+const selectedKeys = ref<Key[]>([]);
+const checkedKeys = ref<Key[]>([]);
+const loading = ref<boolean>(false);
+const dataSource = ref<OrgInfoData[]>([]);
+const modelInfo = ref<ModelInfo>({});
+const searchInfo = ref<OrgInfoData>({});
+const currentParentId = ref<string | undefined>(undefined);
+const hasSelectedNode = computed(() => selectedKeys.value.length > 0);
 
-// Unused layout variables removed
+// 查询
+const query = (clear: boolean = false) => {
+	if (clear) {
+		resetPagination();
+	}
+	getOrgDataPage();
+};
 
-let searchInfo = ref<UserManagerInfo>({});
-const currentOrgCode = ref<string | undefined>(undefined);
-
+// 清空查询条件
 function cancelQuery() {
 	searchInfo.value = {};
-	searchInfo.value.orgCode = currentOrgCode.value;
-	query();
+	searchInfo.value.parentId = currentParentId.value;
+	query(true);
 }
 
-function query() {
-	getUserDataPage();
-}
-
-function handleTableChange(paginationInfo: PageInfo) {
+const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
-	getUserDataPage();
-}
+	getOrgDataPage();
+};
 
-function delOrgInfo(ids: string) {
+const delOrgInfo = async (ids: string) => {
 	if (!ids) {
 		message.warning('请选择要删除的机构');
 		return;
 	}
-	deleteOrgInfo(ids).then((res) => {
-		if (res.String(code) === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getOrgTreeData();
+	try {
+		const { code, message: messageInfo } = await deleteOrgInfo(ids);
+		if (code === '200') {
+			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+			await getOrgTreeData();
+			if (!selectedKeys.value.length) {
+				searchInfo.value.parentId = undefined;
+				currentParentId.value = undefined;
+			}
+			await getOrgDataPage();
 		} else {
-			message.error((res && res.message) || '删除失败！', 3);
+			message.error(messageInfo || '删除失败！', 3);
 		}
-	});
-}
-
-function onTreeSelect(keys: any[], info: any) {
-	if (keys.length > 0) {
-		currentOrgCode.value = info.node.orgCode;
-	} else {
-		currentOrgCode.value = undefined;
+	} catch {
+		message.error('删除失败，请稍后重试！', 3);
 	}
-	searchInfo.value.orgCode = currentOrgCode.value;
-	// reset pagination
-	pagination.current = 1;
-	getUserDataPage();
-}
+};
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref<UserManagerInfo[]>([]);
-
-const getUserDataPage = async () => {
-	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getUserManagerPage(
-		searchInfo.value,
-		pagination.current,
-		pagination.pageSize,
-	).finally(() => {
-		loading.value = false;
-	});
-	if (String(code) === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
+const onTreeSelect: TreeProps['onSelect'] = (keys, info) => {
+	if (keys.length > 0) {
+		currentParentId.value = String((info.node as unknown as OrgTreeNode).id || '');
 	} else {
-		message.error(messageInfo || '查询列表失败！');
+		currentParentId.value = undefined;
+	}
+	searchInfo.value.parentId = currentParentId.value;
+	// reset pagination
+	resetPagination();
+	getOrgDataPage();
+};
+
+const getOrgDataPage = async () => {
+	try {
+		loading.value = true;
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getOrgInfoPage(
+			searchInfo.value,
+			pagination.current,
+			pagination.pageSize,
+		);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 const buildTree = (
-	data: any[],
+	data: OrgTreeNode[],
 	parentId: string | number | null = null,
-): any[] => {
-	const list: any[] = [];
+): OrgTreeNode[] => {
+	const list: OrgTreeNode[] = [];
 	data.forEach((item) => {
 		const itemParentIdStr = item.parentId ? String(item.parentId) : null;
 		const parentIdStr = parentId ? String(parentId) : null;
@@ -307,46 +310,46 @@ const buildTree = (
 };
 
 const getOrgTreeData = async () => {
-	// Fetch arbitrarily large number for generating tree
-	const { code, data } = await getOrgInfoPage({}, 1, 1000);
-	if (String(code) === '200' && data && data.records) {
-		const rawRecords = data.records;
-		// Some root nodes might have parentId '0' or null
-		const rootNodes = rawRecords.filter(
-			(r: any) => !r.parentId || String(r.parentId) === '0',
-		);
+	try {
+		// Fetch arbitrarily large number for generating tree
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getOrgInfoPage({}, 1, 1000);
+		if (code === '200' && data?.records) {
+			const rawRecords: OrgTreeNode[] = data.records.map(
+				(item: OrgInfoData) => ({
+					...item,
+					key: item.id,
+				}),
+			) as OrgTreeNode[];
+			// Some root nodes might have parentId '0' or null
+			const rootNodes = rawRecords.filter(
+				(r) => !r.parentId || String(r.parentId) === '0',
+			);
 
-		let tree: TreeDataItem[] = [];
-		if (rootNodes.length > 0) {
-			rootNodes.forEach((root) => {
-				const children = buildTree(rawRecords, root.id);
-				if (children.length > 0) {
-					root.children = children;
-				}
-				tree.push(root);
-			});
+			const tree: OrgTreeNode[] = [];
+			if (rootNodes.length > 0) {
+				rootNodes.forEach((root) => {
+					const children = buildTree(rawRecords, root.id);
+					if (children.length > 0) {
+						root.children = children;
+					}
+					tree.push(root);
+				});
+			}
+			treeData.value = tree;
+		} else {
+			message.error(messageInfo || '机构树加载失败！');
 		}
-		treeData.value = tree;
-		if (tree.length > 0 && !selectedKeys.value.length) {
-			// expandedKeys.value = [tree[0].orgCode];
-		}
+	} catch {
+		message.error('机构树加载失败，请稍后重试！');
 	}
 };
 
-const init = async () => {
-	//获取机构表页面数据并生成树
-	getOrgTreeData();
-	// 取用户数据
-	getUserDataPage();
-};
-
-init();
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
-
 //新增和修改弹窗
-function editOrgInfo(type: string, id?: number) {
+function editOrgInfo(type: string, id?: string | number) {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
@@ -355,12 +358,24 @@ function editOrgInfo(type: string, id?: number) {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
 	getOrgTreeData();
+	getOrgDataPage();
 };
+
+const init = async () => {
+	//获取机构表页面数据并生成树
+	getOrgTreeData();
+	// 取机构数据
+	getOrgDataPage();
+};
+
+onMounted(() => {
+	init();
+});
 </script>
 <style lang="scss" scoped>
 .page-info {

@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -128,11 +128,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 const formState = ref<PermissionInfo>({});
 
@@ -151,7 +147,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存权限信息表信息
@@ -161,9 +157,9 @@ const savePermissionInfoManager = async () => {
 		api = editPermissionInfo;
 	}
 	const { code, message: messageInfo } = await api(formState.value);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -172,13 +168,13 @@ const savePermissionInfoManager = async () => {
 
 // 初始化数据
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getPermissionInfoDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getPermissionInfoDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -191,7 +187,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

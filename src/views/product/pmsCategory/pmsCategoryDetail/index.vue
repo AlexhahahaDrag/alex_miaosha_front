@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -178,11 +178,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<PmsCategoryDetail>({});
 
@@ -199,7 +195,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存商品三级分类信息
@@ -208,13 +204,15 @@ const savePmsCategoryManager = async () => {
 	if (formState.value.catId) {
 		api = editPmsCategory;
 	}
-	const { code, message: messageInfo } = await api(formState.value).finally(() => {
-		loading.value = false;
-	});
-	if (String(code) === '200') {
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		formState.value = {};
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 	} else {
 		message.error(messageInfo || '保存失败！');
@@ -222,13 +220,13 @@ const savePmsCategoryManager = async () => {
 };
 
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getPmsCategoryDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getPmsCategoryDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -242,7 +240,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

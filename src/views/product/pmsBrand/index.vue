@@ -108,7 +108,7 @@
 			<PmsBrandDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
 			</PmsBrandDetail>
@@ -179,7 +179,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 function delPmsBrand(ids: string) {
 	deletePmsBrand(ids).then((res) => {
-		if (res.String(code) === '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getPmsBrandListPage(searchInfo.value, pagination);
 		} else {
@@ -208,7 +208,7 @@ function getPmsBrandListPage(param: SearchInfo, cur: PageInfo) {
 	loading.value = true;
 	getPmsBrandPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (res.code === '200') {
 				dataSource.value = res.data?.records || [];
 				setTotal(res.data?.total || 0);
 			} else {
@@ -246,14 +246,12 @@ function editPmsBrand(type: string, id?: number) {
 }
 
 const handleSuccess = () => {
-getPmsBrandListPage(searchInfo.value, pagination);
-
+	getPmsBrandListPage(searchInfo.value, pagination);
 };
 
 const initPage = () => {
 	pagination.current = 1;
 	pagination.pageSize = 10;
 };
-
 </script>
 <style lang="scss" scoped></style>

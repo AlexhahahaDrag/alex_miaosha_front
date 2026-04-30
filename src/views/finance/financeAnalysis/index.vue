@@ -346,7 +346,7 @@ const getBalanceInfo = async (userid: string, dateStr: string) => {
 		data,
 		message: messageInfo,
 	} = await getBalance(userId, dateStr);
-	if (String(code) === '200') {
+	if (code === '200') {
 		// 余额列表数据
 		balanceList.value = data?.list || [];
 		yoyTrend.value = data?.yoyTrend || '';
@@ -395,7 +395,7 @@ const getIncomeAndExpenseInfo = async (userid: string, dateStr: string) => {
 		data,
 		message: messageInfo,
 	} = await getIncomeAndExpense(userId, dateStr);
-	if (String(code) === '200') {
+	if (code === '200') {
 		let listData = Array.isArray(data) ? data : (data as any)?.list || [];
 
 		// 提取同比/环比数据（逻辑已迁移至 getBalanceInfo）
@@ -491,7 +491,7 @@ const getExpenseSeries = async (
 	dateStr: string,
 ) => {
 	const { code, data, message: messageInfo } = await requestFn(userId, dateStr);
-	if (String(code) === '200') {
+	if (code === '200') {
 		const series: number[] = [];
 		const xAxis: string[] = [];
 		(data || []).forEach((item: AnalysisData) => {

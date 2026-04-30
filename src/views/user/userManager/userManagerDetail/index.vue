@@ -238,7 +238,7 @@ const saveUserManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		modelInfo.value.open = false;
 		emit('success');
@@ -264,7 +264,7 @@ const init = async () => {
 				data,
 				message: messageInfo,
 			} = await getUserManagerDetail(String(modelInfo.value.id));
-			if (String(code) === '200') {
+			if (code === '200') {
 				formState.value = data || {};
 				if (
 					formState.value.gender !== undefined &&

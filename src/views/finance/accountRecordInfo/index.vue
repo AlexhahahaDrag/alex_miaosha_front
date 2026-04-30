@@ -123,8 +123,7 @@
 		</div>
 		<account-record-info-detail
 			ref="editInfo"
-			v-model:open="modelInfo.open"
-			:modelInfo="modelInfo"
+			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		>
 		</account-record-info-detail>
@@ -208,7 +207,7 @@ function handleTableChange(pagination: PageInfo) {
 //删除
 const delAccountRecordInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteAccountRecordInfo(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getAccountRecordInfoListPage(searchInfo.value, pagination);
 	} else {
@@ -239,7 +238,7 @@ const getAccountRecordInfoListPage = async (
 		data,
 		message: messageInfo,
 	} = await getAccountRecordInfoPage(param, cur.current, cur.pageSize);
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

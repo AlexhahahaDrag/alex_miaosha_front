@@ -183,7 +183,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delUser = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteUserManager(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		pagination.current = 1;
 		getUserPage(searchInfo.value, pagination);
@@ -211,7 +211,7 @@ const getUserPage = async (param: UserManagerInfo, cur: PageInfo) => {
 	} = await getUserManagerPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

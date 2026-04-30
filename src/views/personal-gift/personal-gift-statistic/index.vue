@@ -255,7 +255,7 @@ const fetchPersonalGiftStatistic = async () => {
 			message: messageInfo,
 			data,
 		} = await getPersonalGiftStatistic();
-		if (String(code) === '200') {
+		if (code === '200') {
 			statisticData.value = data || initialStatisticData;
 		} else {
 			message.error(messageInfo || errorMessages.statisticFail, 3);
@@ -281,7 +281,7 @@ const fetchOccasionDistribution = async () => {
 			message: messageInfo,
 			data,
 		} = await getOccasionDistribution();
-		if (String(code) === '200') {
+		if (code === '200') {
 			const chartData =
 				data?.map((item: { occasion: string; count: number }) => ({
 					name: item.occasion,
@@ -308,7 +308,7 @@ const fetchPersonalGiftTrend = async () => {
 	try {
 		isLoadingTrend.value = true;
 		const { code, message: messageInfo, data } = await getPersonalGiftTrend();
-		if (String(code) === '200') {
+		if (code === '200') {
 			trendData.value = data || [];
 		} else {
 			message.error(messageInfo || errorMessages.trendFail, 3);

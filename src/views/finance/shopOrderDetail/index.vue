@@ -180,7 +180,7 @@
 			<ShopOrderDetailDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailDetail>
 		</div>
@@ -256,7 +256,7 @@ const handleTableChange = (pagination: PageInfo): void => {
 
 const delShopOrderDetail = (ids: string): void => {
 	deleteShopOrderDetail(ids).then((res) => {
-		if (res.String(code) === '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getShopOrderDetailListPage(searchInfo.value, pagination);
 		} else {
@@ -285,7 +285,7 @@ const getShopOrderDetailListPage = (param: SearchInfo, cur: PageInfo): void => {
 	loading.value = true;
 	getShopOrderDetailPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (res.code === '200') {
 				dataSource.value = res.data?.records;
 				setTotal(res.data?.total || 0);
 			} else {

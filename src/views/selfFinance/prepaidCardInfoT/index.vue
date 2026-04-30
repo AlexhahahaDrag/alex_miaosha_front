@@ -147,7 +147,7 @@ const getSelectedCardName = () => {
 // 获取消费卡列表
 const getPrepaidCardInfoListInfo = async () => {
 	const { code, data, message: messageInfo } = await getPrepaidCardInfoList({});
-	if (String(code) === '200') {
+	if (code === '200') {
 		console.log(`获取消费卡列表成功`, data);
 		cards.value = data || [];
 	} else {
@@ -167,7 +167,7 @@ const getPrepaidConsumeRecordTPageInfo = async () => {
 		paginationInfo.value.pageSize,
 	);
 	console.log(data, code, messageInfo);
-	if (String(code) === '200') {
+	if (code === '200') {
 		transactions.value = data?.records || [];
 		paginationInfo.value.total = data?.total ?? 0;
 	} else {

@@ -67,7 +67,7 @@ const confirmRecharge = async () => {
 	};
 	console.log(params, userInfo);
 	const { code, message: messageInfo } = await consumeAndRecharge(params);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success('充值成功');
 		emit('ok');
 	} else {

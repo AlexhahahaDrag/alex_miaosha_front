@@ -54,7 +54,11 @@
 						<a-typography-title :level="5" style="margin: 0">
 							AI 对话
 						</a-typography-title>
-						<a-tag v-if="activeEngineLabel" color="blue" style="margin-left: 8px">
+						<a-tag
+							v-if="activeEngineLabel"
+							color="blue"
+							style="margin-left: 8px"
+						>
 							{{ activeEngineLabel }}
 						</a-tag>
 					</div>
@@ -192,7 +196,9 @@ const activeEngineLabel = computed(() => {
 });
 
 const activeConversation = computed<Conversation | null>(() => {
-	return conversations.value.find((c) => c.id === activeConversationId.value) || null;
+	return (
+		conversations.value.find((c) => c.id === activeConversationId.value) || null
+	);
 });
 
 const activeMessages = computed<ChatMessage[]>(() => {
@@ -204,7 +210,9 @@ const filteredConversations = computed<Conversation[]>(() => {
 	if (!k) {
 		return conversations.value;
 	}
-	return conversations.value.filter((c) => (c.title || '').toLowerCase().includes(k));
+	return conversations.value.filter((c) =>
+		(c.title || '').toLowerCase().includes(k),
+	);
 });
 
 const canSend = computed(() => {
@@ -244,7 +252,8 @@ const onRestore = () => {
 			parsed.activeConversationId || conversations.value?.[0]?.id || '';
 		engine.value = parsed.engine || 'deepseek';
 		model.value = parsed.model || '';
-		temperature.value = typeof parsed.temperature === 'number' ? parsed.temperature : 0.2;
+		temperature.value =
+			typeof parsed.temperature === 'number' ? parsed.temperature : 0.2;
 	} catch {
 		// ignore
 	}
@@ -303,7 +312,10 @@ const buildAssistantText = (resp: AiAnalyzeResp | undefined): string => {
 	if (summary && points.length) {
 		return `${summary}\n\n要点：\n- ${points.join('\n- ')}`;
 	}
-	return summary || (points.length ? `要点：\n- ${points.join('\n- ')}` : 'AI 返回为空。');
+	return (
+		summary ||
+		(points.length ? `要点：\n- ${points.join('\n- ')}` : 'AI 返回为空。')
+	);
 };
 
 const onSend = async () => {
@@ -365,7 +377,7 @@ const onSend = async () => {
 
 	try {
 		const { code, data, message: msg } = await analyzeAi(req);
-		if (String(code) === '200') {
+		if (code === '200') {
 			assistantMsg.content = buildAssistantText(data);
 			assistantMsg.status = 'done';
 		} else {
@@ -405,7 +417,13 @@ onMounted(() => {
 });
 
 watch(
-	() => [conversations.value, activeConversationId.value, engine.value, model.value, temperature.value],
+	() => [
+		conversations.value,
+		activeConversationId.value,
+		engine.value,
+		model.value,
+		temperature.value,
+	],
 	() => {
 		onPersist();
 	},
@@ -579,5 +597,3 @@ watch(
 	margin: 8px auto 0;
 }
 </style>
-
-

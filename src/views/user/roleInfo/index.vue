@@ -101,8 +101,7 @@
 			</a-table>
 			<role-info-detail
 				ref="editInfo"
-				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></role-info-detail>
 			<authorization-detail
@@ -131,7 +130,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
-	setCurrent,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -145,7 +144,6 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref<RoleInfoData[]>([]);
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
@@ -169,10 +167,11 @@ const rowSelection = ref({
 	},
 });
 
-// 字典数据已通过 useDictInfo 自动加载
-
+// 清空查询条件
 const cancelQuery = () => {
 	searchInfo.value = {};
+	resetPagination();
+	getRoleInfoListPage(searchInfo.value, pagination);
 };
 
 const handleTableChange = (paginationInfo: PageInfo) => {
@@ -182,10 +181,10 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 
 const delRoleInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteRoleInfo(ids);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		// 刷新列表
-		setCurrent(1);
+		resetPagination();
 		getRoleInfoListPage(searchInfo.value, pagination);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -205,16 +204,16 @@ const cancel = (e: MouseEvent) => {
 };
 
 //新增和修改弹窗
-const editRoleInfo = (type: string, id?: number) => {
+const editRoleInfo = (type: string, id?: string) => {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = () => {
@@ -237,7 +236,7 @@ const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	} = await getRoleInfoPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {
@@ -246,6 +245,7 @@ const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 };
 
 function query() {
+	resetPagination();
 	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
@@ -256,6 +256,8 @@ const init = () => {
 	getRoleInfoListPage(searchInfo.value, pagination);
 };
 
-init();
+onMounted(() => {
+	init();
+});
 </script>
 <style lang="scss" scoped></style>

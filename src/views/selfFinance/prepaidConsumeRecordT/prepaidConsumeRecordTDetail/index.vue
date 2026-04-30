@@ -237,10 +237,10 @@ const savePrepaidConsumeRecordTManager = (): void => {
 	}
 	api(formState.value)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (res.code === '200') {
 				message.success((res && res.message) || '保存成功！');
 				open.value = false;
-		emit('success');
+				emit('success');
 			} else {
 				message.error((res && res.message) || '保存失败！');
 			}
@@ -258,7 +258,7 @@ const init = (): void => {
 	if (props.modelInfo?.id) {
 		getPrepaidConsumeRecordTDetail(props.modelInfo.id)
 			.then((res) => {
-				if (res.String(code) === '200') {
+				if (res.code === '200') {
 					formState.value = res.data || {};
 					modelConfig.confirmLoading = false;
 				} else {

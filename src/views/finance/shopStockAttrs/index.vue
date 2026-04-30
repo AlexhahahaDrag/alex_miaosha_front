@@ -146,7 +146,7 @@
 			<ShopStockAttrsDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopStockAttrsDetail>
 		</div>
@@ -225,7 +225,7 @@ const handleTableChange = (pagination: PageInfo): void => {
 
 const delShopStockAttrs = (ids: string): void => {
 	deleteShopStockAttrs(ids).then((res) => {
-		if (res.String(code) === '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getShopStockAttrsListPage(searchInfo.value, pagination);
 		} else {
@@ -254,7 +254,7 @@ const getShopStockAttrsListPage = (param: SearchInfo, cur: PageInfo): void => {
 	loading.value = true;
 	getShopStockAttrsPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (res.code === '200') {
 				dataSource.value = res.data?.records || [];
 				setTotal(res.data?.total || 0);
 			} else {
@@ -290,9 +290,7 @@ const editShopStockAttrs = (type: string, id?: number): void => {
 };
 
 const handleSuccess = (): void => {
-getShopStockAttrsListPage(searchInfo.value, pagination);
-
+	getShopStockAttrsListPage(searchInfo.value, pagination);
 };
-
 </script>
 <style lang="scss" scoped></style>

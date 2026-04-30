@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
+			v-model:open="modelInfo.open"
+			:width="modelInfo?.width || '1000px'"
+			:title="modelInfo?.title || 'Basic Modal'"
 			@ok="handleOk"
 			okText="保存"
 			:confirmLoading="modelConfig.confirmLoading"
@@ -159,11 +159,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<ShopStockBatchData>({});
 
@@ -185,7 +181,7 @@ const handleOk = async (): Promise<void> => {
 };
 
 const handleCancel = (): void => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存商店库存批次表信息
@@ -196,9 +192,9 @@ const saveShopStockBatchManager = async (): Promise<void> => {
 	}
 	try {
 		const { code, message: msg } = await api(formState.value);
-		if (String(code) === '200') {
+		if (code === '200') {
 			message.success(msg || '保存成功！');
-			open.value = false;
+			modelInfo.value.open = false;
 			emit('success');
 			formState.value = {};
 		} else {
@@ -214,13 +210,13 @@ const saveShopStockBatchManager = async (): Promise<void> => {
 
 // 初始化数据
 const init = async (): Promise<void> => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getShopStockBatchDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getShopStockBatchDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;
 		} else {
@@ -233,7 +229,7 @@ const init = async (): Promise<void> => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();

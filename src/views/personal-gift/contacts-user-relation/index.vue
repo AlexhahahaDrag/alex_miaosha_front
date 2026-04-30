@@ -148,7 +148,7 @@
 		<contacts-user-relation-detail
 			ref="detailRef"
 			v-model:open="modelInfo.open"
-			:modelInfo="modelInfo"
+			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></contacts-user-relation-detail>
 	</div>
@@ -169,7 +169,10 @@ import {
 	importanceOptions,
 	enabledOptions,
 } from '@/views/personal-gift/contacts-user-relation/config';
-import { getContactsUserRelationPage, deleteContactsUserRelation } from '@/views/personal-gift/contacts-user-relation/api';
+import {
+	getContactsUserRelationPage,
+	deleteContactsUserRelation,
+} from '@/views/personal-gift/contacts-user-relation/api';
 import { debounce } from 'lodash-es';
 import contactsUserRelationDetail from './contacts-user-relation-detail/index.vue';
 import { useUserStore } from '@/store/modules/user/user';
@@ -208,9 +211,8 @@ const modelInfo = ref<{
 
 // 处理详情页面保存成功
 const handleSuccess = (): void => {
-// 重新加载列表
+	// 重新加载列表
 	getRelationListPage(searchInfo.value, pagination);
-
 };
 
 // 清空查询条件
@@ -251,7 +253,7 @@ const onDeleteRelation = async (id: string | undefined): Promise<void> => {
 	const { code, message: messageInfo } = await deleteContactsUserRelation(
 		String(id),
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getRelationListPage(searchInfo.value, pagination);
 	} else {
@@ -280,7 +282,7 @@ const getRelationListPage = async (
 	).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		relationList.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

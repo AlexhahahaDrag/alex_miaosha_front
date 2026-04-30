@@ -164,7 +164,7 @@
 			<PmsAttrDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PmsAttrDetail>
 		</div>
@@ -242,7 +242,7 @@ function handleTableChange(pagination: PageInfo) {
 
 function delPmsAttr(ids: string) {
 	deletePmsAttr(ids).then((res) => {
-		if (res.String(code) === '200') {
+		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
 			getPmsAttrListPage(searchInfo.value, pagination);
 		} else {
@@ -271,7 +271,7 @@ function getPmsAttrListPage(param: SearchInfo, cur: PageInfo) {
 	loading.value = true;
 	getPmsAttrPage(param, cur.current, cur.pageSize)
 		.then((res) => {
-			if (res.String(code) === '200') {
+			if (res.code === '200') {
 				dataSource.value = res.data?.records || [];
 				setTotal(res.data?.total || 0);
 			} else {

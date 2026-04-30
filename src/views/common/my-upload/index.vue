@@ -55,8 +55,7 @@ const customImageRequest = async (info: any) => {
 	} = await api(formData, config).finally(() => {
 		loading.value = false;
 	});
-	console.log(`dddddddddddddddddddddddddd`, code, messageInfo, data);
-	if (String(code) === '200') {
+	if (code === '200') {
 		const fileData = data as FileInfo;
 		info.onSuccess(fileData, info.file);
 		// Update the specific file object in fileList with URLs
@@ -165,7 +164,8 @@ watch(
 	{ deep: true, flush: 'post' },
 );
 
-const emit = defineEmits(['customImageRequest', 'handleRemove']);</script>
+const emit = defineEmits(['customImageRequest', 'handleRemove']);
+</script>
 <style>
 .avatar-uploader > .ant-upload {
 	width: 128px;

@@ -90,7 +90,7 @@
 			<DictDetail
 				ref="editInfo"
 				v-model:open="visible"
-				:modelInfo="modelInfo"
+				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
 			</DictDetail>
@@ -166,7 +166,7 @@ const delDict = async (ids: string) => {
 			return error;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		getDictPage(searchInfo.value, pagination);
 	} else {
@@ -195,7 +195,7 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 	} = await getDictManagerPage(param, cur.current, cur.pageSize).finally(() => {
 		loading.value = false;
 	});
-	if (String(code) === '200') {
+	if (code === '200') {
 		dataSource.value = data?.records || [];
 		setTotal(data?.total || 0);
 	} else {

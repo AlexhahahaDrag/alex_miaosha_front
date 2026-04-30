@@ -1,8 +1,8 @@
 <template>
 	<a-modal
-		v-model:open="open"
-		:width="props.modelInfo?.width || '1000px'"
-		:title="props.modelInfo?.title || 'Basic Modal'"
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
 		:maskClosable="false"
 		okText="保存"
 		:confirmLoading="modelConfig.confirmLoading"
@@ -103,11 +103,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-interface Props {
-	modelInfo?: ModelInfo;
-}
-const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 let formState = ref<AccountRecordInfo>({});
 
@@ -126,7 +122,7 @@ const handleOk = () => {
 };
 
 const handleCancel = () => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 //保存信息
@@ -140,9 +136,9 @@ const saveAccountRecordInfoManager = async () => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 		formState.value = {};
 	} else {
@@ -152,13 +148,13 @@ const saveAccountRecordInfoManager = async () => {
 
 // 初始化数据
 const init = async () => {
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getAccountRecordInfoDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getAccountRecordInfoDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 			formState.value.avliDate = dayjs(formState.value.avliDate);
 			modelConfig.confirmLoading = false;
@@ -174,9 +170,9 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	() => {
-		if (open.value) {
+		if (modelInfo.value.open) {
 			init();
 		}
 	},

@@ -202,11 +202,13 @@ const savePersonalGiftManager = async (): Promise<void> => {
 	if (formState.value.id) {
 		api = editPersonalGift;
 	}
-	const { code, message: messageInfo } = await api(formState.value).finally(() => {
-		confirmLoading.value = false;
-		loading.value = false;
-	});
-	if (String(code) === '200') {
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			confirmLoading.value = false;
+			loading.value = false;
+		},
+	);
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		open.value = false;
 		emit('success');
@@ -224,7 +226,7 @@ const init = async () => {
 			data,
 			message: messageInfo,
 		} = await getPersonalGiftDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		if (code === '200') {
 			formState.value = data || {};
 		} else {
 			message.error(messageInfo || '查询失败！');
@@ -253,6 +255,7 @@ watch(
 	},
 );
 
-const emit = defineEmits(['success']);</script>
+const emit = defineEmits(['success']);
+</script>
 
 <style lang="scss" scoped></style>

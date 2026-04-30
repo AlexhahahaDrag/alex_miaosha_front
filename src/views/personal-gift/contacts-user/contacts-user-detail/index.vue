@@ -1,8 +1,8 @@
 <template>
 	<a-modal
-		v-model:open="open"
-		:width="props.modelInfo?.width || '800px'"
-		:title="props.modelInfo?.title || '联系人详情'"
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '800px'"
+		:title="modelInfo?.title || '联系人详情'"
 		okText="保存"
 		:confirm-loading="confirmLoading"
 		:destroyOnClose="modelConfig.destroyOnClose"
@@ -145,7 +145,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 const loading = ref<boolean>(false);
 
@@ -172,7 +172,7 @@ const handleOk = (): void => {
 
 // 取消
 const handleCancel = (): void => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 // 保存联系人信息
@@ -187,9 +187,9 @@ const saveContactsUserManager = async (): Promise<void> => {
 			loading.value = false;
 		},
 	);
-	if (String(code) === '200') {
+	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
-		open.value = false;
+		modelInfo.value.open = false;
 		emit('success');
 		formState.value = {};
 	} else {
@@ -207,13 +207,13 @@ const loadRelationshipOptions = async (): Promise<void> => {
 		if (userId) {
 			// 获取用户的所有启用的关系分类（公共+私有）
 			const { code, data } = await getUserEnabledRelations(userId);
-			if (String(code) === '200' && data) {
+			if (code === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		} else {
 			// 如果没有用户ID，获取公共的关系分类
 			const { code, data } = await getPublicEnabledRelations();
-			if (String(code) === '200' && data) {
+			if (code === '200' && data) {
 				relationshipOptions.value = data;
 			}
 		}
@@ -231,13 +231,13 @@ const init = async () => {
 	// 加载关系分类选项
 	await loadRelationshipOptions();
 
-	if (props.modelInfo?.id) {
+	if (modelInfo.value?.id) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getContactsUserDetail(props.modelInfo.id);
-		if (String(code) === '200') {
+		} = await getContactsUserDetail(modelInfo.value.id);
+		if (code === '200') {
 			formState.value = data || {};
 		} else {
 			message.error(messageInfo || '查询失败！');
@@ -248,7 +248,7 @@ const init = async () => {
 };
 
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	(newVal) => {
 		if (newVal) {
 			init();
@@ -260,6 +260,7 @@ watch(
 	},
 );
 
-const emit = defineEmits(['success']);</script>
+const emit = defineEmits(['success']);
+</script>
 
 <style lang="scss" scoped></style>

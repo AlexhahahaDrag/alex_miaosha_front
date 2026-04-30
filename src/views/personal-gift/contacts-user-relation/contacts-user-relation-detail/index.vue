@@ -1,6 +1,6 @@
 <template>
 	<a-modal
-		v-model:open="open"
+		v-model:open="modelInfo.open"
 		:title="modelInfo?.title || '关系分类'"
 		:confirm-loading="loading"
 		@ok="onSubmit"
@@ -95,7 +95,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
 const formRef = ref<FormInstance>();
 const loading = ref<boolean>(false);
@@ -110,7 +110,7 @@ const formData = ref<ContactsUserRelationInfo>({
 // 加载详情
 const loadDetail = async (id: string): Promise<void> => {
 	const { code, data } = await getContactsUserRelationDetail(id);
-		if (String(code) === '200' && data) {
+	if (code === '200' && data) {
 		formData.value = { ...data };
 	} else {
 		message.error('加载详情失败！');
@@ -135,8 +135,8 @@ const onSubmit = async (): Promise<void> => {
 		await formRef.value?.validateFields();
 		loading.value = true;
 		let response: ResponseBody<ContactsUserRelationInfo>;
-		const params = { ...formData.value, userId, id: props.modelInfo?.id };
-		if (props.modelInfo?.id) {
+		const params = { ...formData.value, userId, id: modelInfo.value?.id };
+		if (modelInfo.value?.id) {
 			// 编辑
 			response = await editContactsUserRelation(params);
 		} else {
@@ -145,13 +145,13 @@ const onSubmit = async (): Promise<void> => {
 		}
 
 		const { code, message: messageInfo } = response;
-		if (String(code) === '200') {
+		if (code === '200') {
 			message.success(
-				messageInfo || (props.modelInfo?.id ? '编辑成功！' : '添加成功！'),
+				messageInfo || (modelInfo.value?.id ? '编辑成功！' : '添加成功！'),
 				3,
 			);
-			open.value = false;
-		emit('success');
+			modelInfo.value.open = false;
+			emit('success');
 		} else {
 			message.error(messageInfo || '操作失败！', 3);
 		}
@@ -165,16 +165,16 @@ const onSubmit = async (): Promise<void> => {
 
 // 取消
 const onCancel = (): void => {
-	open.value = false;
+	modelInfo.value.open = false;
 };
 
 // 监听 open 状态变化
 watch(
-	() => open.value,
+	() => modelInfo.value.open,
 	async (newVal) => {
-		if (newVal && props.modelInfo?.id) {
+		if (newVal && modelInfo.value?.id) {
 			// 编辑模式 - 获取详情
-			await loadDetail(props.modelInfo.id);
+			await loadDetail(modelInfo.value.id);
 		} else if (newVal) {
 			// 新增模式 - 重置表单
 			resetForm();
