@@ -133,6 +133,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 // 字典数据已通过 useDictInfo 自动加载
@@ -167,12 +168,14 @@ const rowSelection = ref({
 const cancelQuery = () => {
 	searchInfo.value = {};
 	triggerDebouncedQuery.cancel();
-	pagination.current = 1;
-	getUserPage(searchInfo.value, pagination);
+	query(true);
 };
 
-const query = () => {
+const query = (resetPage = false) => {
 	triggerDebouncedQuery.cancel();
+	if (resetPage) {
+		resetPagination();
+	}
 	getUserPage(searchInfo.value, pagination);
 };
 
@@ -185,8 +188,7 @@ const delUser = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteUserManager(ids);
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		pagination.current = 1;
-		getUserPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}

@@ -13,7 +13,7 @@
 								<a-input
 									v-model:value="searchInfo.name"
 									placeholder="名称"
-									@change="initPage"
+									@change="query(true)"
 									allow-clear
 								/>
 							</a-form-item>
@@ -26,7 +26,7 @@
 									placeholder="请选择账号"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="accountList"
-									@change="initPage"
+									@change="query(true)"
 									:allowClear="true"
 								></a-select>
 							</a-form-item>
@@ -153,6 +153,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 let rowIds: (string | number)[] = [];
@@ -188,15 +189,17 @@ let dataSource = ref<AccountRecordInfo[]>([]);
 let modelInfo = ref<ModelInfo>({});
 
 // 查询
-const query = () => {
+const query = (resetPage = false) => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
 };
 
 //清空查询条件
 const cancelQuery = () => {
 	searchInfo.value = {};
-	searchInfo.value.infoDateStart = undefined;
-	searchInfo.value.infoDateEnd = undefined;
+	query(true);
 };
 
 function handleTableChange(pagination: PageInfo) {
@@ -209,7 +212,7 @@ const delAccountRecordInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteAccountRecordInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		getAccountRecordInfoListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -260,7 +263,9 @@ const editAccountRecordInfo = (type: string, id?: number) => {
 		modelInfo.value.title = '修改明细';
 		modelInfo.value.id = id;
 	}
-	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
+	modelInfo.value.confirmLoading = true;
+	modelInfo.value.open = true;
+	modelInfo.value.id = id;
 };
 
 const handleSuccess = () => {
@@ -269,7 +274,8 @@ const handleSuccess = () => {
 
 // 初始化页面数据
 const init = () => {
-	modelInfo.value = { open: false, confirmLoading: false };
+	modelInfo.value.open = false;
+	modelInfo.value.confirmLoading = false;
 	initPage();
 	//获取页面数据
 	getAccountRecordInfoListPage(searchInfo.value, pagination);

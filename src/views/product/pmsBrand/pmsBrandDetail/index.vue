@@ -103,7 +103,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { FileInfo } from '@/compoments/my-upload/config';
+import type { FileInfo } from '@/views/common/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import type { PmsBrandData } from '../pmsBrandListTs';
 import {

@@ -89,7 +89,6 @@
 			</a-table>
 			<DictDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
@@ -115,7 +114,6 @@ let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 // 使用分页组合式函数
@@ -213,7 +211,7 @@ function editDict(type: string, id?: number) {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {

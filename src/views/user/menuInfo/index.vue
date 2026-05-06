@@ -2,17 +2,10 @@
 	<div class="page-info">
 		<div class="search">
 			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
+				<a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
 					<a-row :gutter="24">
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['name'].name"
-								:label="labelMap['name'].label"
-							>
+							<a-form-item :name="labelMap['name'].name" :label="labelMap['name'].label">
 								<a-input
 									v-model:value="searchInfo.name"
 									:placeholder="'请填写' + labelMap['name'].label"
@@ -21,10 +14,7 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['title'].name"
-								:label="labelMap['title'].label"
-							>
+							<a-form-item :name="labelMap['title'].name" :label="labelMap['title'].label">
 								<a-input
 									v-model:value="searchInfo.title"
 									:placeholder="'请填写' + labelMap['title'].label"
@@ -59,10 +49,7 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['icon'].name"
-								:label="labelMap['icon'].label"
-							>
+							<a-form-item :name="labelMap['icon'].name" :label="labelMap['icon'].label">
 								<a-input
 									v-model:value="searchInfo.icon"
 									:placeholder="'请填写' + labelMap['icon'].label"
@@ -78,12 +65,11 @@
 								:label="labelMap['hideInMenu'].label"
 							>
 								<a-select
-									ref="select"
 									v-model:value="searchInfo.hideInMenu"
 									:placeholder="'请选择' + labelMap['hideInMenu'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="hideInMenuList"
-									:allowClear="true"
+									allow-clear
 								>
 								</a-select>
 							</a-form-item>
@@ -101,10 +87,7 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['summary'].name"
-								:label="labelMap['summary'].label"
-							>
+							<a-form-item :name="labelMap['summary'].name" :label="labelMap['summary'].label">
 								<a-input
 									v-model:value="searchInfo.summary"
 									:placeholder="'请填写' + labelMap['summary'].label"
@@ -115,26 +98,19 @@
 					</a-row>
 					<a-row :gutter="24">
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['status'].name"
-								:label="labelMap['status'].label"
-							>
+							<a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
 								<a-select
-									ref="select"
 									v-model:value="searchInfo.status"
 									:placeholder="'请选择' + labelMap['status'].label"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="statusList"
-									:allowClear="true"
+									allow-clear
 								>
 								</a-select>
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['orderBy'].name"
-								:label="labelMap['orderBy'].label"
-							>
+							<a-form-item :name="labelMap['orderBy'].name" :label="labelMap['orderBy'].label">
 								<a-input
 									v-model:value="searchInfo.orderBy"
 									:placeholder="'请填写' + labelMap['orderBy'].label"
@@ -146,8 +122,8 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button type="primary" @click="query(true)">查找</a-button>
+								<a-button @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -157,30 +133,27 @@
 		<div class="button">
 			<a-space>
 				<a-button type="primary" @click="editMenuInfo('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelMenuInfo">
-					删除
-				</a-button>
+				<a-button type="primary" danger @click="batchDelMenuInfo">删除</a-button>
 			</a-space>
 		</div>
 		<div class="content">
 			<a-table
-				:dataSource="dataSource"
+				:data-source="dataSource"
 				:columns="columns"
 				:loading="loading"
 				:row-key="(record: any) => record.id"
 				:pagination="pagination"
-				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
 						<a-space>
-							<a-button
-								type="primary"
-								size="small"
-								@click="editMenuInfo('update', record.id)"
-							>
+							<a-button type="primary" size="small" @click="openSubMenuManager(record)">
+								子菜单
+							</a-button>
+							<a-button type="primary" size="small" @click="editMenuInfo('update', record.id)">
 								编辑
 							</a-button>
 							<a-popconfirm
@@ -188,185 +161,180 @@
 								ok-text="确认"
 								cancel-text="取消"
 								@confirm="delMenuInfo(record.id)"
-								@cancel="cancel"
 							>
 								<a-button type="primary" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
-						<span></span>
 					</template>
 				</template>
 			</a-table>
-			<MenuInfoDetail
+
+			<!-- 自定义组件使用 kebab-case 命名 -->
+			<menu-info-detail
 				ref="editInfo"
-				v-model:open="visible"
-				v-model:modelInfo="modelInfo"
+				v-model:model-info="modelInfo"
 				@success="handleSuccess"
-			></MenuInfoDetail>
+			></menu-info-detail>
+
+			<sub-menu-manager
+				v-model:model-info="subMenuManagerInfo"
+			></sub-menu-manager>
 		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
-import type { ModelInfo } from '@/views/common/config';
-import type { PageInfo } from '@/composables/usePagination';
-import type { MenuInfoData } from '@/views/user/menuInfo/config';
-import { columns, labelMap } from '@/views/user/menuInfo/config';
-import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
+// 1. Imports (框架 > 公共组件 > 业务组件 > 工具函数 > 类型定义)
+import { ref, computed, watch, reactive } from 'vue';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
+import MenuInfoDetail from './menuInfoDetail/index.vue';
+import SubMenuManager from './subMenuManager/index.vue';
+import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
+import { columns, labelMap } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, type PageInfo } from '@/composables/usePagination';
+import type { ModelInfo } from '@/views/common/config';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
+// 3. Hooks
 const { getDictByType } = useDictInfo('true_or_false,is_valid');
-
-// 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
+// 4. State
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
+const loading = ref<boolean>(false);
+const dataSource = ref<MenuInfoData[]>([]);
+const searchInfo = ref<MenuInfoData>({});
+const modelInfo = ref<ModelInfo>({});
+const subMenuManagerInfo = ref<ModelInfo>({});
 
 let rowIds: (string | number)[] = [];
 
-let searchInfo = ref<MenuInfoData>({});
-
-// 字典数据已通过 useDictInfo 自动加载
 const hideInMenuList = computed(() => getDictByType('true_or_false'));
 const statusList = computed(() => getDictByType('is_valid'));
-
-let loading = ref<boolean>(false);
-
-let dataSource = ref<MenuInfoData[]>([]);
-
-const visible = ref<boolean>(false);
-const modelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
 		rowIds = selectedRowKeys;
 	},
-	onSelect: (
-		record: MenuInfoData,
-		selected: boolean,
-		selectedRows: MenuInfoData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: MenuInfoData[],
-		changeRows: MenuInfoData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
 });
 
-// 字典数据已通过 useDictInfo 自动加载
-
-function cancelQuery() {
-	searchInfo.value = {};
-	triggerDebouncedQuery.cancel();
-	pagination.current = 1;
-	getMenuInfoListPage(searchInfo.value, pagination);
-}
-
-function query() {
-	triggerDebouncedQuery.cancel();
-	getMenuInfoListPage(searchInfo.value, pagination);
-}
-
+// 5. Actions (业务处理逻辑)
 const handleTableChange = (paginationInfo: PageInfo) => {
 	paginationChange(paginationInfo);
 	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
+const query = (resetPage = false) => {
+	triggerDebouncedQuery.cancel();
+	if (resetPage) {
+		resetPagination();
+	}
+	getMenuInfoListPage(searchInfo.value, pagination);
+};
+
+const cancelQuery = () => {
+	searchInfo.value = { parentId: 0 };
+	query(true);
+};
+
 const delMenuInfo = async (ids: string) => {
-	const { code, message: messageInfo } = await deleteMenuInfo(ids).catch(
-		(error) => {
-			return error;
-		},
-	);
+	const { code, message: messageInfo } = await deleteMenuInfo(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
-		getMenuInfoListPage(searchInfo.value, pagination);
+		message.success(messageInfo || '删除成功！');
+		query(true);
 	} else {
-		message.error(messageInfo || '删除失败！', 3);
+		message.error(messageInfo || '删除失败！');
 	}
 };
 
-const batchDelMenuInfo = (): void => {
+const batchDelMenuInfo = () => {
 	if (!rowIds?.length) {
-		message.warning('请先选择数据！', 3);
+		message.warning('请先选择数据！');
 		return;
 	}
 	delMenuInfo(rowIds.join(','));
 };
 
-const cancel = (e: MouseEvent) => {
-	console.log(e);
+const editMenuInfo = (type: string, id?: number) => {
+	if (type === 'add') {
+		modelInfo.value = {
+			title: '新增明细',
+			open: true,
+			id: undefined,
+			parentId: 0,
+		};
+	} else if (type === 'update') {
+		modelInfo.value = {
+			title: '修改明细',
+			open: true,
+			id: id ? String(id) : undefined,
+		};
+	}
 };
 
-const getMenuInfoListPage = async (
-	param: MenuInfoData,
-	cur: PageInfo,
-): Promise<void> => {
+const openSubMenuManager = (record: MenuInfoData) => {
+	subMenuManagerInfo.value = {
+		title: `子菜单管理 - ${record.title || record.name}`,
+		open: true,
+		id: String(record.id),
+	};
+};
+
+const handleSuccess = () => {
+	query(false);
+};
+
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+const getMenuInfoListPage = async (param: MenuInfoData, cur: PageInfo) => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getMenuInfoPage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const { code, data, message: messageInfo } = await getMenuInfoPage(
+			param,
+			cur.current,
+			cur.pageSize
+		);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
 const init = () => {
-	//获取菜单管理表页面数据
+	searchInfo.value.parentId = 0;
 	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
-//新增和修改弹窗
-function editMenuInfo(type: string, id?: number) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
-	}
-	modelInfo.value.confirmLoading = true;
-	visible.value = true;
-}
-
-const handleSuccess = () => {
-	getMenuInfoListPage(searchInfo.value, pagination);
-};
-
-// 查询条件防抖：任意查询条件变化时，300ms 内只触发一次请求，并将页码重置为第一页
-const triggerDebouncedQuery = debounce(() => {
-	pagination.current = 1;
-	getMenuInfoListPage(searchInfo.value, pagination);
-}, 300);
-
-//初始化
-init();
-
+// 7. Watchers
 watch(
 	() => searchInfo.value,
 	() => {
 		triggerDebouncedQuery();
 	},
-	{ deep: true },
+	{ deep: true }
 );
+
+// 初始化
+init();
+
+// 8. Emits
+// 此组件为页面级，暂无 emits
 </script>
+
 <style lang="scss" scoped></style>

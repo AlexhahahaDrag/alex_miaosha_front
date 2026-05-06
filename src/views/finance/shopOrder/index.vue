@@ -169,7 +169,6 @@
 			</a-table>
 			<ShopOrderDetailInfo
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailInfo>
@@ -227,7 +226,6 @@ const labelMap: Record<string, { name: string; label: string }> = {
 const searchInfo = ref<ShopOrderData>({});
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopOrderData[]>([]);
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = (): void => {
@@ -299,7 +297,7 @@ const editShopOrder = (type: string, id?: number): void => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = (): void => {

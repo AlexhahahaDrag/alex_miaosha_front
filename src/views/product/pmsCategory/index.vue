@@ -13,78 +13,6 @@
 								<a-input
 									v-model:value="searchInfo.name"
 									placeholder="分类名称"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="parentCid" label="父分类id">
-								<a-input
-									v-model:value="searchInfo.parentCid"
-									placeholder="父分类id"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="catLevel" label="层级">
-								<a-input
-									v-model:value="searchInfo.catLevel"
-									placeholder="层级"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="showStatus" label="是否显示[0-不显示，1显示]">
-								<a-input
-									v-model:value="searchInfo.showStatus"
-									placeholder="是否显示[0-不显示，1显示]"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item name="sort" label="排序">
-								<a-input
-									v-model:value="searchInfo.sort"
-									placeholder="排序"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="icon" label="图标地址">
-								<a-input
-									v-model:value="searchInfo.icon"
-									placeholder="图标地址"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="productUnit" label="计量单位">
-								<a-input
-									v-model:value="searchInfo.productUnit"
-									placeholder="计量单位"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="productCount" label="商品数量">
-								<a-input
-									v-model:value="searchInfo.productCount"
-									placeholder="商品数量"
-									@change="initPage"
 									allow-clear
 								/>
 							</a-form-item>
@@ -146,7 +74,6 @@
 			</a-table>
 			<PmsCategoryDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PmsCategoryDetail>
@@ -164,12 +91,14 @@ import {
 	deletePmsCategory,
 } from '@/views/product/pmsCategory/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -202,9 +131,13 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
+	query(true);
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsCategoryListPage(searchInfo.value, pagination);
 }
 
@@ -217,7 +150,7 @@ function delPmsCategory(ids: string) {
 	deletePmsCategory(ids).then((res) => {
 		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsCategoryListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -268,7 +201,6 @@ const init = () => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -281,12 +213,25 @@ function editPmsCategory(type: string, id?: number) {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
-	getPmsCategoryListPage(searchInfo.value, pagination);
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 
 const initPage = () => {
 	pagination.current = 1;

@@ -175,8 +175,7 @@
 		<!-- 收礼随礼详情模态框 -->
 		<personal-gift-info-detail
 			ref="giftDetailRef"
-			v-model:open="giftModelInfo.open"
-			:modelInfo="giftModelInfo"
+			v-model:modelInfo="giftModelInfo"
 			@success="handleSuccess"
 		></personal-gift-info-detail>
 	</div>
@@ -328,13 +327,8 @@ const onRecordGift = (record: ContactsGiftRecord): void => {
 
 // 处理收礼随礼详情页面保存成功
 const handleSuccess = (): void => {
-// 重新加载列表
+	// 重新加载列表
 	loadContactsGiftRecordList();
-
-};
-
-// 处理收礼随礼详情页面取消
-
 };
 
 /**

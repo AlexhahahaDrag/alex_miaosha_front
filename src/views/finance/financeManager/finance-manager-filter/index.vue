@@ -129,7 +129,7 @@ const searchInfo = computed({
 
 // 使用 lodash 防抖
 const debouncedQuery = debounce(() => {
-	emit('query');
+	emit('query', true);
 }, 500);
 
 // 事件处理
@@ -140,7 +140,7 @@ const handleSearchChange = () => {
 
 const handleQuery = () => {
 	debouncedQuery.cancel();
-	emit('query');
+	emit('query', false);
 };
 
 const handleCancelQuery = () => {
@@ -157,7 +157,7 @@ onUnmounted(() => {
 // Emits
 interface Emits {
 	(e: 'update:searchInfo', value: FinanceManagerData): void;
-	(e: 'query'): void;
+	(e: 'query', resetPage?: boolean): void;
 	(e: 'cancelQuery'): void;
 }
 

@@ -13,101 +13,6 @@
 								<a-input
 									v-model:value="searchInfo.spuId"
 									placeholder="spuId"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="skuName" label="sku名称">
-								<a-input
-									v-model:value="searchInfo.skuName"
-									placeholder="sku名称"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="skuDesc" label="sku介绍描述">
-								<a-input
-									v-model:value="searchInfo.skuDesc"
-									placeholder="sku介绍描述"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="catalogId" label="所属分类id">
-								<a-input
-									v-model:value="searchInfo.catalogId"
-									placeholder="所属分类id"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item name="brandId" label="品牌id">
-								<a-input
-									v-model:value="searchInfo.brandId"
-									placeholder="品牌id"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="skuDefaultImg" label="默认图片">
-								<a-input
-									v-model:value="searchInfo.skuDefaultImg"
-									placeholder="默认图片"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="skuTitle" label="标题">
-								<a-input
-									v-model:value="searchInfo.skuTitle"
-									placeholder="标题"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="skuSubtitle" label="副标题">
-								<a-input
-									v-model:value="searchInfo.skuSubtitle"
-									placeholder="副标题"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item name="price" label="价格">
-								<a-input
-									v-model:value="searchInfo.price"
-									placeholder="价格"
-									@change="initPage"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="saleCount" label="销量">
-								<a-input
-									v-model:value="searchInfo.saleCount"
-									placeholder="销量"
-									@change="initPage"
 									allow-clear
 								/>
 							</a-form-item>
@@ -169,7 +74,6 @@
 			</a-table>
 			<PmsSkuInfoDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PmsSkuInfoDetail>
@@ -187,12 +91,14 @@ import {
 	deletePmsSkuInfo,
 } from '@/views/product/pmsSkuInfo/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -221,9 +127,13 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
+	query(true);
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsSkuInfoListPage(searchInfo.value, pagination);
 }
 
@@ -236,7 +146,7 @@ function delPmsSkuInfo(ids: string) {
 	deletePmsSkuInfo(ids).then((res) => {
 		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsSkuInfoListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -283,7 +193,6 @@ const init = () => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -296,12 +205,25 @@ function editPmsSkuInfo(type: string, id?: number) {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
-	getPmsSkuInfoListPage(searchInfo.value, pagination);
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 
 const initPage = () => {
 	pagination.current = 1;

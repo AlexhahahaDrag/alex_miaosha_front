@@ -147,7 +147,6 @@
 		<!-- 详情模态框 -->
 		<contacts-user-relation-detail
 			ref="detailRef"
-			v-model:open="modelInfo.open"
 			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></contacts-user-relation-detail>
@@ -201,13 +200,11 @@ const searchInfo = ref<ContactsUserRelationInfo>({
 
 // 详情模态框相关
 const modelInfo = ref<{
-	open: boolean;
+	open?: boolean;
 	title?: string;
 	record?: ContactsUserRelationInfo;
 	id?: number;
-}>({
-	open: false,
-});
+}>({});
 
 // 处理详情页面保存成功
 const handleSuccess = (): void => {

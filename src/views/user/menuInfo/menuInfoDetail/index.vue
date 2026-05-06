@@ -4,10 +4,10 @@
 			v-model:open="modelInfo.open"
 			:width="modelInfo?.width || '1000px'"
 			:title="modelInfo?.title || 'Basic Modal'"
+			ok-text="保存"
+			:confirm-loading="modelConfig.confirmLoading"
+			:destroy-on-close="modelConfig.destroyOnClose"
 			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
 			@cancel="handleCancel"
 		>
 			<template #footer>
@@ -38,6 +38,7 @@
 							<a-input
 								v-model:value="formState.name"
 								:placeholder="'请填写' + labelMap['name'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -49,6 +50,7 @@
 							<a-input
 								v-model:value="formState.path"
 								:placeholder="'请填写' + labelMap['path'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -62,6 +64,7 @@
 							<a-input
 								v-model:value="formState.title"
 								:placeholder="'请填写' + labelMap['title'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -73,6 +76,7 @@
 							<a-input
 								v-model:value="formState.component"
 								:placeholder="'请填写' + labelMap['component'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -86,6 +90,7 @@
 							<a-input
 								v-model:value="formState.redirect"
 								:placeholder="'请填写' + labelMap['redirect'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -97,6 +102,7 @@
 							<a-input
 								v-model:value="formState.icon"
 								:placeholder="'请填写' + labelMap['icon'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -108,12 +114,11 @@
 							:label="labelMap['hideInMenu'].label"
 						>
 							<a-select
-								ref="select"
 								v-model:value="formState.hideInMenu"
 								:placeholder="'请选择' + labelMap['hideInMenu'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="hideInMenuList"
-								:allowClear="true"
+								allow-clear
 							>
 							</a-select>
 						</a-form-item>
@@ -126,6 +131,7 @@
 							<a-input
 								v-model:value="formState.parentId"
 								:placeholder="'请填写' + labelMap['parentId'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -139,6 +145,7 @@
 							<a-input
 								v-model:value="formState.summary"
 								:placeholder="'请填写' + labelMap['summary'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -148,12 +155,11 @@
 							:label="labelMap['status'].label"
 						>
 							<a-select
-								ref="select"
 								v-model:value="formState.status"
 								:placeholder="'请选择' + labelMap['status'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="statusList"
-								:allowClear="true"
+								allow-clear
 							>
 							</a-select>
 						</a-form-item>
@@ -168,6 +174,7 @@
 							<a-input
 								v-model:value="formState.orderBy"
 								:placeholder="'请填写' + labelMap['orderBy'].label"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -176,39 +183,40 @@
 		</a-modal>
 	</div>
 </template>
+
 <script lang="ts" setup>
+// 1. Imports
+import { ref, reactive, computed, watch } from 'vue';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
-import type { MenuInfoData } from '@/views/user/menuInfo/config';
-import { labelMap, labelCol, wrapperCol } from '@/views/user/menuInfo/config';
 import {
 	getMenuInfoDetail,
 	addMenuInfo,
 	editMenuInfo,
 } from '@/views/user/menuInfo/api';
+import { labelMap, labelCol, wrapperCol } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
+import type { ModelInfo } from '@/views/common/config';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
+// 3. Hooks
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 const { getDictByType } = useDictInfo('true_or_false,is_valid');
 
-// 字典数据已通过 useDictInfo 自动加载
-const hideInMenuList = computed(() => getDictByType('true_or_false'));
-const statusList = computed(() => getDictByType('is_valid'));
-const rulesRef = reactive({});
-
-const loading = ref<boolean>(false);
-
+// 4. State
 const formRef = ref<FormInstance>();
-
+const loading = ref<boolean>(false);
+const formState = ref<MenuInfoData>({});
+const rulesRef = reactive({});
 const modelConfig = reactive({
 	confirmLoading: true,
 	destroyOnClose: true,
 });
 
-const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
+const hideInMenuList = computed(() => getDictByType('true_or_false'));
+const statusList = computed(() => getDictByType('is_valid'));
 
-const formState = ref<MenuInfoData>({});
-
+// 5. Actions
 const handleOk = () => {
 	loading.value = true;
 	if (formRef.value) {
@@ -225,7 +233,6 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
-//保存菜单管理表信息
 const saveMenuInfoManager = async () => {
 	try {
 		const api = formState.value.id ? editMenuInfo : addMenuInfo;
@@ -243,7 +250,6 @@ const saveMenuInfoManager = async () => {
 	}
 };
 
-// 初始化数据
 const init = async () => {
 	if (modelInfo.value?.id) {
 		const {
@@ -259,10 +265,15 @@ const init = async () => {
 		}
 	} else {
 		modelConfig.confirmLoading = false;
-		formState.value = {};
+		formState.value = {
+			parentId: modelInfo.value.parentId ?? 0,
+			status: '1',
+			hideInMenu: '0',
+		};
 	}
 };
 
+// 7. Watchers
 watch(
 	() => modelInfo.value.open,
 	(newVal) => {
@@ -272,9 +283,11 @@ watch(
 	},
 	{
 		immediate: true,
-	},
+	}
 );
 
+// 8. Emits
 const emit = defineEmits(['success']);
 </script>
+
 <style lang="scss" scoped></style>

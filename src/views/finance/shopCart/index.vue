@@ -127,7 +127,6 @@
 			</a-table>
 			<ShopCartDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopCartDetail>
@@ -174,7 +173,6 @@ const searchInfo = ref<ShopCartData>({});
 
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopCartData[]>([]);
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = (): void => {
@@ -239,7 +237,7 @@ const editShopCart = (type: string, id?: number): void => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = (): void => {

@@ -13,7 +13,7 @@
 								<a-input
 									v-model:value="searchInfo.name"
 									placeholder="品牌名"
-									@change="initPage"
+									@change="query(true)"
 									allow-clear
 								/>
 							</a-form-item>
@@ -26,7 +26,7 @@
 									placeholder="请选择显示状态"
 									:field-names="{ label: 'typeName', value: 'typeCode' }"
 									:options="validList"
-									@change="initPage"
+									@change="query(true)"
 									:allowClear="true"
 								></a-select>
 							</a-form-item>
@@ -36,7 +36,7 @@
 								<a-input
 									v-model:value="searchInfo.firstLetter"
 									placeholder="检索首字母"
-									@change="initPage"
+									@change="query(true)"
 									allow-clear
 								/>
 							</a-form-item>
@@ -107,7 +107,6 @@
 			</a-table>
 			<PmsBrandDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
@@ -132,6 +131,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 // 字典数据已通过 useDictInfo 自动加载
@@ -166,9 +166,13 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
+	query(true);
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsBrandListPage(searchInfo.value, pagination);
 }
 
@@ -181,7 +185,7 @@ function delPmsBrand(ids: string) {
 	deletePmsBrand(ids).then((res) => {
 		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsBrandListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -229,7 +233,6 @@ const init = () => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -242,7 +245,7 @@ function editPmsBrand(type: string, id?: number) {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {

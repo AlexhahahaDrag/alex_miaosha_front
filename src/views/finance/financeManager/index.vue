@@ -94,7 +94,6 @@
 				</template>
 			</a-table>
 			<finance-manager-detail
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="query"
 			></finance-manager-detail>
@@ -124,6 +123,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const route = useRoute();
@@ -143,16 +143,18 @@ const searchInfo = ref<FinanceManagerData>({});
 const loading = ref<boolean>(false);
 
 const dataSource = ref<FinanceManagerData[]>([]);
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = () => {
 	searchInfo.value = {};
-	query();
+	query(true);
 };
 
 // 立即查询函数（用于按钮点击等需要立即响应的场景）
-const query = () => {
+const query = (resetPage = false) => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getFinancePage(searchInfo.value, pagination);
 };
 
@@ -168,7 +170,7 @@ const delFinance = async (ids: string) => {
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		selectedRowIds.value = [];
-		getFinancePage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -191,7 +193,7 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 		...param,
 		infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
 		infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
-	} as FinanceManagerData;
+	};
 	const {
 		code,
 		data,
@@ -222,11 +224,11 @@ const editFinance = (type: string, id?: number) => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const initPage = () => {
-	pagination.current = 1;
+	resetPagination();
 	pagination.pageSize = 10;
 };
 

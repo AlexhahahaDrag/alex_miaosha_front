@@ -4,7 +4,7 @@ import type { TableColumnsType } from 'ant-design-vue';
  * 联系人随礼记录接口
  */
 export interface ContactsGiftRecord {
-	id?: string | number;
+	id?: string ;
 	contactsUserId: string | number;
 	contactsUserName: string;
 	relationship: 'family' | 'friend' | 'colleague' | 'other';

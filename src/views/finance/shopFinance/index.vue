@@ -43,7 +43,7 @@
 							>
 								<a-date-picker
 									v-model:value="saleDateFrom"
-									@change="initPage"
+									@change="query(true)"
 								/>
 							</a-form-item>
 						</a-col>
@@ -153,7 +153,6 @@
 			</a-table>
 			<ShopFinanceDetail
 				ref="editInfo"
-				v-model:open="oepnModel"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopFinanceDetail>
@@ -176,6 +175,7 @@ import {
 	deleteShopFinance,
 } from '@/views/finance/shopFinance/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 import type { Dayjs } from 'dayjs';
 
 // 使用分页组合式函数
@@ -183,6 +183,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -214,18 +215,19 @@ const saleDateFrom = ref<string | Dayjs>();
 const saleDateEnd = ref<string | Dayjs>();
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopFinanceData[]>([]);
-const oepnModel = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 const cancelQuery = () => {
 	searchInfo.value = {};
 	saleDateFrom.value = undefined;
 	saleDateEnd.value = undefined;
-	initPage();
-	query();
+	query(true);
 };
 
-const query = () => {
+const query = (resetPage = false) => {
+	if (resetPage) {
+		resetPagination();
+	}
 	searchInfo.value.saleDateFrom =
 		saleDateFrom.value ? formatDate(saleDateFrom.value) : null;
 	searchInfo.value.saleDateEnd =
@@ -243,7 +245,7 @@ const delShopFinance = async (ids: string): Promise<void> => {
 	if (code === '200') {
 		message.success('删除' + messageInfo || '删除成功！', 3);
 		selectedRowIds.value = [];
-		getShopFinanceListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -300,12 +302,25 @@ const editShopFinance = (type: string, id?: number) => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	oepnModel.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = () => {
-	getShopFinanceListPage(searchInfo.value, pagination);
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 
 onMounted(() => {
 	init();

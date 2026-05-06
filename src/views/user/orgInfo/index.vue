@@ -151,6 +151,7 @@
 			<org-info-detail
 				ref="editInfo"
 				v-model:modelInfo="modelInfo"
+				:treeData="treeData"
 				@success="handleSuccess"
 			></org-info-detail>
 		</div>
@@ -174,6 +175,7 @@ import { columns } from '@/views/user/orgInfo/config';
 import { getOrgInfoPage, deleteOrgInfo } from '@/views/user/orgInfo/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
 import type { TreeProps } from 'ant-design-vue';
 import type { Key } from 'ant-design-vue/es/_util/type';
@@ -209,8 +211,8 @@ const currentParentId = ref<string | undefined>(undefined);
 const hasSelectedNode = computed(() => selectedKeys.value.length > 0);
 
 // 查询
-const query = (clear: boolean = false) => {
-	if (clear) {
+const query = (resetPage: boolean = false) => {
+	if (resetPage) {
 		resetPagination();
 	}
 	getOrgDataPage();
@@ -242,7 +244,7 @@ const delOrgInfo = async (ids: string) => {
 				searchInfo.value.parentId = undefined;
 				currentParentId.value = undefined;
 			}
-			await getOrgDataPage();
+			query(true);
 		} else {
 			message.error(messageInfo || '删除失败！', 3);
 		}
@@ -258,9 +260,7 @@ const onTreeSelect: TreeProps['onSelect'] = (keys, info) => {
 		currentParentId.value = undefined;
 	}
 	searchInfo.value.parentId = currentParentId.value;
-	// reset pagination
-	resetPagination();
-	getOrgDataPage();
+	// No need to call getOrgDataPage here, watch on searchInfo will handle it
 };
 
 const getOrgDataPage = async () => {
@@ -286,27 +286,31 @@ const getOrgDataPage = async () => {
 	}
 };
 
-const buildTree = (
-	data: OrgTreeNode[],
-	parentId: string | number | null = null,
-): OrgTreeNode[] => {
-	const list: OrgTreeNode[] = [];
+const buildTree = (data: OrgTreeNode[]): OrgTreeNode[] => {
+	const map = new Map<Key, OrgTreeNode>();
+	const roots: OrgTreeNode[] = [];
+
 	data.forEach((item) => {
-		const itemParentIdStr = item.parentId ? String(item.parentId) : null;
-		const parentIdStr = parentId ? String(parentId) : null;
-		if (
-			itemParentIdStr === parentIdStr ||
-			(parentIdStr === null && !itemParentIdStr) ||
-			(parentIdStr === '0' && !itemParentIdStr)
-		) {
-			const children = buildTree(data, item.id);
-			if (children.length > 0) {
-				item.children = children;
+		map.set(item.id, { ...item, children: [] });
+	});
+
+	data.forEach((item) => {
+		const node = map.get(item.id)!;
+		const parentId = item.parentId;
+		if (!parentId || String(parentId) === '0') {
+			roots.push(node);
+		} else {
+			const parent = map.get(parentId);
+			if (parent) {
+				parent.children = parent.children || [];
+				parent.children.push(node);
+			} else {
+				roots.push(node);
 			}
-			list.push(item);
 		}
 	});
-	return list;
+
+	return roots;
 };
 
 const getOrgTreeData = async () => {
@@ -324,22 +328,7 @@ const getOrgTreeData = async () => {
 					key: item.id,
 				}),
 			) as OrgTreeNode[];
-			// Some root nodes might have parentId '0' or null
-			const rootNodes = rawRecords.filter(
-				(r) => !r.parentId || String(r.parentId) === '0',
-			);
-
-			const tree: OrgTreeNode[] = [];
-			if (rootNodes.length > 0) {
-				rootNodes.forEach((root) => {
-					const children = buildTree(rawRecords, root.id);
-					if (children.length > 0) {
-						root.children = children;
-					}
-					tree.push(root);
-				});
-			}
-			treeData.value = tree;
+			treeData.value = buildTree(rawRecords);
 		} else {
 			message.error(messageInfo || '机构树加载失败！');
 		}
@@ -363,8 +352,21 @@ function editOrgInfo(type: string, id?: string | number) {
 
 const handleSuccess = () => {
 	getOrgTreeData();
-	getOrgDataPage();
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 
 const init = async () => {
 	//获取机构表页面数据并生成树

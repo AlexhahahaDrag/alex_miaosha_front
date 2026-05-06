@@ -3,7 +3,7 @@ import type { UserInfo } from '@/types/store';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
 export interface UserState {
-	id?: string | number;
+	id?: string;
 	userInfo: Nullable<UserInfo>;
 	token?: string;
 	roleList: RoleInfoData[];

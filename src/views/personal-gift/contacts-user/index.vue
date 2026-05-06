@@ -20,7 +20,7 @@
 						导入联系人
 					</a-button>
 				</a-upload>
-				<a-button type="primary" class="btn-add btn-info" @click="onAddContact">
+				<a-button type="primary" class="btn-add btn-info" @click="editContactsUser('add')">
 					<template #icon><plus-outlined /></template>
 					添加联系人
 				</a-button>
@@ -101,7 +101,7 @@
 					</template>
 					<template v-else-if="column.key === 'operation'">
 						<a-space>
-							<a-button type="link" size="small" @click="onEditContact(record)">
+							<a-button type="link" size="small" @click="editContactsUser('update', record)">
 								编辑
 							</a-button>
 							<a-popconfirm
@@ -128,7 +128,6 @@
 		<!-- 详情模态框 -->
 		<contacts-user-detail
 			ref="detailRef"
-			v-model:open="modelInfo.open"
 			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></contacts-user-detail>
@@ -189,13 +188,11 @@ const searchInfo = ref<ContactsUserInfo>({
 
 // 详情模态框相关
 const modelInfo = ref<{
-	open: boolean;
+	open?: boolean;
 	title?: string;
 	record?: ContactsUserInfo;
 	id?: string;
-}>({
-	open: false,
-});
+}>({});
 
 // 处理详情页面保存成功
 const handleSuccess = (): void => {
@@ -287,22 +284,18 @@ const getContactsUserListPage = async (
 };
 
 // 添加联系人
-const onAddContact = (): void => {
-	modelInfo.value = {
-		open: true,
-		title: '新增联系人',
-		id: undefined,
-	};
-};
-
-// 编辑联系人
-const onEditContact = (record: ContactsUserInfo): void => {
-	modelInfo.value = {
-		open: true,
-		title: '编辑联系人',
-		record,
-		id: record.id ? String(record.id) : undefined,
-	};
+//新增和修改弹窗
+const editContactsUser = (type: string, record?: ContactsUserInfo): void => {
+	if (type === 'add') {
+		modelInfo.value.title = '新增联系人';
+		modelInfo.value.id = undefined;
+		modelInfo.value.record = undefined;
+	} else if (type === 'update') {
+		modelInfo.value.title = '编辑联系人';
+		modelInfo.value.record = record;
+		modelInfo.value.id = record?.id ? String(record.id) : undefined;
+	}
+	modelInfo.value.open = true;
 };
 
 // 下载联系人模版 - 改进版本，修复所有风险

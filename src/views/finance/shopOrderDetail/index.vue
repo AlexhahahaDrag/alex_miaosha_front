@@ -179,7 +179,6 @@
 			</a-table>
 			<ShopOrderDetailDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailDetail>
@@ -304,7 +303,6 @@ const init = (): void => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -317,7 +315,7 @@ const editShopOrderDetail = (type: string, id?: number): void => {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = (): void => {

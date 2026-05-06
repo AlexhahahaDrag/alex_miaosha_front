@@ -86,7 +86,6 @@
 		</div>
 		<personal-gift-detail
 			ref="editInfo"
-			v-model:open="modelInfo.open"
 			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></personal-gift-detail>

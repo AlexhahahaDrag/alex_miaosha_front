@@ -35,7 +35,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface PmsBrandData {
-	id?: string | number;
+	id?: string ;
 	brandId?: number;
 	name?: string;
 	logo?: number | string | null;

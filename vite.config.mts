@@ -89,7 +89,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 						customCollections: ['my-menu-svg', 'my-finance-svg', 'my-soft-svg'],
 					}),
 				],
-				dirs: ['src/components', 'src/layout'],
+				dirs: ['src/components', 'src/compoments', 'src/layout'],
 			}),
 			// 仅在构建分析模式下启用，避免影响日常开发
 			isBuild &&

@@ -97,7 +97,6 @@
 			</a-table>
 			<shop-stock-batch-detail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></shop-stock-batch-detail>
@@ -115,12 +114,14 @@ import {
 	deleteShopStockBatch,
 } from '@/views/finance/shopStockBatch/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -153,9 +154,13 @@ let searchInfo = ref<ShopStockBatchData>({});
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
+	query(true);
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
@@ -168,7 +173,7 @@ const delShopStockBatch = async (ids: string): Promise<void> => {
 	const { code, message: msg } = await deleteShopStockBatch(ids);
 	if (code === '200') {
 		message.success((msg && '删除' + msg) || '删除成功！', 3);
-		getShopStockBatchListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error((msg && msg) || '删除失败！', 3);
 	}
@@ -219,7 +224,6 @@ const init = (): void => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -232,11 +236,24 @@ const editShopStockBatch = (type: string, id?: number): void => {
 		modelInfo.value.id = id ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 };
 
 const handleSuccess = (): void => {
-	getShopStockBatchListPage(searchInfo.value, pagination);
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 </script>
 <style lang="scss" scoped></style>

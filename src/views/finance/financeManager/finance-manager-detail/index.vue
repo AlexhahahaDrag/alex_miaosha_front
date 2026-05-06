@@ -251,11 +251,14 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 	};
 };
 
-watch(open, (newVal) => {
-	if (newVal) {
-		initDetail(modelInfo.value);
-	}
-});
+watch(
+	() => modelInfo.value.open,
+	(newVal) => {
+		if (newVal) {
+			initDetail(modelInfo.value);
+		}
+	},
+);
 
 const emit = defineEmits(['success']);
 </script>

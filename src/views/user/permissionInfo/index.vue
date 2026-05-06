@@ -133,7 +133,6 @@
 			</a-table>
 			<PermissionInfoDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PermissionInfoDetail>
@@ -158,12 +157,14 @@ import {
 	deletePermissionInfo,
 } from '@/views/user/permissionInfo/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -201,9 +202,13 @@ const rowSelection = ref({
 
 function cancelQuery() {
 	searchInfo.value = {};
+	query(true);
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPermissionInfoListPage(searchInfo.value, pagination);
 }
 
@@ -216,7 +221,7 @@ const delPermissionInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deletePermissionInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		getPermissionInfoListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -264,7 +269,6 @@ const init = () => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -277,11 +281,24 @@ function editPermissionInfo(type: string, id?: number) {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
-	getPermissionInfoListPage(searchInfo.value, pagination);
+	query(false);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 </script>
 <style lang="scss" scoped></style>

@@ -173,29 +173,43 @@ const saveRoleInfoManager = async () => {
 };
 
 const init = async () => {
-	if (modelInfo.value?.id) {
+	permissionTree.value = [];
+	selectPermission.value = [];
+	formState.value = {};
+	modelConfig.confirmLoading = true;
+
+	const roleId = modelInfo.value?.id;
+	// 无论新增还是修改，都尝试获取权限树（如果是新增，可以传一个特定的标志位或复用一个已知角色的列表获取）
+	// 这里逻辑与 AuthorizationDetail 保持一致，优先保证修改模式正常，新增模式下若后端支持则加载
+	if (roleId) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getRoleInfoDetail(modelInfo.value.id);
+		} = await getRoleInfoDetail(roleId);
 		if (code === '200') {
 			formState.value = data || {};
 			permissionTree.value =
 				(data as { permissionList?: unknown[] })?.permissionList || [];
 			selectPermission.value =
 				(
-					data as { rolePermissionInfoVoList?: { id: string }[] }
-				)?.rolePermissionInfoVoList?.map((item: { id: string }) => item.id) ||
-				[];
-			modelConfig.confirmLoading = false;
+					data as { rolePermissionInfoVoList?: { id: string | number }[] }
+				)?.rolePermissionInfoVoList?.map((item) => String(item.id)) || [];
 		} else {
 			message.error(messageInfo || '查询失败！');
 		}
 	} else {
-		modelConfig.confirmLoading = false;
-		formState.value = {};
+		// 新增模式：尝试获取权限列表（这里可以调用一个默认 ID 或专门的接口）
+		const { code, data } = await getRoleInfoDetail('1').catch(() => ({
+			code: '500',
+			data: null,
+		}));
+		if (code === '200') {
+			permissionTree.value =
+				(data as { permissionList?: unknown[] })?.permissionList || [];
+		}
 	}
+	modelConfig.confirmLoading = false;
 };
 
 watch(

@@ -134,8 +134,7 @@
 			>
 			</cpn-coupon-info-detail>
 			<cpn-coupon-redeem-quantity-detail
-				v-model:open="redeemModelInfo.open"
-				:modelInfo="redeemModelInfo"
+				v-model:modelInfo="redeemModelInfo"
 				:coupon-info="redeemCouponInfo || undefined"
 				@success="handleSuccess"
 			/>
@@ -166,6 +165,7 @@ const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 // 加载中
@@ -223,18 +223,20 @@ const cancelQuery = (): void => {
 	searchInfo.value = {
 		onlyValidAndNotFullyRedeemed: true,
 	};
-	pagination.current = 1;
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
+	query(true);
 };
 
 // 查询
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getCpnCouponInfoListPage(searchInfo.value, pagination);
 };
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询
 const triggerDebouncedQuery = debounce((): void => {
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
+	query(true);
 }, 300);
 
 const handleTableChange = (paginationInfo: PageInfo): void => {
@@ -247,7 +249,7 @@ const delCpnCouponInfo = async (ids: string) => {
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		rowIds = [];
-		getCpnCouponInfoListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -313,10 +315,8 @@ const onShowRedeemQuantityModal = (record: CpnCouponInfoData): void => {
 };
 
 const handleSuccess = (): void => {
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
+	query(false);
 };
-
-// AI Agent：核销弹窗 - 取消回调
 
 const init = (): void => {
 	//获取消费券信息表页面数据
@@ -334,7 +334,6 @@ onUnmounted(() => {
 watch(
 	() => searchInfo.value,
 	() => {
-		pagination.current = 1;
 		triggerDebouncedQuery();
 	},
 	{

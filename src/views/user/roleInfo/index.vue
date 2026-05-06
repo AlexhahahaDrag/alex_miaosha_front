@@ -106,8 +106,7 @@
 			></role-info-detail>
 			<authorization-detail
 				ref="authorizationInfo"
-				v-model:open="authorizationModal.open"
-				:data="authorizationModal"
+				v-model:modelInfo="authModelInfo"
 				@success="handleSuccess"
 			></authorization-detail>
 		</div>
@@ -124,6 +123,7 @@ import {
 } from '@/views/user/roleInfo/config';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
@@ -145,6 +145,7 @@ let loading = ref<boolean>(false);
 let dataSource = ref<RoleInfoData[]>([]);
 
 const modelInfo = ref<ModelInfo>({});
+const authModelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -170,8 +171,7 @@ const rowSelection = ref({
 // 清空查询条件
 const cancelQuery = () => {
 	searchInfo.value = {};
-	resetPagination();
-	getRoleInfoListPage(searchInfo.value, pagination);
+	query(true);
 };
 
 const handleTableChange = (paginationInfo: PageInfo) => {
@@ -184,8 +184,7 @@ const delRoleInfo = async (ids: string) => {
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		// 刷新列表
-		resetPagination();
-		getRoleInfoListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -217,14 +216,15 @@ const editRoleInfo = (type: string, id?: string) => {
 };
 
 const handleSuccess = () => {
-	getRoleInfoListPage(searchInfo.value, pagination);
+	query(false);
 };
 
-const authorizationModal = ref<{ open: boolean; id?: string }>({ open: false });
+const authModelInfo = ref<ModelInfo>({ open: false });
 
 const roleAuthorizationInfo = (id: string) => {
-	authorizationModal.value.open = true;
-	authorizationModal.value.id = id;
+	authModelInfo.value.open = true;
+	authModelInfo.value.id = id;
+	authModelInfo.value.title = '角色权限配置';
 };
 
 const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
@@ -244,14 +244,16 @@ const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	}
 };
 
-function query() {
-	resetPagination();
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
 // 初始化页面数据
 const init = () => {
-	authorizationModal.value = { open: false };
+	authModelInfo.value = { open: false };
 	//获取角色信息表页面数据
 	getRoleInfoListPage(searchInfo.value, pagination);
 };
@@ -259,5 +261,18 @@ const init = () => {
 onMounted(() => {
 	init();
 });
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 </script>
 <style lang="scss" scoped></style>

@@ -139,7 +139,7 @@ type ProductHistoryItem = {
 };
 
 type PmsShopProductDetail = PmsShopProductData & {
-	id?: string | number;
+	id?: string;
 	comparePrice?: number;
 	lowestPrice?: number;
 	highestPrice?: number;

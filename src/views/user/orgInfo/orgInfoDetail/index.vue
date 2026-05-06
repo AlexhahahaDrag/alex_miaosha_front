@@ -70,10 +70,21 @@
 							:name="labelMap['parentId'].name"
 							:label="labelMap['parentId'].label"
 						>
-							<a-input
+							<a-tree-select
 								v-model:value="formState.parentId"
-								:placeholder="'请填写' + labelMap['parentId'].label"
-							></a-input>
+								:tree-data="treeData"
+								:placeholder="'请选择' + labelMap['parentId'].label"
+								:field-names="{
+									children: 'children',
+									label: 'orgName',
+									value: 'id',
+								}"
+								tree-default-expand-all
+								allow-clear
+								show-search
+								tree-node-filter-prop="orgName"
+							>
+							</a-tree-select>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -129,6 +140,11 @@ import {
 } from '@/views/user/orgInfo/api';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
+import type { TreeDataItem } from 'ant-design-vue/es/tree';
+
+const props = defineProps<{
+	treeData?: TreeDataItem[];
+}>();
 
 const { getDictByType } = useDictInfo('is_valid');
 

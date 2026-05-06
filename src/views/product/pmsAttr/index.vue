@@ -163,7 +163,6 @@
 			</a-table>
 			<PmsAttrDetail
 				ref="editInfo"
-				v-model:open="visible"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></PmsAttrDetail>
@@ -178,12 +177,14 @@ import type { SearchInfo, DataItem } from './pmsAttrListTs';
 import { columns } from './pmsAttrListTs';
 import { getPmsAttrPage, deletePmsAttr } from '@/views/product/pmsAttr/api';
 import { message } from 'ant-design-vue';
+import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
+	resetPagination,
 } = usePagination();
 
 const labelCol = ref({ span: 5 });
@@ -229,9 +230,13 @@ let searchInfo = ref<SearchInfo>({});
 
 function cancelQuery() {
 	searchInfo.value = {};
+	query(true);
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsAttrListPage(searchInfo.value, pagination);
 }
 
@@ -244,7 +249,7 @@ function delPmsAttr(ids: string) {
 	deletePmsAttr(ids).then((res) => {
 		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getPmsAttrListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
 		}
@@ -290,7 +295,6 @@ const init = () => {
 
 init();
 
-const visible = ref<boolean>(false);
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
@@ -303,11 +307,24 @@ function editPmsAttr(type: string, id?: number) {
 		modelInfo.value.id = id;
 	}
 	modelInfo.value.confirmLoading = true;
-	visible.value = true;
+	modelInfo.value.open = true;
 }
 
 const handleSuccess = () => {
 	getPmsAttrListPage(searchInfo.value, pagination);
 };
+
+// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	() => searchInfo.value,
+	() => {
+		triggerDebouncedQuery();
+	},
+	{ deep: true },
+);
 </script>
 <style lang="scss" scoped></style>
