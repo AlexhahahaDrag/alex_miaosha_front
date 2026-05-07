@@ -281,13 +281,13 @@ const init = () => {
 };
 
 //新增和修改弹窗
-function editPmsShopProduct(type: string, id?: number) {
+function editPmsShopProduct(type: string, id?: string) {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

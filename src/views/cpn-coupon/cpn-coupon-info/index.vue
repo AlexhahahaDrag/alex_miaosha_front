@@ -290,7 +290,7 @@ const getCpnCouponInfoListPage = async (
 };
 
 //新增和修改弹窗
-const editCpnCouponInfo = (type: string, id?: number): void => {
+const editCpnCouponInfo = (type: string, id?: string): void => {
 	let add = '新增';
 	if (type === 'update') {
 		add = '修改';
@@ -298,7 +298,7 @@ const editCpnCouponInfo = (type: string, id?: number): void => {
 	modelInfo.value = {
 		confirmLoading: true,
 		open: true,
-		id: id ? String(id) : undefined,
+		id: id ?? null,
 		title: add + '消费券信息',
 	};
 };

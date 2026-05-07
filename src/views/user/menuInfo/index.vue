@@ -2,10 +2,17 @@
 	<div class="page-info">
 		<div class="search">
 			<div class="search-box">
-				<a-form :model="searchInfo" :label-col="labelCol" :wrapper-col="wrapperCol">
+				<a-form
+					:model="searchInfo"
+					:label-col="labelCol"
+					:wrapper-col="wrapperCol"
+				>
 					<a-row :gutter="24">
 						<a-col :span="8">
-							<a-form-item :name="labelMap['name'].name" :label="labelMap['name'].label">
+							<a-form-item
+								:name="labelMap['name'].name"
+								:label="labelMap['name'].label"
+							>
 								<a-input
 									v-model:value="searchInfo.name"
 									:placeholder="'请填写' + labelMap['name'].label"
@@ -14,7 +21,10 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item :name="labelMap['title'].name" :label="labelMap['title'].label">
+							<a-form-item
+								:name="labelMap['title'].name"
+								:label="labelMap['title'].label"
+							>
 								<a-input
 									v-model:value="searchInfo.title"
 									:placeholder="'请填写' + labelMap['title'].label"
@@ -49,7 +59,10 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item :name="labelMap['icon'].name" :label="labelMap['icon'].label">
+							<a-form-item
+								:name="labelMap['icon'].name"
+								:label="labelMap['icon'].label"
+							>
 								<a-input
 									v-model:value="searchInfo.icon"
 									:placeholder="'请填写' + labelMap['icon'].label"
@@ -87,7 +100,10 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item :name="labelMap['summary'].name" :label="labelMap['summary'].label">
+							<a-form-item
+								:name="labelMap['summary'].name"
+								:label="labelMap['summary'].label"
+							>
 								<a-input
 									v-model:value="searchInfo.summary"
 									:placeholder="'请填写' + labelMap['summary'].label"
@@ -98,7 +114,10 @@
 					</a-row>
 					<a-row :gutter="24">
 						<a-col :span="8">
-							<a-form-item :name="labelMap['status'].name" :label="labelMap['status'].label">
+							<a-form-item
+								:name="labelMap['status'].name"
+								:label="labelMap['status'].label"
+							>
 								<a-select
 									v-model:value="searchInfo.status"
 									:placeholder="'请选择' + labelMap['status'].label"
@@ -110,7 +129,10 @@
 							</a-form-item>
 						</a-col>
 						<a-col :span="8">
-							<a-form-item :name="labelMap['orderBy'].name" :label="labelMap['orderBy'].label">
+							<a-form-item
+								:name="labelMap['orderBy'].name"
+								:label="labelMap['orderBy'].label"
+							>
 								<a-input
 									v-model:value="searchInfo.orderBy"
 									:placeholder="'请填写' + labelMap['orderBy'].label"
@@ -132,8 +154,19 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editMenuInfo('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelMenuInfo">删除</a-button>
+				<a-button
+					v-permission="'menu:add'"
+					type="primary"
+					@click="editMenuInfo('add')"
+					>新增</a-button
+				>
+				<a-button
+					v-permission="'menu:delete'"
+					type="primary"
+					danger
+					@click="batchDelMenuInfo"
+					>删除</a-button
+				>
 			</a-space>
 		</div>
 		<div class="content">
@@ -150,13 +183,24 @@
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
 						<a-space>
-							<a-button type="primary" size="small" @click="openSubMenuManager(record)">
+							<a-button
+								v-permission="'menu:add'"
+								type="primary"
+								size="small"
+								@click="openSubMenuManager(record)"
+							>
 								子菜单
 							</a-button>
-							<a-button type="primary" size="small" @click="editMenuInfo('update', record.id)">
+							<a-button
+								v-permission="'menu:edit'"
+								type="primary"
+								size="small"
+								@click="editMenuInfo('update', record.id)"
+							>
 								编辑
 							</a-button>
 							<a-popconfirm
+								v-permission="'menu:delete'"
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
@@ -185,7 +229,7 @@
 
 <script setup lang="ts">
 // 1. Imports (框架 > 公共组件 > 业务组件 > 工具函数 > 类型定义)
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import MenuInfoDetail from './menuInfoDetail/index.vue';
@@ -242,7 +286,7 @@ const query = (resetPage = false) => {
 };
 
 const cancelQuery = () => {
-	searchInfo.value = { parentId: 0 };
+	searchInfo.value = { parentId: '0' };
 	query(true);
 };
 
@@ -264,19 +308,19 @@ const batchDelMenuInfo = () => {
 	delMenuInfo(rowIds.join(','));
 };
 
-const editMenuInfo = (type: string, id?: number) => {
+const editMenuInfo = (type: string, id?: string) => {
 	if (type === 'add') {
 		modelInfo.value = {
 			title: '新增明细',
 			open: true,
 			id: undefined,
-			parentId: 0,
+			parentId: '0',
 		};
 	} else if (type === 'update') {
 		modelInfo.value = {
 			title: '修改明细',
 			open: true,
-			id: id ? String(id) : undefined,
+			id: id ?? null,
 		};
 	}
 };
@@ -300,11 +344,11 @@ const triggerDebouncedQuery = debounce(() => {
 const getMenuInfoListPage = async (param: MenuInfoData, cur: PageInfo) => {
 	loading.value = true;
 	try {
-		const { code, data, message: messageInfo } = await getMenuInfoPage(
-			param,
-			cur.current,
-			cur.pageSize
-		);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getMenuInfoPage(param, cur.current, cur.pageSize);
 		if (code === '200') {
 			dataSource.value = data?.records || [];
 			setTotal(data?.total || 0);
@@ -317,7 +361,7 @@ const getMenuInfoListPage = async (param: MenuInfoData, cur: PageInfo) => {
 };
 
 const init = () => {
-	searchInfo.value.parentId = 0;
+	searchInfo.value.parentId = '0';
 	getMenuInfoListPage(searchInfo.value, pagination);
 };
 
@@ -327,7 +371,7 @@ watch(
 	() => {
 		triggerDebouncedQuery();
 	},
-	{ deep: true }
+	{ deep: true },
 );
 
 // 初始化

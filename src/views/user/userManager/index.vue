@@ -21,7 +21,7 @@
 						<a-col :span="6"></a-col>
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="query(true)"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -31,8 +31,8 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editUser('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelUserManager">
+				<a-button v-permission="'user:add'" type="primary" @click="editUser('add')">新增</a-button>
+				<a-button v-permission="'user:delete'" type="primary" danger @click="batchDelUserManager">
 					删除
 				</a-button>
 			</a-space>
@@ -52,6 +52,7 @@
 					<template v-if="column.key === 'operation'">
 						<a-space>
 							<a-button
+								v-permission="'user:edit'"
 								type="primary"
 								size="small"
 								@click="editUser('update', record.id)"
@@ -64,6 +65,7 @@
 								cancel-text="取消"
 								@confirm="delUser(record.id)"
 								v-if="record.username !== 'superman'"
+								v-permission="'user:delete'"
 							>
 								<a-button type="primary" size="small" danger>删除</a-button>
 							</a-popconfirm>

@@ -208,7 +208,7 @@ function editDict(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? null;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

@@ -288,13 +288,13 @@ const init = (): void => {
 };
 
 //新增和修改弹窗
-const editShopOrder = (type: string, id?: number): void => {
+const editShopOrder = (type: string, id?: string): void => {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
+		modelInfo.value.id = null;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? null;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

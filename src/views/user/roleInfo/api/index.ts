@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -48,4 +48,14 @@ export function editRoleInfo(
 	params: RoleInfoData,
 ): Promise<ResponseBody<RoleInfoData>> {
 	return putData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
+}
+
+export function assignRoleUsers(
+	roleId: string,
+	userIds: string[],
+): Promise<ResponseBody<boolean>> {
+	return postData(baseService.user + baseRoleInfo + '/assign-users', {
+		roleId,
+		userIds,
+	});
 }

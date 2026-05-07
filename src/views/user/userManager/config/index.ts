@@ -84,6 +84,9 @@ export interface UserManagerInfo {
 	roleName?: string;
 	roleCode?: string;
 	avatarThumbnailUrl?: string;
+	orgId?: string;
+	roleIds?: string[];
+	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }
 
 // 表单布局配置
@@ -119,6 +122,12 @@ export const rulesRef = reactive({
 		{
 			message: '输入的邮箱不合法！',
 			pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.*[a-zA-Z0-9_-]+)+$/,
+		},
+	],
+	orgId: [
+		{
+			required: true,
+			message: '所属机构不能为空！',
 		},
 	],
 });

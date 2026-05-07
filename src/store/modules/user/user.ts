@@ -7,6 +7,8 @@ import { message } from 'ant-design-vue';
 import { refreshRouter } from '@/router';
 import type { UserInfo } from '@/types/store';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
+import { normalizePermissionContext } from '@/utils/permission';
+import type { PermissionContext } from '@/utils/permission';
 
 export const useUserStore = defineStore(
 	'app-user',
@@ -20,6 +22,7 @@ export const useUserStore = defineStore(
 		const hasMenu = ref(false);
 		const orgInfo = ref<any>(null);
 		const roleInfo = ref<RoleInfoData | null>(null);
+		const permissionContext = ref<PermissionContext | null>(null);
 
 		const getUserInfo = computed((): UserInfo => {
 			return userInfo.value || getAuthInfo('userInfo');
@@ -54,6 +57,15 @@ export const useUserStore = defineStore(
 			return orgInfo.value || getAuthInfo('orgInfo');
 		});
 
+		const getPermissionContext = computed((): PermissionContext | null => {
+			const cachedContext = permissionContext.value || getAuthInfo('permissionContext');
+			if (cachedContext) {
+				return cachedContext;
+			}
+			const cachedUserInfo = userInfo.value || getAuthInfo('userInfo');
+			return cachedUserInfo ? normalizePermissionContext(cachedUserInfo) : null;
+		});
+
 		function setToken(info: string | undefined) {
 			token.value = info ? info : '';
 			localStorage.setItem('token', token.value);
@@ -85,6 +97,11 @@ export const useUserStore = defineStore(
 			localStorage.setItem('orgInfo', JSON.stringify(orgInfo.value));
 		}
 
+		function setPermissionContext(info: PermissionContext | null) {
+			permissionContext.value = info;
+			localStorage.setItem('permissionContext', JSON.stringify(permissionContext.value));
+		}
+
 		async function login(
 			params: LoginParams & {
 				goHome?: boolean;
@@ -99,13 +116,15 @@ export const useUserStore = defineStore(
 				} = await loginApi(loginParams);
 				if (code == '200') {
 					const { token: tokenVal, admin } = data;
+					const normalizedContext = normalizePermissionContext(admin);
 					// save userInfo
 					setUserInfo(admin);
 					// save token
 					setToken(tokenVal);
-					setMenuInfo(admin.menuInfoVoList);
-					setRoleInfo(admin.roleInfoVo);
-					setOrgInfo(admin.orgInfoVo);
+					setPermissionContext(normalizedContext);
+					setMenuInfo(normalizedContext.menuList);
+					setRoleInfo(normalizedContext.roleList[0] || null);
+					setOrgInfo(normalizedContext.orgInfo);
 					changeRouteStatus(false);
 					refreshRouter();
 					return admin;
@@ -132,6 +151,7 @@ export const useUserStore = defineStore(
 			hasMenu,
 			orgInfo,
 			roleInfo,
+			permissionContext,
 			getUserInfo,
 			getToken,
 			getMenuInfo,
@@ -140,12 +160,14 @@ export const useUserStore = defineStore(
 			getRouteStatus,
 			getRoleInfo,
 			getOrgInfo,
+			getPermissionContext,
 			setToken,
 			setMenuInfo,
 			changeRouteStatus,
 			setUserInfo,
 			setRoleInfo,
 			setOrgInfo,
+			setPermissionContext,
 			login,
 		};
 	},

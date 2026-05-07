@@ -32,9 +32,19 @@ export const columns = ref<TableColumnsType>([
 		key: 'icon',
 	},
 	{
+		title: '权限标识',
+		dataIndex: 'permissionCode',
+		key: 'permissionCode',
+	},
+	{
 		title: '是否隐藏菜单',
 		dataIndex: 'hideInMenu',
 		key: 'hideInMenu',
+	},
+	{
+		title: '首页展示',
+		dataIndex: 'showInHome',
+		key: 'showInHome',
 	},
 	{
 		title: '父级机构id',
@@ -72,11 +82,13 @@ export interface MenuInfoData {
 	component?: string;
 	redirect?: string;
 	icon?: string;
+	permissionCode?: string;
 	hideInMenu?: string;
-	parentId?: number;
+	showInHome?: string;
+	parentId?: string;
 	summary?: string;
 	status?: string;
-	orderBy?: number;
+	orderBy?: string;
 }
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
@@ -86,7 +98,9 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	component: { name: 'component', label: '组件' },
 	redirect: { name: 'redirect', label: '跳转' },
 	icon: { name: 'icon', label: '菜单图标' },
+	permissionCode: { name: 'permissionCode', label: '权限标识' },
 	hideInMenu: { name: 'hideInMenu', label: '是否隐藏菜单' },
+	showInHome: { name: 'showInHome', label: '首页展示' },
 	parentId: { name: 'parentId', label: '父级机构id' },
 	summary: { name: 'summary', label: '备注' },
 	status: { name: 'status', label: '状态' },

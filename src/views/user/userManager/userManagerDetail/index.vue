@@ -135,6 +135,31 @@
 				</a-row>
 				<a-row :gutter="24">
 					<a-col :span="12">
+						<a-form-item name="orgId" label="所属机构">
+							<a-select
+								v-model:value="formState.orgId"
+								:options="orgOptions"
+								:field-names="{ label: 'orgName', value: 'id' }"
+								placeholder="请选择所属机构"
+								allow-clear
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item name="roleIds" label="角色">
+							<a-select
+								v-model:value="formState.roleIds"
+								:options="roleOptions"
+								:field-names="{ label: 'roleName', value: 'id' }"
+								mode="multiple"
+								placeholder="请选择角色"
+								allow-clear
+							/>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
 						<a-form-item name="avatar" label="头像">
 							<my-upload
 								:fromSystem="fromSystem"
@@ -174,6 +199,10 @@ import {
 	addUserManager,
 	editUserManager,
 } from '@/views/user/userManager/api';
+import { getOrgInfoPage } from '@/views/user/orgInfo/api';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
+import { getRoleInfoPage } from '@/views/user/roleInfo/api';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -201,6 +230,8 @@ const formRef = ref<FormInstance>();
 // 字典数据已通过 useDictInfo 自动加载
 const genderList = computed(() => getDictByType('gender'));
 const validList = computed(() => getDictByType('is_valid'));
+const orgOptions = ref<OrgInfoData[]>([]);
+const roleOptions = ref<RoleInfoData[]>([]);
 
 let fileInfo = ref<FileInfo>({});
 let fromSystem = ref<string>('user');
@@ -252,11 +283,26 @@ function initForm() {
 	formState.value = {
 		status: '1',
 		gender: '0',
+		roleIds: [],
 	};
 }
 
+const loadRbacOptions = async () => {
+	const [orgResult, roleResult] = await Promise.all([
+		getOrgInfoPage({ status: '1' }, 1, 1000),
+		getRoleInfoPage({ status: '1' }, 1, 1000),
+	]);
+	if (orgResult.code === '200') {
+		orgOptions.value = orgResult.data?.records || [];
+	}
+	if (roleResult.code === '200') {
+		roleOptions.value = roleResult.data?.records || [];
+	}
+};
+
 const init = async () => {
 	pageLoading.value = true;
+	await loadRbacOptions();
 	if (modelInfo.value?.id) {
 		try {
 			const {
@@ -266,6 +312,12 @@ const init = async () => {
 			} = await getUserManagerDetail(String(modelInfo.value.id));
 			if (code === '200') {
 				formState.value = data || {};
+				formState.value.orgId =
+					formState.value.orgId || ((data as any)?.orgInfoVo?.id ? String((data as any).orgInfoVo.id) : undefined);
+				formState.value.roleIds =
+					formState.value.roleIds ||
+					(data as any)?.roleInfoVoList?.map((role: RoleInfoData) => String(role.id)) ||
+					((data as any)?.roleInfoVo?.id ? [String((data as any).roleInfoVo.id)] : []);
 				if (
 					formState.value.gender !== undefined &&
 					formState.value.gender !== null

@@ -84,18 +84,18 @@ const handleTableChange = (paginationInfo: any) => {
 	getSubMenuList();
 };
 
-const editSubMenu = (type: string, id?: number) => {
+const editSubMenu = (type: string, id?: string) => {
 	if (type === 'add') {
 		subMenuModelInfo.value = {
 			title: '新增子菜单',
 			open: true,
-			parentId: Number(modelInfo.value.id),
+			parentId: modelInfo.value.id,
 		};
 	} else {
 		subMenuModelInfo.value = {
 			title: '编辑子菜单',
 			open: true,
-			id: String(id),
+			id: id,
 		};
 	}
 };
@@ -123,10 +123,14 @@ const getSubMenuList = async () => {
 	if (!modelInfo.value.id) return;
 	loading.value = true;
 	try {
-		const { code, data, message: messageInfo } = await getMenuInfoPage(
-			{ parentId: Number(modelInfo.value.id) },
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getMenuInfoPage(
+			{ parentId: String(modelInfo.value.id) },
 			pagination.current,
-			pagination.pageSize
+			pagination.pageSize,
 		);
 		if (code === '200') {
 			dataSource.value = data?.records || [];
@@ -147,7 +151,7 @@ watch(
 			resetPagination();
 			getSubMenuList();
 		}
-	}
+	},
 );
 
 // 8. Emits (永远是最后一行)

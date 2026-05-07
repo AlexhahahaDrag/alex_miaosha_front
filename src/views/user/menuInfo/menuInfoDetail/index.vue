@@ -110,12 +110,41 @@
 				<a-row :gutter="24">
 					<a-col :span="12">
 						<a-form-item
+							:name="labelMap['permissionCode'].name"
+							:label="labelMap['permissionCode'].label"
+						>
+							<a-input
+								v-model:value="formState.permissionCode"
+								:placeholder="'请填写' + labelMap['permissionCode'].label + '，如 user:list'"
+								allow-clear
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item
 							:name="labelMap['hideInMenu'].name"
 							:label="labelMap['hideInMenu'].label"
 						>
 							<a-select
 								v-model:value="formState.hideInMenu"
 								:placeholder="'请选择' + labelMap['hideInMenu'].label"
+								:field-names="{ label: 'typeName', value: 'typeCode' }"
+								:options="hideInMenuList"
+								allow-clear
+							>
+							</a-select>
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['showInHome'].name"
+							:label="labelMap['showInHome'].label"
+						>
+							<a-select
+								v-model:value="formState.showInHome"
+								:placeholder="'请选择' + labelMap['showInHome'].label"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="hideInMenuList"
 								allow-clear
@@ -266,9 +295,10 @@ const init = async () => {
 	} else {
 		modelConfig.confirmLoading = false;
 		formState.value = {
-			parentId: modelInfo.value.parentId ?? 0,
+			parentId: String(modelInfo.value.parentId ?? '0'),
 			status: '1',
 			hideInMenu: '0',
+			showInHome: '0',
 		};
 	}
 };

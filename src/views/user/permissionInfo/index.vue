@@ -78,7 +78,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="query(true)"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -88,10 +88,10 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editPermissionInfo('add')">
+				<a-button v-permission="'permission:add'" type="primary" @click="editPermissionInfo('add')">
 					新增
 				</a-button>
-				<a-button type="primary" danger @click="batchDelPermissionInfo">
+				<a-button v-permission="'permission:delete'" type="primary" danger @click="batchDelPermissionInfo">
 					删除
 				</a-button>
 			</a-space>
@@ -111,6 +111,7 @@
 					<template v-if="column.key === 'operation'">
 						<a-space>
 							<a-button
+								v-permission="'permission:edit'"
 								type="primary"
 								size="small"
 								@click="editPermissionInfo('update', record.id)"
@@ -118,6 +119,7 @@
 								编辑
 							</a-button>
 							<a-popconfirm
+								v-permission="'permission:delete'"
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
@@ -217,8 +219,8 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPermissionInfoListPage(searchInfo.value, pagination);
 };
 
-const delPermissionInfo = async (ids: string) => {
-	const { code, message: messageInfo } = await deletePermissionInfo(ids);
+const delPermissionInfo = async (ids: string | number) => {
+	const { code, message: messageInfo } = await deletePermissionInfo(String(ids));
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
 		query(true);
@@ -272,13 +274,13 @@ init();
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
-function editPermissionInfo(type: string, id?: number) {
+function editPermissionInfo(type: string, id?: string) {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
+		modelInfo.value.id = null;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id ?? null;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

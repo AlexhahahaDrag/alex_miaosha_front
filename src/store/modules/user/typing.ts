@@ -1,6 +1,7 @@
 import type { Nullable } from '@/types/global';
 import type { UserInfo } from '@/types/store';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
+import type { PermissionContext } from '@/utils/permission';
 
 export interface UserState {
 	id?: string;
@@ -13,6 +14,7 @@ export interface UserState {
 	hasMenu: boolean;
 	roleInfo: RoleInfoData;
 	orgInfo: any;
+	permissionContext: PermissionContext | null;
 }
 
 export interface MenuInfo {

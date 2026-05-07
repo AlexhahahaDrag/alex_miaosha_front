@@ -34,7 +34,7 @@
 						</a-col>
 						<a-col style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="query(true)"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -44,8 +44,8 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editRoleInfo('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelRoleInfo">
+				<a-button v-permission="'role:add'" type="primary" @click="editRoleInfo('add')">新增</a-button>
+				<a-button v-permission="'role:delete'" type="primary" danger @click="batchDelRoleInfo">
 					删除
 				</a-button>
 			</a-space>
@@ -65,6 +65,7 @@
 					<template v-if="column.key === 'operation'">
 						<a-space>
 							<a-button
+								v-permission="'role:edit'"
 								type="primary"
 								size="small"
 								@click="editRoleInfo('update', record.id)"
@@ -72,13 +73,23 @@
 								编辑
 							</a-button>
 							<a-button
+								v-permission="'role:auth'"
 								type="primary"
 								size="small"
-								@click="roleAuthorizationInfo(record.id)"
+								@click="roleAuthorizationInfo(String(record.id))"
 							>
 								授权
 							</a-button>
+							<a-button
+								v-permission="'role:auth'"
+								type="primary"
+								size="small"
+								@click="roleUserAssignmentInfo(String(record.id))"
+							>
+								用户
+							</a-button>
 							<a-popconfirm
+								v-permission="'role:delete'"
 								title="确认删除?"
 								ok-text="确认"
 								cancel-text="取消"
@@ -109,6 +120,10 @@
 				v-model:modelInfo="authModelInfo"
 				@success="handleSuccess"
 			></authorization-detail>
+			<user-assignment-detail
+				v-model:modelInfo="userAssignModelInfo"
+				@success="handleSuccess"
+			></user-assignment-detail>
 		</div>
 	</div>
 </template>
@@ -124,6 +139,7 @@ import {
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
+import UserAssignmentDetail from './userAssignmentDetail/index.vue';
 
 // 使用分页组合式函数
 const {
@@ -146,6 +162,7 @@ let dataSource = ref<RoleInfoData[]>([]);
 
 const modelInfo = ref<ModelInfo>({});
 const authModelInfo = ref<ModelInfo>({});
+const userAssignModelInfo = ref<ModelInfo>({});
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -219,12 +236,16 @@ const handleSuccess = () => {
 	query(false);
 };
 
-const authModelInfo = ref<ModelInfo>({ open: false });
-
 const roleAuthorizationInfo = (id: string) => {
 	authModelInfo.value.open = true;
 	authModelInfo.value.id = id;
 	authModelInfo.value.title = '角色权限配置';
+};
+
+const roleUserAssignmentInfo = (id: string) => {
+	userAssignModelInfo.value.open = true;
+	userAssignModelInfo.value.id = id;
+	userAssignModelInfo.value.title = '角色用户分配';
 };
 
 const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {

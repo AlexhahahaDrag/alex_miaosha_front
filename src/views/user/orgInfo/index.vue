@@ -70,11 +70,12 @@
 				<a-divider style="margin: 16px 0" />
 				<div class="button-group">
 					<a-space>
-						<a-button type="primary" @click="editOrgInfo('add')">
+						<a-button v-permission="'org:add'" type="primary" @click="editOrgInfo('add')">
 							<template #icon><plus-outlined /></template>
 							新增
 						</a-button>
 						<a-button
+							v-permission="'org:edit'"
 							type="primary"
 							@click="editOrgInfo('update', Number(selectedKeys[0]))"
 							:disabled="!hasSelectedNode"
@@ -83,6 +84,7 @@
 							编辑
 						</a-button>
 						<a-popconfirm
+							v-permission="'org:delete'"
 							title="确认删除选中的机构?"
 							ok-text="确认"
 							cancel-text="取消"
@@ -126,6 +128,7 @@
 						<template v-else-if="column.key === 'operation'">
 							<a-space>
 								<a-button
+									v-permission="'org:edit'"
 									type="link"
 									size="small"
 									style="padding: 0"
@@ -134,6 +137,7 @@
 									编辑
 								</a-button>
 								<a-popconfirm
+									v-permission="'org:delete'"
 									title="确认删除该机构?"
 									ok-text="确认"
 									cancel-text="取消"
@@ -338,13 +342,13 @@ const getOrgTreeData = async () => {
 };
 
 //新增和修改弹窗
-function editOrgInfo(type: string, id?: string | number) {
+function editOrgInfo(type: string, id?: string) {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
+		modelInfo.value.id = null;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? null;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

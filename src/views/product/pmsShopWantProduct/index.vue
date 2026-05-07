@@ -232,13 +232,13 @@ const getPmsShopWantProductListPage = async (
 };
 
 //新增和修改弹窗
-function editPmsShopWantProduct(type: string, id?: number) {
+function editPmsShopWantProduct(type: string, id?: string) {
 	if (type === 'add') {
 		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
+		modelInfo.value.id = null;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ? String(id) : undefined;
+		modelInfo.value.id = id ?? null;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

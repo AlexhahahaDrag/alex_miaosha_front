@@ -81,9 +81,10 @@ export const iconComponentMap: Record<string, any> = {
 
 // 弹窗信息
 export interface ModelInfo {
+	id?: string | null;
 	open?: boolean;
 	title?: string;
 	width?: string;
-	id?: string | null;
+	parentId?: string | null;
 	confirmLoading?: boolean;
 }

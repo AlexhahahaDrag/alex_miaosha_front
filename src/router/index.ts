@@ -5,6 +5,7 @@ import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
 import type { MenuInfo } from '@/store/modules/user/typing';
+import { buildPermissionSet, canAccessPermission, isSuperAdmin } from '@/utils/permission';
 
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
@@ -55,15 +56,12 @@ let dynamicRouter: RouteRecordRaw[] = [];
 // ─── 工具函数（定义在使用之前）─────────────────────────────────────────────────
 
 /** 根据 permissionCode 判断是否有权限 */
-const judgePermission = (
-	permissionSet: Set<string>,
-	permissionCode: string | undefined,
-	roleCode: string,
-): boolean => {
-	if (roleCode === 'super_super') return true;
-	if (!permissionCode || !permissionSet.size) return false;
-	return permissionSet.has(permissionCode);
-};
+const judgePermission = (permissionSet: Set<string>, permissionCode: string | undefined, superAdmin: boolean): boolean =>
+	canAccessPermission(permissionSet, permissionCode, superAdmin);
+
+const judgeMenuPermission = (item: MenuInfo, permissionSet: Set<string>, superAdmin: boolean): boolean =>
+	judgePermission(permissionSet, item.permissionCode, superAdmin) ||
+	!!item.children?.some((child) => judgeMenuPermission(child, permissionSet, superAdmin));
 
 /** 根据 MenuInfo 解析对应的 Vue 组件 */
 const getComponent = (item: MenuInfo) => {
@@ -80,7 +78,7 @@ const getComponent = (item: MenuInfo) => {
 const buildRouteRecord = (
 	item: MenuInfo,
 	permissionSet: Set<string>,
-	roleCode: string,
+	superAdmin: boolean,
 ): RouteRecordRaw => {
 	const routeInfo: RouteRecordRaw = {
 		path: item.path,
@@ -99,8 +97,8 @@ const buildRouteRecord = (
 
 	if (item.children?.length) {
 		item.children.forEach((childItem: MenuInfo) => {
-			if (judgePermission(permissionSet, childItem.permissionCode, roleCode)) {
-				routeInfo.children!.push(buildRouteRecord(childItem, permissionSet, roleCode));
+			if (judgeMenuPermission(childItem, permissionSet, superAdmin)) {
+				routeInfo.children!.push(buildRouteRecord(childItem, permissionSet, superAdmin));
 			}
 		});
 	}
@@ -114,19 +112,15 @@ const addRouter = () => {
 	const userStore = useUserStore();
 	if (!userStore.getMenuInfo?.length) return;
 
-	const roleInfo = userStore.getRoleInfo;
-	const roleCode = roleInfo?.roleCode || '';
-	const permissionList = roleInfo?.permissionList || [];
+	const permissionContext = userStore.getPermissionContext;
+	const superAdmin = isSuperAdmin(permissionContext || userStore.getRoleInfo);
+	const permissionSet = buildPermissionSet(permissionContext);
 
-	if (roleCode !== 'super_super' && !permissionList.length) return;
-
-	const permissionSet = new Set<string>(
-		permissionList.map((p: any) => p?.permissionCode as string),
-	);
+	if (!superAdmin && !permissionSet.size) return;
 
 	userStore.getMenuInfo.forEach((item: MenuInfo) => {
-		if (judgePermission(permissionSet, item.permissionCode, roleCode)) {
-			const newRoute = buildRouteRecord(item, permissionSet, roleCode);
+		if (judgeMenuPermission(item, permissionSet, superAdmin)) {
+			const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
 			router.addRoute(newRoute);
 			dynamicRouter.push(newRoute);
 			routes.push(newRoute as MenuDataItem);
