@@ -68,7 +68,7 @@
 						</a-col>
 						<a-col style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -120,7 +120,6 @@
 				</template>
 			</a-table>
 			<ShopStockDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopStockDetail>
@@ -211,10 +210,10 @@ function handleTableChange(pagination: PageInfo) {
 const delShopStock = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopStock(ids);
 	if (code === '200') {
-		message.success((messageInfo && '删除' + messageInfo) || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		query(true);
 	} else {
-		message.error((messageInfo && '删除失败！') || '删除失败！', 3);
+		message.error(messageInfo || '删除失败！', 3);
 	}
 };
 
@@ -266,13 +265,9 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editShopStock(type: string, id?: number) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

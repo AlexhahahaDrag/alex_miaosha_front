@@ -1,6 +1,6 @@
 import { loginApi } from '@/views/login/api';
-import { getAuthInfo } from './typing';
-import type { MenuInfo } from './typing';
+import { getAuthInfo } from '@/store/modules/user/typing';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
 import type { LoginParams } from '@/views/login/config';
 import { piniaPersistConfig } from '@/config/piniaPersist';
 import { message } from 'ant-design-vue';
@@ -18,7 +18,7 @@ export const useUserStore = defineStore(
 		const roleList = ref<any[]>([]);
 		const sessionTimeout = ref(false);
 		const lastUpdateTime = ref(0);
-		const menuInfo = ref<MenuInfo[] | null>(null);
+		const menuInfo = ref<MenuInfoData[] | null>(null);
 		const hasMenu = ref(false);
 		const orgInfo = ref<any>(null);
 		const roleInfo = ref<RoleInfoData | null>(null);
@@ -33,7 +33,7 @@ export const useUserStore = defineStore(
 			return token.value || localStorage.getItem('token') || '';
 		});
 
-		const getMenuInfo = computed((): MenuInfo[] | null => {
+		const getMenuInfo = computed((): MenuInfoData[] | null => {
 			return menuInfo.value || getAuthInfo('menuInfo');
 		});
 
@@ -58,7 +58,8 @@ export const useUserStore = defineStore(
 		});
 
 		const getPermissionContext = computed((): PermissionContext | null => {
-			const cachedContext = permissionContext.value || getAuthInfo('permissionContext');
+			const cachedContext =
+				permissionContext.value || getAuthInfo('permissionContext');
 			if (cachedContext) {
 				return cachedContext;
 			}
@@ -71,7 +72,7 @@ export const useUserStore = defineStore(
 			localStorage.setItem('token', token.value);
 		}
 
-		function setMenuInfo(info: MenuInfo[]) {
+		function setMenuInfo(info: MenuInfoData[]) {
 			menuInfo.value = info ? info : null;
 			localStorage.setItem('menuInfo', JSON.stringify(menuInfo.value));
 		}
@@ -99,7 +100,10 @@ export const useUserStore = defineStore(
 
 		function setPermissionContext(info: PermissionContext | null) {
 			permissionContext.value = info;
-			localStorage.setItem('permissionContext', JSON.stringify(permissionContext.value));
+			localStorage.setItem(
+				'permissionContext',
+				JSON.stringify(permissionContext.value),
+			);
 		}
 
 		async function login(

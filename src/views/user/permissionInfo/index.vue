@@ -78,7 +78,9 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query(true)"> 查找</a-button>
+								<a-button type="primary" @click="() => query(false)">
+									查找
+								</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -88,10 +90,19 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button v-permission="'permission:add'" type="primary" @click="editPermissionInfo('add')">
+				<a-button
+					v-permission="'permission:add'"
+					type="primary"
+					@click="editPermissionInfo('add')"
+				>
 					新增
 				</a-button>
-				<a-button v-permission="'permission:delete'" type="primary" danger @click="batchDelPermissionInfo">
+				<a-button
+					v-permission="'permission:delete'"
+					type="primary"
+					danger
+					@click="batchDelPermissionInfo"
+				>
 					删除
 				</a-button>
 			</a-space>
@@ -134,9 +145,8 @@
 				</template>
 			</a-table>
 			<PermissionInfoDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></PermissionInfoDetail>
 		</div>
 	</div>
@@ -220,9 +230,11 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 };
 
 const delPermissionInfo = async (ids: string | number) => {
-	const { code, message: messageInfo } = await deletePermissionInfo(String(ids));
+	const { code, message: messageInfo } = await deletePermissionInfo(
+		String(ids),
+	);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -247,20 +259,20 @@ const cancel = (e: MouseEvent) => {
 
 const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getPermissionInfoPage(param, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPermissionInfoPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -275,20 +287,14 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPermissionInfo(type: string, id?: string) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : (id ?? null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
 
-const handleSuccess = () => {
-	query(false);
-};
+// 移除冗余的 handleSuccess 函数
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {

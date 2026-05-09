@@ -116,7 +116,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" class="actions-col">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -168,7 +168,6 @@
 				</template>
 			</a-table>
 			<ShopOrderDetailInfo
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailInfo>
@@ -197,6 +196,7 @@ const isValidList = computed(() => getDictByType('is_valid'));
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -232,7 +232,10 @@ const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getShopOrderListPage(searchInfo.value, pagination);
 };
 
@@ -244,9 +247,9 @@ const handleTableChange = (paginationInfo: PageInfo): void => {
 const delShopOrder = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopOrder(ids);
 	if (code === '200') {
-		message.success(('删除' + messageInfo) || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		rowIds.value = [];
-		getShopOrderListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -267,18 +270,20 @@ const getShopOrderListPage = async (
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const { code, data, message: messageInfo } = await getShopOrderPage(
-		param,
-		cur.current,
-		cur.pageSize,
-	).finally(() => {
+	try {
+		const { code, data, message: messageInfo } = await getShopOrderPage(
+			param,
+			cur.current,
+			cur.pageSize,
+		);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
@@ -289,13 +294,9 @@ const init = (): void => {
 
 //新增和修改弹窗
 const editShopOrder = (type: string, id?: string): void => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : (id ?? null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

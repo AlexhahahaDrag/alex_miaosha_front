@@ -124,7 +124,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -178,7 +178,6 @@
 				</template>
 			</a-table>
 			<ShopOrderDetailDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopOrderDetailDetail>
@@ -201,6 +200,7 @@ import { message } from 'ant-design-vue';
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -244,7 +244,10 @@ const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
@@ -253,15 +256,14 @@ const handleTableChange = (pagination: PageInfo): void => {
 	getShopOrderDetailListPage(searchInfo.value, pagination);
 };
 
-const delShopOrderDetail = (ids: string): void => {
-	deleteShopOrderDetail(ids).then((res) => {
-		if (res.code === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopOrderDetailListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopOrderDetail = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopOrderDetail(ids);
+	if (code === '200') {
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		query(true);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
 };
 
 const batchDelShopOrderDetail = (): void => {
@@ -280,20 +282,22 @@ const cancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
-const getShopOrderDetailListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getShopOrderDetailListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopOrderDetailPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code === '200') {
-				dataSource.value = res.data?.records;
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		const res = await getShopOrderDetailPage(param, cur.current, cur.pageSize);
+		if (res.code === '200') {
+			dataSource.value = res.data?.records;
+			setTotal(res.data?.total || 0);
+		} else {
+			message.error((res && res.message) || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
 };
 
 const init = (): void => {
@@ -307,13 +311,9 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopOrderDetail = (type: string, id?: number): void => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

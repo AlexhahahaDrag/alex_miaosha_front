@@ -61,7 +61,7 @@
 						</a-form-item>
 						<a-form-item>
 							<a-space>
-								<a-button type="primary" @click="query()">查找</a-button>
+								<a-button type="primary" @click="() => query()">查找</a-button>
 								<a-button @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-form-item>
@@ -153,10 +153,9 @@
 				</a-table>
 			</div>
 			<org-info-detail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				:treeData="treeData"
-				@success="handleSuccess"
+				@success="() => handleSuccess()"
 			></org-info-detail>
 		</div>
 	</div>
@@ -342,14 +341,10 @@ const getOrgTreeData = async () => {
 };
 
 //新增和修改弹窗
-function editOrgInfo(type: string, id?: string) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+function editOrgInfo(type: string, id?: number | string) {
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : id ?? null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

@@ -59,7 +59,7 @@
 						</a-col>
 						<a-col :span="20" class="actions-col">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -152,7 +152,6 @@
 				</template>
 			</a-table>
 			<ShopFinanceDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopFinanceDetail>
@@ -228,11 +227,12 @@ const query = (resetPage = false) => {
 	if (resetPage) {
 		resetPagination();
 	}
-	searchInfo.value.saleDateFrom =
-		saleDateFrom.value ? formatDate(saleDateFrom.value) : null;
-	searchInfo.value.saleDateEnd =
-		saleDateEnd.value ? formatDate(saleDateEnd.value) : null;
-	getShopFinanceListPage(searchInfo.value, pagination);
+	const params = {
+		...searchInfo.value,
+		saleDateFrom: saleDateFrom.value ? formatDate(saleDateFrom.value) : null,
+		saleDateEnd: saleDateEnd.value ? formatDate(saleDateEnd.value) : null,
+	};
+	getShopFinanceListPage(params, pagination);
 };
 
 const handleTableChange = (paginationInfo: PageInfo) => {
@@ -243,7 +243,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 const delShopFinance = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopFinance(ids);
 	if (code === '200') {
-		message.success('删除' + messageInfo || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		selectedRowIds.value = [];
 		query(true);
 	} else {
@@ -266,18 +266,20 @@ const getShopFinanceListPage = async (
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getShopFinancePage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopFinancePage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = (data?.records || []) as ShopFinanceData[];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = (data?.records || []) as ShopFinanceData[];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
@@ -294,13 +296,9 @@ const init = () => {
 
 //新增和修改弹窗
 const editShopFinance = (type: string, id?: string) => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : (id ?? null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

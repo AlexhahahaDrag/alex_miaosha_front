@@ -85,7 +85,6 @@
 			</a-table>
 		</div>
 		<personal-gift-detail
-			ref="editInfo"
 			v-model:modelInfo="modelInfo"
 			@success="handleSuccess"
 		></personal-gift-detail>
@@ -125,6 +124,7 @@ const actionMap = computed(() => {
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -165,7 +165,10 @@ const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPersonalGiftListPage(searchInfo.value, pagination);
 };
 
@@ -177,8 +180,8 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 const noticePersonalInfo = async (id: string): Promise<void> => {
 	const { code, message: messageInfo } = await noticePersonalGift(id);
 	if (code === '200') {
-		message.success(messageInfo || '通知成功！', 3);
-		getPersonalGiftListPage(searchInfo.value, pagination);
+		message.success(messageInfo ? `通知${messageInfo}` : '通知成功！', 3);
+		query(true);
 	} else {
 		message.error(messageInfo || '通知失败！', 3);
 	}
@@ -188,8 +191,8 @@ const noticePersonalInfo = async (id: string): Promise<void> => {
 const delPersonalGift = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deletePersonalGift(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
-		getPersonalGiftListPage(searchInfo.value, pagination);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -210,8 +213,8 @@ const customImportRequest = async (info: unknown): Promise<void> => {
 	formData.append('file', (info as { file: File }).file);
 	const { code, message: messageInfo } = await importPersonalGift(formData);
 	if (code === '200') {
-		message.success(messageInfo || '导入成功！', 3);
-		getPersonalGiftListPage(searchInfo.value, pagination);
+		message.success(messageInfo ? `导入${messageInfo}` : '导入成功！', 3);
+		query(true);
 	} else {
 		message.error(messageInfo || '导入失败！', 3);
 	}
@@ -226,33 +229,30 @@ const getPersonalGiftListPage = async (
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getPersonalGiftPage(param, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPersonalGiftPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 //新增和修改弹窗
 const editPersonalGift = (type: string, id?: string): void => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
-	modelInfo.value = { ...modelInfo.value, confirmLoading: true, open: true };
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
+	modelInfo.value.confirmLoading = true;
+	modelInfo.value.open = true;
 };
 
 // 保存个人随礼信息表信息

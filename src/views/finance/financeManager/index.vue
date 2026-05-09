@@ -95,7 +95,7 @@
 			</a-table>
 			<finance-manager-detail
 				v-model:modelInfo="modelInfo"
-				@success="query"
+				@success="() => query()"
 			></finance-manager-detail>
 		</div>
 	</div>
@@ -168,7 +168,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 const delFinance = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteFinanceManger(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		selectedRowIds.value = [];
 		query(true);
 	} else {
@@ -189,40 +189,33 @@ const cancel = () => {};
 
 const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 	loading.value = true;
-	const queryParam = {
-		...param,
-		infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
-		infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
-	};
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getFinanceMangerPage(queryParam, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
-	if (code === '200') {
-		const curData = data;
-		dataSource.value = curData?.records || [];
-		pagination.current = curData?.current || 1;
-		pagination.pageSize = curData?.size || 10;
-		setTotal(curData?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
+	try {
+		const queryParam = {
+			...param,
+			infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
+			infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
+		};
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getFinanceMangerPage(queryParam, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 //新增和修改弹窗
 const editFinance = (type: string, id?: string) => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : id ?? null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

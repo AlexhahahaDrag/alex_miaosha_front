@@ -74,7 +74,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" class="actions-col">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -126,7 +126,6 @@
 				</template>
 			</a-table>
 			<ShopCartDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopCartDetail>
@@ -146,6 +145,7 @@ import { message } from 'ant-design-vue';
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -179,7 +179,10 @@ const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getShopCartListPage(searchInfo.value, pagination);
 };
 
@@ -191,9 +194,9 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 const delShopCart = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopCart(ids);
 	if (code === '200') {
-		message.success('删除' + messageInfo || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		rowIds.value = [];
-		getShopCartListPage(searchInfo.value, pagination);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -214,28 +217,24 @@ const getShopCartListPage = async (
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const res = await getShopCartPage(param, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
-	if (res.code === '200') {
-		dataSource.value = res.data?.records || [];
-		setTotal(res.data?.total || 0);
-	} else {
-		message.error((res && res.message) || '查询列表失败！');
+	try {
+		const res = await getShopCartPage(param, cur.current, cur.pageSize);
+		if (res.code === '200') {
+			dataSource.value = res.data?.records || [];
+			setTotal(res.data?.total || 0);
+		} else {
+			message.error((res && res.message) || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 //新增和修改弹窗
 const editShopCart = (type: string, id?: string): void => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

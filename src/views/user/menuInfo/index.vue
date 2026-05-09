@@ -144,7 +144,9 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query(true)">查找</a-button>
+								<a-button type="primary" @click="() => query(true)"
+									>查找</a-button
+								>
 								<a-button @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -158,15 +160,17 @@
 					v-permission="'menu:add'"
 					type="primary"
 					@click="editMenuInfo('add')"
-					>新增</a-button
 				>
+					新增
+				</a-button>
 				<a-button
 					v-permission="'menu:delete'"
 					type="primary"
 					danger
 					@click="batchDelMenuInfo"
-					>删除</a-button
 				>
+					删除
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -215,9 +219,8 @@
 
 			<!-- 自定义组件使用 kebab-case 命名 -->
 			<menu-info-detail
-				ref="editInfo"
 				v-model:model-info="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></menu-info-detail>
 
 			<sub-menu-manager
@@ -293,7 +296,7 @@ const cancelQuery = () => {
 const delMenuInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteMenuInfo(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！');
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！');
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！');
@@ -309,20 +312,13 @@ const batchDelMenuInfo = () => {
 };
 
 const editMenuInfo = (type: string, id?: string) => {
-	if (type === 'add') {
-		modelInfo.value = {
-			title: '新增明细',
-			open: true,
-			id: undefined,
-			parentId: '0',
-		};
-	} else if (type === 'update') {
-		modelInfo.value = {
-			title: '修改明细',
-			open: true,
-			id: id ?? null,
-		};
-	}
+	const isAdd = type === 'add';
+	modelInfo.value = {
+		title: isAdd ? '新增明细' : '修改明细',
+		open: true,
+		id: isAdd ? undefined : (id ?? null),
+		parentId: isAdd ? '0' : undefined,
+	};
 };
 
 const openSubMenuManager = (record: MenuInfoData) => {
@@ -333,9 +329,7 @@ const openSubMenuManager = (record: MenuInfoData) => {
 	};
 };
 
-const handleSuccess = () => {
-	query(false);
-};
+// 移除冗余的 handleSuccess 函数
 
 const triggerDebouncedQuery = debounce(() => {
 	query(true);

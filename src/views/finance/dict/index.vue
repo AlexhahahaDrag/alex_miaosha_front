@@ -28,7 +28,7 @@
 						</a-col>
 						<a-col :span="6">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -88,7 +88,6 @@
 				</template>
 			</a-table>
 			<DictDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			>
@@ -120,6 +119,7 @@ const modelInfo = ref<ModelInfo>({});
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -149,7 +149,10 @@ function cancelQuery() {
 	searchInfo.value = {};
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getDictPage(searchInfo.value, pagination);
 }
 
@@ -159,14 +162,10 @@ function handleTableChange(pagination: PageInfo) {
 }
 
 const delDict = async (ids: string) => {
-	const { code, message: messageInfo } = await deleteDictManager(ids).catch(
-		(error: any) => {
-			return error;
-		},
-	);
+	const { code, message: messageInfo } = await deleteDictManager(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
-		getDictPage(searchInfo.value, pagination);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
 	}
@@ -186,30 +185,28 @@ const cancel = (e: MouseEvent) => {
 
 const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getDictManagerPage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getDictManagerPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
 //新增和修改弹窗
 function editDict(type: string, id?: number) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id ?? null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

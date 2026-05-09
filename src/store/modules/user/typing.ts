@@ -1,37 +1,21 @@
-import type { Nullable } from '@/types/global';
-import type { UserInfo } from '@/types/store';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
+import type { UserManagerInfo } from '@/views/user/userManager/config';
 import type { PermissionContext } from '@/utils/permission';
 
 export interface UserState {
 	id?: string;
-	userInfo: Nullable<UserInfo>;
+	userInfo: UserManagerInfo;
 	token?: string;
 	roleList: RoleInfoData[];
 	sessionTimeout?: boolean;
 	lastUpdateTime: number;
-	menuInfo: MenuInfo[] | null;
+	menuInfo: MenuInfoData[] | null;
 	hasMenu: boolean;
-	roleInfo: RoleInfoData;
-	orgInfo: any;
+	roleInfo: RoleInfoData[];
+	orgInfo: OrgInfoData;
 	permissionContext: PermissionContext | null;
-}
-
-export interface MenuInfo {
-	id: string;
-	name: string;
-	path: string;
-	title: string;
-	component: string;
-	redirect: string;
-	icon: string;
-	hideInMenu: string;
-	showInHome: string;
-	parentId: string;
-	summary: string;
-	status: string;
-	children: MenuInfo[];
-	permissionCode: string;
 }
 
 export function getAuthInfo(type: string) {

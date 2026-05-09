@@ -34,7 +34,7 @@
 						</a-col>
 						<a-col style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query(true)"> 查找</a-button>
+								<a-button type="primary" @click="() => query(true)"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -111,18 +111,16 @@
 				</template>
 			</a-table>
 			<role-info-detail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></role-info-detail>
 			<authorization-detail
-				ref="authorizationInfo"
 				v-model:modelInfo="authModelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></authorization-detail>
 			<user-assignment-detail
 				v-model:modelInfo="userAssignModelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></user-assignment-detail>
 		</div>
 	</div>
@@ -199,7 +197,7 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 const delRoleInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteRoleInfo(ids);
 	if (code === '200') {
-		message.success(messageInfo || '删除成功！', 3);
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		// 刷新列表
 		query(true);
 	} else {
@@ -221,20 +219,14 @@ const cancel = (e: MouseEvent) => {
 
 //新增和修改弹窗
 const editRoleInfo = (type: string, id?: string) => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? undefined;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id ?? undefined;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };
 
-const handleSuccess = () => {
-	query(false);
-};
+// 移除冗余的 handleSuccess 函数
 
 const roleAuthorizationInfo = (id: string) => {
 	authModelInfo.value.open = true;
@@ -250,18 +242,20 @@ const roleUserAssignmentInfo = (id: string) => {
 
 const getRoleInfoListPage = async (param: RoleInfoData, cur: PageInfo) => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getRoleInfoPage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getRoleInfoPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 

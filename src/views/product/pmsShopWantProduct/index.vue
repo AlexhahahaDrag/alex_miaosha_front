@@ -43,7 +43,7 @@
 						</a-col>
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -115,9 +115,8 @@
 				</template>
 			</a-table>
 			<PmsShopWantProductDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			>
 			</PmsShopWantProductDetail>
 		</div>
@@ -147,6 +146,7 @@ import { message } from 'ant-design-vue';
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -175,7 +175,10 @@ function cancelQuery() {
 	query();
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsShopWantProductListPage(searchInfo.value, pagination);
 }
 
@@ -190,7 +193,7 @@ async function delPmsShopWantProduct(ids: string) {
 		if (code === '200') {
 			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 			rowIds.value = [];
-			getPmsShopWantProductListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error(messageInfo || '删除失败！', 3);
 		}
@@ -214,39 +217,33 @@ const getPmsShopWantProductListPage = async (
 	cur: PageInfo,
 ) => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getPmsShopWantProductPage(param, cur.current, cur.pageSize).finally(
-		() => {
-			loading.value = false;
-		},
-	);
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsShopWantProductPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
 	}
 };
 
 //新增和修改弹窗
 function editPmsShopWantProduct(type: string, id?: string) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = null;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? null;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? null : id ?? null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
 
-const handleSuccess = () => {
-	getPmsShopWantProductListPage(searchInfo.value, pagination);
-};
+// 移除冗余的 handleSuccess 函数
 
 const initPage = () => {
 	pagination.current = 1;

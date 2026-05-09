@@ -49,7 +49,7 @@
 						</a-col>
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -154,9 +154,8 @@
 				</template>
 			</a-table>
 			<PmsShopProductDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			>
 			</PmsShopProductDetail>
 		</div>
@@ -218,7 +217,10 @@ function cancelQuery() {
 	searchInfo.value = {};
 }
 
-function query() {
+function query(resetPage = false) {
+	if (resetPage) {
+		resetPagination();
+	}
 	getPmsShopProductListPage(searchInfo.value, pagination);
 }
 
@@ -233,7 +235,7 @@ async function delPmsShopProduct(ids: string) {
 		if (code === '200') {
 			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 			rowIds.value = [];
-			getPmsShopProductListPage(searchInfo.value, pagination);
+			query(true);
 		} else {
 			message.error(messageInfo || '删除失败！', 3);
 		}
@@ -256,22 +258,20 @@ async function getPmsShopProductListPage(
 	cur: PageInfo,
 ) {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getNewestPmsShopProductPage(
-		param,
-		cur.current,
-		cur.pageSize,
-	).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getNewestPmsShopProductPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 }
 
@@ -282,20 +282,14 @@ const init = () => {
 
 //新增和修改弹窗
 function editPmsShopProduct(type: string, id?: string) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id ?? undefined;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id ?? undefined;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
 
-const handleSuccess = () => {
-	getPmsShopProductListPage(searchInfo.value, pagination);
-};
+// 移除冗余的 handleSuccess 函数
 
 onMounted(() => {
 	init();

@@ -21,7 +21,7 @@
 					<a-row :gutter="24">
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -73,9 +73,8 @@
 				</template>
 			</a-table>
 			<PmsCategoryDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></PmsCategoryDetail>
 		</div>
 	</div>
@@ -146,15 +145,18 @@ function handleTableChange(pagination: PageInfo) {
 	getPmsCategoryListPage(searchInfo.value, pagination);
 }
 
-function delPmsCategory(ids: string) {
-	deletePmsCategory(ids).then((res) => {
-		if (res.code === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
+async function delPmsCategory(ids: string) {
+	try {
+		const { code, message: messageInfo } = await deletePmsCategory(ids);
+		if (code === '200') {
+			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 			query(true);
 		} else {
-			message.error((res && res.message) || '删除失败！', 3);
+			message.error(messageInfo || '删除失败！', 3);
 		}
-	});
+	} catch {
+		message.error('删除失败，请稍后重试！', 3);
+	}
 }
 
 const batchDelPmsCategory = (): void => {
@@ -178,18 +180,20 @@ const getPmsCategoryListPage = async (
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getPmsCategoryPage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPmsCategoryPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = data?.records || [];
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
@@ -205,20 +209,14 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsCategory(type: string, id?: number) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
 
-const handleSuccess = () => {
-	query(false);
-};
+// 移除冗余的 handleSuccess 函数
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {

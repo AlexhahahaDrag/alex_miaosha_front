@@ -90,7 +90,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -144,7 +144,6 @@
 				</template>
 			</a-table>
 			<ShopStockAttrsDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
 				@success="handleSuccess"
 			></ShopStockAttrsDetail>
@@ -170,6 +169,7 @@ const { getDictByType } = useDictInfo('is_valid');
 const {
 	pagination,
 	handleTableChange: paginationChange,
+	resetPagination,
 	setTotal,
 } = usePagination();
 
@@ -213,7 +213,10 @@ const cancelQuery = (): void => {
 	searchInfo.value = {};
 };
 
-const query = (): void => {
+const query = (resetPage = false): void => {
+	if (resetPage) {
+		resetPagination();
+	}
 	getShopStockAttrsListPage(searchInfo.value, pagination);
 };
 
@@ -222,15 +225,14 @@ const handleTableChange = (pagination: PageInfo): void => {
 	getShopStockAttrsListPage(searchInfo.value, pagination);
 };
 
-const delShopStockAttrs = (ids: string): void => {
-	deleteShopStockAttrs(ids).then((res) => {
-		if (res.code === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			getShopStockAttrsListPage(searchInfo.value, pagination);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
+const delShopStockAttrs = async (ids: string): Promise<void> => {
+	const { code, message: messageInfo } = await deleteShopStockAttrs(ids);
+	if (code === '200') {
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		query(true);
+	} else {
+		message.error(messageInfo || '删除失败！', 3);
+	}
 };
 
 const batchDelShopStockAttrs = (): void => {
@@ -249,20 +251,22 @@ const cancel = (e: MouseEvent): void => {
 	console.log(e);
 };
 
-const getShopStockAttrsListPage = (param: SearchInfo, cur: PageInfo): void => {
+const getShopStockAttrsListPage = async (
+	param: SearchInfo,
+	cur: PageInfo,
+): Promise<void> => {
 	loading.value = true;
-	getShopStockAttrsPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code === '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+	try {
+		const res = await getShopStockAttrsPage(param, cur.current, cur.pageSize);
+		if (res.code === '200') {
+			dataSource.value = res.data?.records || [];
+			setTotal(res.data?.total || 0);
+		} else {
+			message.error((res && res.message) || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
 };
 
 const init = (): void => {
@@ -276,13 +280,9 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 const editShopStockAttrs = (type: string, id?: number): void => {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

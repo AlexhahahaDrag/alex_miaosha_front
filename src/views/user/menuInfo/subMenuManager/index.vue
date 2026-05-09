@@ -43,11 +43,9 @@
 			</template>
 		</a-table>
 
-		<!-- 复用主详情组件进行子菜单编辑 -->
 		<menu-info-detail
-			ref="subMenuEdit"
 			v-model:model-info="subMenuModelInfo"
-			@success="handleSuccess"
+			@success="() => getSubMenuList()"
 		></menu-info-detail>
 	</a-drawer>
 </template>
@@ -85,34 +83,26 @@ const handleTableChange = (paginationInfo: any) => {
 };
 
 const editSubMenu = (type: string, id?: string) => {
-	if (type === 'add') {
-		subMenuModelInfo.value = {
-			title: '新增子菜单',
-			open: true,
-			parentId: modelInfo.value.id,
-		};
-	} else {
-		subMenuModelInfo.value = {
-			title: '编辑子菜单',
-			open: true,
-			id: id,
-		};
-	}
+	const isAdd = type === 'add';
+	subMenuModelInfo.value = {
+		title: isAdd ? '新增子菜单' : '编辑子菜单',
+		open: true,
+		id: isAdd ? undefined : id,
+		parentId: isAdd ? modelInfo.value.id : undefined,
+	};
 };
 
 const delSubMenu = async (id: number) => {
 	const { code, message: messageInfo } = await deleteMenuInfo(String(id));
 	if (code === '200') {
-		message.success(messageInfo || '删除成功');
+		message.success(messageInfo ? `删除${messageInfo}` : '删除成功');
 		getSubMenuList();
 	} else {
 		message.error(messageInfo || '删除失败');
 	}
 };
 
-const handleSuccess = () => {
-	getSubMenuList();
-};
+// 移除冗余的 handleSuccess 函数
 
 const handleClose = () => {
 	dataSource.value = [];

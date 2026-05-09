@@ -4,8 +4,12 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
-import type { MenuInfo } from '@/store/modules/user/typing';
-import { buildPermissionSet, canAccessPermission, isSuperAdmin } from '@/utils/permission';
+import type { MenuInfoData } from '@/store/modules/user/typing';
+import {
+	buildPermissionSet,
+	canAccessPermission,
+	isSuperAdmin,
+} from '@/utils/permission';
 
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
@@ -56,15 +60,24 @@ let dynamicRouter: RouteRecordRaw[] = [];
 // ─── 工具函数（定义在使用之前）─────────────────────────────────────────────────
 
 /** 根据 permissionCode 判断是否有权限 */
-const judgePermission = (permissionSet: Set<string>, permissionCode: string | undefined, superAdmin: boolean): boolean =>
-	canAccessPermission(permissionSet, permissionCode, superAdmin);
+const judgePermission = (
+	permissionSet: Set<string>,
+	permissionCode: string | undefined,
+	superAdmin: boolean,
+): boolean => canAccessPermission(permissionSet, permissionCode, superAdmin);
 
-const judgeMenuPermission = (item: MenuInfo, permissionSet: Set<string>, superAdmin: boolean): boolean =>
+const judgeMenuPermission = (
+	item: MenuInfoData,
+	permissionSet: Set<string>,
+	superAdmin: boolean,
+): boolean =>
 	judgePermission(permissionSet, item.permissionCode, superAdmin) ||
-	!!item.children?.some((child) => judgeMenuPermission(child, permissionSet, superAdmin));
+	!!item.children?.some((child) =>
+		judgeMenuPermission(child, permissionSet, superAdmin),
+	);
 
 /** 根据 MenuInfo 解析对应的 Vue 组件 */
-const getComponent = (item: MenuInfo) => {
+const getComponent = (item: MenuInfoData) => {
 	if (!item.component) {
 		return modules['/src/views/common/error/Error404.vue'];
 	}
@@ -76,7 +89,7 @@ const getComponent = (item: MenuInfo) => {
 
 /** 递归将 MenuInfo 转换为 RouteRecordRaw */
 const buildRouteRecord = (
-	item: MenuInfo,
+	item: MenuInfoData,
 	permissionSet: Set<string>,
 	superAdmin: boolean,
 ): RouteRecordRaw => {
@@ -96,9 +109,11 @@ const buildRouteRecord = (
 	};
 
 	if (item.children?.length) {
-		item.children.forEach((childItem: MenuInfo) => {
+		item.children.forEach((childItem: MenuInfoData) => {
 			if (judgeMenuPermission(childItem, permissionSet, superAdmin)) {
-				routeInfo.children!.push(buildRouteRecord(childItem, permissionSet, superAdmin));
+				routeInfo.children!.push(
+					buildRouteRecord(childItem, permissionSet, superAdmin),
+				);
 			}
 		});
 	}
@@ -118,7 +133,7 @@ const addRouter = () => {
 
 	if (!superAdmin && !permissionSet.size) return;
 
-	userStore.getMenuInfo.forEach((item: MenuInfo) => {
+	userStore.getMenuInfo.forEach((item: MenuInfoData) => {
 		if (judgeMenuPermission(item, permissionSet, superAdmin)) {
 			const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
 			router.addRoute(newRoute);

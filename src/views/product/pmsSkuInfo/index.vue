@@ -21,7 +21,7 @@
 					<a-row :gutter="24">
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -73,9 +73,8 @@
 				</template>
 			</a-table>
 			<PmsSkuInfoDetail
-				ref="editInfo"
 				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
+				@success="() => query()"
 			></PmsSkuInfoDetail>
 		</div>
 	</div>
@@ -142,16 +141,15 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPmsSkuInfoListPage(searchInfo.value, pagination);
 };
 
-function delPmsSkuInfo(ids: string) {
-	deletePmsSkuInfo(ids).then((res) => {
-		if (res.code === '200') {
-			message.success((res && '删除' + res.message) || '删除成功！', 3);
-			query(true);
-		} else {
-			message.error((res && res.message) || '删除失败！', 3);
-		}
-	});
-}
+const delPmsSkuInfo = async (ids: string) => {
+	const res = await deletePmsSkuInfo(ids);
+	if (res.code === '200') {
+		message.success(res.message ? `删除${res.message}` : '删除成功！', 3);
+		query(true);
+	} else {
+		message.error(res.message || '删除失败！', 3);
+	}
+};
 
 function batchDelPmsSkuInfo() {
 	if (!rowIds?.length) {
@@ -169,21 +167,20 @@ const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
 
-function getPmsSkuInfoListPage(param: SearchInfo, cur: PageInfo) {
+const getPmsSkuInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 	loading.value = true;
-	getPmsSkuInfoPage(param, cur.current, cur.pageSize)
-		.then((res) => {
-			if (res.code === '200') {
-				dataSource.value = res.data?.records || [];
-				setTotal(res.data?.total || 0);
-			} else {
-				message.error((res && res.message) || '查询列表失败！');
-			}
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
+	try {
+		const res = await getPmsSkuInfoPage(param, cur.current, cur.pageSize);
+		if (res.code === '200') {
+			dataSource.value = res.data?.records || [];
+			setTotal(res.data?.total || 0);
+		} else {
+			message.error(res?.message || '查询列表失败！');
+		}
+	} finally {
+		loading.value = false;
+	}
+};
 
 // 初始化页面数据
 const init = () => {
@@ -197,20 +194,14 @@ const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
 function editPmsSkuInfo(type: string, id?: number) {
-	if (type === 'add') {
-		modelInfo.value.title = '新增明细';
-		modelInfo.value.id = undefined;
-	} else if (type === 'update') {
-		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
-	}
+	const isAdd = type === 'add';
+	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
+	modelInfo.value.id = isAdd ? undefined : id;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
 
-const handleSuccess = () => {
-	query(false);
-};
+// 移除冗余的 handleSuccess 函数
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {
