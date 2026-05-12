@@ -17,3 +17,12 @@ Current relevant Vite plugin setup:
 - `Components` uses `AntDesignVueResolver({ importStyle: 'less' })`
 - `Components` uses `IconsResolver` with prefix `my-i` and custom collections `my-menu-svg`, `my-finance-svg`, `my-soft-svg`
 - `Components` scans `src/components` and `src/layout`
+
+Gift management module notes:
+
+- Admin gift pages live under `src/views/finance/gift`.
+- Page order is significant and should match route/menu order: `dashboard`, `person`, `event`, `record`, `analysis`.
+- `src/views/finance/gift/api` contains API wrappers for person, relation, event, record, statistics, export, and mark-returned flows.
+- `src/views/finance/gift/config` contains shared table, filter, enum, form, and statistics configuration.
+- Return management is represented inside the record page instead of a standalone `return` page; graph analysis should treat `record` as the owner of return-marker UI.
+- Midscene smoke coverage for gift admin pages is declared in `tests/midscene/rbac/cases/smoke.json`.
