@@ -1,56 +1,74 @@
 [
-  {
-    "caseId": "RBAC-LOCAL-001",
-    "title": "普通角色登录后菜单过滤",
-    "persona": "rbac_readonly",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-002",
-    "title": "普通角色按钮显隐",
-    "persona": "rbac_readonly",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-003",
-    "title": "超管按钮全显",
-    "persona": "super_super",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-004",
-    "title": "刷新后路由恢复",
-    "persona": "rbac_user_manager",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-005",
-    "title": "机构页无用户绑定入口",
-    "persona": "super_super",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-006",
-    "title": "角色管理用户分配辅助入口生效",
-    "persona": "super_super",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-101",
-    "title": "用户分页查询",
-    "persona": "rbac_user_manager",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-201",
-    "title": "角色分页与筛选",
-    "persona": "rbac_user_manager",
-    "level": "smoke"
-  },
-  {
-    "caseId": "RBAC-LOCAL-301",
-    "title": "菜单 CRUD 与动态字段",
-    "persona": "super_super",
-    "level": "smoke"
-  }
+	{
+		"caseId": "RBAC-LOCAL-001",
+		"title": "普通角色登录后菜单过滤",
+		"persona": "rbac_readonly",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-002",
+		"title": "普通角色按钮显隐",
+		"persona": "rbac_readonly",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-003",
+		"title": "超管按钮全显",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-004",
+		"title": "刷新后路由恢复",
+		"persona": "rbac_user_manager",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-005",
+		"title": "机构页无用户绑定入口",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-006",
+		"title": "角色管理用户分配辅助入口生效",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-101",
+		"title": "用户分页查询",
+		"persona": "rbac_user_manager",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-201",
+		"title": "角色分页与筛选",
+		"persona": "rbac_user_manager",
+		"level": "smoke"
+	},
+	{
+		"caseId": "RBAC-LOCAL-301",
+		"title": "菜单 CRUD 与动态字段",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "GIFT-ADMIN-001",
+		"title": "礼尚往来管理端页面加载与顺序",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "GIFT-ADMIN-002",
+		"title": "礼金记录筛选与新增表单交互",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "GIFT-ADMIN-003",
+		"title": "礼尚往来查看与按钮权限显隐",
+		"persona": "rbac_user_manager",
+		"level": "smoke"
+	}
 ]
