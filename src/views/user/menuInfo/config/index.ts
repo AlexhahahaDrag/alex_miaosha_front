@@ -89,6 +89,7 @@ export interface MenuInfoData {
 	summary?: string;
 	status?: string;
 	orderBy?: string;
+	children?: MenuInfoData[];
 }
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({

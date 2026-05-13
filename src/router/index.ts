@@ -4,12 +4,14 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
-import type { MenuInfoData } from '@/store/modules/user/typing';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
 import {
 	buildPermissionSet,
 	canAccessPermission,
 	isSuperAdmin,
 } from '@/utils/permission';
+
+export type { MenuInfoData };
 
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
@@ -79,7 +81,7 @@ const judgeMenuPermission = (
 /** 根据 MenuInfo 解析对应的 Vue 组件 */
 const getComponent = (item: MenuInfoData) => {
 	if (!item.component) {
-		return modules['/src/views/common/error/Error404.vue'];
+		return modules['/src/views/error-404/index.vue'];
 	}
 	if (item.component === 'Layout') {
 		return Layout;
@@ -94,7 +96,7 @@ const buildRouteRecord = (
 	superAdmin: boolean,
 ): RouteRecordRaw => {
 	const routeInfo: RouteRecordRaw = {
-		path: item.path,
+		path: item.path ?? '',
 		component: getComponent(item),
 		redirect: item.redirect,
 		name: item.name,
@@ -123,7 +125,7 @@ const buildRouteRecord = (
 
 // ─── 动态路由注册 ──────────────────────────────────────────────────────────────
 
-const addRouter = () => {
+const addRouter = async () => {
 	const userStore = useUserStore();
 	if (!userStore.getMenuInfo?.length) return;
 
@@ -155,13 +157,12 @@ const addRouter = () => {
 	router.addRoute(catchAllRoute);
 	dynamicRouter.push(catchAllRoute);
 	routes.push(catchAllRoute as MenuDataItem);
-
 	userStore.changeRouteStatus(true);
 };
 
 // ─── 导航守卫 ──────────────────────────────────────────────────────────────────
 
-router.beforeEach((to: any, _from, next) => {
+router.beforeEach(async(to: any, _from, next) => {
 	const userStore = useUserStore();
 	NProgress.start();
 
@@ -170,7 +171,7 @@ router.beforeEach((to: any, _from, next) => {
 	} else if (userStore.getToken) {
 		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
-			addRouter();
+			await addRouter();
 			next({ ...to, replace: true });
 		} else {
 			next();

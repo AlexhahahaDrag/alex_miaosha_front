@@ -131,7 +131,7 @@ export const useUserStore = defineStore(
 					setOrgInfo(normalizedContext.orgInfo);
 					changeRouteStatus(false);
 					refreshRouter();
-					return admin;
+					return true;
 				} else {
 					message.error(messageInfo || '删除失败！', 3);
 				}
