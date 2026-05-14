@@ -12,6 +12,27 @@ export interface GiftPersonInfo {
 	createTime?: string;
 }
 
+export interface GiftPersonBusinessInfo extends GiftPersonInfo {
+	totalGiveAmount?: number;
+	totalReceiveAmount?: number;
+	netAmount?: number;
+	latestRecordTime?: string;
+	latestEventName?: string;
+	latestDirection?: GiftDirection;
+	pendingReturnAmount?: number;
+}
+
+export interface GiftPersonSummary {
+	personCount?: number;
+	yearTotalAmount?: number;
+	pendingReturnAmount?: number;
+}
+
+export interface GiftPersonProfile {
+	person?: GiftPersonBusinessInfo;
+	records?: GiftRecordInfo[];
+}
+
 export interface GiftPersonQuery {
 	keyword?: string;
 	relationType?: string;
@@ -27,6 +48,21 @@ export interface GiftEventInfo {
 	hostPersonId?: string | number;
 	remark?: string;
 	createTime?: string;
+}
+
+export interface GiftEventBusinessInfo extends GiftEventInfo {
+	participantCount?: number;
+	totalAmount?: number;
+	receiveAmount?: number;
+	giveAmount?: number;
+	eventStatus?: string;
+	locationText?: string;
+}
+
+export interface GiftEventSummary {
+	monthPendingCount?: number;
+	totalAmount?: number;
+	activePersonCount?: number;
 }
 
 export interface GiftEventQuery {
@@ -50,6 +86,20 @@ export interface GiftRecordInfo {
 	returnedFlag?: number;
 	remark?: string;
 	createTime?: string;
+	eventName?: string;
+	giverPersonName?: string;
+	receiverPersonName?: string;
+	personName?: string;
+	paymentMethod?: string;
+	handlerName?: string;
+}
+
+export interface GiftRecordSummary {
+	receiveAmount?: number;
+	giveAmount?: number;
+	returnAmount?: number;
+	netAmount?: number;
+	recordCount?: number;
 }
 
 export interface GiftRecordQuery {
@@ -63,6 +113,23 @@ export interface GiftRecordQuery {
 	payTimeEnd?: string;
 	amountMin?: number;
 	amountMax?: number;
+}
+
+export interface GiftAmountTrend {
+	label?: string;
+	giveAmount?: number;
+	receiveAmount?: number;
+}
+
+export interface GiftRankingItem {
+	name?: string;
+	amount?: number;
+	count?: number;
+}
+
+export interface GiftRelationDistribution {
+	relationType?: string;
+	count?: number;
 }
 
 export const giftDirectionOptions = [
@@ -101,7 +168,17 @@ export function directionColor(direction?: string) {
 	return 'default';
 }
 
+export function relationLabel(relation?: string) {
+	return (
+		giftRelationOptions.find((item) => item.value === relation)?.label || '-'
+	);
+}
+
+export function eventLabel(eventType?: string) {
+	return giftEventOptions.find((item) => item.value === eventType)?.label || '-';
+}
+
 export function money(value?: number | string) {
 	const amount = Number(value || 0);
-	return `￥${amount.toFixed(2)}`;
+	return `¥${amount.toFixed(2)}`;
 }

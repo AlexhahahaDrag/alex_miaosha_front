@@ -7,18 +7,28 @@ import {
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import type {
+	GiftAmountTrend,
+	GiftEventBusinessInfo,
 	GiftEventInfo,
 	GiftEventQuery,
+	GiftEventSummary,
+	GiftPersonBusinessInfo,
 	GiftPersonInfo,
+	GiftPersonProfile,
 	GiftPersonQuery,
+	GiftPersonSummary,
+	GiftRankingItem,
 	GiftRecordInfo,
 	GiftRecordQuery,
+	GiftRecordSummary,
+	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
 
 const giftApi = {
 	person: '/gift-person-info-t',
 	event: '/gift-event-info-t',
 	record: '/gift-record-info-t',
+	analysis: '/gift-analysis',
 };
 
 function pageUrl(base: string) {
@@ -42,6 +52,27 @@ export function getGiftPersonPage(
 		pageNum: pageNum || 1,
 		pageSize: pageSize || 10,
 	});
+}
+
+export function getGiftPersonBusinessPage(
+	params: GiftPersonQuery,
+	pageNum?: number | null,
+	pageSize?: number | null,
+): Promise<ResponseBody<CommonPageResult<GiftPersonBusinessInfo>>> {
+	return postData(`${baseUrl(giftApi.person)}/business-page`, params, {
+		pageNum: pageNum || 1,
+		pageSize: pageSize || 10,
+	});
+}
+
+export function getGiftPersonSummary(): Promise<ResponseBody<GiftPersonSummary>> {
+	return getDataOne(`${baseUrl(giftApi.person)}/summary`);
+}
+
+export function getGiftPersonProfile(
+	id: string | number,
+): Promise<ResponseBody<GiftPersonProfile>> {
+	return getDataOne(`${baseUrl(giftApi.person)}/profile`, { id });
 }
 
 export function getGiftPersonList(
@@ -83,6 +114,21 @@ export function getGiftEventPage(
 	});
 }
 
+export function getGiftEventBusinessPage(
+	params: GiftEventQuery,
+	pageNum?: number | null,
+	pageSize?: number | null,
+): Promise<ResponseBody<CommonPageResult<GiftEventBusinessInfo>>> {
+	return postData(`${baseUrl(giftApi.event)}/business-page`, params, {
+		pageNum: pageNum || 1,
+		pageSize: pageSize || 10,
+	});
+}
+
+export function getGiftEventSummary(): Promise<ResponseBody<GiftEventSummary>> {
+	return getDataOne(`${baseUrl(giftApi.event)}/summary`);
+}
+
 export function getGiftEventList(
 	params: GiftEventQuery = {},
 ): Promise<ResponseBody<GiftEventInfo[]>> {
@@ -122,6 +168,12 @@ export function getGiftRecordPage(
 	});
 }
 
+export function getGiftRecordSummary(
+	params: GiftRecordQuery,
+): Promise<ResponseBody<GiftRecordSummary>> {
+	return postData(`${baseUrl(giftApi.record)}/summary`, params);
+}
+
 export function getGiftRecordDetail(
 	id: string | number,
 ): Promise<ResponseBody<GiftRecordInfo>> {
@@ -158,4 +210,30 @@ export function markGiftReturned(
 	return putData(`${baseUrl(giftApi.record)}/mark-returned`, {}, {
 		receiveRecordId,
 	} as any);
+}
+
+export function getGiftAnalysisOverview(): Promise<ResponseBody<GiftRecordSummary>> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/overview`);
+}
+
+export function getGiftAnalysisTrend(): Promise<ResponseBody<GiftAmountTrend[]>> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/trend`);
+}
+
+export function getGiftAnalysisRelationDistribution(): Promise<
+	ResponseBody<GiftRelationDistribution[]>
+> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/relation-distribution`);
+}
+
+export function getGiftAnalysisEventRanking(): Promise<
+	ResponseBody<GiftRankingItem[]>
+> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/event-ranking`);
+}
+
+export function getGiftAnalysisPersonRanking(): Promise<
+	ResponseBody<GiftRankingItem[]>
+> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/person-ranking`);
 }

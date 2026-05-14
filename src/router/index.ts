@@ -11,8 +11,6 @@ import {
 	isSuperAdmin,
 } from '@/utils/permission';
 
-export type { MenuInfoData };
-
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
 	'!@/views/common/**/**.vue',
@@ -162,7 +160,7 @@ const addRouter = async () => {
 
 // ─── 导航守卫 ──────────────────────────────────────────────────────────────────
 
-router.beforeEach(async(to: any, _from, next) => {
+router.beforeEach(async (to: any, _from, next) => {
 	const userStore = useUserStore();
 	NProgress.start();
 

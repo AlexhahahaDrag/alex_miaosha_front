@@ -207,7 +207,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-import * as echarts from 'echarts';
+// import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import {
@@ -372,7 +372,7 @@ const initChart = () => {
 };
 
 onMounted(() => {
-	initChart();
+	// initChart();
 });
 </script>
 
