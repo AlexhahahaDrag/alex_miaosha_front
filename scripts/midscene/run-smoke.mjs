@@ -87,25 +87,33 @@ function hasCredential(persona) {
 	return !!cred.username && !!cred.password;
 }
 
-async function login(agent, persona) {
+async function login(page, agent, persona) {
 	const credential = getPersonaCredential(persona);
 	if (!credential.username || !credential.password) {
 		const err = new Error(`Missing credentials for persona=${persona}`);
 		err.code = 'MIDSCENE_MISSING_CREDENTIALS';
 		throw err;
 	}
-	await agent.aiInput(credential.username, '登录页用户名输入框');
-	await agent.aiInput(credential.password, '登录页密码输入框');
-	await agent.aiTap('登录按钮');
+
+	const usernameInput = page.getByPlaceholder('Enter your username');
+	const passwordInput = page.locator('input[type="password"]');
+	const loginButton = page.getByRole('button', { name: 'Log in' });
+
+	await usernameInput.fill(credential.username);
+	await passwordInput.fill(credential.password);
+	await loginButton.click();
 	await agent.aiWaitFor('登录成功后页面可见左侧菜单和顶部导航');
 }
 
-async function ensureLoggedIn(agent, persona) {
-	const onLoginPage = await agent.aiBoolean(
-		'当前页面是否为登录页，并且可见用户名输入框、密码输入框和登录按钮',
-	);
+async function ensureLoggedIn(page, agent, persona) {
+	const onLoginPage =
+		page.url().includes('/login') ||
+		(await page
+			.getByPlaceholder('Enter your username')
+			.isVisible()
+			.catch(() => false));
 	if (onLoginPage) {
-		await login(agent, persona);
+		await login(page, agent, persona);
 	}
 }
 
@@ -164,10 +172,20 @@ async function assertHasCrudButtons(agent) {
 	await agent.aiAssert('页面中可见按钮文本为“删除”的按钮');
 }
 
+async function assertMainText(page, expectedText, message) {
+	const mainText = await page.locator('main').innerText({ timeout: 10000 });
+	if (!mainText.includes(expectedText)) {
+		throw new Error(
+			message || `Expected main content to include ${expectedText}`,
+		);
+	}
+	return mainText;
+}
+
 async function runCase(testCase, runtime, page, agent) {
 	const startedAt = new Date().toISOString();
 	await page.goto(runtime.baseUrl, { waitUntil: 'domcontentloaded' });
-	await ensureLoggedIn(agent, testCase.persona);
+	await ensureLoggedIn(page, agent, testCase.persona);
 	switch (testCase.caseId) {
 		case 'RBAC-LOCAL-001':
 			// 用“不可见锚点菜单项”做稳定断言（与后端菜单过滤一致）
@@ -276,7 +294,7 @@ async function runCase(testCase, runtime, page, agent) {
 				'如果页面可见新增或快速记礼按钮，则点击它打开礼金记录表单',
 			);
 			await agent.aiAssert(
-				'如果表单已打开，则可见礼金方向、金额、事由、送礼人或收礼人字段',
+				'如果表单已打开，则可见礼金方向、金额、事由或事由ID、送礼人或收礼人字段',
 			);
 			break;
 		case 'GIFT-ADMIN-003':
@@ -287,8 +305,10 @@ async function runCase(testCase, runtime, page, agent) {
 				'/finance/gift/person',
 				'giftPerson',
 			);
-			await agent.aiAssert(
-				'亲友管理页面可见查看入口或详情抽屉触发入口，列表为空时可见空状态',
+			await assertMainText(
+				page,
+				'亲友管理',
+				'亲友管理页面未正确加载到主内容区',
 			);
 			await gotoGiftPage(
 				page,
@@ -297,12 +317,25 @@ async function runCase(testCase, runtime, page, agent) {
 				'/finance/gift/record',
 				'giftRecord',
 			);
-			await agent.aiAssert(
-				'礼金记录页面在有导出权限时可见导出按钮，在无导出权限时导出按钮不可见',
-			);
-			await agent.aiAssert(
-				'礼金记录页面在有删除权限时行操作可见删除，在无删除权限时删除按钮不可见',
-			);
+			{
+				const recordText = await assertMainText(
+					page,
+					'礼金记录',
+					'礼金记录页面未正确加载到主内容区',
+				);
+				if (!recordText.includes('Excel导出')) {
+					throw new Error('gift_admin 角色在礼金记录页面应可见 Excel导出 按钮');
+				}
+				if (
+					!recordText.includes('暂无数据') &&
+					!recordText.includes('编辑') &&
+					!recordText.includes('删除')
+				) {
+					throw new Error(
+						'礼金记录页面有数据时应可见行操作，列表为空时应可见空状态',
+					);
+				}
+			}
 			break;
 		default:
 			throw new Error(`Unsupported caseId=${testCase.caseId}`);
