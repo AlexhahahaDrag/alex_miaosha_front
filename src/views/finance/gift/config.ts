@@ -1,10 +1,11 @@
 export type GiftDirection = 'GIVE' | 'RECEIVE' | 'RETURN';
+export type GiftId = string;
 
 export interface GiftPersonInfo {
-	id?: string | number;
-	orgId?: string | number;
-	userId?: string | number;
-	bindUserId?: string | number;
+	id?: GiftId;
+	orgId?: GiftId;
+	userId?: GiftId;
+	bindUserId?: GiftId;
 	personName?: string;
 	phone?: string;
 	relationType?: string;
@@ -39,13 +40,13 @@ export interface GiftPersonQuery {
 }
 
 export interface GiftEventInfo {
-	id?: string | number;
-	orgId?: string | number;
-	userId?: string | number;
+	id?: GiftId;
+	orgId?: GiftId;
+	userId?: GiftId;
 	eventName?: string;
 	eventType?: string;
 	eventTime?: string;
-	hostPersonId?: string | number;
+	hostPersonId?: GiftId;
 	remark?: string;
 	createTime?: string;
 }
@@ -73,13 +74,13 @@ export interface GiftEventQuery {
 }
 
 export interface GiftRecordInfo {
-	id?: string | number;
-	orgId?: string | number;
-	userId?: string | number;
-	eventId?: string | number;
-	giverPersonId?: string | number;
-	receiverPersonId?: string | number;
-	relatedRecordId?: string | number;
+	id?: GiftId;
+	orgId?: GiftId;
+	userId?: GiftId;
+	eventId?: GiftId;
+	giverPersonId?: GiftId;
+	receiverPersonId?: GiftId;
+	relatedRecordId?: GiftId;
 	direction?: GiftDirection;
 	amount?: number;
 	payTime?: string;
@@ -104,9 +105,9 @@ export interface GiftRecordSummary {
 
 export interface GiftRecordQuery {
 	keyword?: string;
-	eventId?: string | number;
-	giverPersonId?: string | number;
-	receiverPersonId?: string | number;
+	eventId?: GiftId;
+	giverPersonId?: GiftId;
+	receiverPersonId?: GiftId;
 	direction?: GiftDirection;
 	returnStatus?: string;
 	payTimeStart?: string;
@@ -175,7 +176,9 @@ export function relationLabel(relation?: string) {
 }
 
 export function eventLabel(eventType?: string) {
-	return giftEventOptions.find((item) => item.value === eventType)?.label || '-';
+	return (
+		giftEventOptions.find((item) => item.value === eventType)?.label || '-'
+	);
 }
 
 export function money(value?: number | string) {

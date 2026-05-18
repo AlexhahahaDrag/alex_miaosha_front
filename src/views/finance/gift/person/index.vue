@@ -410,8 +410,8 @@ const save = async () => {
 	}
 };
 
-const remove = async (id: string | number) => {
-	const { code, message: msg } = await deleteGiftPerson(String(id));
+const remove = async (id: string) => {
+	const { code, message: msg } = await deleteGiftPerson(id);
 	if (code === '200') {
 		message.success('删除成功');
 		query(true);

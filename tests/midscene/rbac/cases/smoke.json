@@ -70,5 +70,95 @@
 		"title": "礼尚往来查看与按钮权限显隐",
 		"persona": "rbac_user_manager",
 		"level": "smoke"
+	},
+	{
+		"caseId": "GIFT-BUTTON-ADMIN-001",
+		"title": "礼尚往来管理员按钮权限矩阵",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-USER-001",
+		"title": "礼尚往来普通用户按钮权限矩阵",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-DASHBOARD-ADMIN-001",
+		"title": "数据概览按钮权限 - 管理员",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-DASHBOARD-USER-001",
+		"title": "数据概览按钮权限 - 普通用户",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-PERSON-ADMIN-001",
+		"title": "亲友管理按钮权限 - 管理员",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-PERSON-USER-001",
+		"title": "亲友管理按钮权限 - 普通用户",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-EVENT-ADMIN-001",
+		"title": "事由管理按钮权限 - 管理员",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-EVENT-USER-001",
+		"title": "事由管理按钮权限 - 普通用户",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-RECORD-ADMIN-001",
+		"title": "礼金记录按钮权限 - 管理员",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-RECORD-USER-001",
+		"title": "礼金记录按钮权限 - 普通用户",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-ANALYSIS-ADMIN-001",
+		"title": "统计报表按钮权限 - 管理员",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-BUTTON-ANALYSIS-USER-001",
+		"title": "统计报表按钮权限 - 普通用户",
+		"persona": "rbac_readonly",
+		"level": "button"
+	},
+	{
+		"caseId": "GIFT-PC-PERSON-CRUD-001",
+		"title": "PC 亲友管理新增查询详情删除闭环",
+		"persona": "rbac_user_manager",
+		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-PC-EVENT-CRUD-001",
+		"title": "PC 事由管理新增查询删除闭环",
+		"persona": "rbac_user_manager",
+		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-PC-EXPORT-001",
+		"title": "PC 礼金记录导出行为",
+		"persona": "rbac_user_manager",
+		"level": "flow"
 	}
 ]

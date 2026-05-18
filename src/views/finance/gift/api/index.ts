@@ -24,6 +24,8 @@ import type {
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
 
+const giftIdKeys = new Set(['id', 'creator', 'updater', 'operator', 'deleter']);
+
 const giftApi = {
 	person: '/gift-person-info-t',
 	event: '/gift-event-info-t',
@@ -43,15 +45,56 @@ function baseUrl(base: string) {
 	return `${baseService.finance}${base}`;
 }
 
+function shouldNormalizeGiftId(key: string) {
+	return giftIdKeys.has(key) || key.endsWith('Id');
+}
+
+function normalizeGiftIds<T>(value: T): T {
+	if (Array.isArray(value)) {
+		return value.map((item) => normalizeGiftIds(item)) as T;
+	}
+	if (!value || typeof value !== 'object') {
+		return value;
+	}
+	const source = value as Record<string, unknown>;
+	const normalized: Record<string, unknown> = {};
+	Object.keys(source).forEach((key) => {
+		const item = source[key];
+		if (
+			shouldNormalizeGiftId(key) &&
+			(typeof item === 'number' || typeof item === 'bigint')
+		) {
+			normalized[key] = String(item);
+			return;
+		}
+		normalized[key] = normalizeGiftIds(item);
+	});
+	return normalized as T;
+}
+
+function normalizeGiftResponse<T>(response: ResponseBody<T>): ResponseBody<T> {
+	if (!response.data) {
+		return response;
+	}
+	return {
+		...response,
+		data: normalizeGiftIds(response.data),
+	};
+}
+
 export function getGiftPersonPage(
 	params: GiftPersonQuery,
 	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<GiftPersonInfo>>> {
-	return postData(pageUrl(giftApi.person), params, {
-		pageNum: pageNum || 1,
-		pageSize: pageSize || 10,
-	});
+	return postData<CommonPageResult<GiftPersonInfo>>(
+		pageUrl(giftApi.person),
+		normalizeGiftIds(params),
+		{
+			pageNum: pageNum || 1,
+			pageSize: pageSize || 10,
+		},
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftPersonBusinessPage(
@@ -59,44 +102,60 @@ export function getGiftPersonBusinessPage(
 	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<GiftPersonBusinessInfo>>> {
-	return postData(`${baseUrl(giftApi.person)}/business-page`, params, {
-		pageNum: pageNum || 1,
-		pageSize: pageSize || 10,
-	});
+	return postData<CommonPageResult<GiftPersonBusinessInfo>>(
+		`${baseUrl(giftApi.person)}/business-page`,
+		normalizeGiftIds(params),
+		{
+			pageNum: pageNum || 1,
+			pageSize: pageSize || 10,
+		},
+	).then(normalizeGiftResponse);
 }
 
-export function getGiftPersonSummary(): Promise<ResponseBody<GiftPersonSummary>> {
+export function getGiftPersonSummary(): Promise<
+	ResponseBody<GiftPersonSummary>
+> {
 	return getDataOne(`${baseUrl(giftApi.person)}/summary`);
 }
 
 export function getGiftPersonProfile(
-	id: string | number,
+	id: string,
 ): Promise<ResponseBody<GiftPersonProfile>> {
-	return getDataOne(`${baseUrl(giftApi.person)}/profile`, { id });
+	return getDataOne<GiftPersonProfile>(`${baseUrl(giftApi.person)}/profile`, {
+		id,
+	}).then(normalizeGiftResponse);
 }
 
 export function getGiftPersonList(
 	params: GiftPersonQuery = {},
 ): Promise<ResponseBody<GiftPersonInfo[]>> {
-	return postData(listUrl(giftApi.person), params);
+	return postData<GiftPersonInfo[]>(
+		listUrl(giftApi.person),
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftPersonDetail(
-	id: string | number,
+	id: string,
 ): Promise<ResponseBody<GiftPersonInfo>> {
-	return getDataOne(baseUrl(giftApi.person), { id });
+	return getDataOne<GiftPersonInfo>(baseUrl(giftApi.person), { id }).then(
+		normalizeGiftResponse,
+	);
 }
 
 export function addGiftPerson(
 	params: GiftPersonInfo,
 ): Promise<ResponseBody<GiftPersonInfo>> {
-	return postData(baseUrl(giftApi.person), params);
+	return postData<GiftPersonInfo>(
+		baseUrl(giftApi.person),
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
 }
 
 export function updateGiftPerson(
 	params: GiftPersonInfo,
 ): Promise<ResponseBody<boolean>> {
-	return putData(baseUrl(giftApi.person), params);
+	return putData<boolean>(baseUrl(giftApi.person), normalizeGiftIds(params));
 }
 
 export function deleteGiftPerson(ids: string): Promise<ResponseBody<boolean>> {
@@ -108,10 +167,14 @@ export function getGiftEventPage(
 	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<GiftEventInfo>>> {
-	return postData(pageUrl(giftApi.event), params, {
-		pageNum: pageNum || 1,
-		pageSize: pageSize || 10,
-	});
+	return postData<CommonPageResult<GiftEventInfo>>(
+		pageUrl(giftApi.event),
+		normalizeGiftIds(params),
+		{
+			pageNum: pageNum || 1,
+			pageSize: pageSize || 10,
+		},
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftEventBusinessPage(
@@ -119,10 +182,14 @@ export function getGiftEventBusinessPage(
 	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<GiftEventBusinessInfo>>> {
-	return postData(`${baseUrl(giftApi.event)}/business-page`, params, {
-		pageNum: pageNum || 1,
-		pageSize: pageSize || 10,
-	});
+	return postData<CommonPageResult<GiftEventBusinessInfo>>(
+		`${baseUrl(giftApi.event)}/business-page`,
+		normalizeGiftIds(params),
+		{
+			pageNum: pageNum || 1,
+			pageSize: pageSize || 10,
+		},
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftEventSummary(): Promise<ResponseBody<GiftEventSummary>> {
@@ -132,25 +199,33 @@ export function getGiftEventSummary(): Promise<ResponseBody<GiftEventSummary>> {
 export function getGiftEventList(
 	params: GiftEventQuery = {},
 ): Promise<ResponseBody<GiftEventInfo[]>> {
-	return postData(listUrl(giftApi.event), params);
+	return postData<GiftEventInfo[]>(
+		listUrl(giftApi.event),
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftEventDetail(
-	id: string | number,
+	id: string,
 ): Promise<ResponseBody<GiftEventInfo>> {
-	return getDataOne(baseUrl(giftApi.event), { id });
+	return getDataOne<GiftEventInfo>(baseUrl(giftApi.event), { id }).then(
+		normalizeGiftResponse,
+	);
 }
 
 export function addGiftEvent(
 	params: GiftEventInfo,
 ): Promise<ResponseBody<GiftEventInfo>> {
-	return postData(baseUrl(giftApi.event), params);
+	return postData<GiftEventInfo>(
+		baseUrl(giftApi.event),
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
 }
 
 export function updateGiftEvent(
 	params: GiftEventInfo,
 ): Promise<ResponseBody<boolean>> {
-	return putData(baseUrl(giftApi.event), params);
+	return putData<boolean>(baseUrl(giftApi.event), normalizeGiftIds(params));
 }
 
 export function deleteGiftEvent(ids: string): Promise<ResponseBody<boolean>> {
@@ -162,34 +237,46 @@ export function getGiftRecordPage(
 	pageNum?: number | null,
 	pageSize?: number | null,
 ): Promise<ResponseBody<CommonPageResult<GiftRecordInfo>>> {
-	return postData(pageUrl(giftApi.record), params, {
-		pageNum: pageNum || 1,
-		pageSize: pageSize || 10,
-	});
+	return postData<CommonPageResult<GiftRecordInfo>>(
+		pageUrl(giftApi.record),
+		normalizeGiftIds(params),
+		{
+			pageNum: pageNum || 1,
+			pageSize: pageSize || 10,
+		},
+	).then(normalizeGiftResponse);
 }
 
 export function getGiftRecordSummary(
 	params: GiftRecordQuery,
 ): Promise<ResponseBody<GiftRecordSummary>> {
-	return postData(`${baseUrl(giftApi.record)}/summary`, params);
+	return postData<GiftRecordSummary>(
+		`${baseUrl(giftApi.record)}/summary`,
+		normalizeGiftIds(params),
+	);
 }
 
 export function getGiftRecordDetail(
-	id: string | number,
+	id: string,
 ): Promise<ResponseBody<GiftRecordInfo>> {
-	return getDataOne(baseUrl(giftApi.record), { id });
+	return getDataOne<GiftRecordInfo>(baseUrl(giftApi.record), { id }).then(
+		normalizeGiftResponse,
+	);
 }
 
 export function addGiftRecord(
 	params: GiftRecordInfo,
 ): Promise<ResponseBody<GiftRecordInfo>> {
-	return postData(baseUrl(giftApi.record), params);
+	return postData<GiftRecordInfo>(
+		baseUrl(giftApi.record),
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
 }
 
 export function updateGiftRecord(
 	params: GiftRecordInfo,
 ): Promise<ResponseBody<boolean>> {
-	return putData(baseUrl(giftApi.record), params);
+	return putData<boolean>(baseUrl(giftApi.record), normalizeGiftIds(params));
 }
 
 export function deleteGiftRecord(ids: string): Promise<ResponseBody<boolean>> {
@@ -197,7 +284,7 @@ export function deleteGiftRecord(ids: string): Promise<ResponseBody<boolean>> {
 }
 
 export function getPendingReturnAmount(
-	receiveRecordId: string | number,
+	receiveRecordId: string,
 ): Promise<ResponseBody<number>> {
 	return getDataOne(`${baseUrl(giftApi.record)}/pending-return-amount`, {
 		receiveRecordId,
@@ -205,18 +292,22 @@ export function getPendingReturnAmount(
 }
 
 export function markGiftReturned(
-	receiveRecordId: string | number,
+	receiveRecordId: string,
 ): Promise<ResponseBody<boolean>> {
 	return putData(`${baseUrl(giftApi.record)}/mark-returned`, {}, {
 		receiveRecordId,
 	} as any);
 }
 
-export function getGiftAnalysisOverview(): Promise<ResponseBody<GiftRecordSummary>> {
+export function getGiftAnalysisOverview(): Promise<
+	ResponseBody<GiftRecordSummary>
+> {
 	return getDataOne(`${baseUrl(giftApi.analysis)}/overview`);
 }
 
-export function getGiftAnalysisTrend(): Promise<ResponseBody<GiftAmountTrend[]>> {
+export function getGiftAnalysisTrend(): Promise<
+	ResponseBody<GiftAmountTrend[]>
+> {
 	return getDataOne(`${baseUrl(giftApi.analysis)}/trend`);
 }
 

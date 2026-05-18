@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import { chromium } from 'playwright';
@@ -102,7 +102,36 @@ async function login(page, agent, persona) {
 	await usernameInput.fill(credential.username);
 	await passwordInput.fill(credential.password);
 	await loginButton.click();
-	await agent.aiWaitFor('登录成功后页面可见左侧菜单和顶部导航');
+	await page
+		.waitForURL((url) => !url.hash.includes('/login'), {
+			timeout: 15000,
+			waitUntil: 'domcontentloaded',
+		})
+		.catch(() => undefined);
+	const stillOnLoginPage =
+		page.url().includes('/login') ||
+		(await page
+			.getByPlaceholder('Enter your username')
+			.isVisible()
+			.catch(() => false)) ||
+		(await page
+			.locator('body')
+			.innerText({ timeout: 5000 })
+			.then((text) => text.includes('Alex 管理系统') && text.includes('Log in'))
+			.catch(() => false));
+	if (stillOnLoginPage) {
+		throw new Error(
+			`Login failed for persona=${persona}. Please verify backend API and credentials before running gift button cases.`,
+		);
+	}
+	await page
+		.locator('body')
+		.waitFor({ state: 'visible', timeout: 10000 })
+		.catch(() => undefined);
+	const pageText = await page.locator('body').innerText({ timeout: 10000 });
+	if (!pageText.includes('首页') || !pageText.includes('财务管理')) {
+		throw new Error('登录后未检测到后台左侧菜单和顶部导航');
+	}
 }
 
 async function ensureLoggedIn(page, agent, persona) {
@@ -145,6 +174,36 @@ async function gotoGiftPage(page, agent, runtime, routePath, pageName) {
 	await page.goto(`${runtime.baseUrl}/#${routePath}`, {
 		waitUntil: 'domcontentloaded',
 	});
+	const pageTitleMap = {
+		giftDashboard: '财务概览',
+		giftPerson: '亲友管理',
+		giftEvent: '事由管理',
+		giftRecord: '礼金记录',
+		giftAnalysis: '统计报表',
+	};
+	const expectedTitle = pageTitleMap[pageName];
+	if (expectedTitle) {
+		try {
+			await assertMainText(
+				page,
+				expectedTitle,
+				`${expectedTitle} 页面未正确加载到主内容区`,
+			);
+		} catch (error) {
+			const menuItem = page.locator(`.ant-menu-item[title="${expectedTitle}"]`);
+			if ((await menuItem.count()) === 1) {
+				await menuItem.click();
+				await assertMainText(
+					page,
+					expectedTitle,
+					`${expectedTitle} 页面未正确加载到主内容区`,
+				);
+			} else {
+				throw error;
+			}
+		}
+		return;
+	}
 	await agent.aiWaitFor(pageAnchor(pageName));
 }
 
@@ -173,7 +232,16 @@ async function assertHasCrudButtons(agent) {
 }
 
 async function assertMainText(page, expectedText, message) {
-	const mainText = await page.locator('main').innerText({ timeout: 10000 });
+	const main = page.locator('main');
+	const deadline = Date.now() + 15000;
+	let mainText = '';
+	while (Date.now() < deadline) {
+		mainText = await main.innerText({ timeout: 5000 });
+		if (mainText.includes(expectedText)) {
+			return mainText;
+		}
+		await page.waitForTimeout(300);
+	}
 	if (!mainText.includes(expectedText)) {
 		throw new Error(
 			message || `Expected main content to include ${expectedText}`,
@@ -182,8 +250,451 @@ async function assertMainText(page, expectedText, message) {
 	return mainText;
 }
 
+async function resetSession(page, runtime) {
+	await page.context().clearCookies();
+	await page.goto(runtime.baseUrl, { waitUntil: 'domcontentloaded' });
+	await page
+		.evaluate(() => {
+			localStorage.clear();
+			sessionStorage.clear();
+		})
+		.catch(() => undefined);
+	await page.goto(runtime.baseUrl, { waitUntil: 'domcontentloaded' });
+}
+
+function assertTextIncludes(text, expected, scopeName) {
+	if (!text.includes(expected)) {
+		throw new Error(`${scopeName} 应显示按钮或入口：${expected}`);
+	}
+}
+
+function assertTextExcludes(text, forbidden, scopeName) {
+	if (text.includes(forbidden)) {
+		throw new Error(`${scopeName} 不应显示按钮或入口：${forbidden}`);
+	}
+}
+
+function assertAnyText(text, expectedItems, scopeName) {
+	if (!expectedItems.some((item) => text.includes(item))) {
+		throw new Error(`${scopeName} 应至少显示：${expectedItems.join(' / ')}`);
+	}
+}
+
+async function assertVisibleDrawerButtons(page, expectedButtons, scopeName) {
+	const drawer = page.locator('.ant-drawer:visible');
+	await drawer.waitFor({ state: 'visible', timeout: 10000 });
+	for (const buttonName of expectedButtons) {
+		const count = await page.getByRole('button', { name: buttonName }).count();
+		if (count < 1) {
+			throw new Error(`${scopeName} 应显示按钮：${buttonName}`);
+		}
+	}
+	return drawer;
+}
+
+async function assertGiftAdminButtonMatrix(page, agent, runtime) {
+	await assertGiftDashboardAdminButtons(page, agent, runtime);
+	await assertGiftPersonAdminButtons(page, agent, runtime);
+	await assertGiftEventAdminButtons(page, agent, runtime);
+	await assertGiftRecordAdminButtons(page, agent, runtime);
+	await assertGiftAnalysisAdminButtons(page, agent, runtime);
+}
+
+async function assertGiftUserButtonMatrix(page, agent, runtime) {
+	await assertGiftDashboardUserButtons(page, agent, runtime);
+	await assertGiftPersonUserButtons(page, agent, runtime);
+	await assertGiftEventUserButtons(page, agent, runtime);
+	await assertGiftRecordUserButtons(page, agent, runtime);
+	await assertGiftAnalysisUserButtons(page, agent, runtime);
+}
+
+async function assertGiftDashboardAdminButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/dashboard',
+		'giftDashboard',
+	);
+	const text = await assertMainText(page, '财务概览');
+	for (const item of [
+		'+ 新增礼金记录',
+		'查看全部排行榜',
+		'全部记录 >',
+		'查看详细预测',
+	]) {
+		assertTextIncludes(text, item, '数据概览');
+	}
+}
+
+async function assertGiftDashboardUserButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/dashboard',
+		'giftDashboard',
+	);
+	const text = await assertMainText(page, '财务概览');
+	for (const item of ['查看全部排行榜', '全部记录 >', '查看详细预测']) {
+		assertTextIncludes(text, item, '数据概览');
+	}
+	assertTextIncludes(text, '+ 新增礼金记录', '数据概览');
+}
+
+async function assertGiftPersonAdminButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/person',
+		'giftPerson',
+	);
+	const text = await assertMainText(page, '亲友管理');
+	for (const item of [
+		'+ 添加联系人',
+		'查询结果',
+		'重 置',
+		'导出数据',
+		'批量标签',
+	]) {
+		assertTextIncludes(text, item, '亲友管理');
+	}
+	if (!text.includes('暂无数据')) {
+		for (const item of ['详情', '编辑', '删除']) {
+			assertTextIncludes(text, item, '亲友管理行操作');
+		}
+	}
+	await page.getByRole('button', { name: '+ 添加联系人' }).click();
+	const drawer = await assertVisibleDrawerButtons(page, [], '亲友管理新增抽屉');
+	const drawerText = await drawer.innerText({ timeout: 10000 });
+	for (const item of ['新增联系人']) {
+		assertTextIncludes(drawerText, item, '亲友管理新增抽屉');
+	}
+}
+
+async function assertGiftPersonUserButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/person',
+		'giftPerson',
+	);
+	const text = await assertMainText(page, '亲友管理');
+	for (const item of ['+ 添加联系人', '查询结果', '重 置', '批量标签']) {
+		assertTextIncludes(text, item, '亲友管理');
+	}
+	assertTextExcludes(text, '导出数据', '亲友管理');
+	if (!text.includes('暂无数据')) {
+		for (const item of ['详情', '编辑', '删除']) {
+			assertTextIncludes(text, item, '亲友管理行操作');
+		}
+	}
+}
+
+async function assertGiftEventAdminButtons(page, agent, runtime) {
+	await gotoGiftPage(page, agent, runtime, '/finance/gift/event', 'giftEvent');
+	const text = await assertMainText(page, '事由管理');
+	for (const item of ['+ 新增事由', '查询结果', '重 置', '展开']) {
+		assertTextIncludes(text, item, '事由管理');
+	}
+	if (!text.includes('暂无数据')) {
+		for (const item of ['编辑', '删除']) {
+			assertTextIncludes(text, item, '事由管理行操作');
+		}
+	}
+	await page.getByRole('button', { name: '+ 新增事由' }).click();
+	const drawer = await assertVisibleDrawerButtons(page, [], '事由管理新增抽屉');
+	const drawerText = await drawer.innerText({ timeout: 10000 });
+	for (const item of ['新增事由']) {
+		assertTextIncludes(drawerText, item, '事由管理新增抽屉');
+	}
+}
+
+async function assertGiftEventUserButtons(page, agent, runtime) {
+	await gotoGiftPage(page, agent, runtime, '/finance/gift/event', 'giftEvent');
+	const text = await assertMainText(page, '事由管理');
+	for (const item of ['+ 新增事由', '查询结果', '重 置', '展开']) {
+		assertTextIncludes(text, item, '事由管理');
+	}
+	if (!text.includes('暂无数据')) {
+		for (const item of ['编辑', '删除']) {
+			assertTextIncludes(text, item, '事由管理行操作');
+		}
+	}
+}
+
+async function assertGiftRecordAdminButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/record',
+		'giftRecord',
+	);
+	const text = await assertMainText(page, '礼金记录');
+	for (const item of ['Excel导出', '+ 快速记礼', '查询结果', '重 置', '展开']) {
+		assertTextIncludes(text, item, '礼金记录');
+	}
+	if (!text.includes('暂无数据')) {
+		assertAnyText(
+			text,
+			['编辑', '删除', '待回礼', '标记已回'],
+			'礼金记录行操作',
+		);
+	}
+	await page.getByRole('button', { name: '+ 快速记礼' }).click();
+	const drawer = await assertVisibleDrawerButtons(page, [], '快速记礼抽屉');
+	const drawerText = await drawer.innerText({ timeout: 10000 });
+	for (const item of ['快速记礼', '随礼', '金额']) {
+		assertTextIncludes(drawerText, item, '快速记礼抽屉');
+	}
+}
+
+async function assertGiftRecordUserButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/record',
+		'giftRecord',
+	);
+	const text = await assertMainText(page, '礼金记录');
+	for (const item of ['+ 快速记礼', '查询结果', '重 置', '展开']) {
+		assertTextIncludes(text, item, '礼金记录');
+	}
+	assertTextExcludes(text, 'Excel导出', '礼金记录');
+	if (!text.includes('暂无数据')) {
+		assertAnyText(
+			text,
+			['编辑', '删除', '待回礼', '标记已回'],
+			'礼金记录行操作',
+		);
+	}
+}
+
+async function assertGiftAnalysisAdminButtons(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/analysis',
+		'giftAnalysis',
+	);
+	const text = await assertMainText(page, '统计报表');
+	for (const item of ['导出报表', '打 印', '刷 新']) {
+		assertTextIncludes(text, item, '统计报表');
+	}
+}
+
+async function assertGiftAnalysisUserButtons(page, agent, runtime) {
+	await page.goto(`${runtime.baseUrl}/#/finance/gift/analysis`, {
+		waitUntil: 'domcontentloaded',
+	});
+	await page
+		.waitForLoadState('networkidle', { timeout: 15000 })
+		.catch(() => {});
+	const text = await page.locator('body').innerText({ timeout: 10000 });
+	for (const item of ['统计报表', '导出报表', '打 印']) {
+		assertTextExcludes(text, item, 'gift_user');
+	}
+}
+
+async function waitForApiResponse(page, urlPart, method, action) {
+	const responsePromise = page.waitForResponse(
+		(response) => {
+			const url = new URL(response.url());
+			return (
+				url.pathname.includes(urlPart) &&
+				response.request().method().toUpperCase() === method.toUpperCase() &&
+				response.status() >= 200 &&
+				response.status() < 300
+			);
+		},
+		{ timeout: 15000 },
+	);
+	await action();
+	return responsePromise;
+}
+
+async function searchCurrentGiftPage(page, keyword) {
+	const keywordInput = page.locator('.filter-panel input').first();
+	await keywordInput.fill(keyword);
+	await page.getByRole('button', { name: '查询结果' }).click();
+	await page
+		.waitForLoadState('networkidle', { timeout: 15000 })
+		.catch(() => {});
+}
+
+async function assertTableRowVisible(page, keyword, scopeName) {
+	const row = page.locator('.ant-table-tbody tr').filter({ hasText: keyword });
+	const rowCount = await row.count();
+	if (rowCount < 1) {
+		const mainText = await page.locator('main').innerText({ timeout: 10000 });
+		throw new Error(`${scopeName} 未查询到测试数据：${keyword}\n${mainText}`);
+	}
+	return row.first();
+}
+
+async function confirmRowDelete(page, row, urlPart) {
+	await row.getByRole('button', { name: '删除' }).click({ force: true });
+	await page.waitForTimeout(300);
+	await page.evaluate(() => {
+		const buttons = Array.from(
+			document.querySelectorAll(
+				'.ant-popover .ant-popover-buttons .ant-btn-primary',
+			),
+		);
+		const visibleButton = buttons
+			.reverse()
+			.find((button) => button instanceof HTMLElement && button.offsetParent);
+		if (visibleButton instanceof HTMLElement) {
+			visibleButton.click();
+		}
+	});
+	await page
+		.waitForLoadState('networkidle', { timeout: 15000 })
+		.catch(() => {});
+	await page.waitForTimeout(1000);
+}
+
+async function waitMainTextExcludes(page, keyword, scopeName) {
+	const deadline = Date.now() + 10000;
+	let latestText = '';
+	while (Date.now() < deadline) {
+		latestText = await page.locator('main').innerText({ timeout: 10000 });
+		if (!latestText.includes(keyword)) {
+			return;
+		}
+		await page.waitForTimeout(300);
+	}
+	throw new Error(`${scopeName} 不应显示按钮或入口：${keyword}`);
+}
+
+async function closeAnyDrawer(page) {
+	const drawer = page.locator('.ant-drawer-open').last();
+	if ((await drawer.count()) < 1) {
+		return;
+	}
+	await page.waitForTimeout(300);
+	await page
+		.evaluate(() => {
+			const closeButtons = Array.from(
+				document.querySelectorAll('.ant-drawer-open .ant-drawer-close'),
+			);
+			closeButtons.forEach((button) => {
+				if (button instanceof HTMLElement) {
+					button.click();
+				}
+			});
+			const actionButtons = Array.from(
+				document.querySelectorAll('.ant-drawer-open .profile-actions button'),
+			);
+			const lastAction = actionButtons.at(-1);
+			if (lastAction instanceof HTMLElement) {
+				lastAction.click();
+			}
+		})
+		.catch(() => {});
+	await page.keyboard.press('Escape').catch(() => {});
+	await page
+		.waitForFunction(
+			() => document.querySelectorAll('.ant-drawer-open').length === 0,
+			{ timeout: 5000 },
+		)
+		.catch(() => {});
+}
+
+async function assertGiftPcPersonCrud(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/person',
+		'giftPerson',
+	);
+	const unique = `codex-pc-person-${Date.now()}`;
+	await page.getByRole('button', { name: '+ 添加联系人' }).click();
+	await page.locator('.ant-drawer input').nth(0).fill(unique);
+	await page.locator('.ant-drawer input').nth(1).fill('13800009999');
+	await waitForApiResponse(page, '/gift-person-info-t', 'POST', () =>
+		page.locator('.ant-drawer .ant-drawer-footer .ant-btn-primary').click(),
+	);
+	await closeAnyDrawer(page);
+	await searchCurrentGiftPage(page, unique);
+	let row = await assertTableRowVisible(page, unique, '亲友管理');
+	await waitForApiResponse(page, '/gift-person-info-t/profile', 'GET', () =>
+		row.getByText('详情', { exact: true }).click(),
+	);
+	await page
+		.locator('.ant-drawer:visible .profile-head')
+		.waitFor({ state: 'visible', timeout: 10000 });
+	const profileText = await page.locator('.ant-drawer-open').last().innerText({
+		timeout: 10000,
+	});
+	assertTextIncludes(profileText, unique, '亲友详情抽屉');
+	await closeAnyDrawer(page);
+	row = await assertTableRowVisible(page, unique, '亲友管理');
+	await confirmRowDelete(page, row, '/gift-person-info-t');
+	await searchCurrentGiftPage(page, unique);
+	await waitMainTextExcludes(page, unique, '亲友删除后列表');
+}
+
+async function assertGiftPcEventCrud(page, agent, runtime) {
+	await gotoGiftPage(page, agent, runtime, '/finance/gift/event', 'giftEvent');
+	const unique = `codex-pc-event-${Date.now()}`;
+	await page.getByRole('button', { name: '+ 新增事由' }).click();
+	await page.locator('.ant-drawer input').nth(0).fill(unique);
+	await page.locator('.ant-drawer .ant-select-selector').first().click();
+	await page
+		.locator(
+			'.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option',
+		)
+		.first()
+		.click();
+	await waitForApiResponse(page, '/gift-event-info-t', 'POST', () =>
+		page.locator('.ant-drawer .ant-drawer-footer .ant-btn-primary').click(),
+	);
+	await closeAnyDrawer(page);
+	await searchCurrentGiftPage(page, unique);
+	const row = await assertTableRowVisible(page, unique, '事由管理');
+	await confirmRowDelete(page, row, '/gift-event-info-t');
+	await searchCurrentGiftPage(page, unique);
+	await waitMainTextExcludes(page, unique, '事由删除后列表');
+}
+
+async function assertGiftPcExportAction(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/record',
+		'giftRecord',
+	);
+	const downloadPromise = page
+		.waitForEvent('download', { timeout: 3000 })
+		.catch(() => null);
+	const requestPromise = page.waitForRequest(
+		(request) =>
+			request.url().includes('/gift-record-info-t') &&
+			request.url().toLowerCase().includes('export'),
+		{ timeout: 3000 },
+	).catch(() => null);
+	await page.getByRole('button', { name: 'Excel导出' }).click();
+	const result = await Promise.race([
+		downloadPromise.then((download) => (download ? 'download' : null)),
+		requestPromise.then((request) => (request ? 'request' : null)),
+		new Promise((resolve) => setTimeout(() => resolve('none'), 3200)),
+	]);
+	if (!result || result === 'none') {
+		throw new Error('礼金记录 Excel导出按钮未触发下载或导出请求');
+	}
+}
+
 async function runCase(testCase, runtime, page, agent) {
 	const startedAt = new Date().toISOString();
+	await resetSession(page, runtime);
 	await page.goto(runtime.baseUrl, { waitUntil: 'domcontentloaded' });
 	await ensureLoggedIn(page, agent, testCase.persona);
 	switch (testCase.caseId) {
@@ -206,7 +717,7 @@ async function runCase(testCase, runtime, page, agent) {
 		case 'RBAC-LOCAL-004':
 			await gotoRbacPage(agent, '用户管理');
 			await page.reload({ waitUntil: 'domcontentloaded' });
-			await agent.aiWaitFor('刷新后仍能看到用户管理列表表格');
+			await agent.aiWaitFor('刷 新后仍能看到用户管理列表表格');
 			await agent.aiAssert('当前页面不是登录页');
 			await agent.aiAssert('当前页面不是404页面');
 			break;
@@ -231,7 +742,7 @@ async function runCase(testCase, runtime, page, agent) {
 		case 'RBAC-LOCAL-201':
 			await gotoRbacPage(agent, '角色管理');
 			await agent.aiAct('在查询条件中输入一个角色编码并点击查找');
-			await agent.aiWaitFor('角色管理表格已刷新并显示筛选结果');
+			await agent.aiWaitFor('角色管理表格已刷 新并显示筛选结果');
 			break;
 		case 'RBAC-LOCAL-301':
 			await gotoRbacPage(agent, '菜单管理');
@@ -284,18 +795,33 @@ async function runCase(testCase, runtime, page, agent) {
 				'/finance/gift/record',
 				'giftRecord',
 			);
-			await agent.aiAssert(
-				'礼金记录页面可见礼金方向、人员、事由或金额相关筛选项',
-			);
-			await agent.aiAssert(
-				'页面可见新增或快速记礼入口，或者在无权限时不可见新增入口',
-			);
-			await agent.aiAct(
-				'如果页面可见新增或快速记礼按钮，则点击它打开礼金记录表单',
-			);
-			await agent.aiAssert(
-				'如果表单已打开，则可见礼金方向、金额、事由或事由ID、送礼人或收礼人字段',
-			);
+			{
+				const recordText = await assertMainText(
+					page,
+					'礼金记录',
+					'礼金记录页面未正确加载到主内容区',
+				);
+				for (const item of [
+					'礼金方向',
+					'人员',
+					'事由',
+					'金额',
+					'查询结果',
+					'重 置',
+				]) {
+					assertTextIncludes(recordText, item, '礼金记录筛选区');
+				}
+				await page.getByRole('button', { name: '+ 快速记礼' }).click();
+				const drawer = await assertVisibleDrawerButtons(
+					page,
+					[],
+					'快速记礼抽屉',
+				);
+				const drawerText = await drawer.innerText({ timeout: 10000 });
+				for (const item of ['快速记礼', '随礼', '金额']) {
+					assertTextIncludes(drawerText, item, '快速记礼抽屉');
+				}
+			}
 			break;
 		case 'GIFT-ADMIN-003':
 			await gotoGiftPage(
@@ -337,6 +863,51 @@ async function runCase(testCase, runtime, page, agent) {
 				}
 			}
 			break;
+		case 'GIFT-BUTTON-ADMIN-001':
+			await assertGiftAdminButtonMatrix(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-USER-001':
+			await assertGiftUserButtonMatrix(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-DASHBOARD-ADMIN-001':
+			await assertGiftDashboardAdminButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-DASHBOARD-USER-001':
+			await assertGiftDashboardUserButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-PERSON-ADMIN-001':
+			await assertGiftPersonAdminButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-PERSON-USER-001':
+			await assertGiftPersonUserButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-EVENT-ADMIN-001':
+			await assertGiftEventAdminButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-EVENT-USER-001':
+			await assertGiftEventUserButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-RECORD-ADMIN-001':
+			await assertGiftRecordAdminButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-RECORD-USER-001':
+			await assertGiftRecordUserButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-ANALYSIS-ADMIN-001':
+			await assertGiftAnalysisAdminButtons(page, agent, runtime);
+			break;
+		case 'GIFT-BUTTON-ANALYSIS-USER-001':
+			await assertGiftAnalysisUserButtons(page, agent, runtime);
+			break;
+		case 'GIFT-PC-PERSON-CRUD-001':
+			await assertGiftPcPersonCrud(page, agent, runtime);
+			break;
+		case 'GIFT-PC-EVENT-CRUD-001':
+			await assertGiftPcEventCrud(page, agent, runtime);
+			break;
+		case 'GIFT-PC-EXPORT-001':
+			await assertGiftPcExportAction(page, agent, runtime);
+			break;
 		default:
 			throw new Error(`Unsupported caseId=${testCase.caseId}`);
 	}
@@ -371,12 +942,14 @@ async function main() {
 		headless: runtime.mode === 'ci',
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
-	const page = await browser.newPage();
-	await page.setViewportSize({ width: 1400, height: 900 });
-	const agent = new PlaywrightAgent(page);
 
 	const results = [];
 	for (const testCase of selectedCases) {
+		const context = await browser.newContext({
+			viewport: { width: 1400, height: 900 },
+		});
+		const page = await context.newPage();
+		const agent = new PlaywrightAgent(page);
 		try {
 			if (!hasCredential(testCase.persona)) {
 				results.push({
@@ -424,6 +997,8 @@ async function main() {
 					throw error;
 				}
 			}
+		} finally {
+			await context.close().catch(() => undefined);
 		}
 	}
 	await browser.close();

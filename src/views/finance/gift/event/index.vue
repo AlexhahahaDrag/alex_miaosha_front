@@ -342,8 +342,8 @@ const save = async () => {
 	}
 };
 
-const remove = async (id: string | number) => {
-	const { code, message: msg } = await deleteGiftEvent(String(id));
+const remove = async (id: string) => {
+	const { code, message: msg } = await deleteGiftEvent(id);
 	if (code === '200') {
 		message.success('删除成功');
 		query(true);

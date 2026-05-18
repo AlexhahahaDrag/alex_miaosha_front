@@ -454,8 +454,8 @@ const save = async () => {
 	}
 };
 
-const remove = async (id: string | number) => {
-	const { code, message: msg } = await deleteGiftRecord(String(id));
+const remove = async (id: string) => {
+	const { code, message: msg } = await deleteGiftRecord(id);
 	if (code === '200') {
 		message.success('删除成功');
 		query(true);
@@ -464,7 +464,7 @@ const remove = async (id: string | number) => {
 	}
 };
 
-const showPending = async (id: string | number) => {
+const showPending = async (id: string) => {
 	const { code, data, message: msg } = await getPendingReturnAmount(id);
 	if (code === '200') {
 		Modal.info({
@@ -476,7 +476,7 @@ const showPending = async (id: string | number) => {
 	}
 };
 
-const markReturned = async (id: string | number) => {
+const markReturned = async (id: string) => {
 	const { code, message: msg } = await markGiftReturned(id);
 	if (code === '200') {
 		message.success('已标记回礼');
