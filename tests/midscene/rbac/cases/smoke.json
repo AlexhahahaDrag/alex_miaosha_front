@@ -156,6 +156,12 @@
 		"level": "flow"
 	},
 	{
+		"caseId": "GIFT-PC-RECORD-CRUD-001",
+		"title": "PC gift record create query delete flow",
+		"persona": "rbac_user_manager",
+		"level": "flow"
+	},
+	{
 		"caseId": "GIFT-PC-EXPORT-001",
 		"title": "PC 礼金记录导出行为",
 		"persona": "rbac_user_manager",

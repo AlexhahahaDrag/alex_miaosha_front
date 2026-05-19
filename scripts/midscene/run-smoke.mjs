@@ -99,8 +99,23 @@ async function login(page, agent, persona) {
 	const passwordInput = page.locator('input[type="password"]');
 	const loginButton = page.getByRole('button', { name: 'Log in' });
 
-	await usernameInput.fill(credential.username);
-	await passwordInput.fill(credential.password);
+	await usernameInput.waitFor({ state: 'visible', timeout: 10000 });
+	await usernameInput.click();
+	await usernameInput.fill('');
+	await usernameInput.pressSequentially(credential.username);
+	const usernameValue = await usernameInput.inputValue();
+	if (usernameValue !== credential.username) {
+		await usernameInput.evaluate((input, value) => {
+			if (input instanceof HTMLInputElement) {
+				input.value = value;
+				input.dispatchEvent(new Event('input', { bubbles: true }));
+				input.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+		}, credential.username);
+	}
+	await passwordInput.click();
+	await passwordInput.fill('');
+	await passwordInput.pressSequentially(credential.password);
 	await loginButton.click();
 	await page
 		.waitForURL((url) => !url.hash.includes('/login'), {
@@ -518,13 +533,105 @@ async function waitForApiResponse(page, urlPart, method, action) {
 	return responsePromise;
 }
 
+async function waitForExactApiResponse(page, pathnameSuffix, method, action) {
+	const responsePromise = page.waitForResponse(
+		(response) => {
+			const url = new URL(response.url());
+			return (
+				url.pathname.endsWith(pathnameSuffix) &&
+				response.request().method().toUpperCase() === method.toUpperCase()
+			);
+		},
+		{ timeout: 15000 },
+	);
+	await action();
+	const response = await responsePromise;
+	if (response.status() < 200 || response.status() >= 300) {
+		throw new Error(
+			`${method.toUpperCase()} ${pathnameSuffix} returned ${response.status()}`,
+		);
+	}
+	return response;
+}
+
+async function waitForGiftSearchResponse(page, urlPart, keyword, action) {
+	const responsePromise = page.waitForResponse(
+		(response) => {
+			const url = new URL(response.url());
+			if (
+				!url.pathname.includes(urlPart) ||
+				response.request().method().toUpperCase() !== 'POST' ||
+				response.status() < 200 ||
+				response.status() >= 300
+			) {
+				return false;
+			}
+			const postData = response.request().postData() || '';
+			return postData.includes(keyword);
+		},
+		{ timeout: 15000 },
+	);
+	await action();
+	return responsePromise;
+}
+
+async function waitForGiftRecordAmountResponse(page, amount, action) {
+	const responsePromise = page.waitForResponse(
+		(response) => {
+			const url = new URL(response.url());
+			if (
+				!url.pathname.includes('/gift-record-info-t/page') ||
+				response.request().method().toUpperCase() !== 'POST' ||
+				response.status() < 200 ||
+				response.status() >= 300
+			) {
+				return false;
+			}
+			const postData = response.request().postData() || '';
+			return (
+				postData.includes(`"amountMin":${amount}`) &&
+				postData.includes(`"amountMax":${amount}`)
+			);
+		},
+		{ timeout: 15000 },
+	);
+	await action();
+	return responsePromise;
+}
+
 async function searchCurrentGiftPage(page, keyword) {
 	const keywordInput = page.locator('.filter-panel input').first();
 	await keywordInput.fill(keyword);
-	await page.getByRole('button', { name: '查询结果' }).click();
+	const hash = new URL(page.url()).hash;
+	const searchUrlPart = hash.includes('/finance/gift/event')
+		? '/gift-event-info-t/business-page'
+			: hash.includes('/finance/gift/person')
+				? '/gift-person-info-t/business-page'
+				: '';
+	if (searchUrlPart) {
+		await waitForGiftSearchResponse(page, searchUrlPart, keyword, () =>
+			page.getByRole('button', { name: '查询结果' }).click(),
+		);
+	} else {
+		await page.getByRole('button', { name: '查询结果' }).click();
+	}
 	await page
 		.waitForLoadState('networkidle', { timeout: 15000 })
 		.catch(() => {});
+	await page.waitForTimeout(300);
+}
+
+async function searchGiftRecordByAmount(page, amount) {
+	const amountInputs = page.locator('.filter-panel .ant-input-number-input');
+	await amountInputs.nth(0).fill(String(amount));
+	await amountInputs.nth(1).fill(String(amount));
+	await waitForGiftRecordAmountResponse(page, amount, () =>
+		page.getByRole('button', { name: '查询结果' }).click(),
+	);
+	await page
+		.waitForLoadState('networkidle', { timeout: 15000 })
+		.catch(() => {});
+	await page.waitForTimeout(300);
 }
 
 async function assertTableRowVisible(page, keyword, scopeName) {
@@ -538,21 +645,25 @@ async function assertTableRowVisible(page, keyword, scopeName) {
 }
 
 async function confirmRowDelete(page, row, urlPart) {
-	await row.getByRole('button', { name: '删除' }).click({ force: true });
-	await page.waitForTimeout(300);
-	await page.evaluate(() => {
-		const buttons = Array.from(
-			document.querySelectorAll(
-				'.ant-popover .ant-popover-buttons .ant-btn-primary',
-			),
+	const deleteText = row.getByText('删除', { exact: true }).last();
+	if ((await deleteText.count()) > 0) {
+		await deleteText.click();
+	} else {
+		await row.locator('.ant-btn-dangerous').last().click();
+	}
+	const confirmButton = page
+		.locator(
+			'.ant-popover:not(.ant-popover-hidden) .ant-popconfirm-buttons .ant-btn-primary, .ant-popover:not(.ant-popover-hidden) .ant-popover-buttons .ant-btn-primary',
+		)
+		.last();
+	await confirmButton.waitFor({ state: 'visible', timeout: 5000 });
+	if (urlPart) {
+		await waitForApiResponse(page, urlPart, 'DELETE', () =>
+			confirmButton.click({ force: true }),
 		);
-		const visibleButton = buttons
-			.reverse()
-			.find((button) => button instanceof HTMLElement && button.offsetParent);
-		if (visibleButton instanceof HTMLElement) {
-			visibleButton.click();
-		}
-	});
+	} else {
+		await confirmButton.click({ force: true });
+	}
 	await page
 		.waitForLoadState('networkidle', { timeout: 15000 })
 		.catch(() => {});
@@ -604,6 +715,16 @@ async function closeAnyDrawer(page) {
 			{ timeout: 5000 },
 		)
 		.catch(() => {});
+	await page
+		.locator('.ant-drawer-content-wrapper')
+		.last()
+		.waitFor({ state: 'hidden', timeout: 5000 })
+		.catch(() => {});
+	await page
+		.locator('.ant-drawer-mask')
+		.last()
+		.waitFor({ state: 'hidden', timeout: 5000 })
+		.catch(() => {});
 }
 
 async function assertGiftPcPersonCrud(page, agent, runtime) {
@@ -618,9 +739,22 @@ async function assertGiftPcPersonCrud(page, agent, runtime) {
 	await page.getByRole('button', { name: '+ 添加联系人' }).click();
 	await page.locator('.ant-drawer input').nth(0).fill(unique);
 	await page.locator('.ant-drawer input').nth(1).fill('13800009999');
-	await waitForApiResponse(page, '/gift-person-info-t', 'POST', () =>
+	const saveRefreshPromise = page
+		.waitForResponse(
+			(response) =>
+				new URL(response.url()).pathname.includes(
+					'/gift-person-info-t/business-page',
+				) &&
+				response.request().method().toUpperCase() === 'POST' &&
+				response.status() >= 200 &&
+				response.status() < 300,
+			{ timeout: 15000 },
+		)
+		.catch(() => null);
+	await waitForExactApiResponse(page, '/gift-person-info-t', 'POST', () =>
 		page.locator('.ant-drawer .ant-drawer-footer .ant-btn-primary').click(),
 	);
+	await saveRefreshPromise;
 	await closeAnyDrawer(page);
 	await searchCurrentGiftPage(page, unique);
 	let row = await assertTableRowVisible(page, unique, '亲友管理');
@@ -653,7 +787,7 @@ async function assertGiftPcEventCrud(page, agent, runtime) {
 		)
 		.first()
 		.click();
-	await waitForApiResponse(page, '/gift-event-info-t', 'POST', () =>
+	await waitForExactApiResponse(page, '/gift-event-info-t', 'POST', () =>
 		page.locator('.ant-drawer .ant-drawer-footer .ant-btn-primary').click(),
 	);
 	await closeAnyDrawer(page);
@@ -662,6 +796,48 @@ async function assertGiftPcEventCrud(page, agent, runtime) {
 	await confirmRowDelete(page, row, '/gift-event-info-t');
 	await searchCurrentGiftPage(page, unique);
 	await waitMainTextExcludes(page, unique, '事由删除后列表');
+}
+
+async function assertGiftPcRecordCrud(page, agent, runtime) {
+	await gotoGiftPage(
+		page,
+		agent,
+		runtime,
+		'/finance/gift/record',
+		'giftRecord',
+	);
+	const unique = `codex-pc-record-${Date.now()}`;
+	const amount = Number(`88${String(Date.now()).slice(-4)}`);
+	await page.getByRole('button', { name: '+ 快速记礼' }).click();
+	const drawerInputs = page.locator('.ant-drawer input:not([type="radio"])');
+	await page.locator('.ant-drawer .ant-input-number-input').first().fill(String(amount));
+	await drawerInputs.nth(2).fill('1');
+	await drawerInputs.nth(3).fill('1');
+	await page
+		.locator('.ant-drawer .ant-picker-input input')
+		.click();
+	await page.locator('.ant-picker-now-btn').last().click();
+	await page.locator('.ant-drawer textarea').fill(unique);
+	const saveRefreshPromise = page
+		.waitForResponse(
+			(response) =>
+				new URL(response.url()).pathname.includes('/gift-record-info-t/page') &&
+				response.request().method().toUpperCase() === 'POST' &&
+				response.status() >= 200 &&
+				response.status() < 300,
+			{ timeout: 15000 },
+		)
+		.catch(() => null);
+	await waitForExactApiResponse(page, '/gift-record-info-t', 'POST', () =>
+		page.locator('.ant-drawer .ant-btn-primary').last().click({ force: true }),
+	);
+	await saveRefreshPromise;
+	await closeAnyDrawer(page);
+	await searchGiftRecordByAmount(page, amount);
+	const row = await assertTableRowVisible(page, unique, '礼金记录');
+	await confirmRowDelete(page, row, '/gift-record-info-t');
+	await searchGiftRecordByAmount(page, amount);
+	await waitMainTextExcludes(page, unique, '礼金记录删除后列表');
 }
 
 async function assertGiftPcExportAction(page, agent, runtime) {
@@ -904,6 +1080,9 @@ async function runCase(testCase, runtime, page, agent) {
 			break;
 		case 'GIFT-PC-EVENT-CRUD-001':
 			await assertGiftPcEventCrud(page, agent, runtime);
+			break;
+		case 'GIFT-PC-RECORD-CRUD-001':
+			await assertGiftPcRecordCrud(page, agent, runtime);
 			break;
 		case 'GIFT-PC-EXPORT-001':
 			await assertGiftPcExportAction(page, agent, runtime);

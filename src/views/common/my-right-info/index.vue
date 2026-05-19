@@ -3,7 +3,6 @@
 		<a-badge :count="newsCount" :offset="[10, 0]">
 			<span class="welcome-text"> 欢迎，{{ displayName }} </span>
 		</a-badge>
-
 		<a-dropdown
 			placement="bottomRight"
 			:trigger="['hover', 'click']"
@@ -291,21 +290,21 @@ onMounted(() => {
 
 		&.github-item {
 			align-items: flex-start;
-			
+
 			.anticon {
 				margin-top: 2px;
 			}
-			
+
 			.text-wrapper {
 				display: flex;
 				flex-direction: column;
 				gap: 4px;
-				
+
 				.main-text {
 					font-size: 14px;
 					line-height: 1.2;
 				}
-				
+
 				.subtext {
 					font-size: 12px;
 					color: #8c8c8c;

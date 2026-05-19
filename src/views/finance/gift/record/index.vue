@@ -66,7 +66,7 @@
 					<a-range-picker
 						v-model:value="payRange"
 						show-time
-						value-format="YYYY-MM-DD HH:mm:ss"
+						value-format="YYYY-MM-DDTHH:mm:ss"
 					/>
 				</a-form-item>
 				<a-form-item>
@@ -275,7 +275,7 @@
 					<a-date-picker
 						v-model:value="formInfo.payTime"
 						show-time
-						value-format="YYYY-MM-DD HH:mm:ss"
+						value-format="YYYY-MM-DDTHH:mm:ss"
 						style="width: 100%"
 					/>
 				</a-form-item>
