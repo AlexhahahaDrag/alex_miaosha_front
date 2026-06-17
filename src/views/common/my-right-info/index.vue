@@ -1,8 +1,11 @@
 <template>
 	<div class="user-info-container">
-		<a-badge :count="newsCount" :offset="[10, 0]">
-			<span class="welcome-text"> 欢迎，{{ displayName }} </span>
+		<a-badge :count="newsCount" :offset="[-2, 2]">
+			<button type="button" class="notice-btn" aria-label="通知中心">
+				<bell-outlined />
+			</button>
 		</a-badge>
+		<span class="welcome-text">欢迎，{{ displayName }}</span>
 		<a-dropdown
 			placement="bottomRight"
 			:trigger="['hover', 'click']"
@@ -63,6 +66,7 @@ import {
 	GithubOutlined,
 	LockOutlined,
 	LogoutOutlined,
+	BellOutlined,
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import { logoutApi } from '@/views/login/api';
@@ -209,6 +213,26 @@ onMounted(() => {
 	gap: 12px;
 	padding: 8px 16px;
 	height: 100%;
+
+	.notice-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border: none;
+		border-radius: 8px;
+		background: transparent;
+		color: #667085;
+		font-size: 18px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+
+		&:hover {
+			background: rgba(22, 119, 255, 0.08);
+			color: #1677ff;
+		}
+	}
 
 	.welcome-text {
 		font-size: 14px;

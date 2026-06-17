@@ -22,6 +22,20 @@
   - 表格字段命名与文案尽量语义化，避免缩写影响维护。
   - 统一中文文案，禁止乱码、半截模板表达式、拼接破损字符串进入主干代码。
 
+- **登录页（`/login`）**：
+  - 品牌层：页顶 Alex Platform + Aurora 渐变背景 + 弱化 tsparticles。
+  - 左侧 **Alex Friends** IP 区：`Meet Alex Friends` 文案、能力↔角色映射（Mini/Aleo/Nova/Sunny）、场景光晕与地面阴影、入场上浮动画；人物保留交互（眨眼、眼随鼠标、输入 focus 联动）。
+  - 右侧表单全中文、企业蓝主色（`#1677ff`）；IP 常量见 `src/views/login/config/alexFriends.ts`。
+  - 页脚展示版权与版本号；不做 vue-i18n。
+
+- **全局 Layout**：
+  - 侧栏背景 `#0f172a`，选中项 `rgba(59,130,246,.15)` + 左边框 3px。
+  - 侧栏顶部 Alex Platform Logo；顶栏保留 Tabs、移除面包屑；通知铃铛入口。
+
+- **礼尚往来 Dashboard（`/finance/gift/dashboard`）**：
+  - KPI 使用真实环比与 sparkline（`dashboard/utils/metrics.ts`）；空状态带 CTA。
+  - 视觉层级：KPI(L1) > 图表(L2) > 表格(L3) > AI banner。
+
 ---
 
 ## 2. 公共基础能力目录约定

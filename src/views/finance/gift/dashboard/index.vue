@@ -1,179 +1,261 @@
 <template>
-	<div class="gift-dashboard">
-		<div class="dashboard-header">
-			<div>
-				<h2>财务概览</h2>
-				<p>欢迎回来，这是您当前的礼尚往来收支统计报告。</p>
+	<a-spin :spinning="loading">
+		<div class="gift-dashboard">
+			<div class="dashboard-header">
+				<div>
+					<h2>财务概览</h2>
+					<p>
+						欢迎回来，这是您当前的礼尚往来收支统计报告。
+						<span v-if="todayRecordCount > 0" class="today-summary">
+							今日新增 {{ todayRecordCount }} 笔礼金记录
+						</span>
+					</p>
+				</div>
+				<a-button
+					v-if="hasPermission('gift:add')"
+					type="primary"
+					class="primary-action"
+					data-testid="gift-dashboard-add-record"
+					@click="goRecord"
+				>
+					+ 新增礼金记录
+				</a-button>
 			</div>
-			<a-button
-				v-if="hasPermission('gift:add')"
-				type="primary"
-				class="primary-action"
-			>
-				+ 新增礼金记录
-			</a-button>
-		</div>
 
-		<div class="metric-grid">
-			<div
-				v-for="item in metricCards"
-				:key="item.title"
-				class="metric-card"
-				:class="`metric-card-${item.tone}`"
-			>
-				<div class="metric-top">
-					<span class="metric-title">{{ item.title }}</span>
-					<span class="metric-icon" :class="`metric-icon-${item.tone}`">
-						<span>{{ item.icon }}</span>
-					</span>
-				</div>
-				<div class="metric-value">{{ item.value }}</div>
-				<div class="metric-sub">{{ item.sub }}</div>
+			<div class="metric-grid">
+				<gift-metric-card
+					v-for="item in metricCards"
+					:key="item.title"
+					:title="item.title"
+					:value="item.value"
+					:tone="item.tone"
+					:icon="item.icon"
+					:trend-text="item.trendText"
+					:trend-direction="item.trendDirection"
+					:sparkline-points="item.sparklinePoints"
+					:sub="item.sub"
+				/>
 			</div>
-		</div>
 
-		<div class="main-grid">
-			<section class="panel trend-panel">
-				<div class="panel-head">
-					<h3>收支趋势（月度）</h3>
-					<a-select
-						v-model:value="trendScope"
-						size="small"
-						class="scope-select"
-					>
-						<a-select-option value="recent">最近6个月</a-select-option>
-						<a-select-option value="year">本年度</a-select-option>
-					</a-select>
-				</div>
-				<div class="bar-chart">
-					<div v-for="item in chartRows" :key="item.label" class="bar-group">
-						<div class="bar-stage">
-							<div
-								class="bar bar-income"
-								:style="{ height: `${item.receiveHeight}%` }"
-							/>
-							<div
-								class="bar bar-expense"
-								:style="{ height: `${item.giveHeight}%` }"
-							/>
-						</div>
-						<div class="bar-label">{{ item.label }}</div>
-					</div>
-				</div>
-				<div class="legend-row">
-					<span><i class="legend-dot legend-income" />收入</span>
-					<span><i class="legend-dot legend-expense" />支出</span>
-				</div>
-			</section>
-
-			<section class="panel ranking-panel">
-				<div class="panel-head">
-					<h3>往来密切联系人</h3>
-				</div>
-				<div v-if="rankingRows.length === 0" class="empty-state">
-					暂无排行数据
-				</div>
-				<div v-else class="ranking-list">
-					<div
-						v-for="item in rankingRows"
-						:key="item.name"
-						class="ranking-item"
-					>
-						<span class="rank-index">{{ item.index }}</span>
-						<div class="rank-main">
-							<div class="rank-row">
-								<span class="rank-name">{{ item.name }}</span>
-								<span class="rank-amount">{{ money(item.amount) }}</span>
-							</div>
-							<div class="rank-track">
-								<div
-									class="rank-progress"
-									:style="{ width: `${item.percent}%` }"
-								/>
+			<div class="main-grid">
+				<section class="panel panel-secondary trend-panel">
+					<div class="panel-head">
+						<div>
+							<h3>收支趋势（月度）</h3>
+							<div v-if="trendStats" class="panel-stats">
+								<span>平均收入 {{ money(trendStats.avgReceive) }}</span>
+								<span>平均支出 {{ money(trendStats.avgGive) }}</span>
+								<span>净增长率 {{ trendStats.netGrowthText }}</span>
 							</div>
 						</div>
-					</div>
-				</div>
-				<a-button type="link" class="ranking-link">查看全部排行榜</a-button>
-			</section>
-		</div>
-
-		<section class="panel record-panel">
-			<div class="panel-head">
-				<h3>最近往来记录</h3>
-				<a-button type="link">全部记录 ></a-button>
-			</div>
-			<div class="record-table">
-				<div class="record-row record-head">
-					<span>日期</span>
-					<span>活动项目</span>
-					<span>往来对象</span>
-					<span>类型</span>
-					<span>金额</span>
-					<span>状态</span>
-					<span>操作</span>
-				</div>
-				<div v-if="records.length === 0" class="empty-state table-empty">
-					暂无往来记录
-				</div>
-				<div v-for="item in displayRecords" :key="item.id" class="record-row">
-					<span>{{ formatDate(item.payTime) }}</span>
-					<span>{{ item.eventName || item.eventId || '-' }}</span>
-					<span>{{
-						item.personName ||
-						item.giverPersonName ||
-						item.receiverPersonName ||
-						'-'
-					}}</span>
-					<span>
-						<a-tag :color="directionColor(item.direction)">
-							{{ directionLabel(item.direction) }}
-						</a-tag>
-					</span>
-					<span
-						:class="
-							item.direction === 'RECEIVE' ? 'amount-income' : 'amount-expense'
-						"
-					>
-						{{ signedMoney(item) }}
-					</span>
-					<span>
-						<a-tag
-							v-if="item.direction === 'RECEIVE'"
-							:color="item.returnedFlag === 1 ? 'green' : 'orange'"
+						<a-select
+							v-model:value="trendScope"
+							size="small"
+							class="scope-select"
 						>
-							{{ item.returnedFlag === 1 ? '已还清' : '待确认' }}
-						</a-tag>
-						<a-tag v-else color="green">已还清</a-tag>
-					</span>
-					<span class="more-action">...</span>
-				</div>
-			</div>
-			<a-button
-				v-if="hasPermission('gift:add')"
-				type="primary"
-				shape="circle"
-				class="float-add"
-			>
-				+
-			</a-button>
-		</section>
+							<a-select-option value="recent">最近6个月</a-select-option>
+							<a-select-option value="year">本年度</a-select-option>
+						</a-select>
+					</div>
+					<gift-empty-state
+						v-if="chartRows.length === 0"
+						title="暂无趋势数据"
+						description="录入礼金记录后，这里会展示近几个月的收支变化。"
+						action-text="去记一笔礼金 →"
+						:to="recordPath"
+						:icon="BarChartOutlined"
+					/>
+					<template v-else>
+						<div class="bar-chart">
+							<div
+								v-for="item in chartRows"
+								:key="item.label"
+								class="bar-group"
+							>
+								<div class="bar-stage">
+									<div
+										class="bar bar-income"
+										:style="{ height: `${item.receiveHeight}%` }"
+									/>
+									<div
+										class="bar bar-expense"
+										:style="{ height: `${item.giveHeight}%` }"
+									/>
+								</div>
+								<div class="bar-label">{{ item.label }}</div>
+							</div>
+						</div>
+						<div class="legend-row">
+							<span><i class="legend-dot legend-income" />收入</span>
+							<span><i class="legend-dot legend-expense" />支出</span>
+						</div>
+					</template>
+				</section>
 
-		<section class="ai-panel">
-			<div>
-				<h3>AI 礼尚往来建议</h3>
-				<p>
-					根据您的历史记录，预计 12 月份将有 3 位重要的社交互动，建议提前预留约
-					{{ money(aiReserveAmount) }} 的礼金支出，以保持良好的人情关系。
-				</p>
+				<section class="panel panel-secondary ranking-panel">
+					<div class="panel-head">
+						<h3>往来密切联系人</h3>
+					</div>
+					<gift-empty-state
+						v-if="rankingRows.length === 0"
+						title="暂无往来联系人"
+						description="添加联系人并记录礼金往来后，这里会展示互动最密切的亲友排行。"
+						action-text="去添加联系人 →"
+						:to="personPath"
+						:icon="TeamOutlined"
+					/>
+					<div v-else class="ranking-list">
+						<div
+							v-for="item in rankingRows"
+							:key="item.name"
+							class="ranking-item"
+						>
+							<span class="rank-index">{{ item.index }}</span>
+							<div class="rank-main">
+								<div class="rank-row">
+									<span class="rank-name">{{ item.name }}</span>
+									<span class="rank-amount">{{ money(item.amount) }}</span>
+								</div>
+								<div class="rank-track">
+									<div
+										class="rank-progress"
+										:style="{ width: `${item.percent}%` }"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a-button
+						type="link"
+						class="ranking-link"
+						data-testid="gift-dashboard-ranking-all"
+						@click="goPerson"
+					>
+						查看全部排行榜
+					</a-button>
+				</section>
 			</div>
-			<a-button class="ai-action">查看详细预测</a-button>
-		</section>
-	</div>
+
+			<section class="panel panel-tertiary record-panel">
+				<div class="panel-head">
+					<h3>最近往来记录</h3>
+					<a-button
+						type="link"
+						data-testid="gift-dashboard-record-all"
+						@click="goRecord"
+					>
+						全部记录 >
+					</a-button>
+				</div>
+				<div class="record-table">
+					<div class="record-row record-head">
+						<span>日期</span>
+						<span>活动项目</span>
+						<span>往来对象</span>
+						<span>类型</span>
+						<span>金额</span>
+						<span>状态</span>
+						<span>操作</span>
+					</div>
+					<gift-empty-state
+						v-if="records.length === 0"
+						title="暂无往来记录"
+						description="开始记录第一笔随礼或收礼，方便随时查看人情往来。"
+						action-text="去记一笔礼金 →"
+						:to="recordPath"
+						:icon="FileTextOutlined"
+					/>
+					<div
+						v-for="item in displayRecords"
+						:key="item.id"
+						class="record-row record-row-body"
+					>
+						<span>{{ formatDate(item.payTime) }}</span>
+						<span>{{ item.eventName || item.eventId || '-' }}</span>
+						<span>{{
+							item.personName ||
+							item.giverPersonName ||
+							item.receiverPersonName ||
+							'-'
+						}}</span>
+						<span>
+							<a-tag :color="directionColor(item.direction)">
+								{{ directionLabel(item.direction) }}
+							</a-tag>
+						</span>
+						<span
+							:class="
+								item.direction === 'RECEIVE' ?
+									'amount-income'
+								:	'amount-expense'
+							"
+						>
+							{{ signedMoney(item) }}
+						</span>
+						<span>
+							<a-tag
+								v-if="item.direction === 'RECEIVE'"
+								:color="item.returnedFlag === 1 ? 'green' : 'orange'"
+							>
+								{{ item.returnedFlag === 1 ? '已完成' : '待确认' }}
+							</a-tag>
+							<a-tag v-else color="green">已完成</a-tag>
+						</span>
+						<span>
+							<a-button type="link" size="small" @click="goRecord">
+								查看
+							</a-button>
+						</span>
+					</div>
+				</div>
+				<a-button
+					v-if="hasPermission('gift:add')"
+					type="primary"
+					shape="circle"
+					class="float-add"
+					data-testid="gift-dashboard-float-add"
+					@click="goRecord"
+				>
+					+
+				</a-button>
+			</section>
+
+			<section class="ai-panel">
+				<div>
+					<h3>AI 礼尚往来建议</h3>
+					<p>{{ aiSuggestionText }}</p>
+				</div>
+				<a-button
+					class="ai-action"
+					data-testid="gift-dashboard-ai-detail"
+					@click="goAnalysis"
+				>
+					查看详细预测
+				</a-button>
+			</section>
+		</div>
+	</a-spin>
 </template>
 
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
+import {
+	AccountBookOutlined,
+	BarChartOutlined,
+	ClockCircleOutlined,
+	DollarOutlined,
+	FileTextOutlined,
+	FallOutlined,
+	TeamOutlined,
+} from '@ant-design/icons-vue';
+import GiftEmptyState from '@/views/finance/gift/dashboard/components/GiftEmptyState.vue';
+import GiftMetricCard from '@/views/finance/gift/dashboard/components/GiftMetricCard.vue';
+import {
+	averageOf,
+	buildSparklinePoints,
+	calcMomTrend,
+} from '@/views/finance/gift/dashboard/utils/metrics';
 import { usePermission } from '@/composables/usePermission';
 import {
 	getGiftAnalysisPersonRanking,
@@ -197,77 +279,116 @@ import {
 
 type MetricTone = 'income' | 'expense' | 'balance' | 'todo';
 
-interface MetricCard {
+interface MetricCardView {
 	title: string;
 	value: string;
 	sub: string;
-	icon: string;
 	tone: MetricTone;
+	icon: typeof DollarOutlined;
+	trendText: string;
+	trendDirection: 'up' | 'down' | 'flat' | 'none';
+	sparklinePoints: string;
 }
 
+const recordPath = '/finance/gift/record';
+const personPath = '/finance/gift/person';
+const analysisPath = '/finance/gift/analysis';
+
+const router = useRouter();
 const loading = ref(false);
 const { hasPermission } = usePermission();
-const trendScope = ref('recent');
+const trendScope = ref<'recent' | 'year'>('recent');
 const records = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const personSummary = ref<GiftPersonSummary>({});
 const trendRows = ref<GiftAmountTrend[]>([]);
 const personRanking = ref<GiftRankingItem[]>([]);
 
-const metricCards = computed<MetricCard[]>(() => {
+const scopedTrendRows = computed(() => {
+	if (trendRows.value.length === 0) return [];
+	if (trendScope.value === 'year') return trendRows.value;
+	return trendRows.value.slice(-6);
+});
+
+const receiveSeries = computed(() =>
+	scopedTrendRows.value.map((item) => Number(item.receiveAmount || 0)),
+);
+
+const giveSeries = computed(() =>
+	scopedTrendRows.value.map((item) => Number(item.giveAmount || 0)),
+);
+
+const netSeries = computed(() =>
+	scopedTrendRows.value.map(
+		(item) => Number(item.receiveAmount || 0) - Number(item.giveAmount || 0),
+	),
+);
+
+const metricCards = computed<MetricCardView[]>(() => {
 	const receiveAmount = Number(summary.value.receiveAmount || 0);
 	const giveAmount =
 		Number(summary.value.giveAmount || 0) +
 		Number(summary.value.returnAmount || 0);
 	const balanceAmount = Number(
-		summary.value.netAmount || receiveAmount - giveAmount,
+		summary.value.netAmount ?? receiveAmount - giveAmount,
 	);
 	const pendingAmount = Number(personSummary.value.pendingReturnAmount || 0);
+	const receiveTrend = calcMomTrend(receiveSeries.value);
+	const giveTrend = calcMomTrend(giveSeries.value);
+	const balanceTrend = calcMomTrend(netSeries.value);
+
 	return [
 		{
 			title: '累计收入',
 			value: money(receiveAmount),
-			sub: '较上月 +12.5%',
-			icon: '↗',
+			sub: receiveTrend.direction === 'none' ? '' : '收入趋势',
+			icon: DollarOutlined,
 			tone: 'income',
+			trendText: receiveTrend.text,
+			trendDirection: receiveTrend.direction,
+			sparklinePoints: buildSparklinePoints(receiveSeries.value),
 		},
 		{
 			title: '累计支出',
 			value: money(giveAmount),
-			sub: '较上月 -5.2%',
-			icon: '↘',
+			sub: giveTrend.direction === 'none' ? '' : '支出趋势',
+			icon: FallOutlined,
 			tone: 'expense',
+			trendText: giveTrend.text,
+			trendDirection: giveTrend.direction,
+			sparklinePoints: buildSparklinePoints(giveSeries.value),
 		},
 		{
 			title: '结余总计',
 			value: money(balanceAmount),
-			sub: '净资产健康增长',
-			icon: '□',
+			sub: balanceAmount >= 0 ? '净资产健康增长' : '建议关注回礼安排',
+			icon: AccountBookOutlined,
 			tone: 'balance',
+			trendText: balanceTrend.text,
+			trendDirection: balanceTrend.direction,
+			sparklinePoints: buildSparklinePoints(netSeries.value),
 		},
 		{
 			title: '待办礼金',
-			value: `${pendingAmount > 0 ? 12 : 3} 笔`,
+			value: pendingAmount > 0 ? money(pendingAmount) : '¥0.00',
 			sub:
-				pendingAmount > 0 ?
-					`待处理 ${money(pendingAmount)}`
-				:	'本周 3 个待办事项',
-			icon: '▣',
+				pendingAmount > 0 ? '待处理回礼金额' : (
+					`${personSummary.value.personCount || 0} 位联系人`
+				),
+			icon: ClockCircleOutlined,
 			tone: 'todo',
+			trendText: pendingAmount > 0 ? '建议优先处理待回礼' : '暂无待办回礼',
+			trendDirection: 'none',
+			sparklinePoints: buildSparklinePoints(
+				netSeries.value.length > 0 ? netSeries.value : [pendingAmount],
+			),
 		},
 	];
 });
 
 const chartRows = computed(() => {
-	const fallback = [
-		{ label: '1月', receiveAmount: 42000, giveAmount: 26000 },
-		{ label: '2月', receiveAmount: 63000, giveAmount: 32000 },
-		{ label: '3月', receiveAmount: 82000, giveAmount: 42000 },
-		{ label: '4月', receiveAmount: 50000, giveAmount: 61000 },
-		{ label: '5月', receiveAmount: 101000, giveAmount: 28000 },
-		{ label: '6月', receiveAmount: 76000, giveAmount: 19000 },
-	];
-	const source = trendRows.value.length > 0 ? trendRows.value : fallback;
+	const source = scopedTrendRows.value;
+	if (source.length === 0) return [];
 	const maxAmount = Math.max(
 		1,
 		...source.flatMap((item) => [
@@ -275,7 +396,7 @@ const chartRows = computed(() => {
 			Number(item.giveAmount || 0),
 		]),
 	);
-	return source.slice(-6).map((item) => ({
+	return source.map((item) => ({
 		label: item.label || '-',
 		receiveHeight: Math.max(
 			8,
@@ -285,6 +406,22 @@ const chartRows = computed(() => {
 	}));
 });
 
+const trendStats = computed(() => {
+	const source = scopedTrendRows.value;
+	if (source.length === 0) return null;
+	const avgReceive = averageOf(receiveSeries.value);
+	const avgGive = averageOf(giveSeries.value);
+	const netTrend = calcMomTrend(netSeries.value);
+	return {
+		avgReceive,
+		avgGive,
+		netGrowthText:
+			netTrend.pct === null ?
+				netTrend.text
+			:	netTrend.text.replace('较上月', ''),
+	};
+});
+
 const rankingRows = computed(() => {
 	const maxAmount = Math.max(
 		1,
@@ -292,7 +429,7 @@ const rankingRows = computed(() => {
 	);
 	return personRanking.value.slice(0, 5).map((item, index) => ({
 		index: index + 1,
-		name: item.name?.includes('（') ? item.name : `${item.name || '-'}（重点）`,
+		name: item.name || '-',
 		amount: Number(item.amount || 0),
 		percent: Math.max(18, (Number(item.amount || 0) / maxAmount) * 100),
 	}));
@@ -300,11 +437,24 @@ const rankingRows = computed(() => {
 
 const displayRecords = computed(() => records.value.slice(0, 4));
 
+const todayRecordCount = computed(() => {
+	const today = dayjs().format('YYYY-MM-DD');
+	return records.value.filter((item) => item.payTime?.startsWith(today)).length;
+});
+
 const aiReserveAmount = computed(() => {
 	const averageGive =
 		Number(summary.value.giveAmount || 0) /
 		Math.max(1, Number(summary.value.recordCount || 1));
 	return Math.max(2000, averageGive * 3);
+});
+
+const aiSuggestionText = computed(() => {
+	const personCount = Number(personSummary.value.personCount || 0);
+	if (personCount === 0) {
+		return '添加联系人并积累礼金记录后，系统会基于历史往来给出更精准的礼金预算与回礼提醒。';
+	}
+	return `根据您的历史记录，建议为近期重要往来预留约 ${money(aiReserveAmount.value)} 的礼金支出，以保持良好的人情关系。`;
 });
 
 const assertOk = (code: string, msg?: string) => {
@@ -323,6 +473,18 @@ const formatDate = (value?: string) => {
 const signedMoney = (record: GiftRecordInfo) => {
 	const amount = money(record.amount);
 	return record.direction === 'RECEIVE' ? `+${amount}` : `-${amount}`;
+};
+
+const goRecord = async () => {
+	await router.push(recordPath);
+};
+
+const goPerson = async () => {
+	await router.push(personPath);
+};
+
+const goAnalysis = async () => {
+	await router.push(analysisPath);
 };
 
 const loadData = async () => {
@@ -392,12 +554,21 @@ onMounted(loadData);
 	}
 }
 
+.today-summary {
+	margin-left: 8px;
+	padding-left: 8px;
+	border-left: 1px solid #d0d5dd;
+	color: #1677ff;
+	font-weight: 600;
+}
+
 .primary-action {
 	height: 34px;
-	border-radius: 6px;
+	border-radius: 8px;
 	font-weight: 600;
-	background: #006bb6;
-	box-shadow: 0 6px 14px rgba(0, 91, 170, 0.18);
+	background: #1677ff;
+	border-color: #1677ff;
+	box-shadow: 0 6px 14px rgba(22, 119, 255, 0.18);
 }
 
 .metric-grid {
@@ -405,110 +576,6 @@ onMounted(loadData);
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 14px;
 	margin-bottom: 16px;
-}
-
-.metric-card {
-	min-height: 118px;
-	padding: 20px 18px 16px;
-	background: #fff;
-	border: 1px solid #e5eaf1;
-	border-radius: 7px;
-	box-shadow: 0 7px 18px rgba(15, 23, 42, 0.08);
-}
-
-.metric-top {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.metric-title {
-	font-size: 13px;
-	font-weight: 700;
-	color: #344054;
-}
-
-.metric-icon {
-	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 6px;
-	font-size: 16px;
-	font-weight: 700;
-
-	span {
-		position: relative;
-		z-index: 1;
-	}
-
-	&::after {
-		position: absolute;
-		inset: 7px;
-		border: 2px solid currentcolor;
-		border-radius: 3px;
-		content: '';
-		opacity: 0.24;
-	}
-}
-
-.metric-value {
-	margin-top: 20px;
-	font-size: 22px;
-	font-weight: 800;
-	line-height: 1;
-}
-
-.metric-sub {
-	margin-top: 8px;
-	font-size: 12px;
-	color: #667085;
-}
-
-.metric-card-income {
-	.metric-value {
-		color: #14803c;
-	}
-
-	.metric-icon {
-		color: #168a3a;
-		background: #ddf6df;
-	}
-}
-
-.metric-card-expense {
-	.metric-value {
-		color: #d92d20;
-	}
-
-	.metric-icon {
-		color: #d92d20;
-		background: #ffe7e7;
-	}
-}
-
-.metric-card-balance {
-	.metric-value {
-		color: #1478d4;
-	}
-
-	.metric-icon {
-		color: #1478d4;
-		background: #dcecff;
-	}
-}
-
-.metric-card-todo {
-	.metric-value {
-		color: #9a6712;
-	}
-
-	.metric-icon {
-		color: #9a6712;
-		background: #f5ead5;
-	}
 }
 
 .main-grid {
@@ -521,13 +588,21 @@ onMounted(loadData);
 .panel {
 	background: #fff;
 	border: 1px solid #e5eaf1;
-	border-radius: 7px;
-	box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.panel-secondary {
+	border-radius: 10px;
+	box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.panel-tertiary {
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 .panel-head {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: space-between;
 	padding: 16px 18px 8px;
 
@@ -539,6 +614,15 @@ onMounted(loadData);
 	}
 }
 
+.panel-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 8px;
+	font-size: 12px;
+	color: #667085;
+}
+
 .scope-select {
 	width: 112px;
 }
@@ -547,8 +631,8 @@ onMounted(loadData);
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
 	gap: 22px;
-	height: 250px;
-	padding: 22px 40px 12px;
+	height: 200px;
+	padding: 16px 40px 12px;
 }
 
 .bar-group {
@@ -564,7 +648,7 @@ onMounted(loadData);
 	justify-content: center;
 	gap: 10px;
 	width: 100%;
-	height: 198px;
+	height: 160px;
 }
 
 .bar {
@@ -574,11 +658,11 @@ onMounted(loadData);
 }
 
 .bar-income {
-	background: #2f7fbc;
+	background: #1677ff;
 }
 
 .bar-expense {
-	background: #d94848;
+	background: #f97066;
 }
 
 .bar-label {
@@ -605,15 +689,15 @@ onMounted(loadData);
 }
 
 .legend-income {
-	background: #2f7fbc;
+	background: #1677ff;
 }
 
 .legend-expense {
-	background: #d94848;
+	background: #f97066;
 }
 
 .ranking-panel {
-	min-height: 329px;
+	min-height: 320px;
 }
 
 .ranking-list {
@@ -634,8 +718,8 @@ onMounted(loadData);
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
-	background: #e9f2ff;
-	color: #177ddc;
+	background: rgba(22, 119, 255, 0.1);
+	color: #1677ff;
 	font-size: 12px;
 	font-weight: 800;
 }
@@ -663,7 +747,7 @@ onMounted(loadData);
 
 .rank-amount {
 	margin-left: 10px;
-	color: #2f7d32;
+	color: #14803c;
 	font-size: 13px;
 	font-weight: 800;
 }
@@ -685,12 +769,6 @@ onMounted(loadData);
 	display: block;
 	margin: 6px auto 0;
 	font-weight: 700;
-}
-
-.empty-state {
-	padding: 36px 0;
-	color: #98a2b3;
-	text-align: center;
 }
 
 .record-panel {
@@ -716,29 +794,26 @@ onMounted(loadData);
 	min-height: 42px;
 	color: #475467;
 	font-weight: 800;
-	background: #fbfcfe;
+	background: #fafafa;
 	border-top: 1px solid #edf0f5;
 }
 
-.table-empty {
-	border-bottom: 1px solid #edf0f5;
+.record-row-body {
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background: #f8fbff;
+	}
 }
 
 .amount-income {
-	color: #2f7d32;
+	color: #14803c;
 	font-weight: 800;
 }
 
 .amount-expense {
 	color: #d92d20;
 	font-weight: 800;
-}
-
-.more-action {
-	color: #344054;
-	font-size: 18px;
-	font-weight: 800;
-	letter-spacing: 1px;
 }
 
 .float-add {
@@ -749,9 +824,10 @@ onMounted(loadData);
 	height: 44px;
 	font-size: 24px;
 	font-weight: 500;
-	background: #006bb6;
+	background: #1677ff;
+	border-color: #1677ff;
 	transform: translateX(50%);
-	box-shadow: 0 10px 20px rgba(0, 91, 170, 0.25);
+	box-shadow: 0 10px 20px rgba(22, 119, 255, 0.25);
 }
 
 .ai-panel {
@@ -766,13 +842,13 @@ onMounted(loadData);
 	background:
 		linear-gradient(
 			110deg,
-			rgba(0, 105, 180, 0.96) 0%,
-			rgba(0, 105, 180, 0.96) 68%,
-			rgba(0, 105, 180, 0.78) 68%
+			rgba(22, 119, 255, 0.96) 0%,
+			rgba(22, 119, 255, 0.96) 68%,
+			rgba(64, 150, 255, 0.78) 68%
 		),
-		linear-gradient(135deg, #006bb6, #0a82cf);
-	border-radius: 7px;
-	box-shadow: 0 8px 18px rgba(0, 91, 170, 0.2);
+		linear-gradient(135deg, #1677ff, #4096ff);
+	border-radius: 12px;
+	box-shadow: 0 10px 24px rgba(22, 119, 255, 0.2);
 
 	&::before {
 		position: absolute;
@@ -821,11 +897,11 @@ onMounted(loadData);
 .ai-action {
 	min-width: 128px;
 	height: 36px;
-	color: #006bb6;
+	color: #1677ff;
 	font-weight: 800;
 	background: #fff;
 	border: none;
-	border-radius: 6px;
+	border-radius: 8px;
 }
 
 @media (max-width: 1200px) {
