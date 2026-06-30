@@ -159,7 +159,10 @@ import type {
 	GiftRecordSummary,
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
-import { money, relationLabel } from '@/views/finance/gift/config';
+import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
+import { money } from '@/views/finance/gift/config';
+
+const { relationLabel, loadRelationOptions } = useGiftRelationOptions();
 
 const RankingList = defineComponent({
 	props: {
@@ -304,7 +307,10 @@ const loadData = async () => {
 	}
 };
 
-onMounted(loadData);
+onMounted(async () => {
+	await loadRelationOptions();
+	loadData();
+});
 </script>
 
 <style scoped lang="less">

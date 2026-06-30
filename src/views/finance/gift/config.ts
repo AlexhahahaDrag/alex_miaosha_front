@@ -9,6 +9,7 @@ export interface GiftPersonInfo {
 	personName?: string;
 	phone?: string;
 	relationType?: string;
+	relationOptionId?: string;
 	remark?: string;
 	createTime?: string;
 }
@@ -133,19 +134,184 @@ export interface GiftRelationDistribution {
 	count?: number;
 }
 
+export interface GiftPersonRelationOptions {
+	presets?: GiftRelationOptionItem[];
+	customs?: GiftRelationOptionItem[];
+}
+
+export interface GiftRelationOptionItem {
+	id: string;
+	name: string;
+}
+
+/** @deprecated 兼容 Ant Design Select，请使用 GiftRelationOptionItem */
+export interface GiftRelationSelectOption {
+	label: string;
+	value: string;
+}
+
+export interface GiftRelationSelectGroup {
+	label: string;
+	options: GiftRelationSelectOption[];
+}
+
 export const giftDirectionOptions = [
 	{ label: '随礼', value: 'GIVE' },
 	{ label: '收礼', value: 'RECEIVE' },
 	{ label: '回礼', value: 'RETURN' },
 ];
 
-export const giftRelationOptions = [
-	{ label: '亲属', value: 'RELATIVE' },
-	{ label: '朋友', value: 'FRIEND' },
-	{ label: '同事', value: 'COLLEAGUE' },
-	{ label: '邻里', value: 'NEIGHBOR' },
-	{ label: '其他', value: 'OTHER' },
+/** 接口不可用时的兜底预设 */
+export const FALLBACK_GIFT_RELATION_OPTIONS: GiftRelationOptionItem[] = [
+	{ id: '9000000000000000001', name: '亲属' },
+	{ id: '9000000000000000002', name: '朋友' },
+	{ id: '9000000000000000003', name: '同事' },
+	{ id: '9000000000000000004', name: '邻里' },
+	{ id: '9000000000000000005', name: '其他' },
 ];
+
+const PRESET_NAME_TO_CODE: Record<string, string> = {
+	亲属: 'RELATIVE',
+	朋友: 'FRIEND',
+	同事: 'COLLEAGUE',
+	邻里: 'NEIGHBOR',
+	其他: 'OTHER',
+};
+
+/** @deprecated 请使用 useGiftRelationOptions().giftRelationOptions */
+export const giftRelationOptions: GiftRelationSelectOption[] =
+	FALLBACK_GIFT_RELATION_OPTIONS.map((item) => ({
+		label: item.name,
+		value: PRESET_NAME_TO_CODE[item.name] || item.id,
+	}));
+
+/** 表单「自定义关系」选项值，不入库 */
+export const RELATION_CUSTOM = 'CUSTOM';
+
+export function toSelectOptions(
+	items: GiftRelationOptionItem[] = [],
+): GiftRelationSelectOption[] {
+	return items.map((item) => ({ label: item.name, value: item.id }));
+}
+
+export function resolvePresetCode(
+	presetId: string,
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+): string {
+	const preset = presets.find((item) => item.id === presetId);
+	if (!preset) {
+		return presetId;
+	}
+	return PRESET_NAME_TO_CODE[preset.name] || preset.name;
+}
+
+export function buildGiftRelationSelectOptions(
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+	customOptions: GiftRelationOptionItem[] = [],
+): GiftRelationSelectGroup[] {
+	const groups: GiftRelationSelectGroup[] = [
+		{ label: '常用', options: toSelectOptions(presets) },
+	];
+	if (customOptions.length) {
+		groups.push({
+			label: '我的',
+			options: toSelectOptions(customOptions),
+		});
+	}
+	groups.push({
+		label: '其他',
+		options: [{ label: '自定义…', value: RELATION_CUSTOM }],
+	});
+	return groups;
+}
+
+export function isPresetRelationType(
+	relation?: string,
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+) {
+	if (!relation) {
+		return false;
+	}
+	return (
+		Object.values(PRESET_NAME_TO_CODE).includes(relation) ||
+		presets.some((item) => PRESET_NAME_TO_CODE[item.name] === relation)
+	);
+}
+
+export function findOptionIdByRelationType(
+	relationType?: string,
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+	customOptions: GiftRelationOptionItem[] = [],
+): string | undefined {
+	if (!relationType) {
+		return undefined;
+	}
+	const preset = presets.find(
+		(item) => PRESET_NAME_TO_CODE[item.name] === relationType,
+	);
+	if (preset) {
+		return preset.id;
+	}
+	return customOptions.find((item) => item.name === relationType)?.id;
+}
+
+export interface GiftPersonFormState extends GiftPersonInfo {
+	relationMode?: string;
+	customRelation?: string;
+}
+
+export function mapRelationToFormFields(
+	data: GiftPersonInfo = {},
+	customOptions: GiftRelationOptionItem[] = [],
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+): GiftPersonFormState {
+	const { relationType, relationOptionId, ...rest } = data;
+	if (relationOptionId) {
+		return {
+			...rest,
+			relationType,
+			relationOptionId,
+			relationMode: relationOptionId,
+			customRelation: '',
+		};
+	}
+	if (!relationType) {
+		return { ...rest, relationMode: undefined, customRelation: '' };
+	}
+	const matchedId = findOptionIdByRelationType(
+		relationType,
+		presets,
+		customOptions,
+	);
+	if (matchedId) {
+		return {
+			...rest,
+			relationType,
+			relationOptionId: matchedId,
+			relationMode: matchedId,
+			customRelation: '',
+		};
+	}
+	return {
+		...rest,
+		relationType,
+		relationMode: RELATION_CUSTOM,
+		customRelation: relationType,
+	};
+}
+
+export function buildRelationTypeForSave(
+	form: GiftPersonFormState,
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+): Pick<GiftPersonInfo, 'relationType' | 'relationOptionId'> {
+	if (form.relationMode === RELATION_CUSTOM) {
+		return { relationType: form.customRelation?.trim() || '' };
+	}
+	if (!form.relationMode) {
+		return {};
+	}
+	return { relationOptionId: form.relationMode };
+}
 
 export const giftEventOptions = [
 	{ label: '婚礼', value: 'WEDDING' },
@@ -169,10 +335,15 @@ export function directionColor(direction?: string) {
 	return 'default';
 }
 
-export function relationLabel(relation?: string) {
-	return (
-		giftRelationOptions.find((item) => item.value === relation)?.label || '-'
+export function relationLabel(
+	relation?: string,
+	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+) {
+	if (!relation) return '-';
+	const preset = presets.find(
+		(item) => PRESET_NAME_TO_CODE[item.name] === relation,
 	);
+	return preset?.name ?? relation;
 }
 
 export function eventLabel(eventType?: string) {

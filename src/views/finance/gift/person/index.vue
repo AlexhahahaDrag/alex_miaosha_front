@@ -38,14 +38,16 @@
 					<a-space>
 						<a-tag
 							v-for="item in quickRelations"
-							:key="item.value"
+							:key="item.id"
 							class="quick-tag"
 							:color="
-								searchInfo.relationType === item.value ? 'blue' : 'default'
+								searchInfo.relationType === resolveFilterRelationType(item.id) ?
+									'blue'
+								:	'default'
 							"
-							@click="selectRelation(item.value)"
+							@click="selectRelation(item.id)"
 						>
-							{{ item.label }}
+							{{ item.name }}
 						</a-tag>
 					</a-space>
 				</a-form-item>
@@ -167,130 +169,39 @@
 			</a-table>
 		</section>
 
-		<a-drawer
-			v-model:open="drawerOpen"
-			:title="formInfo.id ? '编辑联系人' : '新增联系人'"
-			width="460"
-		>
-			<a-form :model="formInfo" layout="vertical">
-				<a-form-item label="姓名" required>
-					<a-input
-						v-model:value="formInfo.personName"
-						placeholder="请输入姓名"
-					/>
-				</a-form-item>
-				<a-form-item label="手机号">
-					<a-input v-model:value="formInfo.phone" placeholder="请输入手机号" />
-				</a-form-item>
-				<a-form-item label="关系">
-					<a-select
-						v-model:value="formInfo.relationType"
-						:options="giftRelationOptions"
-					/>
-				</a-form-item>
-				<a-form-item label="备注">
-					<a-textarea v-model:value="formInfo.remark" :rows="3" />
-				</a-form-item>
-			</a-form>
-			<template #footer>
-				<a-space>
-					<a-button @click="drawerOpen = false">取消</a-button>
-					<a-button type="primary" :loading="saving" @click="save"
-						>保存</a-button
-					>
-				</a-space>
-			</template>
-		</a-drawer>
-
-		<a-drawer v-model:open="profileOpen" title="联系人详情" width="420">
-			<div class="profile-head">
-				<span class="profile-avatar">{{
-					firstName(profile.person?.personName)
-				}}</span>
-				<h3>{{ profile.person?.personName || '-' }}</h3>
-				<p>
-					{{ relationLabel(profile.person?.relationType) }} ·
-					{{ profile.person?.phone || '-' }}
-				</p>
-			</div>
-			<div class="profile-metrics">
-				<div>
-					<span>累计送礼</span>
-					<strong class="amount-out">{{
-						money(profile.person?.totalGiveAmount)
-					}}</strong>
-				</div>
-				<div>
-					<span>累计收礼</span>
-					<strong class="amount-in">{{
-						money(profile.person?.totalReceiveAmount)
-					}}</strong>
-				</div>
-			</div>
-			<a-divider>基本信息</a-divider>
-			<a-descriptions :column="1" size="small" bordered>
-				<a-descriptions-item label="手机号">
-					{{ profile.person?.phone || '-' }}
-				</a-descriptions-item>
-				<a-descriptions-item label="关系">
-					{{ relationLabel(profile.person?.relationType) }}
-				</a-descriptions-item>
-				<a-descriptions-item label="备注">
-					{{ profile.person?.remark || '-' }}
-				</a-descriptions-item>
-			</a-descriptions>
-			<a-divider>往来历史</a-divider>
-			<a-list :data-source="profile.records || []" size="small">
-				<template #renderItem="{ item }">
-					<a-list-item>
-						<a-list-item-meta
-							:title="`${directionLabel(item.direction)} ${money(item.amount)}`"
-							:description="`${item.payTime || '-'} ${item.remark || ''}`"
-						/>
-					</a-list-item>
-				</template>
-			</a-list>
-			<div class="profile-actions">
-				<a-button
-					v-if="hasPermission('gift:edit')"
-					type="primary"
-					block
-					@click="openDrawer(profile.person)"
-				>
-					编辑资料
-				</a-button>
-				<a-button block @click="profileOpen = false">返回列表</a-button>
-			</div>
-		</a-drawer>
+		<gift-person-detail
+			v-model:model-info="modelInfo"
+			@success="handleSuccess"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
+import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import {
-	addGiftPerson,
 	deleteGiftPerson,
 	getGiftPersonBusinessPage,
-	getGiftPersonProfile,
 	getGiftPersonSummary,
-	updateGiftPerson,
 } from '@/views/finance/gift/api';
 import type {
 	GiftPersonBusinessInfo,
 	GiftPersonInfo,
-	GiftPersonProfile,
 	GiftPersonQuery,
 	GiftPersonSummary,
 } from '@/views/finance/gift/config';
-import {
-	directionLabel,
+import { directionLabel, money } from '@/views/finance/gift/config';
+
+const {
 	giftRelationOptions,
-	money,
+	quickRelations,
 	relationLabel,
-} from '@/views/finance/gift/config';
+	loadRelationOptions,
+	resolveFilterRelationType,
+} = useGiftRelationOptions();
 
 const {
 	pagination,
@@ -300,16 +211,17 @@ const {
 } = usePagination();
 const loading = ref(false);
 const { hasPermission } = usePermission();
-const saving = ref(false);
-const drawerOpen = ref(false);
-const profileOpen = ref(false);
+const modelInfo = ref<{
+	id?: string;
+	open?: boolean;
+	title?: string;
+	width?: string;
+	mode?: 'form' | 'profile';
+}>({});
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftPersonQuery>({});
-const formInfo = ref<GiftPersonInfo>({});
 const summary = ref<GiftPersonSummary>({});
-const profile = ref<GiftPersonProfile>({});
 const dataSource = ref<GiftPersonBusinessInfo[]>([]);
-const quickRelations = giftRelationOptions.slice(0, 3);
 
 const columns = [
 	{ title: '联系人姓名', dataIndex: 'personName', key: 'personName' },
@@ -327,9 +239,10 @@ const columns = [
 
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
-const selectRelation = (value: string) => {
+const selectRelation = (presetId: string) => {
+	const relationType = resolveFilterRelationType(presetId);
 	searchInfo.value.relationType =
-		searchInfo.value.relationType === value ? undefined : value;
+		searchInfo.value.relationType === relationType ? undefined : relationType;
 	query(true);
 };
 
@@ -378,36 +291,28 @@ const loadPage = async (page: PageInfo) => {
 };
 
 const openDrawer = (record?: GiftPersonInfo) => {
-	formInfo.value = record ? { ...record } : {};
-	drawerOpen.value = true;
+	modelInfo.value = {
+		open: true,
+		mode: 'form',
+		title: record?.id ? '编辑联系人' : '新增联系人',
+		width: '460px',
+		id: record?.id,
+	};
 };
 
-const openProfile = async (record: GiftPersonBusinessInfo) => {
+const handleSuccess = () => {
+	query();
+};
+
+const openProfile = (record: GiftPersonBusinessInfo) => {
 	if (!record.id) return;
-	const { code, data, message: msg } = await getGiftPersonProfile(record.id);
-	if (code === '200') {
-		profile.value = data || {};
-		profileOpen.value = true;
-	} else {
-		message.error(msg || '联系人详情加载失败');
-	}
-};
-
-const save = async () => {
-	saving.value = true;
-	try {
-		const api = formInfo.value.id ? updateGiftPerson : addGiftPerson;
-		const { code, message: msg } = await api(formInfo.value);
-		if (code === '200') {
-			message.success('保存成功');
-			drawerOpen.value = false;
-			query();
-		} else {
-			message.error(msg || '保存失败');
-		}
-	} finally {
-		saving.value = false;
-	}
+	modelInfo.value = {
+		open: true,
+		mode: 'profile',
+		title: '联系人详情',
+		width: '420px',
+		id: record.id,
+	};
 };
 
 const remove = async (id: string) => {
@@ -420,7 +325,10 @@ const remove = async (id: string) => {
 	}
 };
 
-onMounted(() => query(true));
+onMounted(async () => {
+	await loadRelationOptions();
+	query(true);
+});
 </script>
 
 <style scoped lang="less">
@@ -643,20 +551,16 @@ onMounted(() => query(true));
 	}
 }
 
-.avatar-dot,
-.profile-avatar {
+.avatar-dot {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	background: #65d944;
-	color: #0b3b13;
-	font-weight: 800;
-}
-
-.avatar-dot {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
+	background: #65d944;
+	color: #0b3b13;
+	font-weight: 800;
 }
 
 .amount-in {
@@ -667,53 +571,5 @@ onMounted(() => query(true));
 .amount-out {
 	color: #cf1322;
 	font-weight: 700;
-}
-
-.profile-head {
-	text-align: center;
-
-	h3 {
-		margin: 12px 0 4px;
-		font-size: 18px;
-	}
-
-	p {
-		margin: 0;
-		color: #667085;
-	}
-}
-
-.profile-avatar {
-	width: 64px;
-	height: 64px;
-	border-radius: 10px;
-	font-size: 24px;
-}
-
-.profile-metrics {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 12px;
-	margin-top: 18px;
-
-	div {
-		padding: 14px;
-		background: #f8fafc;
-		border-radius: 7px;
-	}
-
-	span {
-		display: block;
-		margin-bottom: 8px;
-		color: #667085;
-		font-size: 12px;
-	}
-}
-
-.profile-actions {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 10px;
-	margin-top: 18px;
 }
 </style>

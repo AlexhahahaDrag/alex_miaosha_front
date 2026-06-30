@@ -16,6 +16,7 @@ import type {
 	GiftPersonInfo,
 	GiftPersonProfile,
 	GiftPersonQuery,
+	GiftPersonRelationOptions,
 	GiftPersonSummary,
 	GiftRankingItem,
 	GiftRecordInfo,
@@ -140,6 +141,15 @@ export function getGiftPersonDetail(
 ): Promise<ResponseBody<GiftPersonInfo>> {
 	return getDataOne<GiftPersonInfo>(baseUrl(giftApi.person), { id }).then(
 		normalizeGiftResponse,
+	);
+}
+
+export function getGiftPersonRelationOptions(
+	personId?: string,
+): Promise<ResponseBody<GiftPersonRelationOptions>> {
+	return getDataOne<GiftPersonRelationOptions>(
+		`${baseUrl(giftApi.person)}/relation-options`,
+		personId ? { personId } : {},
 	);
 }
 
