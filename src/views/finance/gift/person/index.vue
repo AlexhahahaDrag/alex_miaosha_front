@@ -326,7 +326,7 @@ const remove = async (id: string) => {
 };
 
 onMounted(async () => {
-	await loadRelationOptions();
+	loadRelationOptions();
 	query(true);
 });
 </script>

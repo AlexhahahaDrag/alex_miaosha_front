@@ -3,11 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import * as echarts from 'echarts';
 import { nanoid } from 'nanoid';
-//import dark from './dark';
-//主题
-import 'echarts/theme/infographic';
+import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 
 const props = defineProps({
 	options: {
@@ -32,30 +29,30 @@ const style = computed(() => ({
 	height: props.height,
 	width: props.width,
 }));
-let chart: echarts.ECharts | null = null;
-const initEcharts = () => {
-	disposeChart();
-	if (!chart) {
-		chart = echarts.init(document.getElementById(id.value)!);
-	} else {
+
+let chart: EChartsType | null = null;
+
+const onResize = () => {
+	chart?.resize();
+};
+
+const initEcharts = async () => {
+	const echarts = await loadEcharts();
+	const el = document.getElementById(id.value);
+	if (!el || chart) {
 		return;
 	}
-	if (!props.options) return;
+	chart = echarts.init(el);
 	chart.setOption(props.options);
-	window.addEventListener('resize', function () {
-		chart?.resize();
-	});
+	window.addEventListener('resize', onResize);
 };
 
 const disposeChart = () => {
-	if (chart) {
-		window.addEventListener('resize', function () {
-			chart?.resize();
-		});
-	}
+	window.removeEventListener('resize', onResize);
 	chart?.dispose();
 	chart = null;
 };
+
 onMounted(() => {
 	watch(
 		() => props.options,
@@ -64,8 +61,9 @@ onMounted(() => {
 		},
 		{ deep: true, flush: 'post' },
 	);
-	initEcharts();
+	void initEcharts();
 });
+
 onUnmounted(() => {
 	disposeChart();
 });
