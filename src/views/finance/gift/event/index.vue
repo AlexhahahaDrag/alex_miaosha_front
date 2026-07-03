@@ -28,7 +28,8 @@
 				<a-form-item label="事由类别">
 					<a-select
 						v-model:value="searchInfo.eventType"
-						:options="giftEventOptions"
+						:options="giftEventTypeOptions"
+						placeholder="全部类别"
 						allow-clear
 						class="filter-select"
 					/>
@@ -37,12 +38,16 @@
 					<a-space>
 						<a-tag
 							v-for="item in quickEvents"
-							:key="item.value"
+							:key="item.id"
 							class="quick-tag"
-							:color="searchInfo.eventType === item.value ? 'blue' : 'default'"
-							@click="selectEventType(item.value)"
+							:color="
+								searchInfo.eventType === resolveFilterEventType(item.id) ?
+									'blue'
+								:	'default'
+							"
+							@click="selectEventType(item.id)"
 						>
-							{{ item.label }}
+							{{ item.name }}
 						</a-tag>
 					</a-space>
 				</a-form-item>
@@ -50,7 +55,7 @@
 					<a-range-picker
 						v-model:value="eventRange"
 						show-time
-						value-format="YYYY-MM-DD HH:mm:ss"
+						value-format="YYYY-MM-DDTHH:mm:ss"
 					/>
 				</a-form-item>
 				<a-form-item>
@@ -166,17 +171,31 @@
 				<a-form-item label="事由名称" required>
 					<a-input v-model:value="formInfo.eventName" />
 				</a-form-item>
-				<a-form-item label="类型">
+				<a-form-item label="类型" required>
 					<a-select
-						v-model:value="formInfo.eventType"
-						:options="giftEventOptions"
+						v-model:value="formInfo.eventTypeMode"
+						:options="eventTypeSelectOptions"
+						allow-clear
+						placeholder="请选择事由类型"
+					/>
+				</a-form-item>
+				<a-form-item
+					v-if="formInfo.eventTypeMode === EVENT_TYPE_CUSTOM"
+					label="自定义类型"
+					required
+				>
+					<a-input
+						v-model:value="formInfo.customEventType"
+						placeholder="请输入自定义事由类型"
+						allow-clear
+						:maxlength="20"
 					/>
 				</a-form-item>
 				<a-form-item label="事由时间">
 					<a-date-picker
 						v-model:value="formInfo.eventTime"
 						show-time
-						value-format="YYYY-MM-DD HH:mm:ss"
+						value-format="YYYY-MM-DDTHH:mm:ss"
 						style="width: 100%"
 					/>
 				</a-form-item>
@@ -198,6 +217,7 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
+import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
@@ -210,15 +230,26 @@ import {
 } from '@/views/finance/gift/api';
 import type {
 	GiftEventBusinessInfo,
+	GiftEventFormState,
 	GiftEventInfo,
 	GiftEventQuery,
 	GiftEventSummary,
 } from '@/views/finance/gift/config';
 import {
-	eventLabel,
-	giftEventOptions,
+	EVENT_TYPE_CUSTOM,
+	buildEventTypeForSave,
 	money,
 } from '@/views/finance/gift/config';
+
+const {
+	giftEventTypeOptions,
+	eventTypeSelectOptions,
+	quickEvents,
+	eventLabel,
+	loadEventTypeOptions,
+	resolveFilterEventType,
+	mapEventTypeToFormFields,
+} = useGiftEventTypeOptions();
 
 const {
 	pagination,
@@ -233,20 +264,20 @@ const drawerOpen = ref(false);
 const searchExpanded = ref(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftEventQuery>({});
-const formInfo = ref<GiftEventInfo>({});
+const formInfo = ref<GiftEventFormState>({});
 const dataSource = ref<GiftEventBusinessInfo[]>([]);
 const summary = ref<GiftEventSummary>({});
 const eventRange = ref<[string, string] | undefined>();
-const quickEvents = giftEventOptions.slice(0, 3);
 
 watch(eventRange, (value) => {
 	searchInfo.value.eventTimeStart = value?.[0];
 	searchInfo.value.eventTimeEnd = value?.[1];
 });
 
-const selectEventType = (value: string) => {
+const selectEventType = (presetId: string) => {
+	const eventType = resolveFilterEventType(presetId);
 	searchInfo.value.eventType =
-		searchInfo.value.eventType === value ? undefined : value;
+		searchInfo.value.eventType === eventType ? undefined : eventType;
 	query(true);
 };
 
@@ -320,19 +351,49 @@ const loadPage = async (page: PageInfo) => {
 	}
 };
 
-const openDrawer = (record?: GiftEventInfo) => {
-	formInfo.value = record ? { ...record } : {};
+const openDrawer = (record?: GiftEventBusinessInfo) => {
+	formInfo.value = record ? mapEventTypeToFormFields(record) : {};
 	drawerOpen.value = true;
 };
 
+const toSavePayload = (): GiftEventInfo => {
+	const {
+		eventTypeMode,
+		customEventType,
+		eventType,
+		eventTypeOptionId,
+		...rest
+	} = formInfo.value;
+	return {
+		...rest,
+		...buildEventTypeForSave(formInfo.value),
+	};
+};
+
 const save = async () => {
+	if (!formInfo.value.eventName?.trim()) {
+		message.warning('请输入事由名称');
+		return;
+	}
+	if (
+		formInfo.value.eventTypeMode === EVENT_TYPE_CUSTOM &&
+		!formInfo.value.customEventType?.trim()
+	) {
+		message.warning('请输入自定义事由类型');
+		return;
+	}
+	if (!formInfo.value.eventTypeMode) {
+		message.warning('请选择事由类型');
+		return;
+	}
 	saving.value = true;
 	try {
 		const api = formInfo.value.id ? updateGiftEvent : addGiftEvent;
-		const { code, message: msg } = await api(formInfo.value);
+		const { code, message: msg } = await api(toSavePayload());
 		if (code === '200') {
 			message.success('保存成功');
 			drawerOpen.value = false;
+			await loadEventTypeOptions();
 			query();
 		} else {
 			message.error(msg || '保存失败');
@@ -352,7 +413,10 @@ const remove = async (id: string) => {
 	}
 };
 
-onMounted(() => query(true));
+onMounted(() => {
+	void loadEventTypeOptions();
+	query(true);
+});
 </script>
 
 <style scoped lang="less">

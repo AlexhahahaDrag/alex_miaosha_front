@@ -12,6 +12,7 @@ import type {
 	GiftEventInfo,
 	GiftEventQuery,
 	GiftEventSummary,
+	GiftEventTypeOptions,
 	GiftPersonBusinessInfo,
 	GiftPersonInfo,
 	GiftPersonProfile,
@@ -199,6 +200,14 @@ export function getGiftEventBusinessPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
+	).then(normalizeGiftResponse);
+}
+
+export function getGiftEventTypeOptions(): Promise<
+	ResponseBody<GiftEventTypeOptions>
+> {
+	return getDataOne<GiftEventTypeOptions>(
+		`${baseUrl(giftApi.event)}/event-type-options`,
 	).then(normalizeGiftResponse);
 }
 

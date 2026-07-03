@@ -46,6 +46,7 @@ export interface GiftEventInfo {
 	userId?: GiftId;
 	eventName?: string;
 	eventType?: string;
+	eventTypeOptionId?: string;
 	eventTime?: string;
 	hostPersonId?: GiftId;
 	remark?: string;
@@ -313,14 +314,157 @@ export function buildRelationTypeForSave(
 	return { relationOptionId: form.relationMode };
 }
 
-export const giftEventOptions = [
-	{ label: '婚礼', value: 'WEDDING' },
-	{ label: '满月', value: 'BIRTH' },
-	{ label: '乔迁', value: 'HOUSEWARMING' },
-	{ label: '升学', value: 'EDUCATION' },
-	{ label: '寿宴', value: 'BIRTHDAY' },
-	{ label: '其他', value: 'OTHER' },
+export interface GiftEventTypeOptionItem {
+	id: string;
+	name: string;
+}
+
+export interface GiftEventTypeOptions {
+	presets?: GiftEventTypeOptionItem[];
+	customs?: GiftEventTypeOptionItem[];
+}
+
+export interface GiftEventFormState extends GiftEventInfo {
+	eventTypeMode?: string;
+	customEventType?: string;
+}
+
+/** 接口不可用时的兜底预设 */
+export const FALLBACK_GIFT_EVENT_OPTIONS: GiftEventTypeOptionItem[] = [
+	{ id: '9100000000000000001', name: '婚礼' },
+	{ id: '9100000000000000002', name: '满月' },
+	{ id: '9100000000000000003', name: '乔迁' },
+	{ id: '9100000000000000004', name: '升学' },
+	{ id: '9100000000000000005', name: '寿宴' },
+	{ id: '9100000000000000006', name: '其他' },
 ];
+
+const EVENT_PRESET_NAME_TO_CODE: Record<string, string> = {
+	婚礼: 'WEDDING',
+	满月: 'BIRTH',
+	乔迁: 'HOUSEWARMING',
+	升学: 'EDUCATION',
+	寿宴: 'BIRTHDAY',
+	其他: 'OTHER',
+};
+
+/** 表单「自定义事由类型」选项值，不入库 */
+export const EVENT_TYPE_CUSTOM = 'CUSTOM';
+
+/** @deprecated 请使用 useGiftEventTypeOptions().giftEventTypeOptions */
+export const giftEventOptions = FALLBACK_GIFT_EVENT_OPTIONS.map((item) => ({
+	label: item.name,
+	value: EVENT_PRESET_NAME_TO_CODE[item.name] || item.id,
+}));
+
+export function resolveEventPresetCode(
+	presetId: string,
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+): string {
+	const preset = presets.find((item) => item.id === presetId);
+	if (!preset) {
+		return presetId;
+	}
+	return EVENT_PRESET_NAME_TO_CODE[preset.name] || preset.name;
+}
+
+export function buildGiftEventTypeSelectOptions(
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+	customOptions: GiftEventTypeOptionItem[] = [],
+): GiftRelationSelectGroup[] {
+	const groups: GiftRelationSelectGroup[] = [
+		{ label: '常用', options: toSelectOptions(presets) },
+	];
+	if (customOptions.length) {
+		groups.push({
+			label: '家庭组',
+			options: toSelectOptions(customOptions),
+		});
+	}
+	groups.push({
+		label: '其他',
+		options: [{ label: '自定义…', value: EVENT_TYPE_CUSTOM }],
+	});
+	return groups;
+}
+
+export function isPresetEventType(
+	eventType?: string,
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+) {
+	if (!eventType) {
+		return false;
+	}
+	return (
+		Object.values(EVENT_PRESET_NAME_TO_CODE).includes(eventType) ||
+		presets.some((item) => EVENT_PRESET_NAME_TO_CODE[item.name] === eventType)
+	);
+}
+
+export function findEventTypeOptionId(
+	eventType?: string,
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+	customOptions: GiftEventTypeOptionItem[] = [],
+): string | undefined {
+	if (!eventType) {
+		return undefined;
+	}
+	const preset = presets.find(
+		(item) => EVENT_PRESET_NAME_TO_CODE[item.name] === eventType,
+	);
+	if (preset) {
+		return preset.id;
+	}
+	return customOptions.find((item) => item.name === eventType)?.id;
+}
+
+export function mapEventTypeToFormFields(
+	data: GiftEventInfo = {},
+	customOptions: GiftEventTypeOptionItem[] = [],
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+): GiftEventFormState {
+	const { eventType, eventTypeOptionId, ...rest } = data;
+	if (eventTypeOptionId) {
+		return {
+			...rest,
+			eventType,
+			eventTypeOptionId,
+			eventTypeMode: eventTypeOptionId,
+			customEventType: '',
+		};
+	}
+	if (!eventType) {
+		return { ...rest, eventTypeMode: undefined, customEventType: '' };
+	}
+	const matchedId = findEventTypeOptionId(eventType, presets, customOptions);
+	if (matchedId) {
+		return {
+			...rest,
+			eventType,
+			eventTypeOptionId: matchedId,
+			eventTypeMode: matchedId,
+			customEventType: '',
+		};
+	}
+	return {
+		...rest,
+		eventType,
+		eventTypeMode: EVENT_TYPE_CUSTOM,
+		customEventType: eventType,
+	};
+}
+
+export function buildEventTypeForSave(
+	form: GiftEventFormState,
+): Pick<GiftEventInfo, 'eventType' | 'eventTypeOptionId'> {
+	if (form.eventTypeMode === EVENT_TYPE_CUSTOM) {
+		return { eventType: form.customEventType?.trim() || '' };
+	}
+	if (!form.eventTypeMode) {
+		return {};
+	}
+	return { eventTypeOptionId: form.eventTypeMode };
+}
 
 export function directionLabel(direction?: string) {
 	return (
@@ -346,10 +490,20 @@ export function relationLabel(
 	return preset?.name ?? relation;
 }
 
-export function eventLabel(eventType?: string) {
-	return (
-		giftEventOptions.find((item) => item.value === eventType)?.label || '-'
+export function eventLabel(
+	eventType?: string,
+	presets: GiftEventTypeOptionItem[] = FALLBACK_GIFT_EVENT_OPTIONS,
+	customOptions: GiftEventTypeOptionItem[] = [],
+) {
+	if (!eventType) return '-';
+	const preset = presets.find(
+		(item) => EVENT_PRESET_NAME_TO_CODE[item.name] === eventType,
 	);
+	if (preset) {
+		return preset.name;
+	}
+	const custom = customOptions.find((item) => item.name === eventType);
+	return custom?.name ?? eventType;
 }
 
 export function money(value?: number | string) {
