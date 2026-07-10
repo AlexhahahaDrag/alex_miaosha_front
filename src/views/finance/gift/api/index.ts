@@ -137,6 +137,15 @@ export function getGiftPersonList(
 	).then(normalizeGiftResponse);
 }
 
+export function getGiftOrgMemberOptions(
+	keyword?: string,
+): Promise<ResponseBody<GiftPersonInfo[]>> {
+	return getDataOne<GiftPersonInfo[]>(
+		`${baseUrl(giftApi.person)}/org-member-options`,
+		keyword ? { keyword } : {},
+	).then(normalizeGiftResponse);
+}
+
 export function getGiftPersonDetail(
 	id: string,
 ): Promise<ResponseBody<GiftPersonInfo>> {

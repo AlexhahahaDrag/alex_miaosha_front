@@ -1,4 +1,5 @@
 export type GiftDirection = 'GIVE' | 'RECEIVE' | 'RETURN';
+export type GiftPersonScope = 'CONTACT' | 'ORG_MEMBER' | 'ALL';
 export type GiftId = string;
 
 export interface GiftPersonInfo {
@@ -38,6 +39,7 @@ export interface GiftPersonProfile {
 export interface GiftPersonQuery {
 	keyword?: string;
 	relationType?: string;
+	personScope?: GiftPersonScope;
 }
 
 export interface GiftEventInfo {
@@ -161,6 +163,12 @@ export const giftDirectionOptions = [
 	{ label: '收礼', value: 'RECEIVE' },
 	{ label: '回礼', value: 'RETURN' },
 ];
+
+export const GIFT_RECORD_PATH = '/finance/gift/record';
+export const GIFT_PERSON_PATH = '/finance/gift/person';
+export const GIFT_EVENT_PATH = '/finance/gift/event';
+
+export const quickGiftAmounts = [200, 500, 1000, 2000];
 
 /** 接口不可用时的兜底预设 */
 export const FALLBACK_GIFT_RELATION_OPTIONS: GiftRelationOptionItem[] = [

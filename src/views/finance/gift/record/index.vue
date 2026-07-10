@@ -234,64 +234,11 @@
 			</a-table>
 		</section>
 
-		<a-drawer
+		<gift-record-form-drawer
 			v-model:open="drawerOpen"
-			:title="formInfo.id ? '编辑礼金记录' : '快速记礼'"
-			width="520"
-		>
-			<a-form :model="formInfo" layout="vertical">
-				<a-form-item label="方向" required>
-					<a-segmented
-						v-model:value="formInfo.direction"
-						:options="giftDirectionOptions"
-						block
-					/>
-				</a-form-item>
-				<a-form-item label="金额" required>
-					<a-input-number
-						v-model:value="formInfo.amount"
-						:min="0"
-						:precision="2"
-						style="width: 100%"
-					/>
-				</a-form-item>
-				<a-form-item label="事件ID">
-					<a-input v-model:value="formInfo.eventId" />
-				</a-form-item>
-				<a-form-item label="送礼人ID">
-					<a-input v-model:value="formInfo.giverPersonId" />
-				</a-form-item>
-				<a-form-item label="收礼人ID">
-					<a-input v-model:value="formInfo.receiverPersonId" />
-				</a-form-item>
-				<a-form-item
-					v-if="formInfo.direction === 'RETURN'"
-					label="原始收礼记录ID"
-					required
-				>
-					<a-input v-model:value="formInfo.relatedRecordId" />
-				</a-form-item>
-				<a-form-item label="礼金时间">
-					<a-date-picker
-						v-model:value="formInfo.payTime"
-						show-time
-						value-format="YYYY-MM-DDTHH:mm:ss"
-						style="width: 100%"
-					/>
-				</a-form-item>
-				<a-form-item label="备注">
-					<a-textarea v-model:value="formInfo.remark" :rows="3" />
-				</a-form-item>
-			</a-form>
-			<template #footer>
-				<a-space>
-					<a-button @click="drawerOpen = false">取消</a-button>
-					<a-button type="primary" :loading="saving" @click="save"
-						>保存</a-button
-					>
-				</a-space>
-			</template>
-		</a-drawer>
+			:record="editingRecord"
+			@success="query()"
+		/>
 	</div>
 </template>
 
@@ -301,13 +248,11 @@ import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import {
-	addGiftRecord,
 	deleteGiftRecord,
 	getGiftRecordPage,
 	getGiftRecordSummary,
 	getPendingReturnAmount,
 	markGiftReturned,
-	updateGiftRecord,
 } from '@/views/finance/gift/api';
 import type {
 	GiftRecordInfo,
@@ -320,6 +265,7 @@ import {
 	giftDirectionOptions,
 	money,
 } from '@/views/finance/gift/config';
+import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
 
 const {
 	pagination,
@@ -329,12 +275,12 @@ const {
 } = usePagination();
 const loading = ref(false);
 const { hasPermission } = usePermission();
-const saving = ref(false);
+const { warmup, invalidate } = useGiftRecordOptionsCache();
 const drawerOpen = ref(false);
+const editingRecord = ref<GiftRecordInfo>();
 const searchExpanded = ref(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftRecordQuery>({});
-const formInfo = ref<GiftRecordInfo>({});
 const dataSource = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const payRange = ref<[string, string] | undefined>();
@@ -433,25 +379,8 @@ const loadPage = async (page: PageInfo) => {
 };
 
 const openDrawer = (record?: GiftRecordInfo) => {
-	formInfo.value = record ? { ...record } : { direction: 'GIVE' };
+	editingRecord.value = record ? { ...record } : undefined;
 	drawerOpen.value = true;
-};
-
-const save = async () => {
-	saving.value = true;
-	try {
-		const api = formInfo.value.id ? updateGiftRecord : addGiftRecord;
-		const { code, message: msg } = await api(formInfo.value);
-		if (code === '200') {
-			message.success('保存成功');
-			drawerOpen.value = false;
-			query();
-		} else {
-			message.error(msg || '保存失败');
-		}
-	} finally {
-		saving.value = false;
-	}
 };
 
 const remove = async (id: string) => {
@@ -486,7 +415,14 @@ const markReturned = async (id: string) => {
 	}
 };
 
-onMounted(() => query(true));
+onMounted(() => {
+	void warmup();
+	query(true);
+});
+
+onUnmounted(() => {
+	invalidate();
+});
 </script>
 
 <style scoped lang="less">
@@ -678,7 +614,7 @@ onMounted(() => query(true));
 	height: 28px;
 	background: #e9f2ff;
 	border-radius: 50%;
-	color: #1478d4;
+	color: #1060a9;
 	font-weight: 800;
 }
 

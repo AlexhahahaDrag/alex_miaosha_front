@@ -325,9 +325,14 @@ const remove = async (id: string) => {
 	}
 };
 
+const route = useRoute();
+
 onMounted(async () => {
 	loadRelationOptions();
 	query(true);
+	if (route.query.open === 'create' && hasPermission('gift:add')) {
+		openDrawer();
+	}
 });
 </script>
 
