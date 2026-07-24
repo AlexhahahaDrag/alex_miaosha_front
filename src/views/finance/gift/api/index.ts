@@ -74,15 +74,6 @@ function normalizeGiftIds<T>(value: T): T {
 	return normalized as T;
 }
 
-function normalizeGiftResponse<T>(response: ResponseBody<T>): ResponseBody<T> {
-	if (!response.data) {
-		return response;
-	}
-	return {
-		...response,
-		data: normalizeGiftIds(response.data),
-	};
-}
 
 export function getGiftPersonPage(
 	params: GiftPersonQuery,
@@ -96,7 +87,7 @@ export function getGiftPersonPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftPersonBusinessPage(
@@ -111,7 +102,7 @@ export function getGiftPersonBusinessPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftPersonSummary(): Promise<
@@ -125,7 +116,7 @@ export function getGiftPersonProfile(
 ): Promise<ResponseBody<GiftPersonProfile>> {
 	return getDataOne<GiftPersonProfile>(`${baseUrl(giftApi.person)}/profile`, {
 		id,
-	}).then(normalizeGiftResponse);
+	});
 }
 
 export function getGiftPersonList(
@@ -134,7 +125,7 @@ export function getGiftPersonList(
 	return postData<GiftPersonInfo[]>(
 		listUrl(giftApi.person),
 		normalizeGiftIds(params),
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftOrgMemberOptions(
@@ -143,15 +134,13 @@ export function getGiftOrgMemberOptions(
 	return getDataOne<GiftPersonInfo[]>(
 		`${baseUrl(giftApi.person)}/org-member-options`,
 		keyword ? { keyword } : {},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftPersonDetail(
 	id: string,
 ): Promise<ResponseBody<GiftPersonInfo>> {
-	return getDataOne<GiftPersonInfo>(baseUrl(giftApi.person), { id }).then(
-		normalizeGiftResponse,
-	);
+	return getDataOne<GiftPersonInfo>(baseUrl(giftApi.person), { id });
 }
 
 export function getGiftPersonRelationOptions(
@@ -169,7 +158,7 @@ export function addGiftPerson(
 	return postData<GiftPersonInfo>(
 		baseUrl(giftApi.person),
 		normalizeGiftIds(params),
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function updateGiftPerson(
@@ -194,7 +183,7 @@ export function getGiftEventPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftEventBusinessPage(
@@ -209,7 +198,7 @@ export function getGiftEventBusinessPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftEventTypeOptions(): Promise<
@@ -217,7 +206,7 @@ export function getGiftEventTypeOptions(): Promise<
 > {
 	return getDataOne<GiftEventTypeOptions>(
 		`${baseUrl(giftApi.event)}/event-type-options`,
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftEventSummary(): Promise<ResponseBody<GiftEventSummary>> {
@@ -230,15 +219,13 @@ export function getGiftEventList(
 	return postData<GiftEventInfo[]>(
 		listUrl(giftApi.event),
 		normalizeGiftIds(params),
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftEventDetail(
 	id: string,
 ): Promise<ResponseBody<GiftEventInfo>> {
-	return getDataOne<GiftEventInfo>(baseUrl(giftApi.event), { id }).then(
-		normalizeGiftResponse,
-	);
+	return getDataOne<GiftEventInfo>(baseUrl(giftApi.event), { id });
 }
 
 export function addGiftEvent(
@@ -247,7 +234,7 @@ export function addGiftEvent(
 	return postData<GiftEventInfo>(
 		baseUrl(giftApi.event),
 		normalizeGiftIds(params),
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function updateGiftEvent(
@@ -272,7 +259,7 @@ export function getGiftRecordPage(
 			pageNum: pageNum || 1,
 			pageSize: pageSize || 10,
 		},
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function getGiftRecordSummary(
@@ -287,9 +274,7 @@ export function getGiftRecordSummary(
 export function getGiftRecordDetail(
 	id: string,
 ): Promise<ResponseBody<GiftRecordInfo>> {
-	return getDataOne<GiftRecordInfo>(baseUrl(giftApi.record), { id }).then(
-		normalizeGiftResponse,
-	);
+	return getDataOne<GiftRecordInfo>(baseUrl(giftApi.record), { id });
 }
 
 export function addGiftRecord(
@@ -298,7 +283,7 @@ export function addGiftRecord(
 	return postData<GiftRecordInfo>(
 		baseUrl(giftApi.record),
 		normalizeGiftIds(params),
-	).then(normalizeGiftResponse);
+	);
 }
 
 export function updateGiftRecord(
