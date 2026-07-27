@@ -114,7 +114,15 @@
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'personName'">
 						<div class="person-cell">
-							<span class="avatar-dot">{{ firstName(record.personName) }}</span>
+							<span class="avatar-dot">
+								<img
+									v-if="personAvatarSrc(record)"
+									class="avatar-dot__img"
+									:src="personAvatarSrc(record)"
+									alt=""
+								/>
+								<template v-else>{{ firstName(record.personName) }}</template>
+							</span>
 							<div>
 								<strong>{{ record.personName || '-' }}</strong>
 								<p>{{ record.remark || '重点维护联系人' }}</p>
@@ -193,7 +201,11 @@ import type {
 	GiftPersonQuery,
 	GiftPersonSummary,
 } from '@/views/finance/gift/config';
-import { directionLabel, money } from '@/views/finance/gift/config';
+import {
+	directionLabel,
+	money,
+	personAvatarSrc,
+} from '@/views/finance/gift/config';
 
 const {
 	giftRelationOptions,
@@ -563,9 +575,17 @@ onMounted(async () => {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
+	overflow: hidden;
 	background: #65d944;
 	color: #0b3b13;
 	font-weight: 800;
+	flex-shrink: 0;
+}
+
+.avatar-dot__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .amount-in {

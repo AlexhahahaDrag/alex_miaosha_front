@@ -26,7 +26,14 @@ import type {
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
 
-const giftIdKeys = new Set(['id', 'creator', 'updater', 'operator', 'deleter']);
+const giftIdKeys = new Set([
+	'id',
+	'avatar',
+	'creator',
+	'updater',
+	'operator',
+	'deleter',
+]);
 
 const giftApi = {
 	person: '/gift-person-info-t',
@@ -73,7 +80,6 @@ function normalizeGiftIds<T>(value: T): T {
 	});
 	return normalized as T;
 }
-
 
 export function getGiftPersonPage(
 	params: GiftPersonQuery,

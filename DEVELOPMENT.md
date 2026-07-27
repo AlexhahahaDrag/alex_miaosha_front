@@ -208,5 +208,6 @@ src/views/finance/gift/
 
 - 页面类型、枚举、表格列、筛选项优先放在 `config` 中复用。
 - 接口统一放在 `api` 中，页面中使用 `const { code, data, message } = await api()` 方式解构。
+- 联系人头像：读写 `avatar`（fileId，string）；展示用只读 `fileInfoVo`（`GiftFileInfo`，对齐 `my-upload` 的 `FileInfo`）；`personAvatarSrc` 优先缩略图。保存 payload 勿回传 `fileInfoVo`。
 - 不手动修改 `components.d.ts`、`src/auto-imports.d.ts` 等生成文件。
 - 新增 Midscene/RBAC smoke 用例时，统一维护在 `tests/midscene/rbac/cases/smoke.json`。

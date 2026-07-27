@@ -1,6 +1,11 @@
+import type { FileInfo } from '@/views/common/my-upload/config';
+
 export type GiftDirection = 'GIVE' | 'RECEIVE' | 'RETURN';
 export type GiftPersonScope = 'CONTACT' | 'ORG_MEMBER' | 'ALL';
 export type GiftId = string;
+
+/** 与后端 FileInfoVo 对齐；id 用 string 防 Long 精度丢失 */
+export type GiftFileInfo = Omit<FileInfo, 'id'> & { id?: GiftId };
 
 export interface GiftPersonInfo {
 	id?: GiftId;
@@ -9,6 +14,10 @@ export interface GiftPersonInfo {
 	bindUserId?: GiftId;
 	personName?: string;
 	phone?: string;
+	/** 头像 OSS 文件 ID（读写）；清除时传 null 落库 */
+	avatar?: GiftId | null;
+	/** 只读：后端 OssApi 回填 */
+	fileInfoVo?: GiftFileInfo;
 	relationType?: string;
 	relationOptionId?: string;
 	remark?: string;
@@ -262,6 +271,15 @@ export function findOptionIdByRelationType(
 		return preset.id;
 	}
 	return customOptions.find((item) => item.name === relationType)?.id;
+}
+
+/** 列表/详情头像：缩略图优先 */
+export function personAvatarSrc(
+	person?: Pick<GiftPersonInfo, 'fileInfoVo'> | null,
+): string {
+	return (
+		person?.fileInfoVo?.preThumbnailUrl || person?.fileInfoVo?.preUrl || ''
+	);
 }
 
 export interface GiftPersonFormState extends GiftPersonInfo {

@@ -9,9 +9,17 @@
 		<a-spin :spinning="pageLoading">
 			<template v-if="isProfileMode">
 				<div class="profile-head">
-					<span class="profile-avatar">{{
-						firstName(profile.person?.personName)
-					}}</span>
+					<span class="profile-avatar">
+						<img
+							v-if="profileAvatarUrl"
+							class="profile-avatar__img"
+							:src="profileAvatarUrl"
+							alt=""
+						/>
+						<template v-else>{{
+							firstName(profile.person?.personName)
+						}}</template>
+					</span>
 					<h3>{{ profile.person?.personName || '-' }}</h3>
 					<p>
 						{{ relationLabel(profile.person?.relationType) }} ·
@@ -159,6 +167,7 @@ import {
 	buildRelationTypeForSave,
 	directionLabel,
 	money,
+	personAvatarSrc,
 	RELATION_CUSTOM,
 } from '@/views/finance/gift/config';
 
@@ -234,15 +243,26 @@ const drawerWidth = computed(() =>
 
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
+const profileAvatarUrl = computed(() => personAvatarSrc(profile.value.person));
+
 const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
 const toSavePayload = (): GiftPersonInfo => {
-	const { relationMode, customRelation, relationOptionId, ...rest } =
-		formState.value;
+	const {
+		relationMode: _relationMode,
+		customRelation: _customRelation,
+		relationOptionId: _relationOptionId,
+		fileInfoVo: _fileInfoVo,
+		...rest
+	} = formState.value;
 	return {
 		...rest,
+		avatar:
+			formState.value.avatar != null && formState.value.avatar !== '' ?
+				String(formState.value.avatar)
+			:	null,
 		...buildRelationTypeForSave(formState.value, presetOptions.value),
 	};
 };
@@ -388,10 +408,17 @@ const emit = defineEmits(['success']);
 	width: 64px;
 	height: 64px;
 	border-radius: 10px;
+	overflow: hidden;
 	background: #65d944;
 	color: #0b3b13;
 	font-size: 24px;
 	font-weight: 800;
+}
+
+.profile-avatar__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .profile-metrics {
