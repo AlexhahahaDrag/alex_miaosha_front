@@ -64,7 +64,56 @@
 					</template>
 				</a-list>
 			</template>
-			<a-form v-else ref="formRef" :model="formState" layout="vertical">
+			<a-form
+				v-else
+				ref="formRef"
+				class="person-form"
+				:model="formState"
+				layout="vertical"
+				data-testid="gift-person-form"
+			>
+				<section class="form-avatar-card">
+					<a-upload
+						:show-upload-list="false"
+						accept="image/*"
+						:custom-request="onAvatarUpload"
+						:disabled="uploadingAvatar"
+					>
+						<div
+							class="form-avatar-trigger"
+							data-testid="gift-person-avatar-upload"
+							role="button"
+							aria-label="上传头像"
+						>
+							<img
+								v-if="avatarPreviewUrl"
+								class="form-avatar-img"
+								:src="avatarPreviewUrl"
+								alt=""
+							/>
+							<span v-else class="form-avatar-fallback">
+								{{ firstName(formState.personName) }}
+							</span>
+							<span class="form-avatar-camera">
+								<camera-outlined />
+							</span>
+							<span v-if="uploadingAvatar" class="form-avatar-loading">
+								上传中…
+							</span>
+						</div>
+					</a-upload>
+					<p class="form-avatar-hint">更换头像</p>
+					<a-button
+						v-if="formState.avatar || avatarPreviewUrl"
+						type="link"
+						size="small"
+						class="form-avatar-clear"
+						data-testid="gift-person-avatar-clear"
+						@click="clearAvatar"
+					>
+						清除头像
+					</a-button>
+				</section>
 				<a-form-item
 					label="姓名"
 					name="personName"
@@ -137,7 +186,12 @@
 			</template>
 			<a-space v-else>
 				<a-button @click="handleCancel">取消</a-button>
-				<a-button type="primary" :loading="loading" @click="handleOk">
+				<a-button
+					type="primary"
+					:loading="loading"
+					data-testid="gift-person-save"
+					@click="handleOk"
+				>
 					保存
 				</a-button>
 			</a-space>
@@ -147,10 +201,13 @@
 
 <script setup lang="ts">
 import type { Rule } from 'ant-design-vue/es/form';
-import type { FormInstance } from 'ant-design-vue';
+import type { FormInstance, UploadProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
+import { CameraOutlined } from '@ant-design/icons-vue';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
+import { addFileManager, getFileDetail } from '@/views/common/api/file';
+import type { FileInfo } from '@/views/common/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import {
 	addGiftPerson,
@@ -227,6 +284,8 @@ const { hasPermission } = usePermission();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
 const pageLoading = ref(false);
+const uploadingAvatar = ref(false);
+const avatarPreviewUrl = ref('');
 const formState = ref<GiftPersonFormState>({});
 const profile = ref<GiftPersonProfile>({});
 
@@ -244,6 +303,106 @@ const drawerWidth = computed(() =>
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
 const profileAvatarUrl = computed(() => personAvatarSrc(profile.value.person));
+
+const syncAvatarPreviewFromPerson = async (person?: GiftPersonInfo | null) => {
+	avatarPreviewUrl.value = personAvatarSrc(person);
+	if (person?.avatar != null && person.avatar !== '') {
+		formState.value.avatar = String(person.avatar);
+	}
+	if (
+		!avatarPreviewUrl.value &&
+		person?.avatar != null &&
+		person.avatar !== ''
+	) {
+		const { code, data } = await getFileDetail(String(person.avatar));
+		if (code === '200' && data) {
+			const file = data as FileInfo;
+			avatarPreviewUrl.value = String(
+				file.preThumbnailUrl || file.preUrl || file.url || '',
+			);
+			formState.value.fileInfoVo = {
+				id: String(person.avatar),
+				preUrl: file.preUrl,
+				preThumbnailUrl: file.preThumbnailUrl,
+				url: file.url,
+				fileName: file.fileName,
+			};
+		}
+	}
+};
+
+const resetAvatarPreview = () => {
+	formState.value.avatar = undefined;
+	formState.value.fileInfoVo = undefined;
+	avatarPreviewUrl.value = '';
+};
+
+const clearAvatar = () => {
+	resetAvatarPreview();
+};
+
+const onAvatarUpload: UploadProps['customRequest'] = async (options) => {
+	const rawFile = options.file as File;
+	if (!rawFile) {
+		options.onError?.(new Error('empty file'));
+		return;
+	}
+	uploadingAvatar.value = true;
+	try {
+		const formData = new FormData();
+		formData.append('file', rawFile);
+		const {
+			code,
+			data,
+			message: msg,
+		} = await addFileManager(formData, { type: 'common' });
+		if (code !== '200' || data?.id == null) {
+			message.error(msg || '上传失败');
+			options.onError?.(new Error(msg || 'upload failed'));
+			return;
+		}
+		const file = data as FileInfo;
+		const fileId = String(file.id);
+		let previewUrl = String(
+			file.preThumbnailUrl || file.preUrl || file.url || '',
+		);
+		if (!previewUrl) {
+			const detailRes = await getFileDetail(fileId);
+			if (detailRes.code === '200' && detailRes.data) {
+				const detail = detailRes.data as FileInfo;
+				previewUrl = String(
+					detail.preThumbnailUrl || detail.preUrl || detail.url || '',
+				);
+				formState.value.fileInfoVo = {
+					id: fileId,
+					preUrl: detail.preUrl,
+					preThumbnailUrl: detail.preThumbnailUrl,
+					url: detail.url,
+					fileName: detail.fileName,
+				};
+			}
+		} else {
+			formState.value.fileInfoVo = {
+				id: fileId,
+				preUrl: file.preUrl,
+				preThumbnailUrl: file.preThumbnailUrl,
+				url: file.url,
+				fileName: file.fileName,
+			};
+		}
+		formState.value.avatar = fileId;
+		if (previewUrl) {
+			avatarPreviewUrl.value = previewUrl;
+		}
+		message.success('头像已上传');
+		options.onSuccess?.(data);
+	} catch {
+		message.error('上传失败');
+		options.onError?.(new Error('upload failed'));
+	} finally {
+		uploadingAvatar.value = false;
+	}
+};
 
 const handleCancel = () => {
 	modelInfo.value.open = false;
@@ -274,6 +433,7 @@ const saveGiftPerson = async () => {
 		message.success('保存成功');
 		modelInfo.value.open = false;
 		formState.value = {};
+		avatarPreviewUrl.value = '';
 		emit('success');
 	} else {
 		message.error(msg || '保存失败');
@@ -305,7 +465,9 @@ const loadForm = async () => {
 				message: msg,
 			} = await getGiftPersonDetail(modelInfo.value.id);
 			if (code === '200') {
-				formState.value = mapRelationToFormFields(data || {});
+				const person = data || {};
+				formState.value = mapRelationToFormFields(person);
+				await syncAvatarPreviewFromPerson(person);
 			} else {
 				message.error(msg || '联系人加载失败');
 			}
@@ -314,6 +476,7 @@ const loadForm = async () => {
 		}
 	} else {
 		formState.value = {};
+		resetAvatarPreview();
 	}
 };
 
@@ -405,13 +568,13 @@ const emit = defineEmits(['success']);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 64px;
-	height: 64px;
-	border-radius: 10px;
+	width: 88px;
+	height: 88px;
+	border-radius: 50%;
 	overflow: hidden;
-	background: #65d944;
-	color: #0b3b13;
-	font-size: 24px;
+	background: #eff6ff;
+	color: #2563eb;
+	font-size: 32px;
 	font-weight: 800;
 }
 
@@ -456,5 +619,92 @@ const emit = defineEmits(['success']);
 	grid-template-columns: 1fr 1fr;
 	gap: 10px;
 	width: 100%;
+}
+
+.form-avatar-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 20px;
+	padding: 8px 0 4px;
+}
+
+.form-avatar-trigger {
+	position: relative;
+	width: 88px;
+	height: 88px;
+	border-radius: 50%;
+	overflow: hidden;
+	background: #eff6ff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: transform 0.15s ease;
+
+	&:hover {
+		transform: scale(1.02);
+	}
+
+	&:active {
+		transform: scale(0.98);
+	}
+}
+
+.form-avatar-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.form-avatar-fallback {
+	color: #2563eb;
+	font-size: 32px;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.form-avatar-camera {
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 999px;
+	background: rgba(15, 23, 42, 0.72);
+	color: #fff;
+	font-size: 14px;
+}
+
+.form-avatar-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.72);
+	color: #2563eb;
+	font-size: 12px;
+}
+
+.form-avatar-hint {
+	margin: 10px 0 0;
+	color: #64748b;
+	font-size: 13px;
+}
+
+.form-avatar-clear {
+	height: auto;
+	padding: 0 8px;
+	margin-top: 4px;
+	color: #94a3b8;
+	font-size: 12px;
+
+	&:hover {
+		color: #64748b;
+	}
 }
 </style>

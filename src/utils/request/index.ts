@@ -7,7 +7,9 @@ const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
 function formatUrl(url: string) {
 	// 将 /api/am-{service}/{path} 转换为 /api/am-{service}/{apiPrefix}/{path}
 	// 例如：/api/am-finance/dict-info/... → /api/am-finance/api/v1/dict-info/...
-	return url.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`).replace(/\/+/g, '/');
+	return url
+		.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`)
+		.replace(/\/+/g, '/');
 }
 
 export function getData<T = unknown>(
@@ -62,11 +64,9 @@ export function postFileData<T = unknown>(
 	params: unknown,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return requestFile.post<Params, ResponseBody<T>>(
-		formatUrl(url),
-		params,
-		config,
-	);
+	return requestFile.post<Params, ResponseBody<T>>(formatUrl(url), params, {
+		params: config,
+	});
 }
 
 // 文件下载方法 - 绕过响应解密拦截器，直接返回Blob
