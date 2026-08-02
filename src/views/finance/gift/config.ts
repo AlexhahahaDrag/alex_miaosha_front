@@ -22,6 +22,7 @@ export interface GiftPersonInfo {
 	relationOptionId?: string;
 	remark?: string;
 	createTime?: string;
+	relationGrade?: 'CORE' | 'IMPORTANT' | 'NORMAL' | 'WEAK';
 }
 
 export interface GiftPersonBusinessInfo extends GiftPersonInfo {
@@ -32,10 +33,14 @@ export interface GiftPersonBusinessInfo extends GiftPersonInfo {
 	latestEventName?: string;
 	latestDirection?: GiftDirection;
 	pendingReturnAmount?: number;
+	relationStatus?: 'ACTIVE' | 'GENERAL' | 'DISTANT';
 }
 
 export interface GiftPersonSummary {
 	personCount?: number;
+	netAmount?: number;
+	activeCount?: number;
+	pendingMaintenanceCount?: number;
 	yearTotalAmount?: number;
 	pendingReturnAmount?: number;
 }
@@ -49,6 +54,8 @@ export interface GiftPersonQuery {
 	keyword?: string;
 	relationType?: string;
 	personScope?: GiftPersonScope;
+	relationGrade?: string;
+	relationStatus?: string;
 }
 
 export interface GiftEventInfo {
@@ -106,6 +113,8 @@ export interface GiftRecordInfo {
 	personName?: string;
 	paymentMethod?: string;
 	handlerName?: string;
+	eventType?: string;
+	eventOptionId?: GiftId;
 }
 
 export interface GiftRecordSummary {
@@ -210,6 +219,15 @@ export function toSelectOptions(
 	items: GiftRelationOptionItem[] = [],
 ): GiftRelationSelectOption[] {
 	return items.map((item) => ({ label: item.name, value: item.id }));
+}
+
+export function toEventTypeSelectOptions(
+	items: GiftEventTypeOptionItem[] = [],
+): GiftRelationSelectOption[] {
+	return items.map((item) => ({
+		label: item.name,
+		value: EVENT_PRESET_NAME_TO_CODE[item.name] || item.eventCode || item.name,
+	}));
 }
 
 export function resolvePresetCode(
@@ -329,7 +347,7 @@ export function mapRelationToFormFields(
 
 export function buildRelationTypeForSave(
 	form: GiftPersonFormState,
-	presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
+	_presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
 ): Pick<GiftPersonInfo, 'relationType' | 'relationOptionId'> {
 	if (form.relationMode === RELATION_CUSTOM) {
 		return { relationType: form.customRelation?.trim() || '' };
@@ -343,11 +361,25 @@ export function buildRelationTypeForSave(
 export interface GiftEventTypeOptionItem {
 	id: string;
 	name: string;
+	eventCode?: string;
+	category?: string;
+	icon?: string;
+	status?: number;
+	useCount?: number;
+	defaultAmount?: number;
+	sortOrder?: number;
 }
 
 export interface GiftEventTypeOptions {
 	presets?: GiftEventTypeOptionItem[];
 	customs?: GiftEventTypeOptionItem[];
+}
+
+export interface GiftRecordRecommendAmount {
+	averageAmount?: number;
+	latestAmount?: number;
+	defaultAmount?: number;
+	recommendations?: number[];
 }
 
 export interface GiftEventFormState extends GiftEventInfo {

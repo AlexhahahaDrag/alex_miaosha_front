@@ -1,10 +1,10 @@
 <template>
 	<div class="container container-star">
-		<div v-for="(item, index) in 30" :key="index" class="star-1"></div>
-		<div v-for="(item, index) in 30" :key="index" class="star-2"></div>
+		<div v-for="(_, index) in 30" :key="index" class="star-1"></div>
+		<div v-for="(_, index) in 30" :key="index" class="star-2"></div>
 	</div>
 	<div class="container container-bird">
-		<div class="bird bird-anim" v-for="(item, index) in 6" :key="index">
+		<div class="bird bird-anim" v-for="(_, index) in 6" :key="index">
 			<div class="bird-container">
 				<div class="wing wing-left">
 					<div class="wing-left-top"></div>

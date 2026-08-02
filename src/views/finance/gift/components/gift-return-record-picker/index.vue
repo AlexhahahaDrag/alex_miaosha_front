@@ -17,7 +17,7 @@
 import { message } from 'ant-design-vue';
 import { getGiftRecordPage } from '@/views/finance/gift/api';
 import type { GiftRecordInfo } from '@/views/finance/gift/config';
-import { directionLabel, money } from '@/views/finance/gift/config';
+import { money } from '@/views/finance/gift/config';
 
 interface PickerOption {
 	label: string;

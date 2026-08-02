@@ -42,6 +42,18 @@
 		"level": "smoke"
 	},
 	{
+		"caseId": "USER-MANAGER-PC-001",
+		"title": "PC 用户管理机构树、角色筛选与数据正确性",
+		"persona": "rbac_user_manager",
+		"level": "flow"
+	},
+	{
+		"caseId": "USER-MANAGER-PC-002",
+		"title": "PC 用户管理详情弹窗与按钮闭环",
+		"persona": "rbac_user_manager",
+		"level": "button"
+	},
+	{
 		"caseId": "RBAC-LOCAL-201",
 		"title": "角色分页与筛选",
 		"persona": "rbac_user_manager",

@@ -21,7 +21,7 @@ export const routes: MenuDataItem[] = [
 	{
 		name: 'home',
 		path: '/',
-		redirect: '/dashboard',
+		redirect: '/home-dashboard',
 		component: Layout,
 		meta: {
 			title: '首页',
@@ -29,9 +29,9 @@ export const routes: MenuDataItem[] = [
 		},
 		children: [
 			{
-				path: '/dashboard',
-				component: modules['/src/views/dashboard/index.vue'],
-				name: 'dashboard',
+				path: '/home-dashboard',
+				component: modules['/src/views/home-dashboard/index.vue'],
+				name: 'homeDashboard',
 				meta: { title: '首页', icon: 'dashboard', hideInMenu: true },
 			},
 		],

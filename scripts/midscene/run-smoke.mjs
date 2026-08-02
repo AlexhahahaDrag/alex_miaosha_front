@@ -4,20 +4,27 @@ import dotenv from 'dotenv';
 import { chromium } from 'playwright';
 import { PlaywrightAgent } from '@midscene/web/playwright';
 
-dotenv.config({ override: true });
+dotenv.config();
 
 const rootDir = process.cwd();
 const reportDir = path.join(rootDir, 'reports', 'midscene');
 const screenshotDir = path.join(rootDir, 'screenshots', 'midscene');
 const logDir = path.join(rootDir, 'logs', 'midscene');
-const caseFile = path.join(
-	rootDir,
-	'tests',
-	'midscene',
-	'rbac',
-	'cases',
-	'smoke.json',
-);
+const caseDir = path.join(rootDir, 'tests', 'midscene', 'rbac', 'cases');
+
+function resolveCaseFile() {
+	const caseFileName = process.env.MIDSCENE_CASE_FILE || 'smoke.json';
+	if (
+		caseFileName.includes('/') ||
+		caseFileName.includes('\\') ||
+		path.basename(caseFileName) !== caseFileName
+	) {
+		throw new Error(
+			'MIDSCENE_CASE_FILE must be a file name under tests/midscene/rbac/cases, for example stage1-smoke.json.',
+		);
+	}
+	return path.join(caseDir, caseFileName);
+}
 
 function ensureDir(dir) {
 	if (!fs.existsSync(dir)) {
@@ -26,6 +33,10 @@ function ensureDir(dir) {
 }
 
 function loadCases() {
+	const caseFile = resolveCaseFile();
+	if (!fs.existsSync(caseFile)) {
+		throw new Error(`Midscene case file not found: ${caseFile}`);
+	}
 	const raw = fs.readFileSync(caseFile, 'utf-8');
 	return JSON.parse(raw);
 }
@@ -136,7 +147,7 @@ async function login(page, agent, persona) {
 			.catch(() => false));
 	if (stillOnLoginPage) {
 		throw new Error(
-			`Login failed for persona=${persona}. Please verify backend API and credentials before running gift button cases.`,
+			`Login failed for persona=${persona}. Please verify backend API and credentials before running RBAC cases.`,
 		);
 	}
 	await page
@@ -144,7 +155,13 @@ async function login(page, agent, persona) {
 		.waitFor({ state: 'visible', timeout: 10000 })
 		.catch(() => undefined);
 	const pageText = await page.locator('body').innerText({ timeout: 10000 });
-	if (!pageText.includes('首页') || !pageText.includes('财务管理')) {
+	const hasAppShell =
+		pageText.includes('首页') &&
+		(pageText.includes('alex管理后台') ||
+			pageText.includes('个人财务') ||
+			pageText.includes('礼尚往来管理') ||
+			pageText.includes('用户管理'));
+	if (!hasAppShell) {
 		throw new Error('登录后未检测到后台左侧菜单和顶部导航');
 	}
 }
@@ -173,7 +190,7 @@ function pageAnchor(pageName) {
 	if (pageName === 'giftAnalysis')
 		return '统计报表页面已加载，可见统计卡片或趋势图表区域';
 	if (pageName === '用户管理')
-		return '用户管理页面可见“新增”按钮或用户列表区域';
+		return '用户管理页面可见机构树、用户表格、角色筛选或新增按钮';
 	if (pageName === '角色管理')
 		return '角色管理页面可见“新增”按钮或角色列表区域';
 	if (pageName === '菜单管理')
@@ -184,6 +201,16 @@ function pageAnchor(pageName) {
 		return '机构管理页面左侧可见组织架构树，右侧可见机构列表';
 	return `${pageName}页面加载完成`;
 }
+
+const rbacRouteMap = {
+	用户管理: '/user/userManager',
+	机构管理: '/user/orgManager',
+	角色管理: '/user/roleInfo',
+	菜单管理: '/user/menuInfo',
+	权限管理: '/user/permissionInfo',
+	用户角色配置: '/user/roleUserConfig',
+	机构用户配置: '/user/orgUserConfig',
+};
 
 async function gotoGiftPage(page, agent, runtime, routePath, pageName) {
 	await page.goto(`${runtime.baseUrl}/#${routePath}`, {
@@ -222,7 +249,18 @@ async function gotoGiftPage(page, agent, runtime, routePath, pageName) {
 	await agent.aiWaitFor(pageAnchor(pageName));
 }
 
-async function gotoRbacPage(agent, pageName) {
+async function gotoRbacPage(agent, pageName, options = {}) {
+	const routePath = options.routeHint || rbacRouteMap[pageName];
+	if (options.page && options.runtime && routePath) {
+		await options.page.goto(`${options.runtime.baseUrl}/#${routePath}`, {
+			waitUntil: 'domcontentloaded',
+		});
+		await options.page
+			.waitForLoadState('networkidle', { timeout: 15000 })
+			.catch(() => {});
+		await agent.aiWaitFor(pageAnchor(pageName));
+		return;
+	}
 	const pageAliases = {
 		用户管理: '用户管理、用户信息、用户',
 		角色管理: '角色管理、角色信息、角色',
@@ -239,6 +277,163 @@ async function assertNoCrudButtons(agent) {
 	await agent.aiAssert('页面中找不到按钮文本为“新增”的按钮');
 	await agent.aiAssert('页面中找不到按钮文本为“编辑”的按钮');
 	await agent.aiAssert('页面中找不到按钮文本为“删除”的按钮');
+}
+
+function assertNoDuplicateUserRows(rows) {
+	const seen = new Set();
+	for (const row of rows) {
+		const key = row.id || `${row.username || ''}-${row.mobile || ''}`;
+		if (seen.has(key)) {
+			throw new Error(`用户列表存在重复数据：${key}`);
+		}
+		seen.add(key);
+	}
+}
+
+async function readJsonResponse(response) {
+	try {
+		return await response.json();
+	} catch {
+		return {};
+	}
+}
+
+async function waitForUserPageResponse(page, action) {
+	let actionFailed = false;
+	const responsePromise = page.waitForResponse(
+		(response) =>
+			response.request().method() === 'POST' &&
+			response.url().includes('/api/am-user/api/v1/user/page') &&
+			response.status() >= 200 &&
+			response.status() < 300,
+		{ timeout: 15000 },
+	);
+	try {
+		await action();
+	} catch (error) {
+		actionFailed = true;
+		responsePromise.catch(() => undefined);
+		throw error;
+	}
+	try {
+		return await responsePromise;
+	} catch (error) {
+		if (actionFailed) {
+			throw new Error('用户分页响应等待已取消，因为前置页面动作失败');
+		}
+		throw error;
+	}
+}
+
+async function assertUserManagerPcDataFlow(page, agent) {
+	const initialResponse = await waitForUserPageResponse(page, async () => {
+		await gotoRbacPage(agent, '用户管理');
+	});
+	const initialRequestBody = initialResponse.request().postDataJSON?.() || {};
+	if (initialRequestBody.orgId) {
+		throw new Error('用户管理初始化查询不应携带 orgId');
+	}
+	const initialJson = await readJsonResponse(initialResponse);
+	assertNoDuplicateUserRows(initialJson?.data?.records || []);
+
+	const mainText = await page.locator('main').innerText({ timeout: 10000 });
+	for (const item of ['组织架构 (Organization)', '全部机构用户列表', '当前筛选']) {
+		assertTextIncludes(mainText, item, '用户管理页面');
+	}
+	if ((await page.locator('.org-search-shell .org-search-input').count()) < 1) {
+		throw new Error('机构搜索框应使用原型搜索容器样式');
+	}
+	if ((await page.locator('.org-node-icon').count()) < 1) {
+		throw new Error('机构树应渲染文件夹/组织混合图标');
+	}
+	if ((await page.locator('.user-filter-card .ant-select-selector').count()) < 1) {
+		throw new Error('用户管理筛选区应存在角色选择器');
+	}
+
+	const firstOrgNode = page.locator('.org-tree-panel .ant-tree-node-content-wrapper').first();
+	if ((await firstOrgNode.count()) > 0) {
+		const filteredResponse = await waitForUserPageResponse(page, async () => {
+			await firstOrgNode.click();
+		});
+		const requestBody = filteredResponse.request().postDataJSON?.() || {};
+		if (!requestBody.orgId) {
+			throw new Error('点击机构节点后用户查询应携带 orgId');
+		}
+		const filteredJson = await readJsonResponse(filteredResponse);
+		assertNoDuplicateUserRows(filteredJson?.data?.records || []);
+	}
+}
+
+async function assertUserManagerPcModalAndButtons(page, agent) {
+	await gotoRbacPage(agent, '用户管理');
+	for (const buttonName of ['查找', '清空', '新增']) {
+		if ((await page.getByRole('button', { name: buttonName }).count()) < 1) {
+			throw new Error(`用户管理应显示按钮：${buttonName}`);
+		}
+	}
+	const hasDeleteButton =
+		(await page.getByRole('button', { name: '删除' }).count()) > 0 ||
+		(await page.locator('.ant-btn-dangerous').count()) > 0;
+	if (!hasDeleteButton) {
+		throw new Error('用户管理应显示删除按钮或危险操作按钮');
+	}
+	await page.getByRole('button', { name: '新增' }).first().click();
+	const drawer = page.locator('.ant-drawer:visible').first();
+	await drawer.waitFor({ state: 'visible', timeout: 10000 });
+	const drawerText = await drawer.innerText({ timeout: 10000 });
+	for (const item of ['新增明细', '当前用户', '用户名', '所属机构', '角色', '取消', '保存']) {
+		assertTextIncludes(drawerText, item, '用户详情抽屉');
+	}
+	if ((await page.locator('.ant-modal:visible').count()) > 0) {
+		throw new Error('用户详情应为右侧抽屉，不应打开居中弹窗');
+	}
+	await page.getByRole('button', { name: '取消' }).last().click();
+}
+
+async function assertStage1UserManagerSmoke(page, agent, runtime, testCase) {
+	const initialResponse = await waitForUserPageResponse(page, async () => {
+		await gotoRbacPage(agent, testCase.page, {
+			page,
+			runtime,
+			routeHint: testCase.routeHint,
+		});
+	});
+	const requestBody = initialResponse.request().postDataJSON?.() || {};
+	if (requestBody.orgId) {
+		throw new Error('用户管理首次查询应为全量数据，不应携带 orgId');
+	}
+	const initialJson = await readJsonResponse(initialResponse);
+	assertNoDuplicateUserRows(initialJson?.data?.records || []);
+
+	await agent.aiAssert('用户管理页面可见机构树、用户表格和角色筛选');
+	await agent.aiAssert('用户管理页面可见新增按钮，新增用户使用右侧抽屉入口');
+
+	if (testCase.caseId !== 'RBAC-S1-SMOKE-002') {
+		return;
+	}
+
+	const firstOrgNode = page.locator('.org-tree-panel .ant-tree-node-content-wrapper').first();
+	if ((await firstOrgNode.count()) < 1) {
+		throw new Error('用户管理机构树没有可点击节点');
+	}
+	const filteredResponse = await waitForUserPageResponse(page, async () => {
+		await firstOrgNode.click();
+	});
+	const filteredRequestBody = filteredResponse.request().postDataJSON?.() || {};
+	if (!filteredRequestBody.orgId) {
+		throw new Error('点击机构节点后用户查询应携带 orgId');
+	}
+	const filteredJson = await readJsonResponse(filteredResponse);
+	assertNoDuplicateUserRows(filteredJson?.data?.records || []);
+
+	const allButton = page.getByRole('button', { name: '全部' }).first();
+	const allResponse = await waitForUserPageResponse(page, async () => {
+		await allButton.click();
+	});
+	const allRequestBody = allResponse.request().postDataJSON?.() || {};
+	if (allRequestBody.orgId) {
+		throw new Error('切回全部机构后用户查询不应携带 orgId');
+	}
 }
 
 async function assertHasCrudButtons(agent) {
@@ -278,19 +473,26 @@ async function resetSession(page, runtime) {
 }
 
 function assertTextIncludes(text, expected, scopeName) {
-	if (!text.includes(expected)) {
+	const normalize = (value) => String(value || '').replace(/\s+/g, '');
+	if (!text.includes(expected) && !normalize(text).includes(normalize(expected))) {
 		throw new Error(`${scopeName} 应显示按钮或入口：${expected}`);
 	}
 }
 
 function assertTextExcludes(text, forbidden, scopeName) {
-	if (text.includes(forbidden)) {
+	const normalize = (value) => String(value || '').replace(/\s+/g, '');
+	if (text.includes(forbidden) || normalize(text).includes(normalize(forbidden))) {
 		throw new Error(`${scopeName} 不应显示按钮或入口：${forbidden}`);
 	}
 }
 
 function assertAnyText(text, expectedItems, scopeName) {
-	if (!expectedItems.some((item) => text.includes(item))) {
+	const normalize = (value) => String(value || '').replace(/\s+/g, '');
+	if (
+		!expectedItems.some(
+			(item) => text.includes(item) || normalize(text).includes(normalize(item)),
+		)
+	) {
 		throw new Error(`${scopeName} 应至少显示：${expectedItems.join(' / ')}`);
 	}
 }
@@ -915,6 +1117,16 @@ async function runCase(testCase, runtime, page, agent) {
 			await agent.aiAct('将每页数量切换为20条');
 			await agent.aiWaitFor('每页数量为20条且用户表格仍可见');
 			break;
+		case 'USER-MANAGER-PC-001':
+			await assertUserManagerPcDataFlow(page, agent);
+			break;
+		case 'USER-MANAGER-PC-002':
+			await assertUserManagerPcModalAndButtons(page, agent);
+			break;
+		case 'RBAC-S1-SMOKE-001':
+		case 'RBAC-S1-SMOKE-002':
+			await assertStage1UserManagerSmoke(page, agent, runtime, testCase);
+			break;
 		case 'RBAC-LOCAL-201':
 			await gotoRbacPage(agent, '角色管理');
 			await agent.aiAct('在查询条件中输入一个角色编码并点击查找');
@@ -1189,6 +1401,7 @@ async function main() {
 	const report = {
 		mode: runtime.mode,
 		baseUrl: runtime.baseUrl,
+		caseFile: process.env.MIDSCENE_CASE_FILE || 'smoke.json',
 		total: selectedCases.length,
 		passed: passedCount,
 		failed: failedCount,

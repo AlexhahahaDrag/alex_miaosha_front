@@ -135,30 +135,21 @@
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'direction'">
+					<template v-if="column.key === 'payTime'">
+						<span>{{ formatDate(record.payTime) }}</span>
+					</template>
+					<template v-else-if="column.key === 'direction'">
 						<a-tag :color="directionColor(record.direction)">
 							{{ directionLabel(record.direction) }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'personName'">
-						<div class="record-person-cell">
-							<span class="record-avatar">{{
-								firstName(
-									record.personName ||
-										record.giverPersonName ||
-										record.receiverPersonName,
-								)
-							}}</span>
-							<div class="record-person">
-								<strong>{{
-									record.personName ||
-									record.giverPersonName ||
-									record.receiverPersonName ||
-									'-'
-								}}</strong>
-								<p>{{ record.handlerName || '系统记录' }}</p>
-							</div>
-						</div>
+						<strong style="font-weight: 700; font-size: 14px; color: #101828;">{{
+							record.personName ||
+							record.giverPersonName ||
+							record.receiverPersonName ||
+							'-'
+						}}</strong>
 					</template>
 					<template v-else-if="column.key === 'eventName'">
 						{{ record.eventName || record.eventId || '-' }}
@@ -243,6 +234,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { debounce } from 'lodash-es';
 import { message, Modal } from 'ant-design-vue';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
@@ -285,6 +278,23 @@ const dataSource = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const payRange = ref<[string, string] | undefined>();
 
+const formatDate = (val?: string) => {
+	if (!val) return '-';
+	return val.replace('T', ' ').slice(0, 10);
+};
+
+const debouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	searchInfo,
+	() => {
+		debouncedQuery();
+	},
+	{ deep: true },
+);
+
 watch(payRange, (value) => {
 	searchInfo.value.payTimeStart = value?.[0];
 	searchInfo.value.payTimeEnd = value?.[1];
@@ -297,8 +307,11 @@ const selectDirection = (value: string) => {
 		searchInfo.value.direction === value ?
 			undefined
 		:	(value as GiftRecordQuery['direction']);
-	query(true);
 };
+
+onUnmounted(() => {
+	debouncedQuery.cancel();
+});
 
 const columns = [
 	{ title: '日期', dataIndex: 'payTime', key: 'payTime', width: 180 },
@@ -326,7 +339,7 @@ const columns = [
 		width: 120,
 	},
 	{ title: '备注', dataIndex: 'remark', key: 'remark', width: 180 },
-	{ title: '操作', key: 'operation', width: 260 },
+	{ title: '操作', key: 'operation', width: 220, fixed: 'right' },
 ];
 
 const query = (resetPage = false) => {

@@ -203,7 +203,7 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 function editDict(type: string, id?: number) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : (id ?? null);
+	modelInfo.value.id = isAdd ? undefined : (id !== undefined && id !== null ? String(id) : null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

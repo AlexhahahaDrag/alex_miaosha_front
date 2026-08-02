@@ -8,6 +8,7 @@ import {
 	mapEventTypeToFormFields as mapEventFields,
 	eventLabel as resolveEventLabel,
 	resolveEventPresetCode,
+	toEventTypeSelectOptions,
 	toSelectOptions,
 	type GiftEventFormState,
 	type GiftEventInfo,
@@ -24,7 +25,7 @@ const loaded = ref(false);
 
 export function useGiftEventTypeOptions() {
 	const giftEventTypeOptions = computed(() =>
-		toSelectOptions(presetOptions.value),
+		toEventTypeSelectOptions(presetOptions.value),
 	);
 
 	const eventTypeSelectOptions = computed<GiftRelationSelectGroup[]>(() =>
@@ -56,11 +57,25 @@ export function useGiftEventTypeOptions() {
 					presetOptions.value = data.presets.map((item) => ({
 						id: String(item.id),
 						name: item.name,
+						eventCode: item.eventCode,
+						category: item.category || '其他',
+						icon: item.icon,
+						status: item.status,
+						useCount: item.useCount,
+						defaultAmount: item.defaultAmount,
+						sortOrder: item.sortOrder,
 					}));
 				}
 				customOptions.value = (data?.customs || []).map((item) => ({
 					id: String(item.id),
 					name: item.name,
+					eventCode: item.eventCode,
+					category: item.category || '其他',
+					icon: item.icon,
+					status: item.status,
+					useCount: item.useCount,
+					defaultAmount: item.defaultAmount,
+					sortOrder: item.sortOrder,
 				}));
 				loaded.value = true;
 			}

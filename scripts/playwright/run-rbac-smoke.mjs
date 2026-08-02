@@ -196,6 +196,123 @@ async function existsText(page, text) {
   return (await page.getByText(text, { exact: false }).count()) > 0;
 }
 
+function assertNoDuplicateUserRows(rows) {
+  const seen = new Set();
+  for (const row of rows) {
+    const key = row.id || `${row.username || ''}-${row.mobile || ''}`;
+    if (seen.has(key)) {
+      throw new Error(`user table should not render duplicate data rows: ${key}`);
+    }
+    seen.add(key);
+  }
+}
+
+async function waitForUserPageResponse(page, action) {
+  const responsePromise = page.waitForResponse(
+    (response) => {
+      const request = response.request();
+      const url = response.url();
+      return (
+        request.method() === 'POST' &&
+        url.includes('/api/am-user/api/v1/user/page') &&
+        response.status() >= 200 &&
+        response.status() < 300
+      );
+    },
+    { timeout: 15000 },
+  );
+  await action();
+  return responsePromise;
+}
+
+async function readJsonResponse(response) {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+
+async function assertUserManagerPcDataFlow(page, runtime) {
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/api/am-user/api/v1/user/page') &&
+      response.status() >= 200 &&
+      response.status() < 300,
+    { timeout: 15000 },
+  );
+  await gotoRbacPage(page, runtime, 'user');
+  const initialResponse = await responsePromise;
+  const initialRequestBody = initialResponse.request().postDataJSON?.() || {};
+  if (initialRequestBody.orgId) {
+    throw new Error('initial user query should not wait for or include orgId');
+  }
+  const initialJson = await readJsonResponse(initialResponse);
+  const initialRecords = initialJson?.data?.records || [];
+  assertNoDuplicateUserRows(initialRecords);
+
+  if (!(await existsText(page, '组织架构 (Organization)'))) {
+    throw new Error('user manager should show left organization tree panel');
+  }
+  if ((await page.locator('.org-search-shell .org-search-input').count()) < 1) {
+    throw new Error('organization search input should use prototype search shell');
+  }
+  if ((await page.locator('.org-node-icon').count()) < 1) {
+    throw new Error('organization tree should render mixed folder/team icons');
+  }
+  if (!(await existsText(page, '全部机构用户列表'))) {
+    throw new Error('initial user table title should show all organizations');
+  }
+
+  const roleSelect = page.locator('.user-filter-card .ant-select-selector').first();
+  if ((await roleSelect.count()) < 1) {
+    throw new Error('role selector should be visible in user filter card');
+  }
+
+  const firstOrgNode = page.locator('.org-tree-panel .ant-tree-node-content-wrapper').first();
+  if ((await firstOrgNode.count()) > 0) {
+    const filteredResponse = await waitForUserPageResponse(page, async () => {
+      await firstOrgNode.click();
+    });
+    const requestBody = filteredResponse.request().postDataJSON?.() || {};
+    if (!requestBody.orgId) {
+      throw new Error('clicking organization node should query users with orgId');
+    }
+    const filteredJson = await readJsonResponse(filteredResponse);
+    assertNoDuplicateUserRows(filteredJson?.data?.records || []);
+  }
+}
+
+async function assertUserManagerPcModalAndButtons(page, runtime) {
+  await gotoRbacPage(page, runtime, 'user');
+  for (const buttonName of ['查找', '清空', '新增']) {
+    if ((await page.getByRole('button', { name: buttonName }).count()) < 1) {
+      throw new Error(`user manager should show button: ${buttonName}`);
+    }
+  }
+  const hasDeleteButton =
+    (await page.getByRole('button', { name: '删除' }).count()) > 0 ||
+    (await page.locator('.ant-btn-dangerous').count()) > 0;
+  if (!hasDeleteButton) {
+    throw new Error('user manager should show delete action when permitted');
+  }
+
+  await page.getByRole('button', { name: '新增' }).first().click();
+  const modal = page.locator('.ant-modal:visible').first();
+  await modal.waitFor({ state: 'visible', timeout: 10000 });
+  const modalText = await modal.innerText({ timeout: 10000 });
+  for (const expected of ['新增明细', '用户名', '所属机构', '角色', '取消', '保存']) {
+    if (!modalText.includes(expected)) {
+      throw new Error(`user detail modal should include: ${expected}`);
+    }
+  }
+  if ((await page.locator('.ant-drawer-open').count()) > 0) {
+    throw new Error('user detail should use centered modal, not right drawer');
+  }
+  await page.getByRole('button', { name: '取消' }).last().click();
+}
+
 async function runCase(page, c, runtime) {
   await page.goto(runtime.baseUrl, { waitUntil: 'domcontentloaded' });
   await ensureLoggedIn(page, c.persona);
@@ -235,6 +352,12 @@ async function runCase(page, c, runtime) {
       if (!(await existsText(page, '下一页') || (await page.locator('.ant-pagination').count()) > 0)) {
         throw new Error('user page should show pagination');
       }
+      break;
+    case 'USER-MANAGER-PC-001':
+      await assertUserManagerPcDataFlow(page, runtime);
+      break;
+    case 'USER-MANAGER-PC-002':
+      await assertUserManagerPcModalAndButtons(page, runtime);
       break;
     case 'RBAC-LOCAL-201':
       await gotoRbacPage(page, runtime, 'role');

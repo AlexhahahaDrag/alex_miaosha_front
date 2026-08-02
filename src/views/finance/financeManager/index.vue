@@ -192,8 +192,8 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 		const queryParam = {
 			...param,
 			infoDateStart:
-				param.infoDateStart ? formatDate(param.infoDateStart) : null,
-			infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
+				param.infoDateStart ? formatDate(param.infoDateStart) : undefined,
+			infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : undefined,
 		};
 		const {
 			code,

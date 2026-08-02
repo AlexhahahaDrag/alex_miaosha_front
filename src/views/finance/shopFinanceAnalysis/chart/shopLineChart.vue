@@ -85,7 +85,7 @@ const setOption = (data: any[]) => {
 			// },
 			yAxis: {
 				type: 'value',
-				name: yTitle ? yTitle : '',
+				name: yTitle ? (Array.isArray(yTitle) ? yTitle[0] : yTitle) : '',
 				nameLocation: 'center',
 				nameGap: yNameGap ? yNameGap : 28,
 				axisTick: {

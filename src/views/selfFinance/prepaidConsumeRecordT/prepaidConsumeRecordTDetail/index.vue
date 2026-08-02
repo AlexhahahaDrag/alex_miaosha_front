@@ -97,11 +97,7 @@
 							<a-date-picker
 								v-model:value="formState.consumeTime"
 								:format="'YYYY-MM-DD'"
-								:getPopupContainer="
-									(triggerNode: HTMLElement) => {
-										return triggerNode.parentNode;
-									}
-								"
+								:getPopupContainer="getContainer"
 							/>
 						</a-form-item>
 					</a-col>
@@ -286,6 +282,10 @@ watch(
 		deep: true,
 	},
 );
+
+const getContainer = (triggerNode: HTMLElement): HTMLElement => {
+	return (triggerNode.parentNode as HTMLElement) || document.body;
+};
 
 const emit = defineEmits(['success']);
 </script>

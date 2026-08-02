@@ -207,7 +207,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-// import * as echarts from 'echarts';
+import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import {
@@ -294,7 +294,7 @@ const navigateTo = (path: string) => {
 };
 
 // 完成待办事项
-const completetdo = (id: string) => {
+const completetdo = (id: number) => {
 	tdoList.value = tdoList.value.filter((item) => item.id !== id);
 };
 
@@ -372,7 +372,7 @@ const initChart = () => {
 };
 
 onMounted(() => {
-	// initChart();
+	initChart();
 });
 </script>
 

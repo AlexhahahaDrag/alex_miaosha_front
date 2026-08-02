@@ -2,8 +2,8 @@
 	<div class="gift-screen">
 		<div class="screen-header">
 			<div>
-				<h2>事由管理</h2>
-				<p>统一管理婚礼、乔迁、满月等往来事由与参与统计。</p>
+				<h2>人情事件管理</h2>
+				<p>统一管理人情活动事件、分类标签与随礼收支统计。</p>
 			</div>
 			<a-button
 				v-if="hasPermission('gift:add')"
@@ -11,30 +11,30 @@
 				class="primary-action"
 				@click="openDrawer()"
 			>
-				+ 新增事由
+				+ 新增人情事件
 			</a-button>
 		</div>
 
 		<section class="filter-panel">
 			<a-form :model="searchInfo" layout="inline">
-				<a-form-item label="事由名称">
+				<a-form-item label="事件名称">
 					<a-input
 						v-model:value="searchInfo.keyword"
-						placeholder="搜索事由名称或备注"
+						placeholder="搜索事件名称或备注"
 						allow-clear
 						class="filter-input"
 					/>
 				</a-form-item>
-				<a-form-item label="事由类别">
+				<a-form-item label="事件分类">
 					<a-select
 						v-model:value="searchInfo.eventType"
 						:options="giftEventTypeOptions"
-						placeholder="全部类别"
+						placeholder="全部分类"
 						allow-clear
 						class="filter-select"
 					/>
 				</a-form-item>
-				<a-form-item label="快捷类别">
+				<a-form-item label="快捷分类">
 					<a-space>
 						<a-tag
 							v-for="item in quickEvents"
@@ -51,11 +51,10 @@
 						</a-tag>
 					</a-space>
 				</a-form-item>
-				<a-form-item v-if="searchExpanded" label="事由时间">
+				<a-form-item v-if="searchExpanded" label="事件日期">
 					<a-range-picker
 						v-model:value="eventRange"
-						show-time
-						value-format="YYYY-MM-DDTHH:mm:ss"
+						value-format="YYYY-MM-DD"
 					/>
 				</a-form-item>
 				<a-form-item>
@@ -73,134 +72,252 @@
 		<div class="metric-grid metric-grid-three">
 			<div class="metric-card metric-card-gold">
 				<div class="metric-top">
-					<span>本月待办事项</span>
-					<i>□</i>
+					<span>本月人情活动</span>
+					<div class="metric-icon">
+						<CalendarOutlined />
+					</div>
 				</div>
 				<strong>{{ summary.monthPendingCount || 0 }} 项</strong>
 				<p>近期需要跟进的往来活动</p>
 			</div>
 			<div class="metric-card metric-card-green">
 				<div class="metric-top">
-					<span>累计礼金总额</span>
-					<i>￥</i>
+					<span>累计礼金收支</span>
+					<div class="metric-icon">
+						<PayCircleOutlined />
+					</div>
 				</div>
 				<strong>{{ money(summary.totalAmount) }}</strong>
-				<p>覆盖全部事由收支记录</p>
+				<p>覆盖全部事件收支记录</p>
 			</div>
 			<div class="metric-card metric-card-blue">
 				<div class="metric-top">
-					<span>活跃联系人</span>
-					<i>人</i>
+					<span>活跃往来对象</span>
+					<div class="metric-icon">
+						<TeamOutlined />
+					</div>
 				</div>
 				<strong>{{ summary.activePersonCount || 0 }} 位</strong>
 				<p>近期待往来或已往来对象</p>
 			</div>
 		</div>
 
-		<section class="table-panel">
-			<div class="panel-head">
-				<h3>事由列表</h3>
-				<a-radio-group v-model:value="tableSize" size="small">
-					<a-radio-button value="small">紧凑</a-radio-button>
-					<a-radio-button value="middle">默认</a-radio-button>
-				</a-radio-group>
+		<!-- 高频事件卡片 (Top Category Cards) -->
+		<div class="section-title-bar" style="margin-top: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+			<h3 style="margin: 0; font-size: 16px; font-weight: 800;">高频事件场景</h3>
+			<span style="color: #8c8c8c; font-size: 13px;">自动统计使用频次最高的事由场景，智能辅助随礼梯度</span>
+		</div>
+		<div class="top-event-cards">
+			<div v-for="item in displayTopEvents" :key="item.id" class="top-event-card">
+				<span class="card-icon-emoji">{{ item.icon || '💬' }}</span>
+				<div class="card-main">
+					<div class="card-title-row">
+						<strong>{{ item.name }}</strong>
+						<a-tag size="small" color="blue" class="category-badge">{{ item.category }}</a-tag>
+					</div>
+					<div class="card-stats">
+						<span class="stat-item">累计使用: <strong style="color: #1890ff;">{{ item.useCount || 0 }}</strong> 次</span>
+						<span class="stat-item" v-if="item.defaultAmount" style="margin-left: 12px;">
+							建议金额: <strong style="color: #52c41a;">¥{{ item.defaultAmount }}</strong>
+						</span>
+					</div>
+				</div>
 			</div>
-			<a-table
-				:data-source="dataSource"
-				:columns="columns"
-				:loading="loading"
-				:pagination="pagination"
-				:size="tableSize"
-				row-key="id"
-				@change="handleTableChange"
-			>
-				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'eventName'">
-						<div class="event-cell">
-							<span class="event-icon">{{
-								eventLabel(record.eventType).slice(0, 1)
-							}}</span>
-							<div>
-								<strong>{{ record.eventName || '-' }}</strong>
-								<p>{{ record.remark || '礼尚往来事由' }}</p>
+		</div>
+
+		<!-- Tabs 布局 -->
+		<a-tabs v-model:activeKey="activeTab" class="event-tabs-panel" style="background: #fff; padding: 12px 18px 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #f0f0f0;">
+			<a-tab-pane key="instances" tab="事件列表">
+				<section class="table-panel" style="padding: 0;">
+					<div class="panel-head" style="padding: 8px 0 16px; display: flex; justify-content: space-between; align-items: center;">
+						<h3 style="margin: 0; font-size: 15px; font-weight: 800;">事件列表</h3>
+						<a-radio-group v-model:value="tableSize" size="small">
+							<a-radio-button value="small">紧凑</a-radio-button>
+							<a-radio-button value="middle">默认</a-radio-button>
+						</a-radio-group>
+					</div>
+					<a-table
+						:data-source="dataSource"
+						:columns="columns"
+						:loading="loading"
+						:pagination="pagination"
+						:size="tableSize"
+						row-key="id"
+						:scroll="{ x: 'max-content' }"
+						@change="handleTableChange"
+					>
+						<template #bodyCell="{ column, record }">
+							<template v-if="column.key === 'eventName'">
+								<div class="event-cell">
+									<span class="event-icon">📅</span>
+									<div>
+										<strong>{{ record.eventName || '-' }}</strong>
+										<p>{{ record.remark || '人情往来事件' }}</p>
+									</div>
+								</div>
+							</template>
+							<template v-else-if="column.key === 'eventType'">
+								<a-tag color="blue">{{ eventLabel(record.eventType) }}</a-tag>
+							</template>
+							<template v-else-if="column.key === 'eventTime'">
+								<span>{{ formatDate(record.eventTime) }}</span>
+							</template>
+							<template v-else-if="column.key === 'giveAmount'">
+								<span class="amount-out" style="color: #cf1322; font-weight: bold;">{{ record.giveAmount > 0 ? money(record.giveAmount) : '-' }}</span>
+							</template>
+							<template v-else-if="column.key === 'receiveAmount'">
+								<span class="amount-in" style="color: #389e0d; font-weight: bold;">{{ record.receiveAmount > 0 ? money(record.receiveAmount) : '-' }}</span>
+							</template>
+							<template v-else-if="column.key === 'eventStatus'">
+								<a-tag
+									:color="record.eventStatus === '已完成' ? 'green' : 'orange'"
+								>
+									{{ record.eventStatus || '进行中' }}
+								</a-tag>
+							</template>
+							<template v-else-if="column.key === 'operation'">
+								<a-space>
+									<a-button
+										v-if="hasPermission('gift:edit')"
+										size="small"
+										type="link"
+										@click="openDrawer(record)"
+									>
+										编辑
+									</a-button>
+									<a-popconfirm
+										v-if="hasPermission('gift:delete')"
+										title="确认删除该事件?"
+										@confirm="remove(record.id)"
+									>
+										<a-button size="small" type="link" danger>删除</a-button>
+									</a-popconfirm>
+								</a-space>
+							</template>
+						</template>
+					</a-table>
+				</section>
+			</a-tab-pane>
+
+			<a-tab-pane key="dictionary" tab="事件分类">
+				<div class="dictionary-grid">
+					<div v-for="(groupItems, groupName) in categorizedEventTypes" :key="groupName" class="dictionary-card">
+						<div class="dictionary-card-header">
+							<strong>{{ groupName }}</strong>
+						</div>
+						<div class="dictionary-card-body">
+							<div v-for="opt in groupItems" :key="opt.id" class="dictionary-item">
+								<div class="item-left">
+									<span class="item-icon-emoji">{{ opt.icon || '💬' }}</span>
+									<div class="item-info">
+										<span class="item-name" :class="{ 'disabled-text': opt.status === 0 }">{{ opt.name }}</span>
+										<span class="item-count">使用 {{ opt.useCount || 0 }} 次</span>
+									</div>
+								</div>
+								<div class="item-right">
+									<span class="item-amount" v-if="opt.defaultAmount">
+										¥{{ opt.defaultAmount }}
+									</span>
+									<span class="item-amount text-muted" v-else>
+										暂无推荐金额
+									</span>
+									<a-space size="small" style="margin-left: 12px;">
+										<a-button type="link" size="small" style="padding: 0;" @click="startEditOption(opt)">
+											编辑
+										</a-button>
+										<a-switch
+											:checked="opt.status !== 0"
+											size="small"
+											@change="toggleOptionStatus(opt)"
+										/>
+									</a-space>
+								</div>
 							</div>
 						</div>
-					</template>
-					<template v-else-if="column.key === 'eventType'">
-						<a-tag color="blue">{{ eventLabel(record.eventType) }}</a-tag>
-					</template>
-					<template v-else-if="column.key === 'totalAmount'">
-						<span class="amount-in">{{ money(record.totalAmount) }}</span>
-					</template>
-					<template v-else-if="column.key === 'eventStatus'">
-						<a-tag
-							:color="record.eventStatus === '已完成' ? 'green' : 'orange'"
-						>
-							{{ record.eventStatus || '进行中' }}
-						</a-tag>
-					</template>
-					<template v-else-if="column.key === 'operation'">
-						<a-space>
-							<a-button
-								v-if="hasPermission('gift:edit')"
-								size="small"
-								type="link"
-								@click="openDrawer(record)"
-							>
-								编辑
-							</a-button>
-							<a-popconfirm
-								v-if="hasPermission('gift:delete')"
-								title="确认删除该事由?"
-								@confirm="remove(record.id)"
-							>
-								<a-button size="small" type="link" danger>删除</a-button>
-							</a-popconfirm>
-						</a-space>
-					</template>
-				</template>
-			</a-table>
-		</section>
+					</div>
+				</div>
+			</a-tab-pane>
+		</a-tabs>
+
+		<!-- 事件分类编辑 Modal -->
+		<a-modal
+			v-model:open="optionEditing"
+			title="编辑事件分类配置"
+			@ok="saveOption"
+			destroy-on-close
+		>
+			<a-form :model="editingOption" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }" style="padding-top: 12px;">
+				<a-form-item label="分类名称">
+					<a-input v-model:value="editingOption.name" disabled />
+				</a-form-item>
+				<a-form-item label="分类分组">
+					<a-select v-model:value="editingOption.category">
+						<a-select-option value="婚庆类">婚庆类</a-select-option>
+						<a-select-option value="家庭类">家庭类</a-select-option>
+						<a-select-option value="节日类">节日类</a-select-option>
+						<a-select-option value="其他">其他</a-select-option>
+					</a-select>
+				</a-form-item>
+				<a-form-item label="图标/Emoji">
+					<a-input v-model:value="editingOption.icon" placeholder="输入单个 Emoji 图标" />
+				</a-form-item>
+				<a-form-item label="默认推荐金额">
+					<a-input-number
+						v-model:value="editingOption.defaultAmount"
+						:min="0"
+						:precision="2"
+						style="width: 100%"
+						placeholder="随礼时的默认候选金额"
+					/>
+				</a-form-item>
+				<a-form-item label="启用状态">
+					<a-radio-group v-model:value="editingOption.status">
+						<a-radio :value="1">启用</a-radio>
+						<a-radio :value="0">停用</a-radio>
+					</a-radio-group>
+				</a-form-item>
+			</a-form>
+		</a-modal>
 
 		<a-drawer
 			v-model:open="drawerOpen"
-			:title="formInfo.id ? '编辑事由' : '新增事由'"
+			:title="formInfo.id ? '编辑人情事件' : '新增人情事件'"
 			width="480"
 		>
 			<a-form :model="formInfo" layout="vertical">
-				<a-form-item label="事由名称" required>
-					<a-input v-model:value="formInfo.eventName" />
+				<a-form-item label="事件名称" required>
+					<a-input v-model:value="formInfo.eventName" placeholder="例如：张三婚礼" />
 				</a-form-item>
-				<a-form-item label="类型" required>
+				<a-form-item label="事件分类" required>
 					<a-select
 						v-model:value="formInfo.eventTypeMode"
 						:options="eventTypeSelectOptions"
 						allow-clear
-						placeholder="请选择事由类型"
+						placeholder="请选择事件分类"
 					/>
 				</a-form-item>
 				<a-form-item
 					v-if="formInfo.eventTypeMode === EVENT_TYPE_CUSTOM"
-					label="自定义类型"
+					label="自定义事件分类"
 					required
 				>
 					<a-input
 						v-model:value="formInfo.customEventType"
-						placeholder="请输入自定义事由类型"
+						placeholder="请输入自定义事件分类"
 						allow-clear
 						:maxlength="20"
 					/>
 				</a-form-item>
-				<a-form-item label="事由时间">
+				<a-form-item label="事件日期">
 					<a-date-picker
 						v-model:value="formInfo.eventTime"
-						show-time
-						value-format="YYYY-MM-DDTHH:mm:ss"
+						value-format="YYYY-MM-DD"
 						style="width: 100%"
+						placeholder="请选择举办日期"
 					/>
 				</a-form-item>
 				<a-form-item label="备注">
-					<a-textarea v-model:value="formInfo.remark" :rows="3" />
+					<a-textarea v-model:value="formInfo.remark" :rows="3" placeholder="例如：地址/参与成员说明" />
 				</a-form-item>
 			</a-form>
 			<template #footer>
@@ -216,7 +333,14 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
+import {
+	CalendarOutlined,
+	PayCircleOutlined,
+	TeamOutlined,
+} from '@ant-design/icons-vue';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
@@ -227,6 +351,7 @@ import {
 	getGiftEventBusinessPage,
 	getGiftEventSummary,
 	updateGiftEvent,
+	updateGiftEventTypeOption,
 } from '@/views/finance/gift/api';
 import type {
 	GiftEventBusinessInfo,
@@ -249,6 +374,8 @@ const {
 	loadEventTypeOptions,
 	resolveFilterEventType,
 	mapEventTypeToFormFields,
+	presetOptions,
+	customOptions,
 } = useGiftEventTypeOptions();
 
 const {
@@ -269,23 +396,43 @@ const dataSource = ref<GiftEventBusinessInfo[]>([]);
 const summary = ref<GiftEventSummary>({});
 const eventRange = ref<[string, string] | undefined>();
 
+const formatDate = (val?: string) => {
+	if (!val) return '-';
+	return val.replace('T', ' ').slice(0, 10);
+};
+
+const debouncedQuery = debounce(() => {
+	query(true);
+}, 300);
+
+watch(
+	searchInfo,
+	() => {
+		debouncedQuery();
+	},
+	{ deep: true },
+);
+
 watch(eventRange, (value) => {
-	searchInfo.value.eventTimeStart = value?.[0];
-	searchInfo.value.eventTimeEnd = value?.[1];
+	searchInfo.value.eventTimeStart = value?.[0] ? `${value[0]}T00:00:00` : undefined;
+	searchInfo.value.eventTimeEnd = value?.[1] ? `${value[1]}T23:59:59` : undefined;
 });
 
 const selectEventType = (presetId: string) => {
 	const eventType = resolveFilterEventType(presetId);
 	searchInfo.value.eventType =
 		searchInfo.value.eventType === eventType ? undefined : eventType;
-	query(true);
 };
 
+onUnmounted(() => {
+	debouncedQuery.cancel();
+});
+
 const columns = [
-	{ title: '事由名称', dataIndex: 'eventName', key: 'eventName' },
-	{ title: '类型', dataIndex: 'eventType', key: 'eventType', width: 100 },
-	{ title: '日期', dataIndex: 'eventTime', key: 'eventTime', width: 180 },
-	{ title: '地点', dataIndex: 'locationText', key: 'locationText', width: 140 },
+	{ title: '事件名称', dataIndex: 'eventName', key: 'eventName' },
+	{ title: '事件分类', dataIndex: 'eventType', key: 'eventType', width: 120 },
+	{ title: '举行日期', dataIndex: 'eventTime', key: 'eventTime', width: 140 },
+	{ title: '备注', dataIndex: 'remark', key: 'remark', width: 160 },
 	{ title: '状态', dataIndex: 'eventStatus', key: 'eventStatus', width: 100 },
 	{
 		title: '参与人数',
@@ -294,12 +441,18 @@ const columns = [
 		width: 100,
 	},
 	{
-		title: '礼金总额',
-		dataIndex: 'totalAmount',
-		key: 'totalAmount',
+		title: '我送出的',
+		dataIndex: 'giveAmount',
+		key: 'giveAmount',
 		width: 120,
 	},
-	{ title: '操作', key: 'operation', width: 140 },
+	{
+		title: '我收到的',
+		dataIndex: 'receiveAmount',
+		key: 'receiveAmount',
+		width: 120,
+	},
+	{ title: '操作', key: 'operation', width: 140, fixed: 'right' },
 ];
 
 const query = (resetPage = false) => {
@@ -324,7 +477,7 @@ const loadSummary = async () => {
 	if (code === '200') {
 		summary.value = data || {};
 	} else {
-		message.error(msg || '事由统计加载失败');
+		message.error(msg || '事件统计加载失败');
 	}
 };
 
@@ -344,7 +497,7 @@ const loadPage = async (page: PageInfo) => {
 			dataSource.value = data?.records || [];
 			setTotal(data?.total || 0);
 		} else {
-			message.error(msg || '事由列表加载失败');
+			message.error(msg || '事件列表加载失败');
 		}
 	} finally {
 		loading.value = false;
@@ -352,7 +505,11 @@ const loadPage = async (page: PageInfo) => {
 };
 
 const openDrawer = (record?: GiftEventBusinessInfo) => {
-	formInfo.value = record ? mapEventTypeToFormFields(record) : {};
+	const mapped = record ? mapEventTypeToFormFields(record) : {};
+	if (mapped.eventTime) {
+		mapped.eventTime = mapped.eventTime.replace('T', ' ').slice(0, 10);
+	}
+	formInfo.value = mapped;
 	drawerOpen.value = true;
 };
 
@@ -364,26 +521,30 @@ const toSavePayload = (): GiftEventInfo => {
 		eventTypeOptionId,
 		...rest
 	} = formInfo.value;
-	return {
+	const payload: GiftEventInfo = {
 		...rest,
 		...buildEventTypeForSave(formInfo.value),
 	};
+	if (payload.eventTime && payload.eventTime.length === 10) {
+		payload.eventTime = `${payload.eventTime}T00:00:00`;
+	}
+	return payload;
 };
 
 const save = async () => {
 	if (!formInfo.value.eventName?.trim()) {
-		message.warning('请输入事由名称');
+		message.warning('请输入事件名称');
 		return;
 	}
 	if (
 		formInfo.value.eventTypeMode === EVENT_TYPE_CUSTOM &&
 		!formInfo.value.customEventType?.trim()
 	) {
-		message.warning('请输入自定义事由类型');
+		message.warning('请输入自定义事件分类');
 		return;
 	}
 	if (!formInfo.value.eventTypeMode) {
-		message.warning('请选择事由类型');
+		message.warning('请选择事件分类');
 		return;
 	}
 	saving.value = true;
@@ -415,6 +576,80 @@ const remove = async (id: string) => {
 
 const route = useRoute();
 
+const activeTab = ref('instances');
+const optionEditing = ref(false);
+const editingOption = ref<any>({});
+
+const displayTopEvents = computed(() => {
+	const all = [...presetOptions.value, ...customOptions.value];
+	const top = all
+		.filter(x => x.useCount && x.useCount > 0)
+		.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
+	if (top.length) return top.slice(0, 4);
+	return presetOptions.value.slice(0, 4);
+});
+
+const categorizedEventTypes = computed(() => {
+	const groups: Record<string, any[]> = {
+		'婚庆类': [],
+		'家庭类': [],
+		'节日类': [],
+		'其他': [],
+	};
+	const all = [...presetOptions.value, ...customOptions.value];
+	all.forEach(item => {
+		const cat = item.category || '其他';
+		if (!groups[cat]) {
+			groups[cat] = [];
+		}
+		if (!groups[cat].some(x => x.name === item.name)) {
+			groups[cat].push(item);
+		}
+	});
+	return groups;
+});
+
+const startEditOption = (opt: any) => {
+	editingOption.value = { ...opt };
+	optionEditing.value = true;
+};
+
+const saveOption = async () => {
+	const { id, name, defaultAmount, status, icon, category } = editingOption.value;
+	if (!id) return;
+	
+	const { code, message: msg } = await updateGiftEventTypeOption({
+		id,
+		eventLabel: name,
+		defaultAmount,
+		status,
+		icon,
+		category,
+	});
+	if (code === '200') {
+		message.success('更新事由配置成功');
+		optionEditing.value = false;
+		await loadEventTypeOptions();
+	} else {
+		message.error(msg || '更新事由配置失败');
+	}
+};
+
+const toggleOptionStatus = async (opt: any) => {
+	const newStatus = opt.status === 0 ? 1 : 0;
+	const { code, message: msg } = await updateGiftEventTypeOption({
+		id: opt.id,
+		eventLabel: opt.name,
+		status: newStatus,
+	});
+	if (code === '200') {
+		message.success(`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`);
+		await loadEventTypeOptions();
+	} else {
+		message.error(msg || '操作失败');
+	}
+};
+
 onMounted(() => {
 	void loadEventTypeOptions();
 	query(true);
@@ -423,7 +658,6 @@ onMounted(() => {
 	}
 });
 </script>
-
 <style scoped lang="less">
 .gift-screen {
 	min-height: 100%;
@@ -512,25 +746,15 @@ onMounted(() => {
 		font-weight: 700;
 	}
 
-	i {
-		position: relative;
+	.metric-icon {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 30px;
-		height: 30px;
-		border-radius: 6px;
-		font-style: normal;
-		font-weight: 800;
-
-		&::after {
-			position: absolute;
-			inset: 7px;
-			border: 2px solid currentcolor;
-			border-radius: 3px;
-			content: '';
-			opacity: 0.24;
-		}
+		width: 36px;
+		height: 36px;
+		border-radius: 8px;
+		font-size: 18px;
+		transition: all 0.2s ease;
 	}
 
 	strong {
@@ -547,31 +771,31 @@ onMounted(() => {
 	}
 }
 
-.metric-card-blue strong,
-.metric-card-blue i {
+.metric-card-blue strong {
 	color: #1478d4;
 }
 
-.metric-card-blue i {
-	background: #dcecff;
+.metric-card-blue .metric-icon {
+	color: #2563eb;
+	background: #dbeafe;
 }
 
-.metric-card-green strong,
-.metric-card-green i {
+.metric-card-green strong {
 	color: #14803c;
 }
 
-.metric-card-green i {
-	background: #ddf6df;
+.metric-card-green .metric-icon {
+	color: #16a34a;
+	background: #dcfce7;
 }
 
-.metric-card-gold strong,
-.metric-card-gold i {
+.metric-card-gold strong {
 	color: #9a6712;
 }
 
-.metric-card-gold i {
-	background: #f5ead5;
+.metric-card-gold .metric-icon {
+	color: #d97706;
+	background: #fef3c7;
 }
 
 .table-panel {
@@ -618,5 +842,163 @@ onMounted(() => {
 .amount-in {
 	color: #389e0d;
 	font-weight: 700;
+}
+
+.top-event-cards {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 14px;
+	margin-bottom: 20px;
+}
+
+.top-event-card {
+	background: #fff;
+	border: 1px solid #e5eaf1;
+	border-radius: 8px;
+	padding: 14px 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+	
+	.card-icon-emoji {
+		font-size: 24px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		background: #f0f5ff;
+		border-radius: 50%;
+	}
+	
+	.card-main {
+		flex: 1;
+		
+		.card-title-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 4px;
+			
+			strong {
+				font-size: 14px;
+				color: #1f1f1f;
+			}
+		}
+		
+		.card-stats {
+			font-size: 12px;
+			color: #8c8c8c;
+		}
+	}
+}
+
+.dictionary-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+	padding: 8px 0;
+}
+
+.dictionary-card {
+	background: #fafafa;
+	border: 1px solid #f0f0f0;
+	border-radius: 8px;
+	
+	.dictionary-card-header {
+		padding: 10px 16px;
+		background: #f0f0f0;
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+		border-bottom: 1px solid #e8e8e8;
+		
+		strong {
+			font-size: 14px;
+			color: #333;
+		}
+	}
+	
+	.dictionary-card-body {
+		padding: 8px 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	
+	.dictionary-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 8px 0;
+		border-bottom: 1px dashed #e8e8e8;
+		
+		&:last-child {
+			border-bottom: none;
+		}
+		
+		.item-left {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			
+			.item-icon-emoji {
+				font-size: 20px;
+				width: 32px;
+				height: 32px;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				background: #fff;
+				border-radius: 50%;
+				border: 1px solid #e8e8e8;
+			}
+			
+			.item-info {
+				display: flex;
+				flex-direction: column;
+				
+				.item-name {
+					font-weight: 700;
+					color: #262626;
+					font-size: 13px;
+					
+					&.disabled-text {
+						color: #bfbfbf;
+						text-decoration: line-through;
+					}
+				}
+				
+				.item-count {
+					font-size: 11px;
+					color: #8c8c8c;
+					margin-top: 2px;
+				}
+			}
+		}
+		
+		.item-right {
+			display: flex;
+			align-items: center;
+			
+			.item-amount {
+				font-size: 12px;
+				color: #52c41a;
+				font-weight: 700;
+				
+				&.text-muted {
+					color: #bfbfbf;
+					font-weight: normal;
+					font-style: italic;
+				}
+			}
+		}
+	}
+}
+
+.muted-info {
+	font-size: 13px;
+	color: #8c8c8c;
+	font-weight: normal;
 }
 </style>

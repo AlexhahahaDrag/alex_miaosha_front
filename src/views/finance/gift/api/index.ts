@@ -23,6 +23,7 @@ import type {
 	GiftRecordInfo,
 	GiftRecordQuery,
 	GiftRecordSummary,
+	GiftRecordRecommendAmount,
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
 
@@ -212,6 +213,26 @@ export function getGiftEventTypeOptions(): Promise<
 > {
 	return getDataOne<GiftEventTypeOptions>(
 		`${baseUrl(giftApi.event)}/event-type-options`,
+	);
+}
+
+export function getGiftRecordRecommendAmount(params: {
+	personId?: string | null;
+	eventType: string;
+	direction?: string | null;
+}): Promise<ResponseBody<GiftRecordRecommendAmount>> {
+	return getDataOne<GiftRecordRecommendAmount>(
+		`${baseUrl(giftApi.event)}/recommend-amount`,
+		normalizeGiftIds(params),
+	).then(normalizeGiftResponse);
+}
+
+export function updateGiftEventTypeOption(
+	params: any,
+): Promise<ResponseBody<boolean>> {
+	return putData<boolean>(
+		`${baseUrl(giftApi.event)}/event-type-option`,
+		normalizeGiftIds(params),
 	);
 }
 

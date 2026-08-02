@@ -193,7 +193,7 @@ const init = async () => {
 			code,
 			data,
 			message: messageInfo,
-		} = await getDictManagerDetail(Number(modelInfo.value.id));
+		} = await getDictManagerDetail(String(modelInfo.value.id));
 		if (code === '200') {
 			formState.value = data || {};
 			modelConfig.confirmLoading = false;

@@ -196,7 +196,7 @@ const modelInfo = ref<ModelInfo>({});
 function editPmsSkuInfo(type: string, id?: number) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : id;
+	modelInfo.value.id = isAdd ? undefined : (id !== undefined ? String(id) : undefined);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
@@ -216,9 +216,5 @@ watch(
 	{ deep: true },
 );
 
-const initPage = () => {
-	pagination.current = 1;
-	pagination.pageSize = 10;
-};
 </script>
 <style lang="scss" scoped></style>

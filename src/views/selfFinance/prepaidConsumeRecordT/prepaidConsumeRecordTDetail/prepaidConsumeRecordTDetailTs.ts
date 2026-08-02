@@ -2,7 +2,7 @@ import type { Dayjs } from 'dayjs';
 
 export interface PrepaidConsumeRecordTDetail {
 	id?: number;
-	cardId?: number;
+	cardId?: number | string;
 	orderNo?: string;
 	amount?: number;
 	balanceAfter?: number;

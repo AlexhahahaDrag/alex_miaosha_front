@@ -1,10 +1,10 @@
 <template>
-	<a-drawer
+	<a-modal
 		v-model:open="modelInfo.open"
-		:width="drawerWidth"
+		:width="modalWidth"
 		:title="modelInfo.title || '联系人'"
 		:destroy-on-close="true"
-		@close="handleCancel"
+		@cancel="handleCancel"
 	>
 		<a-spin :spinning="pageLoading">
 			<template v-if="isProfileMode">
@@ -47,6 +47,11 @@
 					</a-descriptions-item>
 					<a-descriptions-item label="关系">
 						{{ relationLabel(profile.person?.relationType) }}
+					</a-descriptions-item>
+					<a-descriptions-item label="关系等级">
+						<a-tag :color="getGradeColor(profile.person?.relationGrade)">
+							{{ getGradeLabel(profile.person?.relationGrade) }}
+						</a-tag>
 					</a-descriptions-item>
 					<a-descriptions-item label="备注">
 						{{ profile.person?.remark || '-' }}
@@ -160,6 +165,17 @@
 						:maxlength="20"
 					/>
 				</a-form-item>
+				<a-form-item label="关系等级" name="relationGrade">
+					<a-select
+						v-model:value="formState.relationGrade"
+						placeholder="请选择关系等级"
+					>
+						<a-select-option value="CORE">⭐ 核心关系</a-select-option>
+						<a-select-option value="IMPORTANT">🟢 重要关系</a-select-option>
+						<a-select-option value="NORMAL">🔵 普通关系</a-select-option>
+						<a-select-option value="WEAK">⚪ 弱关系</a-select-option>
+					</a-select>
+				</a-form-item>
 				<a-form-item label="备注" name="remark">
 					<a-textarea
 						v-model:value="formState.remark"
@@ -172,19 +188,18 @@
 		</a-spin>
 		<template #footer>
 			<template v-if="isProfileMode">
-				<div class="profile-actions">
+				<div style="display: flex; gap: 8px; justify-content: flex-end;">
 					<a-button
 						v-if="hasPermission('gift:edit')"
 						type="primary"
-						block
 						@click="openEditFromProfile"
 					>
 						编辑资料
 					</a-button>
-					<a-button block @click="handleCancel">返回列表</a-button>
+					<a-button @click="handleCancel">返回列表</a-button>
 				</div>
 			</template>
-			<a-space v-else>
+			<div v-else style="display: flex; gap: 8px; justify-content: flex-end;">
 				<a-button @click="handleCancel">取消</a-button>
 				<a-button
 					type="primary"
@@ -194,9 +209,9 @@
 				>
 					保存
 				</a-button>
-			</a-space>
+			</div>
 		</template>
-	</a-drawer>
+	</a-modal>
 </template>
 
 <script setup lang="ts">
@@ -294,11 +309,7 @@ const presetRelationLabels = computed(() =>
 );
 
 const isProfileMode = computed(() => modelInfo.value.mode === 'profile');
-const drawerWidth = computed(() =>
-	isProfileMode.value ?
-		modelInfo.value.width || '420px'
-	:	modelInfo.value.width || '460px',
-);
+const modalWidth = computed(() => modelInfo.value.width || '520px');
 
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
@@ -545,6 +556,26 @@ watch(
 		}
 	},
 );
+
+const getGradeLabel = (grade?: string) => {
+	switch (grade) {
+		case 'CORE': return '⭐ 核心关系';
+		case 'IMPORTANT': return '🟢 重要关系';
+		case 'NORMAL': return '🔵 普通关系';
+		case 'WEAK': return '弱关系';
+		default: return '普通关系';
+	}
+};
+
+const getGradeColor = (grade?: string) => {
+	switch (grade) {
+		case 'CORE': return 'gold';
+		case 'IMPORTANT': return 'green';
+		case 'NORMAL': return 'blue';
+		case 'WEAK': return 'default';
+		default: return 'blue';
+	}
+};
 
 const emit = defineEmits(['success']);
 </script>
