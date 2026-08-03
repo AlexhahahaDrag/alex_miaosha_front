@@ -178,27 +178,42 @@
 					</template>
 					<template v-else-if="column.key === 'operation'">
 						<a-space>
-							<a-button
-								v-if="hasPermission('gift:view')"
-								size="small"
-								type="link"
-								@click="openProfile(record)"
-							>
-								查看关系
-							</a-button>
-							<a-dropdown>
+							<template v-for="act in getDirectActions(record)" :key="act.key">
+								<a-popconfirm
+									v-if="act.confirm"
+									:title="act.confirmTitle"
+									@confirm="act.action"
+								>
+									<a-button size="small" type="link" :danger="act.danger">
+										{{ act.label }}
+									</a-button>
+								</a-popconfirm>
+								<a-button
+									v-else
+									size="small"
+									type="link"
+									:danger="act.danger"
+									@click="act.action"
+								>
+									{{ act.label }}
+								</a-button>
+							</template>
+							<a-dropdown v-if="getMoreActions(record).length > 0">
 								<template #overlay>
 									<a-menu>
-										<a-menu-item v-if="hasPermission('gift:edit')" @click="openDrawer(record)">
-											编辑资料
-										</a-menu-item>
-										<a-menu-item v-if="hasPermission('gift:delete')" danger>
+										<a-menu-item
+											v-for="act in getMoreActions(record)"
+											:key="act.key"
+											:danger="act.danger"
+										>
 											<a-popconfirm
-												title="确认删除该联系人档案吗?"
-												@confirm="remove(record.id)"
+												v-if="act.confirm"
+												:title="act.confirmTitle"
+												@confirm="act.action"
 											>
-												删除
+												<span>{{ act.label }}</span>
 											</a-popconfirm>
+											<span v-else @click="act.action">{{ act.label }}</span>
 										</a-menu-item>
 									</a-menu>
 								</template>
@@ -587,8 +602,63 @@ const columns = [
 	{ title: '关系状态', key: 'relationStatus', width: 140 },
 	{ title: '人情往来', key: 'transactions', width: 280 },
 	{ title: '最近互动', key: 'latestRecordTime', width: 220 },
-	{ title: '操作', key: 'operation', width: 240, fixed: 'right' },
+	{ title: '操作', key: 'operation', width: 260, fixed: 'right' as const },
 ];
+
+interface PersonAction {
+	key: string;
+	label: string;
+	danger?: boolean;
+	confirm?: boolean;
+	confirmTitle?: string;
+	action: () => void;
+}
+
+const getRowActions = (record: GiftPersonBusinessInfo): PersonAction[] => {
+	const actions: PersonAction[] = [];
+	if (hasPermission('gift:view')) {
+		actions.push({
+			key: 'profile',
+			label: '查看关系',
+			action: () => openProfile(record),
+		});
+	}
+	if (hasPermission('gift:add')) {
+		actions.push({
+			key: 'quickLog',
+			label: '快捷记单',
+			action: () => openQuickLog(record),
+		});
+	}
+	if (hasPermission('gift:edit')) {
+		actions.push({
+			key: 'edit',
+			label: '编辑资料',
+			action: () => openDrawer(record),
+		});
+	}
+	if (hasPermission('gift:delete')) {
+		actions.push({
+			key: 'delete',
+			label: '删除',
+			danger: true,
+			confirm: true,
+			confirmTitle: '确认删除该联系人档案吗?',
+			action: () => record.id && remove(record.id),
+		});
+	}
+	return actions;
+};
+
+const getDirectActions = (record: GiftPersonBusinessInfo): PersonAction[] => {
+	const actions = getRowActions(record);
+	return actions.length > 3 ? actions.slice(0, 2) : actions;
+};
+
+const getMoreActions = (record: GiftPersonBusinessInfo): PersonAction[] => {
+	const actions = getRowActions(record);
+	return actions.length > 3 ? actions.slice(2) : [];
+};
 
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
@@ -694,7 +764,7 @@ const remove = async (id: string) => {
 const route = useRoute();
 
 // 快速记录往来逻辑
-const openQuickLog = async (record: GiftPersonBusinessInfo) => {
+async function openQuickLog(record: GiftPersonBusinessInfo) {
 	quickLogTargetName.value = record.personName || '';
 	
 	// 格式化当前本地时间为 YYYY-MM-DD HH:mm:ss

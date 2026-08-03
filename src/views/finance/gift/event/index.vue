@@ -129,13 +129,6 @@
 		<a-tabs v-model:activeKey="activeTab" class="event-tabs-panel" style="background: #fff; padding: 12px 18px 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #f0f0f0;">
 			<a-tab-pane key="instances" tab="事件列表">
 				<section class="table-panel" style="padding: 0;">
-					<div class="panel-head" style="padding: 8px 0 16px; display: flex; justify-content: space-between; align-items: center;">
-						<h3 style="margin: 0; font-size: 15px; font-weight: 800;">事件列表</h3>
-						<a-radio-group v-model:value="tableSize" size="small">
-							<a-radio-button value="small">紧凑</a-radio-button>
-							<a-radio-button value="middle">默认</a-radio-button>
-						</a-radio-group>
-					</div>
 					<a-table
 						:data-source="dataSource"
 						:columns="columns"

@@ -151,6 +151,9 @@
 							'-'
 						}}</strong>
 					</template>
+					<template v-else-if="column.key === 'relationType'">
+						<span>{{ record.relationType || '-' }}</span>
+					</template>
 					<template v-else-if="column.key === 'eventName'">
 						{{ record.eventName || record.eventId || '-' }}
 					</template>
@@ -162,13 +165,7 @@
 							}}{{ money(record.amount) }}
 						</span>
 					</template>
-					<template v-else-if="column.key === 'paymentMethod'">
-						{{
-							record.paymentMethod && record.paymentMethod !== '-' ?
-								record.paymentMethod
-							:	'未记录'
-						}}
-					</template>
+
 					<template v-else-if="column.key === 'returnedFlag'">
 						<a-tag
 							v-if="record.direction === 'RECEIVE'"
@@ -300,7 +297,6 @@ watch(payRange, (value) => {
 	searchInfo.value.payTimeEnd = value?.[1];
 });
 
-const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
 const selectDirection = (value: string) => {
 	searchInfo.value.direction =
@@ -314,8 +310,8 @@ onUnmounted(() => {
 });
 
 const columns = [
-	{ title: '日期', dataIndex: 'payTime', key: 'payTime', width: 180 },
 	{ title: '姓名', dataIndex: 'personName', key: 'personName', width: 150 },
+	{ title: '日期', dataIndex: 'payTime', key: 'payTime', width: 180 },
 	{ title: '关系', dataIndex: 'relationType', key: 'relationType', width: 100 },
 	{ title: '事由', dataIndex: 'eventName', key: 'eventName', width: 160 },
 	{
@@ -327,19 +323,13 @@ const columns = [
 	},
 	{ title: '类型', dataIndex: 'direction', key: 'direction', width: 100 },
 	{
-		title: '支付方式',
-		dataIndex: 'paymentMethod',
-		key: 'paymentMethod',
-		width: 120,
-	},
-	{
 		title: '回礼状态',
 		dataIndex: 'returnedFlag',
 		key: 'returnedFlag',
 		width: 120,
 	},
 	{ title: '备注', dataIndex: 'remark', key: 'remark', width: 180 },
-	{ title: '操作', key: 'operation', width: 220, fixed: 'right' },
+	{ title: '操作', key: 'operation', width: 220, fixed: 'right' as const },
 ];
 
 const query = (resetPage = false) => {
