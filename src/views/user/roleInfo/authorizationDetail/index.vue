@@ -32,8 +32,7 @@ import type { RoleInfoData } from '../config';
 // 字典数据已通过 useDictInfo 自动加载
 import {
 	getRoleInfoDetail,
-	addRoleInfo,
-	editRoleInfo,
+	assignRolePermissions,
 } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 const loading = ref<boolean>(false);
@@ -67,18 +66,19 @@ const handleCancel = () => {
 };
 
 const saveRoleInfoManager = async () => {
-	let api = addRoleInfo;
-	if (formState.value?.id) {
-		api = editRoleInfo;
+	const roleId = formState.value?.id != null ? String(formState.value.id) : '';
+	if (!roleId) {
+		loading.value = false;
+		message.error('角色 ID 缺失，无法保存权限');
+		return;
 	}
-	formState.value.permissionList = selectPermission.value.map(
-		(id) => ({ id: Number(id) }) as any,
-	);
-	const { code, message: messageInfo } = await api(formState.value).finally(
-		() => {
-			loading.value = false;
-		},
-	);
+	const permissionIds = selectPermission.value.map((id) => String(id));
+	const { code, message: messageInfo } = await assignRolePermissions(
+		roleId,
+		permissionIds,
+	).finally(() => {
+		loading.value = false;
+	});
 	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		modelInfo.value.open = false;
