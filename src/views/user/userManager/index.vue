@@ -18,8 +18,44 @@
 								/>
 							</a-form-item>
 						</a-col>
-						<a-col :span="6"></a-col>
-						<a-col :span="6" style="text-align: right">
+						<a-col :span="6">
+							<a-form-item name="status" label="状态">
+								<a-select
+									v-model:value="searchInfo.status"
+									placeholder="请选择状态"
+									:field-names="{ label: 'typeName', value: 'typeCode' }"
+									:options="statusOptions"
+									allow-clear
+								/>
+							</a-form-item>
+						</a-col>
+						<a-col :span="6">
+							<a-form-item name="orgId" label="所属机构">
+								<a-select
+									v-model:value="searchInfo.orgId"
+									placeholder="请选择机构"
+									:options="orgOptions"
+									show-search
+									:filter-option="filterOption"
+									allow-clear
+								/>
+							</a-form-item>
+						</a-col>
+						<a-col :span="6">
+							<a-form-item name="roleId" label="角色">
+								<a-select
+									v-model:value="searchInfo.roleId"
+									placeholder="请选择角色"
+									:options="roleOptions"
+									show-search
+									:filter-option="filterOption"
+									allow-clear
+								/>
+							</a-form-item>
+						</a-col>
+					</a-row>
+					<a-row :gutter="24">
+						<a-col :span="24" style="text-align: right">
 							<a-space>
 								<a-button type="primary" @click="query(true)"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
@@ -80,9 +116,9 @@
 					<template v-else-if="column.key === 'status'">
 						<a-tag
 							:key="record.status"
-							:color="record.status === 1 ? '#87d068' : 'grey'"
+							:color="String(record.status) === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.status === 1 ? '有效' : '失效' }}
+							{{ String(record.status) === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'gender'">
@@ -119,32 +155,45 @@
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
+import { useDictInfo } from '@/composables/useDictInfo';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { columns, labelCol, wrapperCol } from '@/views/user/userManager/config';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
 	deleteUserManager,
 } from '@/views/user/userManager/api';
+import { getOrgInfoPage } from '@/views/user/orgInfo/api';
+import { getRoleInfoPage } from '@/views/user/roleInfo/api';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
+interface FilterOption {
+	label: string;
+	value: string;
+}
+
 let rowIds: (string | number)[] = [];
-// 使用分页组合式函数
+
+// Hooks
 const {
 	pagination,
 	handleTableChange: paginationChange,
 	setTotal,
 	resetPagination,
 } = usePagination();
+const { getDictByType } = useDictInfo('is_valid');
 
-// 字典数据已通过 useDictInfo 自动加载
-let searchInfo = ref<UserManagerInfo>({});
-let loading = ref<boolean>(false);
-// 数据源
-let dataSource = ref<UserManagerInfo[]>([]);
-// 弹窗信息
-let modelInfo = ref<ModelInfo>({});
+// State
+const searchInfo = ref<UserManagerInfo>({});
+const loading = ref<boolean>(false);
+const dataSource = ref<UserManagerInfo[]>([]);
+const modelInfo = ref<ModelInfo>({});
+const orgOptions = ref<FilterOption[]>([]);
+const roleOptions = ref<FilterOption[]>([]);
+const statusOptions = computed(() => getDictByType('is_valid'));
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -166,6 +215,11 @@ const rowSelection = ref({
 		console.log(selected, selectedRows, changeRows);
 	},
 });
+
+// Actions
+const filterOption = (input: string, option?: FilterOption) => {
+	return (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+};
 
 const cancelQuery = () => {
 	searchInfo.value = {};
@@ -256,18 +310,40 @@ const triggerDebouncedQuery = debounce(() => {
 	getUserPage(searchInfo.value, pagination);
 }, 300);
 
+const loadFilterOptions = async () => {
+	const [orgRes, roleRes] = await Promise.all([
+		getOrgInfoPage({ status: '1' }, 1, 1000),
+		getRoleInfoPage({ status: '1' }, 1, 1000),
+	]);
+	const { code: orgCode, data: orgData } = orgRes;
+	if (orgCode === '200') {
+		orgOptions.value = (orgData?.records || []).map((o: OrgInfoData) => ({
+			label: o.orgName || '',
+			value: String(o.id),
+		}));
+	}
+	const { code: roleCode, data: roleData } = roleRes;
+	if (roleCode === '200') {
+		roleOptions.value = (roleData?.records || []).map((r: RoleInfoData) => ({
+			label: r.roleName || '',
+			value: String(r.id),
+		}));
+	}
+};
+
 // 初始化
-const init = () => {
-	// 初始化分页信息
+const init = async () => {
 	initPage();
-	//获取财务管理页面数据
+	await loadFilterOptions();
 	getUserPage(searchInfo.value, pagination);
 };
 
+// Lifecycle
 onMounted(() => {
 	init();
 });
 
+// Watchers
 watch(
 	() => searchInfo.value,
 	() => {

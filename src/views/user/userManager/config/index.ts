@@ -85,6 +85,7 @@ export interface UserManagerInfo {
 	roleCode?: string;
 	avatarThumbnailUrl?: string;
 	orgId?: string;
+	roleId?: string;
 	roleIds?: string[];
 	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }
