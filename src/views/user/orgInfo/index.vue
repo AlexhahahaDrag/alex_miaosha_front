@@ -77,7 +77,7 @@
 						<a-button
 							v-permission="'org:edit'"
 							type="primary"
-							@click="editOrgInfo('update', Number(selectedKeys[0]))"
+							@click="editOrgInfo('update', String(selectedKeys[0]))"
 							:disabled="!hasSelectedNode"
 						>
 							<template #icon><edit-outlined /></template>
@@ -341,7 +341,7 @@ const getOrgTreeData = async () => {
 };
 
 //新增和修改弹窗
-function editOrgInfo(type: string, id?: number | string) {
+function editOrgInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
 	modelInfo.value.id = isAdd ? null : id ?? null;

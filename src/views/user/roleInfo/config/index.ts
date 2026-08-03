@@ -40,7 +40,7 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 });
 
 export interface RoleInfoData {
-	id?: number;
+	id?: string;
 	roleCode?: string;
 	roleName?: string;
 	summary?: string;

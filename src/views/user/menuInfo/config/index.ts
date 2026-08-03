@@ -75,7 +75,7 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface MenuInfoData {
-	id?: number;
+	id?: string;
 	name?: string;
 	path?: string;
 	title?: string;

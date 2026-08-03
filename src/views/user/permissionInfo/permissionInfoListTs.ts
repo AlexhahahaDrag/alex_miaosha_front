@@ -51,7 +51,7 @@ const labelMap = ref<Record<string, { name: string; label: string }>>({
 });
 
 interface PermissionInfo {
-	id?: number;
+	id?: string;
 	permissionCode?: string;
 	permissionName?: string;
 	summary?: string;
