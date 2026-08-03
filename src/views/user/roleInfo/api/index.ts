@@ -36,10 +36,10 @@ export function deleteRoleInfo(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(baseService.user + baseRoleInfo + RoleInfoUrl.url, { ids });
 }
 
-// 新增角色信息
+// 新增角色信息（返回新建角色 id 字符串）
 export function addRoleInfo(
 	params: RoleInfoData,
-): Promise<ResponseBody<RoleInfoData>> {
+): Promise<ResponseBody<string>> {
 	return postData(baseService.user + baseRoleInfo + RoleInfoUrl.url, params);
 }
 
@@ -57,5 +57,15 @@ export function assignRoleUsers(
 	return postData(baseService.user + baseRoleInfo + '/assign-users', {
 		roleId,
 		userIds,
+	});
+}
+
+export function assignRolePermissions(
+	roleId: string,
+	permissionIds: string[],
+): Promise<ResponseBody<boolean>> {
+	return postData(baseService.user + baseRoleInfo + '/assign-permissions', {
+		roleId,
+		permissionIds,
 	});
 }
