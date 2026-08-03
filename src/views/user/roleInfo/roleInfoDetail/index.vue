@@ -110,7 +110,9 @@ import {
 	getRoleInfoDetail,
 	addRoleInfo,
 	editRoleInfo,
+	assignRolePermissions,
 } from '@/views/user/roleInfo/api';
+import { getPermissionInfoList } from '@/views/user/permissionInfo/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -150,25 +152,54 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
+// 主数据与权限两阶段保存：先 add/edit 角色，再 assign-permissions
 const saveRoleInfoManager = async () => {
-	let api = addRoleInfo;
-	if (formState.value.id) {
-		api = editRoleInfo;
-	}
-	formState.value.permissionList = selectPermission.value.map((id) => ({
-		id: Number(id),
-	}));
-	const { code, message: messageInfo } = await api(formState.value).finally(
-		() => {
+	const payload = { ...formState.value };
+	delete (payload as { permissionList?: unknown }).permissionList;
+
+	const isEdit = !!payload.id;
+	let roleId = '';
+
+	if (isEdit) {
+		const { code, message: messageInfo } = await editRoleInfo(payload);
+		if (code !== '200') {
 			loading.value = false;
-		},
-	);
-	if (code === '200') {
-		message.success(messageInfo || '保存成功！');
+			message.error(messageInfo || '保存失败！');
+			return;
+		}
+		roleId = String(payload.id);
+	} else {
+		// 新增：直接使用后端返回的新建角色 id，避免 roleCode LIKE 回查误匹配
+		const { code, data, message: messageInfo } = await addRoleInfo(payload);
+		if (code !== '200') {
+			loading.value = false;
+			message.error(messageInfo || '保存失败！');
+			return;
+		}
+		roleId = data != null ? String(data) : '';
+	}
+
+	if (!roleId) {
+		loading.value = false;
+		message.error('角色已保存，但无法获取角色 ID，请稍后在授权中配置权限');
+		modelInfo.value.open = false;
+		emit('success');
+		return;
+	}
+
+	const permissionIds = selectPermission.value.map((id) => String(id));
+	const {
+		code: assignCode,
+		message: assignMessage,
+	} = await assignRolePermissions(roleId, permissionIds).finally(() => {
+		loading.value = false;
+	});
+	if (assignCode === '200') {
+		message.success(assignMessage || '保存成功！');
 		modelInfo.value.open = false;
 		emit('success');
 	} else {
-		message.error(messageInfo || '保存失败！');
+		message.error(assignMessage || '角色已保存，权限分配失败');
 	}
 };
 
@@ -179,14 +210,12 @@ const init = async () => {
 	modelConfig.confirmLoading = true;
 
 	const roleId = modelInfo.value?.id;
-	// 无论新增还是修改，都尝试获取权限树（如果是新增，可以传一个特定的标志位或复用一个已知角色的列表获取）
-	// 这里逻辑与 AuthorizationDetail 保持一致，优先保证修改模式正常，新增模式下若后端支持则加载
 	if (roleId) {
 		const {
 			code,
 			data,
 			message: messageInfo,
-		} = await getRoleInfoDetail(roleId);
+		} = await getRoleInfoDetail(String(roleId));
 		if (code === '200') {
 			formState.value = data || {};
 			permissionTree.value =
@@ -199,14 +228,16 @@ const init = async () => {
 			message.error(messageInfo || '查询失败！');
 		}
 	} else {
-		// 新增模式：尝试获取权限列表（这里可以调用一个默认 ID 或专门的接口）
-		const { code, data } = await getRoleInfoDetail('1').catch(() => ({
-			code: '500',
-			data: null,
-		}));
+		// 新增：拉全量权限树（与角色详情 permissionList 同源结构）
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getPermissionInfoList();
 		if (code === '200') {
-			permissionTree.value =
-				(data as { permissionList?: unknown[] })?.permissionList || [];
+			permissionTree.value = (data as unknown[]) || [];
+		} else {
+			message.error(messageInfo || '获取权限树失败！');
 		}
 	}
 	modelConfig.confirmLoading = false;
