@@ -233,7 +233,7 @@
 <script setup lang="ts">
 // 1. Imports (框架 > 公共组件 > 业务组件 > 工具函数 > 类型定义)
 import { ref, computed, watch } from 'vue';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import MenuInfoDetail from './menuInfoDetail/index.vue';
 import SubMenuManager from './subMenuManager/index.vue';
@@ -308,7 +308,14 @@ const batchDelMenuInfo = () => {
 		message.warning('请先选择数据！');
 		return;
 	}
-	delMenuInfo(rowIds.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delMenuInfo(rowIds.join(',')),
+	});
 };
 
 const editMenuInfo = (type: string, id?: string) => {

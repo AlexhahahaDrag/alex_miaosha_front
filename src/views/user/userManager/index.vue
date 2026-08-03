@@ -126,7 +126,7 @@ import {
 	getUserManagerPage,
 	deleteUserManager,
 } from '@/views/user/userManager/api';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
 let rowIds: (string | number)[] = [];
@@ -202,7 +202,14 @@ const batchDelUserManager = () => {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delUser(rowIds.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delUser(rowIds.join(',')),
+	});
 };
 
 // 查询用户信息分页数据

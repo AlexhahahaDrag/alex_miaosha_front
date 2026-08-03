@@ -135,7 +135,7 @@ import {
 	labelMap,
 } from '@/views/user/roleInfo/config';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import UserAssignmentDetail from './userAssignmentDetail/index.vue';
 
@@ -210,7 +210,14 @@ const batchDelRoleInfo = (): void => {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delRoleInfo(rowIds.value.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.value.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delRoleInfo(rowIds.value.join(',')),
+	});
 };
 
 const cancel = (e: MouseEvent) => {

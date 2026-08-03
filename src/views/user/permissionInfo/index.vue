@@ -168,7 +168,7 @@ import {
 	getPermissionInfoPage,
 	deletePermissionInfo,
 } from '@/views/user/permissionInfo/api';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数
@@ -246,7 +246,14 @@ const batchDelPermissionInfo = (): void => {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPermissionInfo(rowIds.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delPermissionInfo(rowIds.join(',')),
+	});
 };
 
 let loading = ref<boolean>(false);
