@@ -6,7 +6,14 @@
 				<p>集中记录随礼、收礼、回礼，按人员、事由和金额快速筛选。</p>
 			</div>
 			<a-space>
-				<a-button v-if="hasPermission('gift:export')">Excel导出</a-button>
+				<a-button
+					v-if="hasPermission('gift:export')"
+					:loading="exporting"
+					data-testid="gift-record-export"
+					@click="exportRecords"
+				>
+					Excel导出
+				</a-button>
 				<a-button
 					v-if="hasPermission('gift:add')"
 					type="primary"
@@ -67,6 +74,42 @@
 						v-model:value="payRange"
 						show-time
 						value-format="YYYY-MM-DDTHH:mm:ss"
+					/>
+				</a-form-item>
+				<a-form-item v-if="searchExpanded" label="关联事由">
+					<gift-event-picker
+						v-model="searchInfo.eventId"
+						class="filter-select"
+						placeholder="按事由筛选"
+						:show-create-link="false"
+						test-id="gift-record-filter-event"
+					/>
+				</a-form-item>
+				<a-form-item v-if="searchExpanded" label="送礼人">
+					<gift-contact-picker
+						v-model="searchInfo.giverPersonId"
+						class="filter-select"
+						placeholder="按送礼人筛选"
+						:show-create-link="false"
+						test-id="gift-record-filter-giver"
+					/>
+				</a-form-item>
+				<a-form-item v-if="searchExpanded" label="收礼人">
+					<gift-contact-picker
+						v-model="searchInfo.receiverPersonId"
+						class="filter-select"
+						placeholder="按收礼人筛选"
+						:show-create-link="false"
+						test-id="gift-record-filter-receiver"
+					/>
+				</a-form-item>
+				<a-form-item v-if="searchExpanded" label="回礼状态">
+					<a-select
+						v-model:value="searchInfo.returnStatus"
+						:options="giftReturnStatusOptions"
+						allow-clear
+						class="filter-select"
+						data-testid="gift-record-filter-return-status"
 					/>
 				</a-form-item>
 				<a-form-item>
@@ -144,7 +187,7 @@
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'personName'">
-						<strong style="font-weight: 700; font-size: 14px; color: #101828;">{{
+						<strong style="font-weight: 700; font-size: 14px; color: #101828">{{
 							record.personName ||
 							record.giverPersonName ||
 							record.receiverPersonName ||
@@ -239,6 +282,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import {
 	deleteGiftRecord,
+	exportGiftRecords,
 	getGiftRecordPage,
 	getGiftRecordSummary,
 	getPendingReturnAmount,
@@ -253,6 +297,7 @@ import {
 	directionColor,
 	directionLabel,
 	giftDirectionOptions,
+	giftReturnStatusOptions,
 	money,
 } from '@/views/finance/gift/config';
 import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
@@ -271,6 +316,7 @@ const editingRecord = ref<GiftRecordInfo>();
 const searchExpanded = ref(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftRecordQuery>({});
+const exporting = ref(false);
 const dataSource = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const payRange = ref<[string, string] | undefined>();
@@ -296,7 +342,6 @@ watch(payRange, (value) => {
 	searchInfo.value.payTimeStart = value?.[0];
 	searchInfo.value.payTimeEnd = value?.[1];
 });
-
 
 const selectDirection = (value: string) => {
 	searchInfo.value.direction =
@@ -342,6 +387,36 @@ const resetQuery = () => {
 	searchInfo.value = {};
 	payRange.value = undefined;
 	query(true);
+};
+
+// Excel 导出：按当前筛选条件调后端 POST /export，从响应头解析文件名后触发浏览器下载
+const exportRecords = async () => {
+	if (exporting.value) return;
+	exporting.value = true;
+	try {
+		const response = await exportGiftRecords(searchInfo.value);
+		const blob = new Blob([response.data], {
+			type: String(
+				response.headers?.['content-type'] ||
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			),
+		});
+		const disposition = String(response.headers?.['content-disposition'] || '');
+		const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+		const fileName =
+			match ? decodeURIComponent(match[1]) : `礼金记录_${Date.now()}.xlsx`;
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = fileName;
+		link.click();
+		URL.revokeObjectURL(url);
+		message.success('导出成功');
+	} catch {
+		message.error('导出失败，请稍后重试');
+	} finally {
+		exporting.value = false;
+	}
 };
 
 const handleTableChange = (page: PageInfo) => {

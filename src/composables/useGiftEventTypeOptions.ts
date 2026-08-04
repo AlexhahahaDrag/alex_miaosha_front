@@ -9,7 +9,6 @@ import {
 	eventLabel as resolveEventLabel,
 	resolveEventPresetCode,
 	toEventTypeSelectOptions,
-	toSelectOptions,
 	type GiftEventFormState,
 	type GiftEventInfo,
 	type GiftEventTypeOptionItem,

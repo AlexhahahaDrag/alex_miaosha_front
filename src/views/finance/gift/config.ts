@@ -182,6 +182,21 @@ export const giftDirectionOptions = [
 	{ label: '回礼', value: 'RETURN' },
 ];
 
+/** 人员范围筛选项：CONTACT=未绑定账号的外部联系人，ORG_MEMBER=已绑定的家庭组成员 */
+export const giftPersonScopeOptions: {
+	label: string;
+	value: GiftPersonScope;
+}[] = [
+	{ label: '外部联系人', value: 'CONTACT' },
+	{ label: '家庭组成员', value: 'ORG_MEMBER' },
+];
+
+/** 回礼状态筛选项，值对应记录表 returned_flag（后端按字符串比较） */
+export const giftReturnStatusOptions = [
+	{ label: '待回礼', value: '0' },
+	{ label: '已回礼', value: '1' },
+];
+
 export const GIFT_RECORD_PATH = '/finance/gift/record';
 export const GIFT_PERSON_PATH = '/finance/gift/person';
 export const GIFT_EVENT_PATH = '/finance/gift/event';
@@ -347,6 +362,8 @@ export function mapRelationToFormFields(
 
 export function buildRelationTypeForSave(
 	form: GiftPersonFormState,
+	// 保留形参以兼容既有调用方；改为回传 relationOptionId 后不再需要在此查词典
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_presets: GiftRelationOptionItem[] = FALLBACK_GIFT_RELATION_OPTIONS,
 ): Pick<GiftPersonInfo, 'relationType' | 'relationOptionId'> {
 	if (form.relationMode === RELATION_CUSTOM) {

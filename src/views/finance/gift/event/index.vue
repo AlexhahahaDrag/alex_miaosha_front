@@ -74,7 +74,7 @@
 				<div class="metric-top">
 					<span>本月人情活动</span>
 					<div class="metric-icon">
-						<CalendarOutlined />
+						<calendar-outlined />
 					</div>
 				</div>
 				<strong>{{ summary.monthPendingCount || 0 }} 项</strong>
@@ -84,7 +84,7 @@
 				<div class="metric-top">
 					<span>累计礼金收支</span>
 					<div class="metric-icon">
-						<PayCircleOutlined />
+						<pay-circle-outlined />
 					</div>
 				</div>
 				<strong>{{ money(summary.totalAmount) }}</strong>
@@ -94,7 +94,7 @@
 				<div class="metric-top">
 					<span>活跃往来对象</span>
 					<div class="metric-icon">
-						<TeamOutlined />
+						<team-outlined />
 					</div>
 				</div>
 				<strong>{{ summary.activePersonCount || 0 }} 位</strong>
@@ -103,22 +103,48 @@
 		</div>
 
 		<!-- 高频事件卡片 (Top Category Cards) -->
-		<div class="section-title-bar" style="margin-top: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-			<h3 style="margin: 0; font-size: 16px; font-weight: 800;">高频事件场景</h3>
-			<span style="color: #8c8c8c; font-size: 13px;">自动统计使用频次最高的事由场景，智能辅助随礼梯度</span>
+		<div
+			class="section-title-bar"
+			style="
+				margin-top: 20px;
+				margin-bottom: 12px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			"
+		>
+			<h3 style="margin: 0; font-size: 16px; font-weight: 800">高频事件场景</h3>
+			<span style="color: #8c8c8c; font-size: 13px"
+				>自动统计使用频次最高的事由场景，智能辅助随礼梯度</span
+			>
 		</div>
 		<div class="top-event-cards">
-			<div v-for="item in displayTopEvents" :key="item.id" class="top-event-card">
+			<div
+				v-for="item in displayTopEvents"
+				:key="item.id"
+				class="top-event-card"
+			>
 				<span class="card-icon-emoji">{{ item.icon || '💬' }}</span>
 				<div class="card-main">
 					<div class="card-title-row">
 						<strong>{{ item.name }}</strong>
-						<a-tag size="small" color="blue" class="category-badge">{{ item.category }}</a-tag>
+						<a-tag size="small" color="blue" class="category-badge">{{
+							item.category
+						}}</a-tag>
 					</div>
 					<div class="card-stats">
-						<span class="stat-item">累计使用: <strong style="color: #1890ff;">{{ item.useCount || 0 }}</strong> 次</span>
-						<span class="stat-item" v-if="item.defaultAmount" style="margin-left: 12px;">
-							建议金额: <strong style="color: #52c41a;">¥{{ item.defaultAmount }}</strong>
+						<span class="stat-item"
+							>累计使用:
+							<strong style="color: #1890ff">{{ item.useCount || 0 }}</strong>
+							次</span
+						>
+						<span
+							class="stat-item"
+							v-if="item.defaultAmount"
+							style="margin-left: 12px"
+						>
+							建议金额:
+							<strong style="color: #52c41a">¥{{ item.defaultAmount }}</strong>
 						</span>
 					</div>
 				</div>
@@ -126,9 +152,19 @@
 		</div>
 
 		<!-- Tabs 布局 -->
-		<a-tabs v-model:activeKey="activeTab" class="event-tabs-panel" style="background: #fff; padding: 12px 18px 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #f0f0f0;">
+		<a-tabs
+			v-model:activeKey="activeTab"
+			class="event-tabs-panel"
+			style="
+				background: #fff;
+				padding: 12px 18px 20px;
+				border-radius: 8px;
+				margin-top: 20px;
+				border: 1px solid #f0f0f0;
+			"
+		>
 			<a-tab-pane key="instances" tab="事件列表">
-				<section class="table-panel" style="padding: 0;">
+				<section class="table-panel" style="padding: 0">
 					<a-table
 						:data-source="dataSource"
 						:columns="columns"
@@ -156,10 +192,22 @@
 								<span>{{ formatDate(record.eventTime) }}</span>
 							</template>
 							<template v-else-if="column.key === 'giveAmount'">
-								<span class="amount-out" style="color: #cf1322; font-weight: bold;">{{ record.giveAmount > 0 ? money(record.giveAmount) : '-' }}</span>
+								<span
+									class="amount-out"
+									style="color: #cf1322; font-weight: bold"
+									>{{
+										record.giveAmount > 0 ? money(record.giveAmount) : '-'
+									}}</span
+								>
 							</template>
 							<template v-else-if="column.key === 'receiveAmount'">
-								<span class="amount-in" style="color: #389e0d; font-weight: bold;">{{ record.receiveAmount > 0 ? money(record.receiveAmount) : '-' }}</span>
+								<span
+									class="amount-in"
+									style="color: #389e0d; font-weight: bold"
+									>{{
+										record.receiveAmount > 0 ? money(record.receiveAmount) : '-'
+									}}</span
+								>
 							</template>
 							<template v-else-if="column.key === 'eventStatus'">
 								<a-tag
@@ -194,17 +242,31 @@
 
 			<a-tab-pane key="dictionary" tab="事件分类">
 				<div class="dictionary-grid">
-					<div v-for="(groupItems, groupName) in categorizedEventTypes" :key="groupName" class="dictionary-card">
+					<div
+						v-for="(groupItems, groupName) in categorizedEventTypes"
+						:key="groupName"
+						class="dictionary-card"
+					>
 						<div class="dictionary-card-header">
 							<strong>{{ groupName }}</strong>
 						</div>
 						<div class="dictionary-card-body">
-							<div v-for="opt in groupItems" :key="opt.id" class="dictionary-item">
+							<div
+								v-for="opt in groupItems"
+								:key="opt.id"
+								class="dictionary-item"
+							>
 								<div class="item-left">
 									<span class="item-icon-emoji">{{ opt.icon || '💬' }}</span>
 									<div class="item-info">
-										<span class="item-name" :class="{ 'disabled-text': opt.status === 0 }">{{ opt.name }}</span>
-										<span class="item-count">使用 {{ opt.useCount || 0 }} 次</span>
+										<span
+											class="item-name"
+											:class="{ 'disabled-text': opt.status === 0 }"
+											>{{ opt.name }}</span
+										>
+										<span class="item-count"
+											>使用 {{ opt.useCount || 0 }} 次</span
+										>
 									</div>
 								</div>
 								<div class="item-right">
@@ -214,8 +276,13 @@
 									<span class="item-amount text-muted" v-else>
 										暂无推荐金额
 									</span>
-									<a-space size="small" style="margin-left: 12px;">
-										<a-button type="link" size="small" style="padding: 0;" @click="startEditOption(opt)">
+									<a-space size="small" style="margin-left: 12px">
+										<a-button
+											type="link"
+											size="small"
+											style="padding: 0"
+											@click="startEditOption(opt)"
+										>
 											编辑
 										</a-button>
 										<a-switch
@@ -239,7 +306,12 @@
 			@ok="saveOption"
 			destroy-on-close
 		>
-			<a-form :model="editingOption" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }" style="padding-top: 12px;">
+			<a-form
+				:model="editingOption"
+				:label-col="{ span: 6 }"
+				:wrapper-col="{ span: 16 }"
+				style="padding-top: 12px"
+			>
 				<a-form-item label="分类名称">
 					<a-input v-model:value="editingOption.name" disabled />
 				</a-form-item>
@@ -252,7 +324,10 @@
 					</a-select>
 				</a-form-item>
 				<a-form-item label="图标/Emoji">
-					<a-input v-model:value="editingOption.icon" placeholder="输入单个 Emoji 图标" />
+					<a-input
+						v-model:value="editingOption.icon"
+						placeholder="输入单个 Emoji 图标"
+					/>
 				</a-form-item>
 				<a-form-item label="默认推荐金额">
 					<a-input-number
@@ -279,7 +354,10 @@
 		>
 			<a-form :model="formInfo" layout="vertical">
 				<a-form-item label="事件名称" required>
-					<a-input v-model:value="formInfo.eventName" placeholder="例如：张三婚礼" />
+					<a-input
+						v-model:value="formInfo.eventName"
+						placeholder="例如：张三婚礼"
+					/>
 				</a-form-item>
 				<a-form-item label="事件分类" required>
 					<a-select
@@ -310,7 +388,11 @@
 					/>
 				</a-form-item>
 				<a-form-item label="备注">
-					<a-textarea v-model:value="formInfo.remark" :rows="3" placeholder="例如：地址/参与成员说明" />
+					<a-textarea
+						v-model:value="formInfo.remark"
+						:rows="3"
+						placeholder="例如：地址/参与成员说明"
+					/>
 				</a-form-item>
 			</a-form>
 			<template #footer>
@@ -352,6 +434,7 @@ import type {
 	GiftEventInfo,
 	GiftEventQuery,
 	GiftEventSummary,
+	GiftEventTypeOptionItem,
 } from '@/views/finance/gift/config';
 import {
 	EVENT_TYPE_CUSTOM,
@@ -407,8 +490,10 @@ watch(
 );
 
 watch(eventRange, (value) => {
-	searchInfo.value.eventTimeStart = value?.[0] ? `${value[0]}T00:00:00` : undefined;
-	searchInfo.value.eventTimeEnd = value?.[1] ? `${value[1]}T23:59:59` : undefined;
+	searchInfo.value.eventTimeStart =
+		value?.[0] ? `${value[0]}T00:00:00` : undefined;
+	searchInfo.value.eventTimeEnd =
+		value?.[1] ? `${value[1]}T23:59:59` : undefined;
 });
 
 const selectEventType = (presetId: string) => {
@@ -445,7 +530,7 @@ const columns = [
 		key: 'receiveAmount',
 		width: 120,
 	},
-	{ title: '操作', key: 'operation', width: 140, fixed: 'right' },
+	{ title: '操作', key: 'operation', width: 140, fixed: 'right' as const },
 ];
 
 const query = (resetPage = false) => {
@@ -571,46 +656,47 @@ const route = useRoute();
 
 const activeTab = ref('instances');
 const optionEditing = ref(false);
-const editingOption = ref<any>({});
+const editingOption = ref<Partial<GiftEventTypeOptionItem>>({});
 
 const displayTopEvents = computed(() => {
 	const all = [...presetOptions.value, ...customOptions.value];
 	const top = all
-		.filter(x => x.useCount && x.useCount > 0)
+		.filter((x) => x.useCount && x.useCount > 0)
 		.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
 	if (top.length) return top.slice(0, 4);
 	return presetOptions.value.slice(0, 4);
 });
 
 const categorizedEventTypes = computed(() => {
-	const groups: Record<string, any[]> = {
-		'婚庆类': [],
-		'家庭类': [],
-		'节日类': [],
-		'其他': [],
+	const groups: Record<string, GiftEventTypeOptionItem[]> = {
+		婚庆类: [],
+		家庭类: [],
+		节日类: [],
+		其他: [],
 	};
 	const all = [...presetOptions.value, ...customOptions.value];
-	all.forEach(item => {
+	all.forEach((item) => {
 		const cat = item.category || '其他';
 		if (!groups[cat]) {
 			groups[cat] = [];
 		}
-		if (!groups[cat].some(x => x.name === item.name)) {
+		if (!groups[cat].some((x) => x.name === item.name)) {
 			groups[cat].push(item);
 		}
 	});
 	return groups;
 });
 
-const startEditOption = (opt: any) => {
+const startEditOption = (opt: GiftEventTypeOptionItem) => {
 	editingOption.value = { ...opt };
 	optionEditing.value = true;
 };
 
 const saveOption = async () => {
-	const { id, name, defaultAmount, status, icon, category } = editingOption.value;
+	const { id, name, defaultAmount, status, icon, category } =
+		editingOption.value;
 	if (!id) return;
-	
+
 	const { code, message: msg } = await updateGiftEventTypeOption({
 		id,
 		eventLabel: name,
@@ -628,7 +714,7 @@ const saveOption = async () => {
 	}
 };
 
-const toggleOptionStatus = async (opt: any) => {
+const toggleOptionStatus = async (opt: GiftEventTypeOptionItem) => {
 	const newStatus = opt.status === 0 ? 1 : 0;
 	const { code, message: msg } = await updateGiftEventTypeOption({
 		id: opt.id,
@@ -636,7 +722,9 @@ const toggleOptionStatus = async (opt: any) => {
 		status: newStatus,
 	});
 	if (code === '200') {
-		message.success(`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`);
+		message.success(
+			`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`,
+		);
 		await loadEventTypeOptions();
 	} else {
 		message.error(msg || '操作失败');
@@ -853,7 +941,7 @@ onMounted(() => {
 	align-items: center;
 	gap: 12px;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-	
+
 	.card-icon-emoji {
 		font-size: 24px;
 		display: inline-flex;
@@ -864,22 +952,22 @@ onMounted(() => {
 		background: #f0f5ff;
 		border-radius: 50%;
 	}
-	
+
 	.card-main {
 		flex: 1;
-		
+
 		.card-title-row {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			margin-bottom: 4px;
-			
+
 			strong {
 				font-size: 14px;
 				color: #1f1f1f;
 			}
 		}
-		
+
 		.card-stats {
 			font-size: 12px;
 			color: #8c8c8c;
@@ -898,43 +986,43 @@ onMounted(() => {
 	background: #fafafa;
 	border: 1px solid #f0f0f0;
 	border-radius: 8px;
-	
+
 	.dictionary-card-header {
 		padding: 10px 16px;
 		background: #f0f0f0;
 		border-top-left-radius: 8px;
 		border-top-right-radius: 8px;
 		border-bottom: 1px solid #e8e8e8;
-		
+
 		strong {
 			font-size: 14px;
 			color: #333;
 		}
 	}
-	
+
 	.dictionary-card-body {
 		padding: 8px 16px;
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
 	}
-	
+
 	.dictionary-item {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: 8px 0;
 		border-bottom: 1px dashed #e8e8e8;
-		
+
 		&:last-child {
 			border-bottom: none;
 		}
-		
+
 		.item-left {
 			display: flex;
 			align-items: center;
 			gap: 10px;
-			
+
 			.item-icon-emoji {
 				font-size: 20px;
 				width: 32px;
@@ -946,22 +1034,22 @@ onMounted(() => {
 				border-radius: 50%;
 				border: 1px solid #e8e8e8;
 			}
-			
+
 			.item-info {
 				display: flex;
 				flex-direction: column;
-				
+
 				.item-name {
 					font-weight: 700;
 					color: #262626;
 					font-size: 13px;
-					
+
 					&.disabled-text {
 						color: #bfbfbf;
 						text-decoration: line-through;
 					}
 				}
-				
+
 				.item-count {
 					font-size: 11px;
 					color: #8c8c8c;
@@ -969,16 +1057,16 @@ onMounted(() => {
 				}
 			}
 		}
-		
+
 		.item-right {
 			display: flex;
 			align-items: center;
-			
+
 			.item-amount {
 				font-size: 12px;
 				color: #52c41a;
 				font-weight: 700;
-				
+
 				&.text-muted {
 					color: #bfbfbf;
 					font-weight: normal;

@@ -2,10 +2,17 @@ import {
 	deleteData,
 	getDataOne,
 	postData,
+	postDownloadFile,
 	putData,
 	baseService,
 } from '@/utils/request';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
+// ID 安全护城河实现抽到独立纯模块，由 tests/unit/giftNormalize.test.mts 锁契约
+import {
+	normalizeGiftIds,
+	normalizeGiftResponse,
+} from '@/views/finance/gift/api/normalize';
 import type {
 	GiftAmountTrend,
 	GiftEventBusinessInfo,
@@ -27,15 +34,6 @@ import type {
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
 
-const giftIdKeys = new Set([
-	'id',
-	'avatar',
-	'creator',
-	'updater',
-	'operator',
-	'deleter',
-]);
-
 const giftApi = {
 	person: '/gift-person-info-t',
 	event: '/gift-event-info-t',
@@ -53,33 +51,6 @@ function listUrl(base: string) {
 
 function baseUrl(base: string) {
 	return `${baseService.finance}${base}`;
-}
-
-function shouldNormalizeGiftId(key: string) {
-	return giftIdKeys.has(key) || key.endsWith('Id');
-}
-
-function normalizeGiftIds<T>(value: T): T {
-	if (Array.isArray(value)) {
-		return value.map((item) => normalizeGiftIds(item)) as T;
-	}
-	if (!value || typeof value !== 'object') {
-		return value;
-	}
-	const source = value as Record<string, unknown>;
-	const normalized: Record<string, unknown> = {};
-	Object.keys(source).forEach((key) => {
-		const item = source[key];
-		if (
-			shouldNormalizeGiftId(key) &&
-			(typeof item === 'number' || typeof item === 'bigint')
-		) {
-			normalized[key] = String(item);
-			return;
-		}
-		normalized[key] = normalizeGiftIds(item);
-	});
-	return normalized as T;
 }
 
 export function getGiftPersonPage(
@@ -228,7 +199,7 @@ export function getGiftRecordRecommendAmount(params: {
 }
 
 export function updateGiftEventTypeOption(
-	params: any,
+	params: Record<string, unknown>,
 ): Promise<ResponseBody<boolean>> {
 	return putData<boolean>(
 		`${baseUrl(giftApi.event)}/event-type-option`,
@@ -323,6 +294,19 @@ export function deleteGiftRecord(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(baseUrl(giftApi.record), { ids });
 }
 
+/**
+ * 礼金记录 Excel 导出：POST /export 返回 Blob（后端 GiftRecordExportTest 已锁
+ * Content-Disposition attachment 契约），由调用方触发浏览器下载。
+ */
+export function exportGiftRecords(
+	params: GiftRecordQuery,
+): Promise<AxiosResponse<Blob>> {
+	return postDownloadFile(
+		`${baseUrl(giftApi.record)}/export`,
+		normalizeGiftIds(params),
+	);
+}
+
 export function getPendingReturnAmount(
 	receiveRecordId: string,
 ): Promise<ResponseBody<number>> {
@@ -334,21 +318,33 @@ export function getPendingReturnAmount(
 export function markGiftReturned(
 	receiveRecordId: string,
 ): Promise<ResponseBody<boolean>> {
+	// putData 第三参在实现里作为 query 参数透传，此处仅传 receiveRecordId
 	return putData(`${baseUrl(giftApi.record)}/mark-returned`, {}, {
 		receiveRecordId,
-	} as any);
+	} as unknown as AxiosRequestConfig);
 }
 
-export function getGiftAnalysisOverview(): Promise<
-	ResponseBody<GiftRecordSummary>
-> {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/overview`);
+/** analysis 筛选参数：period 统计粒度（month/year），direction 方向过滤（RECEIVE/GIVE/RETURN） */
+export interface GiftAnalysisParams {
+	period?: 'month' | 'year';
+	direction?: 'RECEIVE' | 'GIVE' | 'RETURN';
 }
 
-export function getGiftAnalysisTrend(): Promise<
-	ResponseBody<GiftAmountTrend[]>
-> {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/trend`);
+export function getGiftAnalysisOverview(
+	params?: GiftAnalysisParams,
+): Promise<ResponseBody<GiftRecordSummary>> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/overview`, {
+		direction: params?.direction,
+	});
+}
+
+export function getGiftAnalysisTrend(
+	params?: GiftAnalysisParams,
+): Promise<ResponseBody<GiftAmountTrend[]>> {
+	return getDataOne(`${baseUrl(giftApi.analysis)}/trend`, {
+		period: params?.period,
+		direction: params?.direction,
+	});
 }
 
 export function getGiftAnalysisRelationDistribution(): Promise<

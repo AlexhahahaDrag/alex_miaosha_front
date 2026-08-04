@@ -1,146 +1,155 @@
 <template>
-	<div class="gift-screen">
-		<div class="screen-header">
-			<div>
-				<h2>统计报表</h2>
-				<p>从趋势、关系、事由和亲友维度分析人情往来表现。</p>
+	<a-spin :spinning="loading">
+		<div class="gift-screen">
+			<div class="screen-header">
+				<div>
+					<h2>统计报表</h2>
+					<p>从趋势、关系、事由和亲友维度分析人情往来表现。</p>
+				</div>
+				<a-space>
+					<a-button v-if="hasPermission('gift:export')">导出报表</a-button>
+					<a-button v-if="hasPermission('gift:export')" class="light-action">
+						打印
+					</a-button>
+				</a-space>
 			</div>
-			<a-space>
-				<a-button v-if="hasPermission('gift:export')">导出报表</a-button>
-				<a-button v-if="hasPermission('gift:export')" class="light-action">
-					打印
-				</a-button>
-			</a-space>
-		</div>
 
-		<section class="filter-panel">
-			<a-form layout="inline">
-				<a-form-item label="统计周期">
-					<a-radio-group v-model:value="period">
-						<a-radio-button value="month">月度</a-radio-button>
-						<a-radio-button value="year">年度</a-radio-button>
-					</a-radio-group>
-				</a-form-item>
-				<a-form-item label="统计类型">
-					<a-select v-model:value="analysisType" class="filter-select">
-						<a-select-option value="all">全部往来</a-select-option>
-						<a-select-option value="receive">收礼分析</a-select-option>
-						<a-select-option value="give">随礼分析</a-select-option>
-					</a-select>
-				</a-form-item>
-				<a-form-item>
-					<a-button type="primary" @click="loadData">刷新</a-button>
-				</a-form-item>
-				<a-form-item>
-					<div class="report-tip">报表已按当前组织数据实时生成</div>
-				</a-form-item>
-			</a-form>
-		</section>
-
-		<div class="metric-grid">
-			<div class="metric-card metric-card-green">
-				<div class="metric-top">
-					<span>收礼总额</span>
-					<i>↗</i>
-				</div>
-				<strong>{{ money(overview.receiveAmount) }}</strong>
-				<p>收入类礼金总额</p>
-			</div>
-			<div class="metric-card metric-card-red">
-				<div class="metric-top">
-					<span>随礼总额</span>
-					<i>↘</i>
-				</div>
-				<strong>{{ money(overview.giveAmount) }}</strong>
-				<p>支出类礼金总额</p>
-			</div>
-			<div class="metric-card metric-card-blue">
-				<div class="metric-top">
-					<span>人情净值</span>
-					<i>□</i>
-				</div>
-				<strong>{{ money(overview.netAmount) }}</strong>
-				<p>综合收支净额</p>
-			</div>
-			<div class="metric-card metric-card-gold">
-				<div class="metric-top">
-					<span>记录数量</span>
-					<i>#</i>
-				</div>
-				<strong>{{ overview.recordCount || 0 }} 笔</strong>
-				<p>全部往来流水</p>
-			</div>
-		</div>
-
-		<div class="main-grid">
-			<section class="panel trend-panel">
-				<div class="panel-head">
-					<h3>月度/年度趋势</h3>
-				</div>
-				<div class="bar-chart">
-					<div v-for="item in chartRows" :key="item.label" class="bar-group">
-						<div class="bar-stage">
-							<div
-								class="bar bar-income"
-								:style="{ height: `${item.receiveHeight}%` }"
-							/>
-							<div
-								class="bar bar-expense"
-								:style="{ height: `${item.giveHeight}%` }"
-							/>
-						</div>
-						<div class="bar-label">{{ item.label }}</div>
-					</div>
-				</div>
-				<div class="legend-row">
-					<span><i class="legend-dot legend-income" />收礼</span>
-					<span><i class="legend-dot legend-expense" />随礼</span>
-				</div>
+			<section class="filter-panel">
+				<a-form layout="inline">
+					<a-form-item label="统计周期">
+						<a-radio-group v-model:value="period">
+							<a-radio-button value="month">月度</a-radio-button>
+							<a-radio-button value="year">年度</a-radio-button>
+						</a-radio-group>
+					</a-form-item>
+					<a-form-item label="统计类型">
+						<a-select v-model:value="analysisType" class="filter-select">
+							<a-select-option value="all">全部往来</a-select-option>
+							<a-select-option value="receive">收礼分析</a-select-option>
+							<a-select-option value="give">随礼分析</a-select-option>
+						</a-select>
+					</a-form-item>
+					<a-form-item>
+						<a-button type="primary" @click="loadData">刷新</a-button>
+					</a-form-item>
+					<a-form-item>
+						<div class="report-tip">报表已按当前组织数据实时生成</div>
+					</a-form-item>
+				</a-form>
 			</section>
 
-			<section class="panel relation-panel">
-				<div class="panel-head">
-					<h3>关系分布</h3>
+			<div class="metric-grid">
+				<div class="metric-card metric-card-green">
+					<div class="metric-top">
+						<span>收礼总额</span>
+						<i>↗</i>
+					</div>
+					<strong>{{ money(overview.receiveAmount) }}</strong>
+					<p>收入类礼金总额</p>
 				</div>
-				<div v-if="relationRows.length === 0" class="empty-state">
-					暂无分布数据
+				<div class="metric-card metric-card-red">
+					<div class="metric-top">
+						<span>随礼总额</span>
+						<i>↘</i>
+					</div>
+					<strong>{{ money(overview.giveAmount) }}</strong>
+					<p>支出类礼金总额</p>
 				</div>
-				<div v-else class="relation-list">
+				<div class="metric-card metric-card-blue">
+					<div class="metric-top">
+						<span>人情净值</span>
+						<i>□</i>
+					</div>
+					<strong>{{ money(overview.netAmount) }}</strong>
+					<p>综合收支净额</p>
+				</div>
+				<div class="metric-card metric-card-gold">
+					<div class="metric-top">
+						<span>记录数量</span>
+						<i>#</i>
+					</div>
+					<strong>{{ overview.recordCount || 0 }} 笔</strong>
+					<p>全部往来流水</p>
+				</div>
+			</div>
+
+			<div class="main-grid">
+				<section class="panel trend-panel">
+					<div class="panel-head">
+						<h3>月度/年度趋势</h3>
+					</div>
 					<div
-						v-for="item in relationRows"
-						:key="item.relationType"
-						class="relation-item"
+						v-if="chartRows.length === 0"
+						class="empty-state"
+						data-testid="gift-analysis-trend-empty"
 					>
-						<div class="relation-row">
-							<span>{{ relationLabel(item.relationType) }}</span>
-							<strong>{{ item.count || 0 }} 人</strong>
-						</div>
-						<div class="rank-track">
-							<div
-								class="rank-progress"
-								:style="{ width: `${relationPercent(item.count)}%` }"
-							/>
+						暂无趋势数据
+					</div>
+					<div v-else class="bar-chart" data-testid="gift-analysis-trend-chart">
+						<div v-for="item in chartRows" :key="item.label" class="bar-group">
+							<div class="bar-stage">
+								<div
+									class="bar bar-income"
+									:style="{ height: `${item.receiveHeight}%` }"
+								/>
+								<div
+									class="bar bar-expense"
+									:style="{ height: `${item.giveHeight}%` }"
+								/>
+							</div>
+							<div class="bar-label">{{ item.label }}</div>
 						</div>
 					</div>
-				</div>
-			</section>
-		</div>
+					<div class="legend-row">
+						<span><i class="legend-dot legend-income" />收礼</span>
+						<span><i class="legend-dot legend-expense" />随礼</span>
+					</div>
+				</section>
 
-		<div class="ranking-grid">
-			<section class="panel">
-				<div class="panel-head">
-					<h3>事由排行</h3>
-				</div>
-				<ranking-list :rows="eventRankingRows" />
-			</section>
-			<section class="panel">
-				<div class="panel-head">
-					<h3>亲友排行</h3>
-				</div>
-				<ranking-list :rows="personRankingRows" />
-			</section>
+				<section class="panel relation-panel">
+					<div class="panel-head">
+						<h3>关系分布</h3>
+					</div>
+					<div v-if="relationRows.length === 0" class="empty-state">
+						暂无分布数据
+					</div>
+					<div v-else class="relation-list">
+						<div
+							v-for="item in relationRows"
+							:key="item.relationType"
+							class="relation-item"
+						>
+							<div class="relation-row">
+								<span>{{ relationLabel(item.relationType) }}</span>
+								<strong>{{ item.count || 0 }} 人</strong>
+							</div>
+							<div class="rank-track">
+								<div
+									class="rank-progress"
+									:style="{ width: `${relationPercent(item.count)}%` }"
+								/>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+
+			<div class="ranking-grid">
+				<section class="panel">
+					<div class="panel-head">
+						<h3>事由排行</h3>
+					</div>
+					<ranking-list :rows="eventRankingRows" />
+				</section>
+				<section class="panel">
+					<div class="panel-head">
+						<h3>亲友排行</h3>
+					</div>
+					<ranking-list :rows="personRankingRows" />
+				</section>
+			</div>
 		</div>
-	</div>
+	</a-spin>
 </template>
 
 <script setup lang="ts">
@@ -164,22 +173,22 @@ import { money } from '@/views/finance/gift/config';
 
 const { relationLabel, loadRelationOptions } = useGiftRelationOptions();
 
+interface RankingRow {
+	index: number;
+	name: string;
+	amount: number;
+	count: number;
+	percent: number;
+}
+
 const RankingList = defineComponent({
 	props: {
 		rows: {
-			type: Array as PropType<
-				Array<{
-					index: number;
-					name: string;
-					amount: number;
-					count: number;
-					percent: number;
-				}>
-			>,
+			type: Array as PropType<RankingRow[]>,
 			default: () => [],
 		},
 	},
-	setup(props) {
+	setup(props: { rows: RankingRow[] }) {
 		return () =>
 			props.rows.length === 0 ?
 				h('div', { class: 'empty-state' }, '暂无排行数据')
@@ -222,15 +231,11 @@ const eventRanking = ref<GiftRankingItem[]>([]);
 const personRanking = ref<GiftRankingItem[]>([]);
 
 const chartRows = computed(() => {
-	const fallback = [
-		{ label: '1月', receiveAmount: 42000, giveAmount: 26000 },
-		{ label: '2月', receiveAmount: 63000, giveAmount: 32000 },
-		{ label: '3月', receiveAmount: 82000, giveAmount: 42000 },
-		{ label: '4月', receiveAmount: 50000, giveAmount: 61000 },
-		{ label: '5月', receiveAmount: 101000, giveAmount: 28000 },
-		{ label: '6月', receiveAmount: 76000, giveAmount: 19000 },
-	];
-	const source = trendRows.value.length > 0 ? trendRows.value : fallback;
+	// 无数据时直接返回空数组走空态展示，严禁渲染硬编码假数据误导用户
+	const source = trendRows.value;
+	if (source.length === 0) {
+		return [];
+	}
 	const maxAmount = Math.max(
 		1,
 		...source.flatMap((item) => [
@@ -281,13 +286,24 @@ const assertOk = (code: string, msg?: string) => {
 	return true;
 };
 
+// 统计类型 → 后端 direction 白名单值（all 不传，由后端聚合全部方向）
+const directionParam = computed(() => {
+	if (analysisType.value === 'receive') return 'RECEIVE' as const;
+	if (analysisType.value === 'give') return 'GIVE' as const;
+	return undefined;
+});
+
 const loadData = async () => {
 	loading.value = true;
 	try {
+		const analysisParams = {
+			period: period.value,
+			direction: directionParam.value,
+		};
 		const [overviewRes, trendRes, relationRes, eventRes, personRes] =
 			await Promise.all([
-				getGiftAnalysisOverview(),
-				getGiftAnalysisTrend(),
+				getGiftAnalysisOverview(analysisParams),
+				getGiftAnalysisTrend(analysisParams),
 				getGiftAnalysisRelationDistribution(),
 				getGiftAnalysisEventRanking(),
 				getGiftAnalysisPersonRanking(),
@@ -309,6 +325,11 @@ const loadData = async () => {
 
 onMounted(async () => {
 	await loadRelationOptions();
+	loadData();
+});
+
+// 筛选条件变化即刷新（保留"刷新"按钮作显式重查入口）
+watch([period, analysisType], () => {
 	loadData();
 });
 </script>
