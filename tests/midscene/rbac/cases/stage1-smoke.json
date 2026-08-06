@@ -1,0 +1,137 @@
+[
+	{
+		"caseId": "RBAC-S1-SMOKE-001",
+		"title": "用户管理三源并行加载与首屏全量查询",
+		"persona": "rbac_user_manager",
+		"level": "stage1-smoke",
+		"page": "用户管理",
+		"routeHint": "/user/userManager",
+		"midsceneAssertions": [
+			"用户管理页面可见机构树、用户表格和角色筛选",
+			"首次进入页面时用户列表不因未选择机构而为空",
+			"初始化查询不等待机构树选择"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-001_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-002",
+		"title": "用户管理机构树筛选与用户去重",
+		"persona": "rbac_user_manager",
+		"level": "stage1-smoke",
+		"page": "用户管理",
+		"routeHint": "/user/userManager",
+		"midsceneAssertions": [
+			"点击机构树节点后右侧用户表格按机构过滤",
+			"切回全部机构后用户列表恢复全量",
+			"当前页不存在重复用户行"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-002_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-003",
+		"title": "机构管理树表与右侧 Drawer 契约",
+		"persona": "super_super",
+		"level": "stage1-smoke",
+		"page": "机构管理",
+		"routeHint": "/user/orgManager",
+		"midsceneAssertions": [
+			"机构管理页面可见无限级机构树表或树形列表",
+			"点击新增或编辑后打开右侧 Drawer",
+			"Drawer 内可见标题、当前对象摘要、表单主体、错误提示区、保存按钮和取消按钮"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-003_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-004",
+		"title": "角色管理统计字段可见",
+		"persona": "super_super",
+		"level": "stage1-smoke",
+		"page": "角色管理",
+		"routeHint": "/user/roleInfo",
+		"midsceneAssertions": [
+			"角色列表可见角色编码、角色名称、状态、绑定用户数、权限数量、更新时间",
+			"角色行操作可见编辑、删除、配置用户和配置权限"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-004_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-005",
+		"title": "角色配置权限 Drawer 与差异预览",
+		"persona": "super_super",
+		"level": "stage1-smoke",
+		"page": "角色管理",
+		"routeHint": "/user/roleInfo",
+		"midsceneAssertions": [
+			"点击配置权限后打开右侧 Drawer",
+			"Drawer 内可见权限树、按钮权限标识列表、全选、批量展开、批量收起",
+			"保存前可见 [本次新增]、[本次移除]、[保持不变] 三组差异预览"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-005_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-006",
+		"title": "菜单管理节点类型与权限码联动提示",
+		"persona": "super_super",
+		"level": "stage1-smoke",
+		"page": "菜单管理",
+		"routeHint": "/user/menuInfo",
+		"midsceneAssertions": [
+			"菜单树表清晰区分目录、菜单、按钮权限三类节点",
+			"点击编辑后右侧 Drawer 展示菜单路径、组件路径、权限标识、排序、显示隐藏、首页展示",
+			"Drawer 内可见权限标识与前端按钮权限受控体系的联动提示"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-006_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-007",
+		"title": "用户角色配置主流程",
+		"persona": "rbac_user_manager",
+		"level": "stage1-smoke",
+		"page": "用户角色配置",
+		"routeHint": "/user/roleUserConfig",
+		"midsceneAssertions": [
+			"页面左侧可见角色列表和角色搜索",
+			"页面右侧可见已分配用户、可分配用户、用户关键字搜索和机构筛选树",
+			"页面可见批量添加、批量移除以及用户差异预览区"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-007_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	},
+	{
+		"caseId": "RBAC-S1-SMOKE-008",
+		"title": "机构用户配置主流程",
+		"persona": "rbac_user_manager",
+		"level": "stage1-smoke",
+		"page": "机构用户配置",
+		"routeHint": "/user/orgUserConfig",
+		"midsceneAssertions": [
+			"页面左侧可见机构树",
+			"页面右侧可见机构用户列表和未分配用户搜索",
+			"页面可见添加用户到机构、移出机构、跨机构移动用户的入口"
+		],
+		"artifacts": [
+			"screenshots/midscene/RBAC-S1-SMOKE-008_pass.png",
+			"reports/midscene/smoke-report.json"
+		]
+	}
+]
