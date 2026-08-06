@@ -78,10 +78,20 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="() => query(false)">
+								<a-button
+									type="primary"
+									data-testid="rbac-perm-btn-query"
+									@click="() => query(false)"
+								>
 									查找
 								</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-perm-btn-reset"
+									@click="cancelQuery"
+								>
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -93,6 +103,7 @@
 				<a-button
 					v-permission="'permission:add'"
 					type="primary"
+					data-testid="rbac-perm-btn-add"
 					@click="editPermissionInfo('add')"
 				>
 					新增
@@ -101,6 +112,7 @@
 					v-permission="'permission:delete'"
 					type="primary"
 					danger
+					data-testid="rbac-perm-btn-batch-delete"
 					@click="batchDelPermissionInfo"
 				>
 					删除
@@ -117,6 +129,7 @@
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				data-testid="rbac-perm-table"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
@@ -125,6 +138,7 @@
 								v-permission="'permission:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-perm-row-edit"
 								@click="editPermissionInfo('update', record.id)"
 							>
 								编辑
@@ -137,7 +151,14 @@
 								@confirm="delPermissionInfo(record.id)"
 								@cancel="cancel"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-perm-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 						<span></span>

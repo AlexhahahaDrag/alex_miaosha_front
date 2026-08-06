@@ -5,16 +5,23 @@
 		placement="right"
 		v-model:open="modelInfo.open"
 		:footer-style="{ textAlign: 'right' }"
+		data-testid="rbac-relation-drawer"
 		@close="handleCancel"
 	>
 		<template #footer>
-			<a-button style="margin-right: 8px" key="back" @click="handleCancel">
+			<a-button
+				style="margin-right: 8px"
+				key="back"
+				data-testid="rbac-relation-btn-cancel"
+				@click="handleCancel"
+			>
 				取消
 			</a-button>
 			<a-button
 				key="submit"
 				type="primary"
 				:loading="loading"
+				data-testid="rbac-relation-btn-submit"
 				@click="handleOk"
 			>
 				保存

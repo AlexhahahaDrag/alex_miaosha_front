@@ -16,6 +16,7 @@
 								<a-input
 									v-model:value="searchInfo.roleCode"
 									:placeholder="'请填写' + labelMap['roleCode'].label"
+									data-testid="rbac-role-search-rolecode"
 									allow-clear
 								/>
 							</a-form-item>
@@ -34,8 +35,20 @@
 						</a-col>
 						<a-col style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="() => query(true)"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-role-btn-query"
+									@click="() => query(true)"
+								>
+									查找
+								</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-role-btn-reset"
+									@click="cancelQuery"
+								>
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -44,8 +57,21 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button v-permission="'role:add'" type="primary" @click="editRoleInfo('add')">新增</a-button>
-				<a-button v-permission="'role:delete'" type="primary" danger @click="batchDelRoleInfo">
+				<a-button
+					v-permission="'role:add'"
+					type="primary"
+					data-testid="rbac-role-btn-add"
+					@click="editRoleInfo('add')"
+				>
+					新增
+				</a-button>
+				<a-button
+					v-permission="'role:delete'"
+					type="primary"
+					danger
+					data-testid="rbac-role-btn-batch-delete"
+					@click="batchDelRoleInfo"
+				>
 					删除
 				</a-button>
 			</a-space>
@@ -60,6 +86,7 @@
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content', y: 520 }"
 				:row-selection="rowSelection"
+				data-testid="rbac-role-table"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
@@ -68,6 +95,7 @@
 								v-permission="'role:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-edit"
 								@click="editRoleInfo('update', record.id)"
 							>
 								编辑
@@ -76,6 +104,7 @@
 								v-permission="'role:auth'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-authorize"
 								@click="roleAuthorizationInfo(String(record.id))"
 							>
 								授权
@@ -84,6 +113,7 @@
 								v-permission="'role:auth'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-users"
 								@click="roleUserAssignmentInfo(String(record.id))"
 							>
 								用户
@@ -96,7 +126,14 @@
 								@confirm="delRoleInfo(record.id)"
 								@cancel="cancel"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-role-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>

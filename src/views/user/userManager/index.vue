@@ -13,6 +13,7 @@
 								<a-input
 									v-model:value="searchInfo.username"
 									placeholder="用户名"
+									data-testid="rbac-user-search-username"
 									@change="initPage"
 									allow-clear
 								/>
@@ -57,8 +58,20 @@
 					<a-row :gutter="24">
 						<a-col :span="24" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query(true)"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-user-btn-query"
+									@click="query(true)"
+								>
+									查找
+								</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-user-btn-reset"
+									@click="cancelQuery"
+								>
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -67,8 +80,21 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button v-permission="'user:add'" type="primary" @click="editUser('add')">新增</a-button>
-				<a-button v-permission="'user:delete'" type="primary" danger @click="batchDelUserManager">
+				<a-button
+					v-permission="'user:add'"
+					type="primary"
+					data-testid="rbac-user-btn-add"
+					@click="editUser('add')"
+				>
+					新增
+				</a-button>
+				<a-button
+					v-permission="'user:delete'"
+					type="primary"
+					danger
+					data-testid="rbac-user-btn-batch-delete"
+					@click="batchDelUserManager"
+				>
 					删除
 				</a-button>
 			</a-space>
@@ -83,6 +109,7 @@
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				data-testid="rbac-user-table"
 			>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
@@ -91,6 +118,7 @@
 								v-permission="'user:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-user-row-edit"
 								@click="editUser('update', record.id)"
 							>
 								编辑
@@ -103,7 +131,14 @@
 								v-if="record.username !== 'superman'"
 								v-permission="'user:delete'"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-user-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 						<span></span>

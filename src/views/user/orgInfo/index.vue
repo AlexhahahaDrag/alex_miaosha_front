@@ -4,6 +4,7 @@
 			<div class="tree-title">组织架构</div>
 			<a-tree
 				:tree-data="treeData"
+				data-testid="rbac-org-tree"
 				v-model:expandedKeys="expandedKeys"
 				v-model:selectedKeys="selectedKeys"
 				v-model:checkedKeys="checkedKeys"
@@ -32,6 +33,7 @@
 							<a-input
 								v-model:value="searchInfo.orgName"
 								placeholder="请输入机构名称"
+								data-testid="rbac-org-search-orgname"
 								allow-clear
 							/>
 						</a-form-item>
@@ -61,8 +63,16 @@
 						</a-form-item>
 						<a-form-item>
 							<a-space>
-								<a-button type="primary" @click="() => query()">查找</a-button>
-								<a-button @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-org-btn-query"
+									@click="() => query()"
+								>
+									查找
+								</a-button>
+								<a-button data-testid="rbac-org-btn-reset" @click="cancelQuery">
+									清空
+								</a-button>
 							</a-space>
 						</a-form-item>
 					</a-form>
@@ -70,13 +80,19 @@
 				<a-divider style="margin: 16px 0" />
 				<div class="button-group">
 					<a-space>
-						<a-button v-permission="'org:add'" type="primary" @click="editOrgInfo('add')">
+						<a-button
+							v-permission="'org:add'"
+							type="primary"
+							data-testid="rbac-org-btn-add"
+							@click="editOrgInfo('add')"
+						>
 							<template #icon><plus-outlined /></template>
 							新增
 						</a-button>
 						<a-button
 							v-permission="'org:edit'"
 							type="primary"
+							data-testid="rbac-org-btn-edit-node"
 							@click="editOrgInfo('update', String(selectedKeys[0]))"
 							:disabled="!hasSelectedNode"
 						>
@@ -91,7 +107,12 @@
 							@confirm="delOrgInfo(selectedKeys.join(','))"
 							:disabled="!hasSelectedNode"
 						>
-							<a-button type="primary" danger :disabled="!hasSelectedNode">
+							<a-button
+								type="primary"
+								danger
+								data-testid="rbac-org-btn-delete-node"
+								:disabled="!hasSelectedNode"
+							>
 								<template #icon><delete-outlined /></template>
 								删除
 							</a-button>
@@ -109,6 +130,7 @@
 					@change="handleTableChange"
 					:scroll="{ x: 'max-content' }"
 					class="custom-table"
+					data-testid="rbac-org-table"
 				>
 					<template #bodyCell="{ column, record }">
 						<template v-if="column.key === 'status'">
@@ -132,6 +154,7 @@
 									type="link"
 									size="small"
 									style="padding: 0"
+									data-testid="rbac-org-row-edit"
 									@click="editOrgInfo('update', record.id)"
 								>
 									编辑
@@ -143,7 +166,13 @@
 									cancel-text="取消"
 									@confirm="delOrgInfo(String(record.id || ''))"
 								>
-									<a-button type="link" danger size="small" style="padding: 0">
+									<a-button
+										type="link"
+										danger
+										size="small"
+										style="padding: 0"
+										data-testid="rbac-org-row-delete"
+									>
 										删除
 									</a-button>
 								</a-popconfirm>

@@ -144,10 +144,16 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="() => query(true)"
-									>查找</a-button
+								<a-button
+									type="primary"
+									data-testid="rbac-menu-btn-query"
+									@click="() => query(true)"
 								>
-								<a-button @click="cancelQuery">清空</a-button>
+									查找
+								</a-button>
+								<a-button data-testid="rbac-menu-btn-reset" @click="cancelQuery">
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -159,6 +165,7 @@
 				<a-button
 					v-permission="'menu:add'"
 					type="primary"
+					data-testid="rbac-menu-btn-add"
 					@click="editMenuInfo('add')"
 				>
 					新增
@@ -167,6 +174,7 @@
 					v-permission="'menu:delete'"
 					type="primary"
 					danger
+					data-testid="rbac-menu-btn-batch-delete"
 					@click="batchDelMenuInfo"
 				>
 					删除
@@ -182,6 +190,7 @@
 				:pagination="pagination"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				data-testid="rbac-menu-table"
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
@@ -191,6 +200,7 @@
 								v-permission="'menu:add'"
 								type="primary"
 								size="small"
+								data-testid="rbac-menu-row-add-child"
 								@click="openSubMenuManager(record)"
 							>
 								子菜单
@@ -199,6 +209,7 @@
 								v-permission="'menu:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-menu-row-edit"
 								@click="editMenuInfo('update', record.id)"
 							>
 								编辑
@@ -210,7 +221,14 @@
 								cancel-text="取消"
 								@confirm="delMenuInfo(record.id)"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-menu-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>
