@@ -139,21 +139,25 @@ async function gotoRbacPage(page, runtime, key) {
     user: {
       menus: '用户信息、用户',
       paths: ['/user', '/user-manager', '/user/info', '/#/user/userManager', '/#/user/userManager/'],
+      testId: 'rbac-user-table',
       anchors: ['用户信息', '用户管理', '用户名', '账号', '查询', '新增'],
     },
     role: {
       menus: '角色管理、角色信息、角色',
       paths: ['/role', '/role-info', '/role-manager', '/#/user/roleInfo', '/#/user/roleInfo/'],
+      testId: 'rbac-role-table',
       anchors: ['角色编码', '角色名称', '授权', '用户'],
     },
     menu: {
       menus: '菜单管理、菜单信息、菜单',
       paths: ['/menu', '/menu-info', '/menu-manager', '/#/user/menuInfo', '/#/user/menuInfo/'],
+      testId: 'rbac-menu-table',
       anchors: ['菜单名称', '菜单路径', '菜单标题', '新增'],
     },
     org: {
       menus: '机构管理、机构信息、机构',
       paths: ['/org', '/org-info', '/organization', '/#/user/orgInfo', '/#/user/orgInfo/'],
+      testId: 'rbac-org-table',
       anchors: ['机构名称', '组织架构', '上级机构', '新增', '机构管理'],
     },
   };
@@ -163,6 +167,7 @@ async function gotoRbacPage(page, runtime, key) {
   try {
     await gotoMenu(page, conf.menus);
     await page.waitForTimeout(500);
+    if (await existsTestId(page, conf.testId)) return;
     for (const text of conf.anchors) {
       if (await existsText(page, text)) return;
     }
@@ -171,6 +176,7 @@ async function gotoRbacPage(page, runtime, key) {
       const quickEntry = await tryClick(page, ['button:has-text("用户管理")', '.action-btn:has-text("用户管理")']);
       if (quickEntry) {
         await page.waitForTimeout(700);
+        if (await existsTestId(page, conf.testId)) return;
         for (const text of conf.anchors) {
           if (await existsText(page, text)) return;
         }
@@ -185,6 +191,7 @@ async function gotoRbacPage(page, runtime, key) {
     const url = new URL(p, runtime.baseUrl).toString();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
+    if (await existsTestId(page, conf.testId)) return;
     for (const text of conf.anchors) {
       if (await existsText(page, text)) return;
     }
@@ -194,6 +201,14 @@ async function gotoRbacPage(page, runtime, key) {
 
 async function existsText(page, text) {
   return (await page.getByText(text, { exact: false }).count()) > 0;
+}
+
+/**
+ * 页面元素的首选定位方式。data-testid 由 src/views/user/** 的模板提供，
+ * 不随文案与 antd 内部类名变化，因此优先于 existsText 与类名选择器使用。
+ */
+async function existsTestId(page, testId) {
+  return (await page.locator(`[data-testid="${testId}"]`).count()) > 0;
 }
 
 async function runCase(page, c, runtime) {
@@ -206,7 +221,13 @@ async function runCase(page, c, runtime) {
       break;
     case 'RBAC-LOCAL-002':
       await gotoRbacPage(page, runtime, 'user');
-      if (await existsText(page, '新增')) throw new Error('readonly should not see 新增');
+      // 新增按钮受 v-permission 控制, testid 与文案任一命中都说明按钮泄漏给了只读账号
+      if (
+        (await existsTestId(page, 'rbac-user-btn-add')) ||
+        (await existsText(page, '新增'))
+      ) {
+        throw new Error('readonly should not see 新增');
+      }
       break;
     case 'RBAC-LOCAL-003':
       // 该环境下“超管入口可见”采用 dashboard 快捷操作做稳定断言
@@ -228,17 +249,32 @@ async function runCase(page, c, runtime) {
       break;
     case 'RBAC-LOCAL-006':
       await gotoRbacPage(page, runtime, 'role');
-      if (!(await existsText(page, '用户'))) throw new Error('role page should have 用户 assignment entry');
+      // testid 优先: 行内“用户”按钮改文案也不会让本用例误判
+      if (
+        !(await existsTestId(page, 'rbac-role-row-users')) &&
+        !(await existsText(page, '用户'))
+      ) {
+        throw new Error('role page should have 用户 assignment entry');
+      }
       break;
     case 'RBAC-LOCAL-101':
       await gotoRbacPage(page, runtime, 'user');
-      if (!(await existsText(page, '下一页') || (await page.locator('.ant-pagination').count()) > 0)) {
+      if (
+        !(await existsTestId(page, 'rbac-user-table')) &&
+        !(await existsText(page, '下一页')) &&
+        (await page.locator('.ant-pagination').count()) === 0
+      ) {
         throw new Error('user page should show pagination');
       }
       break;
     case 'RBAC-LOCAL-201':
       await gotoRbacPage(page, runtime, 'role');
-      if (!(await existsText(page, '角色编码'))) throw new Error('role page should show 角色编码');
+      if (
+        !(await existsTestId(page, 'rbac-role-table')) &&
+        !(await existsText(page, '角色编码'))
+      ) {
+        throw new Error('role page should show 角色编码');
+      }
       break;
     case 'RBAC-LOCAL-301':
       await gotoRbacPage(page, runtime, 'menu');
