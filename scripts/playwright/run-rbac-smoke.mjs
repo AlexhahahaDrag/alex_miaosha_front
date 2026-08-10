@@ -72,18 +72,21 @@ async function ensureLoggedIn(page, persona) {
 
   if (!hasUserInput) return;
 
+  // Ant Design Vue 的 v-model 不会吃 page.fill 的原生赋值；逐字输入才能同步到 loginForm
   const usernameCandidates = [username, 'supersuper'].filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i);
   const passInput = page.locator('input[type="password"], input[name="password"]').first();
   let success = false;
   for (const uname of usernameCandidates) {
     const userInput = userLocator.first();
-    await userInput.fill('');
-    await passInput.fill('');
-    await userInput.fill(uname);
-    await passInput.fill(password);
-    await tryClick(page, ['button:has-text("登录")', 'button:has-text("Log in")', 'button:has-text("Login")', '.ant-btn-primary']);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1200);
+    await userInput.click({ clickCount: 3 });
+    await page.keyboard.press('Backspace');
+    await userInput.pressSequentially(uname, { delay: 20 });
+    await passInput.click({ clickCount: 3 });
+    await page.keyboard.press('Backspace');
+    await passInput.pressSequentially(password, { delay: 20 });
+    await tryClick(page, ['button:has-text("登录")', 'button:has-text("Log in")', 'button:has-text("Login")', '.login-btn']);
+    // 登录响应经网关 AES 加密，体量大时可能超过 1s
+    await page.waitForTimeout(5000);
     const stillOnLoginTry =
       (await page
         .locator(

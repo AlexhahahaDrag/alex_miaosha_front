@@ -107,5 +107,13 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orderBy: { name: 'orderBy', label: '排序' },
 });
 
+/** 菜单详情表单校验（与 labelMap / a-form-item :name 对齐） */
+export const rulesRef = reactive({
+	name: [{ required: true, message: '菜单名称不能为空！' }],
+	title: [{ required: true, message: '菜单标题不能为空！' }],
+	permissionCode: [{ required: true, message: '权限标识不能为空！' }],
+	status: [{ required: true, message: '状态不能为空！' }],
+});
+
 export const labelCol: { span: number } = { span: 5 };
 export const wrapperCol: { span: number } = { span: 19 };

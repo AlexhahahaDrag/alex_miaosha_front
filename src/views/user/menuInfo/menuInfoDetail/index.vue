@@ -223,7 +223,12 @@ import {
 	addMenuInfo,
 	editMenuInfo,
 } from '@/views/user/menuInfo/api';
-import { labelMap, labelCol, wrapperCol } from '@/views/user/menuInfo/config';
+import {
+	labelMap,
+	labelCol,
+	wrapperCol,
+	rulesRef,
+} from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { ModelInfo } from '@/views/common/config';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
@@ -236,7 +241,6 @@ const { getDictByType } = useDictInfo('true_or_false,is_valid');
 const formRef = ref<FormInstance>();
 const loading = ref<boolean>(false);
 const formState = ref<MenuInfoData>({});
-const rulesRef = reactive({});
 const modelConfig = reactive({
 	confirmLoading: true,
 	destroyOnClose: true,
@@ -313,7 +317,7 @@ watch(
 	},
 	{
 		immediate: true,
-	}
+	},
 );
 
 // 8. Emits
