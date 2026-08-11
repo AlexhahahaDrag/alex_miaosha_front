@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .env
+login_body.txt
 
 # Editor directories and files
 .vscode/*

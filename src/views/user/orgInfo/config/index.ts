@@ -52,6 +52,8 @@ export interface OrgInfoData {
 	parentOrgName?: string;
 	summary?: string;
 	status?: string;
+	// 机构树接口（/org-info/tree）返回的子机构列表
+	children?: OrgInfoData[];
 }
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({

@@ -34,13 +34,13 @@ export const normalizePermissionContext = (
 	const permissionContext = admin?.permissionContext || {};
 	const legacyRoleList =
 		admin?.roleInfoVoList?.length ? admin.roleInfoVoList
-		: admin?.roleInfoVo ? [admin.roleInfoVo]
-		: [];
+			: admin?.roleInfoVo ? [admin.roleInfoVo]
+				: [];
 
 	const roleList =
 		permissionContext.roleList?.length ?
 			permissionContext.roleList
-		:	legacyRoleList;
+			:	legacyRoleList;
 	const permissionCodes = uniq([
 		...(permissionContext.permissionCodes || []),
 		...(admin?.permissionCodes || []),
@@ -63,7 +63,7 @@ export const normalizePermissionContext = (
 		menuList:
 			permissionContext.menuList?.length ?
 				permissionContext.menuList
-			:	admin?.menuInfoVoList || [],
+				:	admin?.menuInfoVoList || [],
 		superAdmin:
 			permissionContext.superAdmin === true ||
 			roleList.some((role) => role?.roleCode === 'super_super'),

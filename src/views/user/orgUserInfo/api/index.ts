@@ -5,7 +5,8 @@
 	deleteData,
 	baseService,
 } from '@/utils/request';
-import type { ResponseBody } from '@/types/api';
+import type { CommonPageResult, ResponseBody } from '@/types/api';
+import type { OrgUserInfoData } from '@/views/user/orgUserInfo/config';
 
 const baseOrgUserInfo = '/org-user-info';
 
@@ -15,10 +16,10 @@ const OrgUserInfoUrl = {
 };
 
 export function getOrgUserInfoPage(
-	params: any,
+	params: OrgUserInfoData,
 	pageNum?: number | null,
 	pageSize?: number | null,
-): Promise<ResponseBody> {
+): Promise<ResponseBody<CommonPageResult<OrgUserInfoData>>> {
 	return postData(
 		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.page,
 		params,
@@ -26,25 +27,35 @@ export function getOrgUserInfoPage(
 	);
 }
 
-export function getOrgUserInfoDetail(id: string): Promise<ResponseBody> {
+export function getOrgUserInfoDetail(
+	id: string,
+): Promise<ResponseBody<OrgUserInfoData>> {
 	return getDataOne(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, {
 		id,
 	});
 }
 
-export function deleteOrgUserInfo(ids: string): Promise<ResponseBody> {
+export function deleteOrgUserInfo(ids: string): Promise<ResponseBody<boolean>> {
 	return deleteData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, {
 		ids,
 	});
 }
 
+// 新增用户公司信息（等价 assignSingleOrg：单用户唯一有效机构）
 export function addOrgUserInfo(
-	params: any,
-): Promise<ResponseBody> {
-	return postData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, params);
+	params: OrgUserInfoData,
+): Promise<ResponseBody<boolean>> {
+	return postData(
+		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url,
+		params,
+	);
 }
 
-export function editOrgUserInfo(params: any): Promise<ResponseBody> {
-	return putData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, params);
+export function editOrgUserInfo(
+	params: OrgUserInfoData,
+): Promise<ResponseBody<boolean>> {
+	return putData(
+		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url,
+		params,
+	);
 }
-

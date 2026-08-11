@@ -1,5 +1,12 @@
 <template>
 	<div class="page-info">
+		<a-tag
+			color="blue"
+			data-testid="rbac-data-scope-hint"
+			style="margin-bottom: 12px"
+		>
+			{{ scopeHintText }}
+		</a-tag>
 		<div class="search">
 			<div class="search-box">
 				<a-form
@@ -149,12 +156,15 @@
 						</span>
 					</template>
 					<template v-else-if="column.key === 'status'">
-						<a-tag
-							:key="record.status"
-							:color="String(record.status) === '1' ? '#87d068' : 'grey'"
-						>
-							{{ String(record.status) === '1' ? '有效' : '失效' }}
-						</a-tag>
+						<a-switch
+							:checked="String(record.status) === '1'"
+							:loading="!!statusLoadingMap[record.id]"
+							:disabled="record.username === 'superman'"
+							checked-children="启用"
+							un-checked-children="禁用"
+							data-testid="rbac-user-status-switch"
+							@change="(checked) => handleStatusChange(record, Boolean(checked))"
+						/>
 					</template>
 					<template v-else-if="column.key === 'gender'">
 						<a-tag
@@ -199,9 +209,11 @@ import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
 	deleteUserManager,
+	updateUserStatus,
 } from '@/views/user/userManager/api';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
 import { getRoleInfoPage } from '@/views/user/roleInfo/api';
+import { useDataScopeHint } from '@/composables/useDataScopeHint';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
@@ -220,6 +232,7 @@ const {
 	resetPagination,
 } = usePagination();
 const { getDictByType } = useDictInfo('is_valid');
+const { scopeHintText } = useDataScopeHint();
 
 // State
 const searchInfo = ref<UserManagerInfo>({});
@@ -228,6 +241,8 @@ const dataSource = ref<UserManagerInfo[]>([]);
 const modelInfo = ref<ModelInfo>({});
 const orgOptions = ref<FilterOption[]>([]);
 const roleOptions = ref<FilterOption[]>([]);
+// 记录每行状态切换的 loading，避免秒杀高频操作下的重复点击
+const statusLoadingMap = ref<Record<string, boolean>>({});
 const statusOptions = computed(() => getDictByType('is_valid'));
 
 const rowSelection = ref({
@@ -282,6 +297,30 @@ const delUser = async (ids: string) => {
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
+	}
+};
+
+// 启停状态切换（loading 防止连点重复提交）
+const handleStatusChange = async (
+	record: UserManagerInfo,
+	checked: boolean,
+) => {
+	if (!record.id) return;
+	const newStatus = checked ? '1' : '0';
+	statusLoadingMap.value[record.id] = true;
+	try {
+		const { code, message: messageInfo } = await updateUserStatus(
+			record.id,
+			newStatus,
+		);
+		if (code === '200') {
+			record.status = newStatus;
+			message.success(messageInfo || '状态更新成功！', 3);
+		} else {
+			message.error(messageInfo || '状态更新失败！', 3);
+		}
+	} finally {
+		statusLoadingMap.value[record.id] = false;
 	}
 };
 

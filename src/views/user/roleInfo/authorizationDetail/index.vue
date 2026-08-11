@@ -27,10 +27,20 @@
 				保存
 			</a-button>
 		</template>
-		<menu-tree
-			:treeData="permissionTree"
-			v-model:selectedKeys="selectPermission"
-		></menu-tree>
+		<rbac-permission-tree-panel
+			title="菜单权限树"
+			description="勾选角色可访问的菜单/按钮权限，支持批量展开收起"
+			:tree-data="rbacTreeData"
+			:checked-keys="selectPermission"
+			:expanded-keys="expandedKeys"
+			:half-checked-keys="halfCheckedKeys"
+			@update:checkedKeys="(keys) => (selectPermission = keys.map(String))"
+			@update:expandedKeys="(keys) => (expandedKeys = keys.map(String))"
+			@select-all="selectPermission = allPermissionKeys"
+			@clear="selectPermission = []"
+			@expand-all="expandedKeys = allPermissionKeys"
+			@collapse-all="expandedKeys = []"
+		/>
 	</a-drawer>
 </template>
 <script lang="ts" setup>
@@ -42,7 +52,31 @@ import {
 	assignRolePermissions,
 } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
+import type { RbacTreeNode } from '@/components/rbac';
+
+interface RawPermissionNode {
+	id?: string;
+	permissionName?: string;
+	children?: RawPermissionNode[];
+}
+
+// 将后端 id/permissionName/children 结构映射为 RbacPermissionTreePanel 所需的 key/title/children
+const toRbacTree = (nodes: RawPermissionNode[]): RbacTreeNode[] =>
+	(nodes || []).map((node) => ({
+		key: String(node.id ?? ''),
+		title: node.permissionName ?? '',
+		children: node.children?.length ? toRbacTree(node.children) : undefined,
+	}));
+
+const collectAllKeys = (nodes: RbacTreeNode[]): string[] =>
+	nodes.flatMap((node) => [
+		String(node.key),
+		...(node.children?.length ? collectAllKeys(node.children) : []),
+	]);
+
 const loading = ref<boolean>(false);
+const expandedKeys = ref<string[]>([]);
+const halfCheckedKeys = ref<string[]>([]);
 
 const modelConfig = {
 	confirmLoading: true,
@@ -59,7 +93,9 @@ const formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 
-const permissionTree = ref<unknown[]>([]);
+const permissionTree = ref<RawPermissionNode[]>([]);
+const rbacTreeData = computed(() => toRbacTree(permissionTree.value));
+const allPermissionKeys = computed(() => collectAllKeys(rbacTreeData.value));
 
 const selectPermission = ref<string[]>([]);
 
@@ -109,7 +145,8 @@ const getAllPermissions = async () => {
 			if (code === '200') {
 				formState.value = data as RoleInfoData;
 				permissionTree.value =
-					(data as { permissionList?: unknown[] })?.permissionList || [];
+					(data as { permissionList?: RawPermissionNode[] })
+						?.permissionList || [];
 				selectPermission.value =
 					(
 						data as { rolePermissionInfoVoList?: { id: string }[] }
@@ -132,6 +169,8 @@ const init = async () => {
 	// 重置状态
 	permissionTree.value = [];
 	selectPermission.value = [];
+	expandedKeys.value = [];
+	halfCheckedKeys.value = [];
 	formState.value = {};
 	modelConfig.confirmLoading = true;
 

@@ -1,5 +1,12 @@
 <template>
 	<div class="page-info">
+		<a-tag
+			color="blue"
+			data-testid="rbac-data-scope-hint"
+			style="margin-bottom: 12px"
+		>
+			{{ scopeHintText }}
+		</a-tag>
 		<div class="search">
 			<div class="search-box">
 				<a-form
@@ -73,6 +80,12 @@
 					@click="batchDelRoleInfo"
 				>
 					删除
+				</a-button>
+				<a-button
+					data-testid="rbac-role-btn-goto-relation"
+					@click="router.push('/user/role-user-info')"
+				>
+					角色-用户关系配置
 				</a-button>
 			</a-space>
 		</div>
@@ -172,6 +185,7 @@ import {
 	labelMap,
 } from '@/views/user/roleInfo/config';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
+import { useDataScopeHint } from '@/composables/useDataScopeHint';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import UserAssignmentDetail from './userAssignmentDetail/index.vue';
@@ -183,6 +197,9 @@ const {
 	setTotal,
 	resetPagination,
 } = usePagination();
+
+const router = useRouter();
+const { scopeHintText } = useDataScopeHint();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

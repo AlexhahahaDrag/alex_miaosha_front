@@ -34,6 +34,20 @@ export const routes: MenuDataItem[] = [
 				name: 'dashboard',
 				meta: { title: '首页', icon: 'dashboard', hideInMenu: true },
 			},
+			{
+				// RBAC-PC-RELATION-001：独立机构-用户关系配置页，暂未纳入后端菜单树，
+				// 通过机构/角色列表页的快捷入口跳转访问，hideInMenu 避免在侧边栏产生重复入口。
+				path: '/user/org-user-info',
+				component: modules['/src/views/user/orgUserInfo/index.vue'],
+				name: 'orgUserInfo',
+				meta: { title: '机构-用户关系配置', hideInMenu: true },
+			},
+			{
+				path: '/user/role-user-info',
+				component: modules['/src/views/user/roleUserInfo/index.vue'],
+				name: 'roleUserInfo',
+				meta: { title: '角色-用户关系配置', hideInMenu: true },
+			},
 		],
 	},
 	{
