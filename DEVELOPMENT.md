@@ -47,6 +47,7 @@
 - **通用组件**：`src/components/`、`src/layout/`
 - **业务页面**：`src/views/`
 - **工具方法**：`src/utils/`
+- **图表加载**：统一使用 `src/utils/echarts/loadEcharts.ts` 异步模块化加载；禁止 `import * as echarts from 'echarts'`。Vite 8.0.10 全量预构建会打乱 echarts `install` 顺序，在 `registerClass` 处崩溃（参见 vite#22082），首页跳转会被中断。
 
 约束：
 
