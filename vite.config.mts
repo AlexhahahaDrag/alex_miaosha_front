@@ -12,7 +12,7 @@ import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import IconsResolver from 'unplugin-icons/resolver';
 
 const pathResolve = (dir: string): string => {
-	return resolve(__dirname, './', dir);
+	return resolve(import.meta.dirname, './', dir);
 };
 
 //設置別名
@@ -23,7 +23,7 @@ const alias: Record<string, string> = {
 	'@a': pathResolve('src/api'),
 	'@r': pathResolve('src/router'),
 };
-const vendorLibs = ['axios', 'lodash-es', 'dayjs', 'bignumber.js', 'crypto-js'];
+const vendorLibs = ['axios', 'lodash-es', 'dayjs', 'bignumber.js', 'crypto-es'];
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
@@ -212,7 +212,17 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 		envPrefix: 'VITE_',
 		// 优化依赖处理
 		optimizeDeps: {
-			include: ['vue', 'vue-router', 'ant-design-vue', 'dayjs', 'axios'],
+			include: [
+				'vue',
+				'vue-router',
+				'pinia',
+				'ant-design-vue',
+				'ant-design-vue/es',
+				'@ant-design/icons-vue',
+				'dayjs',
+				'axios',
+				'lodash-es',
+			],
 			exclude: ['@tsparticles/slim'],
 		},
 	};

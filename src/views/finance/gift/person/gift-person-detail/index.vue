@@ -63,7 +63,7 @@
 						<a-list-item>
 							<a-list-item-meta
 								:title="`${directionLabel(item.direction)} ${money(item.amount)}`"
-								:description="`${item.payTime || '-'} ${item.remark || ''}`"
+								:description="`${formatDate(item.payTime) || '-'} ${item.remark || ''}`"
 							/>
 						</a-list-item>
 					</template>
@@ -219,6 +219,7 @@ import type { Rule } from 'ant-design-vue/es/form';
 import type { FormInstance, UploadProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { CameraOutlined } from '@ant-design/icons-vue';
+import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
 import { addFileManager, getFileDetail } from '@/views/common/api/file';
@@ -420,21 +421,23 @@ const handleCancel = () => {
 };
 
 const toSavePayload = (): GiftPersonInfo => {
-	const {
-		relationMode: _relationMode,
-		customRelation: _customRelation,
-		relationOptionId: _relationOptionId,
-		fileInfoVo: _fileInfoVo,
-		...rest
-	} = formState.value;
-	return {
-		...rest,
+	const relationPayload = buildRelationTypeForSave(
+		formState.value,
+		presetOptions.value,
+	);
+	let params: Record<string, any> = {
+		id: formState.value.id || undefined,
+		personName: formState.value.personName?.trim() || undefined,
+		phone: formState.value.phone?.trim() || undefined,
 		avatar:
 			formState.value.avatar != null && formState.value.avatar !== '' ?
 				String(formState.value.avatar)
 			:	null,
-		...buildRelationTypeForSave(formState.value, presetOptions.value),
+		relationGrade: formState.value.relationGrade || undefined,
+		remark: formState.value.remark?.trim() || undefined,
+		...relationPayload,
 	};
+	return params as GiftPersonInfo;
 };
 
 const saveGiftPerson = async () => {

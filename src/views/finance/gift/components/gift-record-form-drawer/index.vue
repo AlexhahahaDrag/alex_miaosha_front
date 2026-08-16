@@ -623,19 +623,29 @@ const handleSave = async () => {
 	saving.value = true;
 	try {
 		await formRef.value.validateFields();
-		const api = formInfo.value.id ? updateGiftRecord : addGiftRecord;
-		
-		const payload = { ...formInfo.value };
-		if (payload.direction === 'GIVE' && isReturnGift.value) {
-			payload.direction = 'RETURN';
+		let params: Record<string, any> = {
+			id: formInfo.value.id || undefined,
+			eventId: formInfo.value.eventId || undefined,
+			direction: formInfo.value.direction || undefined,
+			giverPersonId: formInfo.value.giverPersonId || undefined,
+			receiverPersonId: formInfo.value.receiverPersonId || undefined,
+			relatedRecordId: formInfo.value.relatedRecordId || undefined,
+			amount: formInfo.value.amount || undefined,
+			paymentMethod: formInfo.value.paymentMethod || undefined,
+			remark: formInfo.value.remark?.trim() || undefined,
+		};
+		if (params.direction === 'GIVE' && isReturnGift.value) {
+			params.direction = 'RETURN';
 		} else if (!isReturnGift.value) {
-			payload.relatedRecordId = undefined;
+			params.relatedRecordId = undefined;
 		}
-		if (payload.payTime && !payload.payTime.includes('T')) {
-			payload.payTime = `${payload.payTime}T00:00:00`;
+		if (formInfo.value.payTime) {
+			const timeStr = formInfo.value.payTime;
+			params.payTime =
+				timeStr.includes('T') ? timeStr : `${timeStr}T00:00:00`;
 		}
-		
-		const { code, message: msg } = await api(payload);
+
+		const { code, message: msg } = await api(params as GiftRecordInfo);
 		if (code === '200') {
 			message.success('保存成功');
 			open.value = false;

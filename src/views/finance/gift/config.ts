@@ -67,6 +67,7 @@ export interface GiftEventInfo {
 	eventTypeOptionId?: string;
 	eventTime?: string;
 	hostPersonId?: GiftId;
+	hostPersonName?: string;
 	remark?: string;
 	createTime?: string;
 }

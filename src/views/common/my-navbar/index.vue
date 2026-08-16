@@ -89,6 +89,27 @@ const collectSubmenuKeysFromItems = (items: ItemType[]): Set<string> => {
 	return keys;
 };
 
+/** 收集菜单树里所有有效节点 key */
+const collectAllMenuKeys = (items: ItemType[]): Set<string> => {
+	const keys = new Set<string>();
+	const walk = (list: ItemType[]) => {
+		for (const node of list) {
+			const item = node as {
+				key?: string | number;
+				children?: ItemType[];
+			};
+			const keyStr =
+				item.key !== undefined && item.key !== null ? String(item.key) : '';
+			if (keyStr) keys.add(keyStr);
+			if (item.children?.length) {
+				walk(item.children);
+			}
+		}
+	};
+	walk(items);
+	return keys;
+};
+
 // AI Agent：菜单点击跳转
 // 说明：buildMenuItem.key = name || path，所以这里优先按 name 跳转，失败再按 path 兜底。
 const router = useRouter();
@@ -112,8 +133,32 @@ const onMenuClick = async (info: { key: string | number }) => {
 // AI Agent：根据当前路由同步菜单高亮/展开（openKeys 只包含菜单树中真实存在的「子菜单」key）
 const onSyncMenuByRoute = () => {
 	const matched = route.matched || [];
-	const name: string = (route?.name as string) || 'home';
-	curSelectedKeys.value = [name === 'dashboard' ? 'home' : name];
+	const name: string = (route?.name as string) || '';
+	const path: string = route?.path || '';
+
+	let selectedKey = name;
+	if (
+		name === 'home' ||
+		name === 'dashboard' ||
+		name === 'homeDashboard' ||
+		path === '/' ||
+		path === '/home-dashboard'
+	) {
+		selectedKey = 'home';
+	} else {
+		const allKeys = collectAllMenuKeys(menuItems.value);
+		if (!allKeys.has(name)) {
+			// 如果当前路由 name 不直接在菜单里（如隐藏的详情页），从 matched 中倒序寻找最近的一个在菜单里的祖先
+			const hit = [...matched]
+				.reverse()
+				.find((m) => m.name && allKeys.has(String(m.name)));
+			if (hit && hit.name) {
+				selectedKey = String(hit.name);
+			}
+		}
+	}
+
+	curSelectedKeys.value = selectedKey ? [selectedKey] : ['home'];
 
 	const submenuKeys = collectSubmenuKeysFromItems(menuItems.value);
 	const nextOpenKeys: string[] = [];
@@ -128,7 +173,7 @@ const onSyncMenuByRoute = () => {
 };
 
 watch(
-	() => route.fullPath,
+	[() => route.fullPath, () => menuItems.value],
 	() => {
 		onSyncMenuByRoute();
 	},

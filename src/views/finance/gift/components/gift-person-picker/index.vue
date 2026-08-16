@@ -12,7 +12,9 @@
 			@search="handleSearch"
 			@dropdown-visible-change="handleDropdownVisibleChange"
 		/>
-		<p v-if="orgScopeHint" class="gift-picker__hint">{{ orgScopeHint }}</p>
+		<p v-if="showOrgScopeHint && orgScopeHint" class="gift-picker__hint">
+			{{ orgScopeHint }}
+		</p>
 		<a-button
 			v-if="showCreateLink"
 			type="link"
@@ -49,12 +51,16 @@ const props = withDefaults(
 	defineProps<{
 		placeholder?: string;
 		showCreateLink?: boolean;
+		showOrgScopeHint?: boolean;
 		testId?: string;
+		personScope?: 'CONTACT' | 'ORG_MEMBER' | undefined;
 	}>(),
 	{
 		placeholder: '搜索姓名或手机号',
 		showCreateLink: true,
+		showOrgScopeHint: false,
 		testId: 'gift-person-picker',
+		personScope: undefined,
 	},
 );
 
@@ -95,7 +101,7 @@ const fetchPersonList = async (keyword?: string) => {
 			message: msg,
 		} = await getGiftPersonList({
 			keyword: keyword?.trim() || undefined,
-			personScope: 'CONTACT',
+			personScope: props.personScope,
 		});
 		if (code === '200') {
 			mergeOptions(data || []);

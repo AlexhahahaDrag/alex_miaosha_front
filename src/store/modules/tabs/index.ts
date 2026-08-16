@@ -31,11 +31,15 @@ export interface TabItem {
 }
 
 const DEFAULT_HOME_KEY = 'home';
-const DEFAULT_DASHBOARD_KEY = 'dashboard';
+const HOME_LIKE_KEYS = new Set(['home', 'dashboard', 'homeDashboard']);
+
+const isHomeLike = (key: string, path?: string) =>
+	HOME_LIKE_KEYS.has(key) || path === '/' || path === '/home-dashboard';
 
 const buildKeyFromRoute = (route: RouteLocationNormalizedLoaded): string => {
 	const name = String(route?.name || '');
-	if (name === DEFAULT_HOME_KEY || name === DEFAULT_DASHBOARD_KEY) {
+	const path = String(route?.path || '');
+	if (isHomeLike(name, path)) {
 		return DEFAULT_HOME_KEY;
 	}
 	return name || String(route?.fullPath || '');
@@ -44,9 +48,6 @@ const buildKeyFromRoute = (route: RouteLocationNormalizedLoaded): string => {
 const buildTitleFromRoute = (route: RouteLocationNormalizedLoaded): string => {
 	return String(route?.meta?.title || route?.name || route?.path || '未命名');
 };
-
-const isHomeLike = (key: string) =>
-	key === DEFAULT_HOME_KEY || key === DEFAULT_DASHBOARD_KEY;
 
 /**
  * AI Agent：确保 home tab 始终存在且位于最左端（第 0 个）
@@ -58,12 +59,12 @@ const normalizeTabsOrder = (tabs: TabItem[]): TabItem[] => {
 
 	// 1) 找出所有可能是首页的 Tab（key 为 home 或 dashboard 或 标题为 “首页”）
 	const homeLikeTabs = list.filter(
-		(t) => isHomeLike(t.key) || t.title === '首页',
+		(t) => isHomeLike(t.key, t.fullPath) || t.title === '首页',
 	);
 
 	// 2) 从原列表中移除所有首页类的 Tab
 	for (let i = list.length - 1; i >= 0; i--) {
-		if (isHomeLike(list[i].key) || list[i].title === '首页') {
+		if (isHomeLike(list[i].key, list[i].fullPath) || list[i].title === '首页') {
 			list.splice(i, 1);
 		}
 	}
@@ -198,6 +199,46 @@ export const useTabsStore = defineStore(
 		}
 
 		/**
+		 * AI Agent：关闭所有业务 Tab（仅保留首页）
+		 */
+		function closeAllTabs(): string {
+			const homeTab: TabItem = {
+				key: DEFAULT_HOME_KEY,
+				title: '首页',
+				fullPath: '/',
+				closable: false,
+			};
+			tabs.value = [homeTab];
+			activeKey.value = DEFAULT_HOME_KEY;
+			return DEFAULT_HOME_KEY;
+		}
+
+		/**
+		 * AI Agent：关闭其他 Tab（保留当前 tab 和首页）
+		 */
+		function closeOtherTabs(currentKey?: string): string {
+			const targetKey = currentKey || activeKey.value || DEFAULT_HOME_KEY;
+			if (isHomeLike(targetKey)) {
+				return closeAllTabs();
+			}
+			const currentTab = tabs.value.find((t) => t.key === targetKey);
+			const homeTab: TabItem = {
+				key: DEFAULT_HOME_KEY,
+				title: '首页',
+				fullPath: '/',
+				closable: false,
+			};
+			if (currentTab) {
+				tabs.value = [homeTab, currentTab];
+				activeKey.value = targetKey;
+			} else {
+				tabs.value = [homeTab];
+				activeKey.value = DEFAULT_HOME_KEY;
+			}
+			return activeKey.value;
+		}
+
+		/**
 		 * AI Agent：通过 key 获取 tab（用于跳转）
 		 */
 		function getTabByKey(key: string): TabItem | undefined {
@@ -213,6 +254,8 @@ export const useTabsStore = defineStore(
 			upsertTabByRoute,
 			setActive,
 			removeTab,
+			closeAllTabs,
+			closeOtherTabs,
 			getTabByKey,
 		};
 	},

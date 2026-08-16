@@ -1,6 +1,7 @@
 import Layout from '@/views/layout/index.vue';
 import type { RouteRecordRaw } from 'vue-router';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, RouterView } from 'vue-router';
+import { h, defineComponent } from 'vue';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
@@ -11,10 +12,17 @@ import {
 	isSuperAdmin,
 } from '@/utils/permission';
 
+const ParentLayout = defineComponent({
+	name: 'ParentLayout',
+	render() {
+		return h(RouterView);
+	},
+});
+
 const modules = import.meta.glob([
-	'@/views/**/**.vue',
-	'!@/views/common/**/**.vue',
-	'!@/views/layout/index.vue',
+	'/src/views/**/**.vue',
+	'!/src/views/common/**/**.vue',
+	'!/src/views/layout/index.vue',
 ]);
 
 export const routes: MenuDataItem[] = [
@@ -82,9 +90,19 @@ const getComponent = (item: MenuInfoData) => {
 		return modules['/src/views/error-404/index.vue'];
 	}
 	if (item.component === 'Layout') {
-		return Layout;
+		return ParentLayout;
 	}
-	return modules[item.component];
+	const path = item.component.startsWith('/src/')
+		? item.component
+		: item.component.startsWith('/')
+		? `/src${item.component}`
+		: `/src/views/${item.component}`;
+
+	return (
+		modules[path] ||
+		modules[item.component] ||
+		modules['/src/views/error-404/index.vue']
+	);
 };
 
 /** 递归将 MenuInfo 转换为 RouteRecordRaw */
@@ -136,7 +154,7 @@ const addRouter = async () => {
 	userStore.getMenuInfo.forEach((item: MenuInfoData) => {
 		if (judgeMenuPermission(item, permissionSet, superAdmin)) {
 			const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
-			router.addRoute(newRoute);
+			router.addRoute('home', newRoute);
 			dynamicRouter.push(newRoute);
 			routes.push(newRoute as MenuDataItem);
 		}

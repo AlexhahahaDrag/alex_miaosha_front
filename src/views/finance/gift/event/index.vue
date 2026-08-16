@@ -180,10 +180,22 @@
 								<div class="event-cell">
 									<span class="event-icon">📅</span>
 									<div>
-										<strong>{{ record.eventName || '-' }}</strong>
+										<div style="display: flex; align-items: center; gap: 6px">
+											<strong>{{ record.eventName || '-' }}</strong>
+										</div>
 										<p>{{ record.remark || '人情往来事件' }}</p>
 									</div>
 								</div>
+							</template>
+							<template v-else-if="column.key === 'hostPersonName'">
+								<a-tag
+									v-if="record.hostPersonName || (record.hostPersonId && personMap[String(record.hostPersonId)])"
+									color="cyan"
+									style="margin-right: 0; font-weight: 500"
+								>
+									👤 {{ record.hostPersonName || personMap[String(record.hostPersonId)] }}
+								</a-tag>
+								<span v-else style="color: #94a3b8">-</span>
 							</template>
 							<template v-else-if="column.key === 'eventType'">
 								<a-tag color="blue">{{ eventLabel(record.eventType) }}</a-tag>
@@ -387,6 +399,16 @@
 						placeholder="请选择举办日期"
 					/>
 				</a-form-item>
+				<a-form-item
+					label="关联亲友"
+					extra="该事件的主办人、主角或主要关联亲友（如新人、寿星等）"
+				>
+					<gift-person-picker
+						v-model="formInfo.hostPersonId"
+						placeholder="请选择或搜索关联亲友/主办人"
+						data-testid="gift-event-host-person-picker"
+					/>
+				</a-form-item>
 				<a-form-item label="备注">
 					<a-textarea
 						v-model:value="formInfo.remark"
@@ -420,11 +442,13 @@ import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
+import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 import {
 	addGiftEvent,
 	deleteGiftEvent,
 	getGiftEventBusinessPage,
 	getGiftEventSummary,
+	getGiftPersonList,
 	updateGiftEvent,
 	updateGiftEventTypeOption,
 } from '@/views/finance/gift/api';
@@ -508,8 +532,14 @@ onUnmounted(() => {
 
 const columns = [
 	{ title: '事件名称', dataIndex: 'eventName', key: 'eventName' },
-	{ title: '事件分类', dataIndex: 'eventType', key: 'eventType', width: 120 },
-	{ title: '举行日期', dataIndex: 'eventTime', key: 'eventTime', width: 140 },
+	{
+		title: '关联亲友',
+		dataIndex: 'hostPersonName',
+		key: 'hostPersonName',
+		width: 130,
+	},
+	{ title: '事件分类', dataIndex: 'eventType', key: 'eventType', width: 110 },
+	{ title: '举行日期', dataIndex: 'eventTime', key: 'eventTime', width: 130 },
 	{ title: '备注', dataIndex: 'remark', key: 'remark', width: 160 },
 	{ title: '状态', dataIndex: 'eventStatus', key: 'eventStatus', width: 100 },
 	{
@@ -559,6 +589,25 @@ const loadSummary = async () => {
 	}
 };
 
+const personMap = ref<Record<string, string>>({});
+
+const loadPersons = async () => {
+	try {
+		const { code, data } = await getGiftPersonList();
+		if (code === '200' && data) {
+			const map: Record<string, string> = {};
+			data.forEach((p) => {
+				if (p.id) {
+					map[String(p.id)] = p.personName || '-';
+				}
+			});
+			personMap.value = map;
+		}
+	} catch {
+		// ignore
+	}
+};
+
 const loadPage = async (page: PageInfo) => {
 	loading.value = true;
 	try {
@@ -572,7 +621,18 @@ const loadPage = async (page: PageInfo) => {
 			page.pageSize,
 		);
 		if (code === '200') {
-			dataSource.value = data?.records || [];
+			const list = data?.records || [];
+			list.forEach((item) => {
+				if (
+					!item.hostPersonName &&
+					item.hostPersonId &&
+					personMap.value[String(item.hostPersonId)]
+				) {
+					item.hostPersonName =
+						personMap.value[String(item.hostPersonId)];
+				}
+			});
+			dataSource.value = list;
 			setTotal(data?.total || 0);
 		} else {
 			message.error(msg || '事件列表加载失败');
@@ -592,21 +652,21 @@ const openDrawer = (record?: GiftEventBusinessInfo) => {
 };
 
 const toSavePayload = (): GiftEventInfo => {
-	const {
-		eventTypeMode,
-		customEventType,
-		eventType,
-		eventTypeOptionId,
-		...rest
-	} = formInfo.value;
-	const payload: GiftEventInfo = {
-		...rest,
-		...buildEventTypeForSave(formInfo.value),
+	const typePayload = buildEventTypeForSave(formInfo.value);
+	let params: Record<string, any> = {
+		id: formInfo.value.id || undefined,
+		eventName: formInfo.value.eventName?.trim() || undefined,
+		eventType: typePayload.eventType || undefined,
+		eventTypeOptionId: typePayload.eventTypeOptionId || undefined,
+		hostPersonId: formInfo.value.hostPersonId || undefined,
+		remark: formInfo.value.remark?.trim() || undefined,
 	};
-	if (payload.eventTime && payload.eventTime.length === 10) {
-		payload.eventTime = `${payload.eventTime}T00:00:00`;
+	if (formInfo.value.eventTime) {
+		const timeStr = formInfo.value.eventTime;
+		params.eventTime =
+			timeStr.length === 10 ? `${timeStr}T00:00:00` : timeStr;
 	}
-	return payload;
+	return params as GiftEventInfo;
 };
 
 const save = async () => {
@@ -731,8 +791,8 @@ const toggleOptionStatus = async (opt: GiftEventTypeOptionItem) => {
 	}
 };
 
-onMounted(() => {
-	void loadEventTypeOptions();
+onMounted(async () => {
+	await Promise.all([loadEventTypeOptions(), loadPersons()]);
 	query(true);
 	if (route.query.open === 'create' && hasPermission('gift:add')) {
 		openDrawer();

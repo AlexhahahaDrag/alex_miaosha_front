@@ -207,7 +207,7 @@
 					</template>
 					<template v-else-if="column.key === 'latestRecordTime'">
 						<div v-if="record.latestRecordTime">
-							<div class="time-text">{{ record.latestRecordTime }}</div>
+							<div class="time-text">{{ formatDate(record.latestRecordTime) }}</div>
 							<a-tag
 								size="small"
 								:color="
@@ -483,6 +483,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
+import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';

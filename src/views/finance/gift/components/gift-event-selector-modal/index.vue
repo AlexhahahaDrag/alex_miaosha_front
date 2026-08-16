@@ -43,6 +43,13 @@
 							placeholder="请选择举行日期"
 						/>
 					</a-form-item>
+
+					<a-form-item label="关联人员" name="hostPersonId">
+						<gift-person-picker
+							v-model="createForm.hostPersonId"
+							placeholder="选择或搜索关联人员（选填）"
+						/>
+					</a-form-item>
 				</a-form>
 				<div class="panel-buttons">
 					<a-button size="small" @click="showCreateForm = false">返回选择</a-button>
@@ -113,6 +120,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { getGiftEventList, addGiftEvent } from '@/views/finance/gift/api';
 import type { GiftEventInfo } from '@/views/finance/gift/config';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
+import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 
 const open = defineModel<boolean>('open', { default: false });
 
@@ -138,6 +146,7 @@ const createForm = ref<GiftEventInfo>({
 	eventName: '',
 	eventType: undefined,
 	eventTime: undefined,
+	hostPersonId: undefined,
 });
 
 const eventTypeSelectOptions = computed(() => {
@@ -193,13 +202,20 @@ const handleCreate = async () => {
 	try {
 		await formRef.value.validateFields();
 		
-		// 格式化时间为后端期望的日期格式 (例如 2026-07-20T00:00:00)
-		const payload = { ...createForm.value };
-		if (payload.eventTime && !payload.eventTime.includes('T')) {
-			payload.eventTime = `${payload.eventTime}T00:00:00`;
+		let params: Record<string, any> = {
+			eventName: createForm.value.eventName?.trim() || undefined,
+			eventType: createForm.value.eventType || undefined,
+			hostPersonId: createForm.value.hostPersonId || undefined,
+		};
+		if (createForm.value.eventTime) {
+			const timeStr = createForm.value.eventTime;
+			params.eventTime =
+				timeStr.includes('T') ? timeStr : `${timeStr}T00:00:00`;
 		}
 
-		const { code, data, message: msg } = await addGiftEvent(payload);
+		const { code, data, message: msg } = await addGiftEvent(
+			params as GiftEventInfo,
+		);
 		if (code === '200' && data) {
 			message.success('创建成功');
 			showCreateForm.value = false;

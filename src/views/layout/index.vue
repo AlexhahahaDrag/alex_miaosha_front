@@ -43,11 +43,12 @@
 	</a-layout>
 </template>
 <script setup lang="ts">
+import { routes as globalRoutes } from '@/router';
 import { algorithm } from '@/utils/algorithm';
 
 const router = useRouter();
 const routes = computed(() =>
-	algorithm.increaseIndexes(router.options.routes as []),
+	algorithm.increaseIndexes(globalRoutes),
 );
 let collapsed = ref<boolean>(false);
 let selectedKeys = ref<string[]>(['1']);
