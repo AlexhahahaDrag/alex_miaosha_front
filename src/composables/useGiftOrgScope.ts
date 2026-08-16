@@ -19,7 +19,10 @@ export function useGiftOrgScope() {
 	});
 
 	const orgScopeHint = computed(() => {
-		if (!hasOrgScope.value || (!isOrgAdmin.value && !isSuperAdmin.value)) {
+		if (isSuperAdmin.value) {
+			return '超级管理员可管理系统全部亲友与事由';
+		}
+		if (!hasOrgScope.value || !isOrgAdmin.value) {
 			return '';
 		}
 		const orgName = permissionContext.value?.orgInfo?.orgName || '家庭组';
@@ -27,11 +30,14 @@ export function useGiftOrgScope() {
 	});
 
 	const orgMemberHint = computed(() => {
+		if (isSuperAdmin.value) {
+			return '超级管理员可选择系统全部成员';
+		}
 		if (!hasOrgScope.value) {
 			return '未加入家庭组时，家庭成员侧仅可选择本人';
 		}
 		const orgName = permissionContext.value?.orgInfo?.orgName || '家庭组';
-		if (isOrgAdmin.value || isSuperAdmin.value) {
+		if (isOrgAdmin.value) {
 			return `家庭组管理员可选择「${orgName}」全部成员`;
 		}
 		return '普通成员仅可选择本人作为家庭成员';

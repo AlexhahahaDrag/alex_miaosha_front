@@ -281,6 +281,7 @@ import { message, Modal } from 'ant-design-vue';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
+import { formatDate } from '@/utils/dayjs';
 import {
 	deleteGiftRecord,
 	exportGiftRecords,
@@ -321,11 +322,6 @@ const exporting = ref(false);
 const dataSource = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const payRange = ref<[string, string] | undefined>();
-
-const formatDate = (val?: string) => {
-	if (!val) return '-';
-	return val.replace('T', ' ').slice(0, 10);
-};
 
 const debouncedQuery = debounce(() => {
 	query(true);

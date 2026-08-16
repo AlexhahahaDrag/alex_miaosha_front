@@ -1,11 +1,11 @@
 <template>
-	<a-modal
+	<a-drawer
 		v-model:open="open"
 		:title="formInfo.id ? '编辑礼金记录' : '快速记礼'"
-		width="600px"
+		width="580px"
 		:destroy-on-close="true"
 		data-testid="gift-record-form-drawer"
-		@cancel="open = false"
+		@close="open = false"
 	>
 		<a-spin :spinning="formInitializing">
 			<a-form ref="formRef" :model="formInfo" layout="vertical">
@@ -78,7 +78,7 @@
 								<a-button type="link" size="small" class="modify-btn" @click="eventSelectorOpen = true">修改 &gt;</a-button>
 							</div>
 							<div class="card-body">
-								<span class="meta-item">举行时间: {{ formatTimeOnly(selectedEventDetail.eventTime) }}</span>
+								<span class="meta-item">举行时间: {{ formatDate(selectedEventDetail.eventTime) }}</span>
 								<span class="meta-item" v-if="selectedEventDetail.remark">地点/备注: {{ selectedEventDetail.remark }}</span>
 							</div>
 						</div>
@@ -230,7 +230,7 @@
 				</a-button>
 			</div>
 		</template>
-	</a-modal>
+	</a-drawer>
 
 	<!-- 人情事件选择器弹窗 -->
 	<gift-event-selector-modal
@@ -245,6 +245,7 @@ import { ref, watch, computed, nextTick } from 'vue';
 import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
+import { formatDate } from '@/utils/dayjs';
 import { useUserStore } from '@/store/modules/user/user';
 import {
 	addGiftRecord,
@@ -311,11 +312,6 @@ const getMemberLabel = (member: any) => {
 		return `👤 ${member.name} (本人)`;
 	}
 	return member.name;
-};
-
-const formatTimeOnly = (time?: string) => {
-	if (!time) return '-';
-	return time.split(' ')[0] || time;
 };
 
 const loadRecentEvents = async () => {

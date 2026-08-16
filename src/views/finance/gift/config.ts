@@ -407,12 +407,12 @@ export interface GiftEventFormState extends GiftEventInfo {
 
 /** 接口不可用时的兜底预设 */
 export const FALLBACK_GIFT_EVENT_OPTIONS: GiftEventTypeOptionItem[] = [
-	{ id: '9100000000000000001', name: '婚礼' },
-	{ id: '9100000000000000002', name: '满月' },
-	{ id: '9100000000000000003', name: '乔迁' },
-	{ id: '9100000000000000004', name: '升学' },
-	{ id: '9100000000000000005', name: '寿宴' },
-	{ id: '9100000000000000006', name: '其他' },
+	{ id: '9100000000000000001', name: '婚礼', eventCode: 'WEDDING', icon: '💍', category: '婚庆类' },
+	{ id: '9100000000000000002', name: '满月', eventCode: 'BIRTH', icon: '👶', category: '家庭类' },
+	{ id: '9100000000000000003', name: '乔迁', eventCode: 'HOUSEWARMING', icon: '🏡', category: '家庭类' },
+	{ id: '9100000000000000004', name: '升学', eventCode: 'EDUCATION', icon: '🎓', category: '家庭类' },
+	{ id: '9100000000000000005', name: '寿宴', eventCode: 'BIRTHDAY', icon: '🎂', category: '家庭类' },
+	{ id: '9100000000000000006', name: '其他', eventCode: 'OTHER', icon: '💬', category: '其他' },
 ];
 
 const EVENT_PRESET_NAME_TO_CODE: Record<string, string> = {
@@ -421,6 +421,14 @@ const EVENT_PRESET_NAME_TO_CODE: Record<string, string> = {
 	乔迁: 'HOUSEWARMING',
 	升学: 'EDUCATION',
 	寿宴: 'BIRTHDAY',
+	生日: 'BIRTHDAY',
+	春节: 'SPRING_FESTIVAL',
+	中秋: 'MID_AUTUMN',
+	端午: 'DRAGON_BOAT',
+	白事: 'FUNERAL',
+	感谢: 'THANKS',
+	拜访: 'VISIT',
+	考学: 'STUDY',
 	其他: 'OTHER',
 };
 

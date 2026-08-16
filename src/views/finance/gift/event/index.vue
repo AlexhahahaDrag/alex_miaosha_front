@@ -450,6 +450,7 @@ import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
+import { formatDate } from '@/utils/dayjs';
 import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 import {
 	addGiftEvent,
@@ -503,11 +504,6 @@ const formInfo = ref<GiftEventFormState>({});
 const dataSource = ref<GiftEventBusinessInfo[]>([]);
 const summary = ref<GiftEventSummary>({});
 const eventRange = ref<[string, string] | undefined>();
-
-const formatDate = (val?: string) => {
-	if (!val) return '-';
-	return val.replace('T', ' ').slice(0, 10);
-};
 
 const debouncedQuery = debounce(() => {
 	query(true);

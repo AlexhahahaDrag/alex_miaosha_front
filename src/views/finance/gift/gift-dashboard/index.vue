@@ -240,6 +240,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
+import { formatDate } from '@/utils/dayjs';
 import {
 	AccountBookOutlined,
 	BarChartOutlined,
@@ -467,11 +468,6 @@ const assertOk = (code: string, msg?: string) => {
 		return false;
 	}
 	return true;
-};
-
-const formatDate = (value?: string) => {
-	if (!value) return '-';
-	return value.slice(0, 10);
 };
 
 const signedMoney = (record: GiftRecordInfo) => {
