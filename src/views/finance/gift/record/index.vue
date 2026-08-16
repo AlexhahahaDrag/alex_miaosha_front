@@ -116,8 +116,9 @@
 					<a-space>
 						<a-button type="primary" @click="query(true)">查询结果</a-button>
 						<a-button @click="resetQuery">重置</a-button>
-						<a-button type="link" @click="searchExpanded = !searchExpanded">
-							{{ searchExpanded ? '收起' : '展开' }}
+						<a-button type="link" class="expand-btn" @click="searchExpanded = !searchExpanded">
+							<span>{{ searchExpanded ? '收起' : '展开' }}</span>
+							<down-outlined class="expand-icon" :class="{ 'is-expanded': searchExpanded }" />
 						</a-button>
 					</a-space>
 				</a-form-item>
@@ -567,6 +568,31 @@ onUnmounted(() => {
 	padding: 2px 10px;
 	border-radius: 4px;
 	cursor: pointer;
+}
+
+.expand-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: #006bb6;
+	font-size: 14px;
+	padding: 0 4px;
+	height: 32px;
+	line-height: 32px;
+	user-select: none;
+
+	&:hover {
+		color: #0088e8;
+	}
+
+	.expand-icon {
+		font-size: 11px;
+		transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+		&.is-expanded {
+			transform: rotate(180deg);
+		}
+	}
 }
 
 .range-split {

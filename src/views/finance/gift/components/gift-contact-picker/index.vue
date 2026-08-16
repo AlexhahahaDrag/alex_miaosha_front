@@ -18,16 +18,22 @@
 			size="small"
 			class="gift-picker__link"
 			data-testid="gift-contact-picker-create"
-			@click="goCreatePerson"
+			@click="openCreatePersonModal"
 		>
-			+ 新建外部联系人（跳转亲友管理）
+			+ 新建外部联系人
 		</a-button>
+
+		<gift-person-detail
+			v-model:model-info="createModelInfo"
+			@success="handleCreatedPerson"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
+import type { ModelInfo } from '@/views/common/config';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
 import {
@@ -35,7 +41,6 @@ import {
 	getGiftPersonList,
 } from '@/views/finance/gift/api';
 import type { GiftPersonInfo } from '@/views/finance/gift/config';
-import { GIFT_PERSON_PATH } from '@/views/finance/gift/config';
 
 interface PickerOption {
 	label: string;
@@ -148,8 +153,22 @@ const handleDropdownVisibleChange = (open: boolean) => {
 	void fetchPersonList();
 };
 
-const goCreatePerson = async () => {
-	await router.push({ path: GIFT_PERSON_PATH, query: { open: 'create' } });
+const createModelInfo = ref<ModelInfo>({
+	open: false,
+	title: '新建联系人',
+	id: undefined,
+});
+
+const openCreatePersonModal = () => {
+	createModelInfo.value = {
+		open: true,
+		title: '新建联系人',
+		id: undefined,
+	};
+};
+
+const handleCreatedPerson = async () => {
+	await fetchPersonList();
 };
 
 watch(

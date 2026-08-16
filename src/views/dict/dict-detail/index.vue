@@ -43,23 +43,6 @@
 					</a-col>
 				</a-row>
 				<a-row :gutter="24">
-					<!-- <a-col :span="12">
-            <a-form-item
-              name="belongTo"
-              label="分类"
-              :rules="[{ required: true, message: '分类必填' }]"
-            >
-              <a-select
-                ref="select"
-                v-model:value="formState.belongTo"
-                placeholder="请选择分类"
-                :field-names="{ label: 'belongToName', value: 'belongTo' }"
-                :options="fromSourceList"
-                :allowClear="true"
-              >
-              </a-select>
-            </a-form-item>
-          </a-col> -->
 					<a-col :span="12">
 						<a-form-item
 							name="belongTo"
@@ -121,12 +104,12 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import type { DictInfo } from '@/views/finance/dict/config';
+import type { DictInfo } from '@/views/dict/config';
 import {
 	getDictManagerDetail,
 	addDictManager,
 	editDictManager,
-} from '@/views/finance/dict/api';
+} from '@/views/dict/api';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import type { FormInstance } from 'ant-design-vue';
@@ -152,7 +135,7 @@ const handleOk = () => {
 	formRef.value
 		?.validate()
 		.then(() => {
-			saveFinanceManager();
+			saveDict();
 		})
 		.catch((error: ResponseBody) => {
 			console.log('error', error);
@@ -163,8 +146,8 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
-//保存财务信息
-const saveFinanceManager = async () => {
+//保存字典信息
+const saveDict = async () => {
 	let api = addDictManager;
 	if (formState.value.id) {
 		api = editDictManager;

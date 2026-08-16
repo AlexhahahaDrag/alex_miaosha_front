@@ -24,14 +24,21 @@ const loaded = ref(false);
 
 export function useGiftEventTypeOptions() {
 	const giftEventTypeOptions = computed(() =>
-		toEventTypeSelectOptions(presetOptions.value),
+		toEventTypeSelectOptions(
+			presetOptions.value.filter((x) => x.status !== 0),
+		),
 	);
 
 	const eventTypeSelectOptions = computed<GiftRelationSelectGroup[]>(() =>
-		buildGiftEventTypeSelectOptions(presetOptions.value, customOptions.value),
+		buildGiftEventTypeSelectOptions(
+			presetOptions.value.filter((x) => x.status !== 0),
+			customOptions.value.filter((x) => x.status !== 0),
+		),
 	);
 
-	const quickEvents = computed(() => presetOptions.value.slice(0, 3));
+	const quickEvents = computed(() =>
+		presetOptions.value.filter((x) => x.status !== 0).slice(0, 3),
+	);
 
 	const isPresetEventType = (eventType?: string) =>
 		matchPresetEventType(eventType, presetOptions.value);

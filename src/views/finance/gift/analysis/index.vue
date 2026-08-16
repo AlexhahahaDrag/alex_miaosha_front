@@ -76,7 +76,7 @@
 			<div class="main-grid">
 				<section class="panel trend-panel">
 					<div class="panel-head">
-						<h3>月度/年度趋势</h3>
+						<h3>{{ period === 'year' ? '年度趋势' : '月度趋势' }}</h3>
 					</div>
 					<div
 						v-if="chartRows.length === 0"

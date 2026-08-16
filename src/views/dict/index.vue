@@ -97,11 +97,12 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
-import { columns } from '@/views/finance/dict/config';
+import { columns, labelCol, wrapperCol } from './config';
 import {
 	getDictManagerPage,
 	deleteDictManager,
-} from '@/views/finance/dict/api';
+} from './api';
+import DictDetail from './dict-detail/index.vue';
 import { message } from 'ant-design-vue';
 
 let rowIds: (string | number)[] = [];
@@ -119,9 +120,6 @@ const {
 	resetPagination,
 	setTotal,
 } = usePagination();
-
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
 
 const rowSelection = ref({
 	checkStrictly: false,
@@ -214,7 +212,6 @@ const handleSuccess = () => {
 
 // 初始化页面数据
 const init = () => {
-	//获取财务管理页面数据
 	getDictPage(searchInfo.value, pagination);
 };
 

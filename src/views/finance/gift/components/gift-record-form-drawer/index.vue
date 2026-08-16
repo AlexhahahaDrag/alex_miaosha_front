@@ -370,47 +370,23 @@ const loadRecentEvents = async () => {
 };
 
 const quickEventTags = computed(() => {
-	const list: any[] = recentEvents.value.map(ev => ({
+	return recentEvents.value.map((ev) => ({
 		id: ev.id,
 		name: ev.name,
 		eventType: ev.eventType,
 		icon: '📅',
-		isEvent: true
+		isEvent: true,
 	}));
-	
-	const fallbacks = ['婚礼', '生日', '满月', '乔迁', '春节', '白事'];
-	for (const name of fallbacks) {
-		if (list.length >= 3) break;
-		const opt = presetOptions.value.find((p) => p.name === name);
-		if (opt && !list.some((x) => !x.isEvent && x.id === opt.id)) {
-			list.push({
-				...opt,
-				isEvent: false
-			});
-		}
-	}
-	return list;
 });
 
 const selectQuickTag = (item: any) => {
-	if (item.isEvent) {
-		formInfo.value.eventId = item.id;
-		formInfo.value.eventType = item.eventType;
-		formInfo.value.eventOptionId = undefined;
-	} else {
-		formInfo.value.eventId = undefined;
-		formInfo.value.eventOptionId = item.id;
-		formInfo.value.eventType = item.eventCode || item.name;
-	}
+	formInfo.value.eventId = item.id;
+	formInfo.value.eventType = item.eventType;
+	formInfo.value.eventOptionId = undefined;
 };
 
 const isSelectedQuickTag = (item: any) => {
-	if (item.isEvent) {
-		return String(formInfo.value.eventId) === String(item.id);
-	} else {
-		if (formInfo.value.eventId) return false;
-		return String(formInfo.value.eventOptionId) === String(item.id);
-	}
+	return String(formInfo.value.eventId) === String(item.id);
 };
 
 const handleEventSelect = (item: GiftEventInfo) => {

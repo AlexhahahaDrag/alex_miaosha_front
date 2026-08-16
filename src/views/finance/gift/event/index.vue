@@ -61,8 +61,9 @@
 					<a-space>
 						<a-button type="primary" @click="query(true)">查询结果</a-button>
 						<a-button @click="resetQuery">重置</a-button>
-						<a-button type="link" @click="searchExpanded = !searchExpanded">
-							{{ searchExpanded ? '收起' : '展开' }}
+						<a-button type="link" class="expand-btn" @click="searchExpanded = !searchExpanded">
+							<span>{{ searchExpanded ? '收起' : '展开' }}</span>
+							<down-outlined class="expand-icon" :class="{ 'is-expanded': searchExpanded }" />
 						</a-button>
 					</a-space>
 				</a-form-item>
@@ -179,11 +180,14 @@
 							<template v-if="column.key === 'eventName'">
 								<div class="event-cell">
 									<span class="event-icon">📅</span>
-									<div>
+									<div class="event-main">
 										<div style="display: flex; align-items: center; gap: 6px">
-											<strong>{{ record.eventName || '-' }}</strong>
+											<strong :title="record.eventName">{{ record.eventName || '-' }}</strong>
 										</div>
-										<p>{{ record.remark || '人情往来事件' }}</p>
+										<a-tooltip v-if="record.remark" :title="record.remark" placement="topLeft">
+											<p class="event-remark">{{ record.remark }}</p>
+										</a-tooltip>
+										<p v-else class="event-remark" style="color: #cbd5e1">-</p>
 									</div>
 								</div>
 							</template>
@@ -293,12 +297,15 @@
 											type="link"
 											size="small"
 											style="padding: 0"
+											:disabled="loadingOptionId === opt.id"
 											@click="startEditOption(opt)"
 										>
 											编辑
 										</a-button>
 										<a-switch
 											:checked="opt.status !== 0"
+											:loading="loadingOptionId === opt.id"
+											:disabled="loadingOptionId === opt.id"
 											size="small"
 											@change="toggleOptionStatus(opt)"
 										/>
@@ -315,6 +322,7 @@
 		<a-modal
 			v-model:open="optionEditing"
 			title="编辑事件分类配置"
+			:confirm-loading="optionSaving"
 			@ok="saveOption"
 			destroy-on-close
 		>
@@ -531,7 +539,7 @@ onUnmounted(() => {
 });
 
 const columns = [
-	{ title: '事件名称', dataIndex: 'eventName', key: 'eventName' },
+	{ title: '事件名称', dataIndex: 'eventName', key: 'eventName', width: 220 },
 	{
 		title: '关联亲友',
 		dataIndex: 'hostPersonName',
@@ -540,7 +548,6 @@ const columns = [
 	},
 	{ title: '事件分类', dataIndex: 'eventType', key: 'eventType', width: 110 },
 	{ title: '举行日期', dataIndex: 'eventTime', key: 'eventTime', width: 130 },
-	{ title: '备注', dataIndex: 'remark', key: 'remark', width: 160 },
 	{ title: '状态', dataIndex: 'eventStatus', key: 'eventStatus', width: 100 },
 	{
 		title: '参与人数',
@@ -566,6 +573,7 @@ const columns = [
 const query = (resetPage = false) => {
 	if (resetPage) resetPagination();
 	loadSummary();
+	loadEventTypeOptions();
 	loadPage(pagination);
 };
 
@@ -719,12 +727,21 @@ const optionEditing = ref(false);
 const editingOption = ref<Partial<GiftEventTypeOptionItem>>({});
 
 const displayTopEvents = computed(() => {
-	const all = [...presetOptions.value, ...customOptions.value];
-	const top = all
-		.filter((x) => x.useCount && x.useCount > 0)
-		.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
-	if (top.length) return top.slice(0, 4);
-	return presetOptions.value.slice(0, 4);
+	// 高频场景卡片仅展示已启用的有效分类 (status !== 0)
+	const activePresets = presetOptions.value.filter((x) => x.status !== 0);
+	const activeCustoms = customOptions.value.filter((x) => x.status !== 0);
+	const all = [...activePresets, ...activeCustoms];
+
+	// 按使用次数降序排序；使用次数相同时按 sortOrder 权重升序排列，始终保证展示 4 个完整卡片
+	const sorted = [...all].sort((a, b) => {
+		const countA = a.useCount || 0;
+		const countB = b.useCount || 0;
+		if (countB !== countA) {
+			return countB - countA;
+		}
+		return (a.sortOrder ?? 99) - (b.sortOrder ?? 99);
+	});
+	return sorted.slice(0, 4);
 });
 
 const categorizedEventTypes = computed(() => {
@@ -747,6 +764,9 @@ const categorizedEventTypes = computed(() => {
 	return groups;
 });
 
+const optionSaving = ref(false);
+const loadingOptionId = ref<string | null>(null);
+
 const startEditOption = (opt: GiftEventTypeOptionItem) => {
 	editingOption.value = { ...opt };
 	optionEditing.value = true;
@@ -755,39 +775,54 @@ const startEditOption = (opt: GiftEventTypeOptionItem) => {
 const saveOption = async () => {
 	const { id, name, defaultAmount, status, icon, category } =
 		editingOption.value;
-	if (!id) return;
+	if (!id || optionSaving.value) return;
 
-	const { code, message: msg } = await updateGiftEventTypeOption({
-		id,
-		eventLabel: name,
-		defaultAmount,
-		status,
-		icon,
-		category,
-	});
-	if (code === '200') {
-		message.success('更新事由配置成功');
-		optionEditing.value = false;
-		await loadEventTypeOptions();
-	} else {
-		message.error(msg || '更新事由配置失败');
+	optionSaving.value = true;
+	try {
+		const { code, message: msg } = await updateGiftEventTypeOption({
+			id,
+			eventLabel: name,
+			defaultAmount,
+			status,
+			icon,
+			category,
+		});
+		if (code === '200') {
+			message.success('更新事由配置成功');
+			optionEditing.value = false;
+			await loadEventTypeOptions();
+		} else {
+			message.error(msg || '更新事由配置失败');
+		}
+	} catch (error: unknown) {
+		message.error('更新事由配置失败，请重试');
+	} finally {
+		optionSaving.value = false;
 	}
 };
 
 const toggleOptionStatus = async (opt: GiftEventTypeOptionItem) => {
+	if (!opt.id || loadingOptionId.value === opt.id) return;
+	loadingOptionId.value = opt.id;
 	const newStatus = opt.status === 0 ? 1 : 0;
-	const { code, message: msg } = await updateGiftEventTypeOption({
-		id: opt.id,
-		eventLabel: opt.name,
-		status: newStatus,
-	});
-	if (code === '200') {
-		message.success(
-			`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`,
-		);
-		await loadEventTypeOptions();
-	} else {
-		message.error(msg || '操作失败');
+	try {
+		const { code, message: msg } = await updateGiftEventTypeOption({
+			id: opt.id,
+			eventLabel: opt.name,
+			status: newStatus,
+		});
+		if (code === '200') {
+			message.success(
+				`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`,
+			);
+			await loadEventTypeOptions();
+		} else {
+			message.error(msg || '操作失败');
+		}
+	} catch (error: unknown) {
+		message.error('操作失败，请重试');
+	} finally {
+		loadingOptionId.value = null;
 	}
 };
 
@@ -864,6 +899,31 @@ onMounted(async () => {
 	padding: 2px 10px;
 	border-radius: 4px;
 	cursor: pointer;
+}
+
+.expand-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: #006bb6;
+	font-size: 14px;
+	padding: 0 4px;
+	height: 32px;
+	line-height: 32px;
+	user-select: none;
+
+	&:hover {
+		color: #0088e8;
+	}
+
+	.expand-icon {
+		font-size: 11px;
+		transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+		&.is-expanded {
+			transform: rotate(180deg);
+		}
+	}
 }
 
 .metric-grid {
@@ -956,15 +1016,29 @@ onMounted(async () => {
 .event-cell {
 	justify-content: flex-start;
 	gap: 10px;
+	max-width: 220px;
+
+	.event-main {
+		min-width: 0;
+		flex: 1;
+	}
 
 	strong {
 		color: #101828;
+		display: block;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	p {
+	.event-remark {
 		margin: 2px 0 0;
 		color: #98a2b3;
 		font-size: 12px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		cursor: default;
 	}
 }
 
