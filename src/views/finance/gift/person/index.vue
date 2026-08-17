@@ -179,6 +179,9 @@
 							</div>
 						</div>
 					</template>
+					<template v-else-if="column.key === 'relationType'">
+						<span class="relation-type-text">{{ relationLabel(record.relationType) }}</span>
+					</template>
 					<template v-else-if="column.key === 'relationStatus'">
 						<a-badge
 							:status="getStatusBadgeType(record.relationStatus)"
@@ -514,7 +517,12 @@ import {
 	quickGiftAmounts,
 } from '@/views/finance/gift/config';
 
-const { giftRelationOptions, loadRelationOptions } = useGiftRelationOptions();
+const {
+	giftRelationOptions,
+	loadRelationOptions,
+	relationLabel,
+	resolveFilterRelationType,
+} = useGiftRelationOptions();
 
 const {
 	pagination,
@@ -701,7 +709,8 @@ watch(
 
 const columns = [
 	{ title: '联系人', key: 'personName', width: 220 },
-	{ title: '关系状态', key: 'relationStatus', width: 140 },
+	{ title: '关系', key: 'relationType', width: 120 },
+	{ title: '关系状态', key: 'relationStatus', width: 130 },
 	{ title: '人情往来', key: 'transactions', width: 280 },
 	{ title: '最近互动', key: 'latestRecordTime', width: 220 },
 	{ title: '操作', key: 'operation', width: 260, fixed: 'right' as const },
@@ -808,12 +817,16 @@ const loadSummary = async () => {
 const loadPage = async (page: PageInfo) => {
 	loading.value = true;
 	try {
+		const queryParams = { ...searchInfo.value };
+		if (queryParams.relationType) {
+			queryParams.relationType = resolveFilterRelationType(queryParams.relationType);
+		}
 		const {
 			code,
 			data,
 			message: msg,
 		} = await getGiftPersonBusinessPage(
-			searchInfo.value,
+			queryParams,
 			page.current,
 			page.pageSize,
 		);

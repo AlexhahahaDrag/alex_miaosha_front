@@ -445,6 +445,7 @@ import {
 	CalendarOutlined,
 	PayCircleOutlined,
 	TeamOutlined,
+	DownOutlined,
 } from '@ant-design/icons-vue';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';

@@ -1,11 +1,12 @@
 <template>
 	<div class="login-wrapper" @mousemove="handleMouseMove">
-		<vue-particles
+		<component
 			v-if="particlesReady"
+			:is="'VueParticles'"
 			id="tsparticles"
 			@particles-loaded="particlesLoaded"
 			:options="options"
-		></vue-particles>
+		></component>
 
 		<header class="login-brand-header">
 			<div class="login-logo">A</div>

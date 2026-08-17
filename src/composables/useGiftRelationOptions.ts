@@ -23,7 +23,7 @@ const loaded = ref(false);
 
 export function useGiftRelationOptions() {
 	const giftRelationOptions = computed(() =>
-		toSelectOptions(presetOptions.value),
+		toSelectOptions([...presetOptions.value, ...customOptions.value]),
 	);
 
 	const relationSelectOptions = computed<GiftRelationSelectGroup[]>(() =>
@@ -39,7 +39,7 @@ export function useGiftRelationOptions() {
 		resolveRelationLabel(relation, presetOptions.value);
 
 	const resolveFilterRelationType = (presetId: string) =>
-		resolvePresetCode(presetId, presetOptions.value);
+		resolvePresetCode(presetId, [...presetOptions.value, ...customOptions.value]);
 
 	const mapRelationToFormFields = (
 		data: GiftPersonInfo = {},

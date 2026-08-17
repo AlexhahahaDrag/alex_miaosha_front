@@ -53,6 +53,15 @@ export const routes: MenuDataItem[] = [
 		},
 		component: modules['/src/views/login/index.vue'],
 	},
+	{
+		name: '404',
+		path: '/:catchAll(.*)',
+		meta: {
+			title: '404',
+			hideInMenu: true,
+		},
+		component: modules['/src/views/error-404/index.vue'],
+	},
 ];
 
 /** 静态路由数量，冻结在模块初始化时，用于区分静态/动态路由 */
@@ -160,19 +169,6 @@ const addRouter = async () => {
 		}
 	});
 
-	// 添加 404 兜底路由，必须在所有动态路由之后添加
-	const catchAllRoute: RouteRecordRaw = {
-		name: '404',
-		meta: {
-			title: '404',
-			hideInMenu: true,
-		},
-		path: '/:catchAll(.*)',
-		component: modules['/src/views/error-404/index.vue'],
-	};
-	router.addRoute(catchAllRoute);
-	dynamicRouter.push(catchAllRoute);
-	routes.push(catchAllRoute as MenuDataItem);
 	userStore.changeRouteStatus(true);
 };
 
