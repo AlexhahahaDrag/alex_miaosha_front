@@ -1,141 +1,159 @@
 <template>
-	<a-modal
-		v-model:open="modelInfo.open"
-		:width="modelInfo?.width || '1000px'"
-		:title="modelInfo?.title || 'Basic Modal'"
-		okText="保存"
-		:confirmLoading="modelConfig.confirmLoading"
-		:destroyOnClose="modelConfig.destroyOnClose"
-		@ok="handleOk"
+	<BaseRbacDrawer
+		:open="Boolean(modelInfo.open)"
+		:width="modelInfo?.width || 720"
+		:title="modelInfo?.title || '用户明细'"
+		subtitle="用户基础信息、组织与角色绑定"
+		:summary-items="summaryItems"
+		:loading="drawerLoading"
+		:error-text="errorText"
+		destroy-on-close
+		@save="handleOk"
+		@cancel="handleCancel"
+		@update:open="handleOpenChange"
 	>
-		<template #footer>
-			<a-button key="back" @click="handleCancel">取消</a-button>
-			<a-button
-				key="submit"
-				type="primary"
-				:loading="loading"
-				@click="handleOk"
-			>
-				保存
-			</a-button>
-		</template>
-		<a-spin :spinning="pageLoading">
-			<a-form
-				ref="formRef"
-				name="financeForm"
-				:rules="rulesRef"
-				:model="formState"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="username" label="用户名">
+		<a-form
+			ref="formRef"
+			name="userForm"
+			class="user-detail-form"
+			:rules="rulesRef"
+			:model="formState"
+			layout="vertical"
+		>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="username"
+							label="用户名"
+						>
 							<a-input
 								v-model:value="formState.username"
 								placeholder="请填写用户名"
-							></a-input>
+							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="gender" label="性别">
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="gender"
+							label="性别"
+						>
 							<a-select
-								ref="select"
 								v-model:value="formState.gender"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="genderList"
-								:allowClear="true"
+								allow-clear
 								placeholder="请选择性别"
-							>
-							</a-select>
+							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="nickName" label="昵称">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="nickName"
+							label="昵称"
+						>
 							<a-input
 								v-model:value="formState.nickName"
 								placeholder="请填写昵称"
-							></a-input>
+							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="weChat" label="微信号">
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="weChat"
+							label="微信号"
+						>
 							<a-input
 								v-model:value="formState.weChat"
 								placeholder="请填写微信号"
-							></a-input>
+							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="qqNumber" label="QQ号">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="qqNumber"
+							label="QQ号"
+						>
 							<a-input
 								v-model:value="formState.qqNumber"
 								placeholder="请填写QQ号"
-							></a-input>
+							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="occupation" label="职业">
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="occupation"
+							label="职业"
+						>
 							<a-input
 								v-model:value="formState.occupation"
 								placeholder="请填写职业"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="email" label="邮箱">
-							<a-input
-								v-model:value="formState.email"
-								placeholder="请填写邮箱！"
 							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="birthday" label="生日">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="email"
+							label="邮箱"
+						>
+							<a-input
+								v-model:value="formState.email"
+								placeholder="请填写邮箱"
+							/>
+						</a-form-item>
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="birthday"
+							label="生日"
+						>
 							<a-date-picker
 								v-model:value="formState.birthday"
 								:format="defaultDateFormat"
-								:getPopupContainer="
-									(triggerNode: HTMLElement) => {
-										return triggerNode.parentNode as HTMLElement;
-									}
-								"
+								:get-popup-container="(triggerNode: HTMLElement) => triggerNode.parentNode as HTMLElement"
+								style="width: 100%"
 							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="mobile" label="电话号">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="mobile"
+							label="电话号码"
+						>
 							<a-input
 								v-model:value="formState.mobile"
-								placeholder="请填写电话号"
-							></a-input>
+								placeholder="请填写电话号码"
+							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="status" label="状态">
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="status"
+							label="状态"
+						>
 							<a-select
-								ref="select"
 								v-model:value="formState.status"
 								placeholder="请选择有效状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="validList"
-								:allowClear="true"
-							>
-							</a-select>
+								allow-clear
+							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="orgId" label="所属机构">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="orgId"
+							label="所属机构"
+						>
 							<a-select
 								v-model:value="formState.orgId"
 								:options="orgOptions"
@@ -144,9 +162,12 @@
 								allow-clear
 							/>
 						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="roleIds" label="角色">
+				</a-col>
+				<a-col :span="12">
+						<a-form-item
+							name="roleIds"
+							label="角色"
+						>
 							<a-select
 								v-model:value="formState.roleIds"
 								:options="roleOptions"
@@ -156,24 +177,25 @@
 								allow-clear
 							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="avatar" label="头像">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="12">
+						<a-form-item
+							name="avatar"
+							label="头像"
+						>
 							<my-upload
 								:fromSystem="fromSystem"
 								:fileInfo="fileInfo"
 								@customImageRequest="customImageRequest"
-							></my-upload>
+							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="24">
+				</a-col>
+			</a-row>
+			<a-row :gutter="16">
+				<a-col :span="24">
 						<a-form-item
-							:label-col="{ span: 3 }"
-							:wrapperCol="{ span: 24 }"
 							name="summary"
 							label="个人简介"
 						>
@@ -185,31 +207,33 @@
 								show-count
 							/>
 						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-spin>
-	</a-modal>
+				</a-col>
+			</a-row>
+		</a-form>
+	</BaseRbacDrawer>
 </template>
-<script lang="ts" setup>
-import { rulesRef } from '@/views/user/userManager/config';
+
+<script setup lang="ts">
+import type { FormInstance } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
+import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
+import type { RbacSummaryItem } from '@/components/rbac/types';
 import { useDictInfo } from '@/composables/useDictInfo';
-import {
-	getUserManagerDetail,
-	addUserManager,
-	editUserManager,
-} from '@/views/user/userManager/api';
+import { defaultDateFormat } from '@/utils/dayjs';
+import type { FileInfo } from '@/views/common/my-upload/config';
+import type { ModelInfo } from '@/views/common/config';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { getRoleInfoPage } from '@/views/user/roleInfo/api';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
-import type { FormInstance } from 'ant-design-vue';
-import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
-import type { FileInfo } from '@/views/common/my-upload/config';
-import type { ModelInfo } from '@/views/common/config';
+import {
+	addUserManager,
+	editUserManager,
+	getUserManagerDetail,
+} from '@/views/user/userManager/api';
+import { rulesRef } from '@/views/user/userManager/config';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
-import { defaultDateFormat } from '@/utils/dayjs';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', {
 	default: () => ({}),
@@ -217,35 +241,46 @@ const modelInfo = defineModel<ModelInfo>('modelInfo', {
 
 const { getDictByType } = useDictInfo('gender,is_valid');
 
-const labelCol = ref({ span: 6 });
-const wrapperCol = ref({ span: 18 });
-let loading = ref<boolean>(false);
-let pageLoading = ref<boolean>(false);
-const modelConfig = {
-	confirmLoading: true,
-	destroyOnClose: true,
-};
-let formState = ref<UserManagerInfo>({});
+const loading = ref(false);
+const pageLoading = ref(false);
+const errorText = ref('');
+const formState = ref<UserManagerInfo>({});
 const formRef = ref<FormInstance>();
-// 字典数据已通过 useDictInfo 自动加载
 const genderList = computed(() => getDictByType('gender'));
 const validList = computed(() => getDictByType('is_valid'));
 const orgOptions = ref<OrgInfoData[]>([]);
 const roleOptions = ref<RoleInfoData[]>([]);
-
-let fileInfo = ref<FileInfo>({});
-let fromSystem = ref<string>('user');
+const fileInfo = ref<FileInfo>({});
+const fromSystem = ref('user');
+const drawerLoading = computed(() => loading.value || pageLoading.value);
+const summaryItems = computed<RbacSummaryItem[]>(() => [
+	{
+		label: '当前用户',
+		value: formState.value.username || formState.value.nickName || '新增用户',
+	},
+	{
+		label: '所属机构',
+		value: formState.value.orgName || formState.value.orgId || '待选择',
+	},
+	{
+		label: '状态',
+		value: formState.value.status === '1' ? '有效' : '待确认',
+	},
+]);
 
 const handleOk = () => {
+	errorText.value = '';
 	loading.value = true;
-	if (formRef.value) {
-		formRef.value
-			.validateFields()
-			.then(() => saveUserManager())
-			.catch(() => {
-				loading.value = false;
-			});
+	if (!formRef.value) {
+		loading.value = false;
+		return;
 	}
+	formRef.value
+		.validateFields()
+		.then(() => saveUserManager())
+		.catch(() => {
+			loading.value = false;
+		});
 };
 
 const customImageRequest = (file: FileInfo) => {
@@ -258,34 +293,36 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
-// 保存用户信息
-const saveUserManager = async () => {
-	let api = addUserManager;
-	if (formState.value.id) {
-		api = editUserManager;
+const handleOpenChange = (open: boolean) => {
+	modelInfo.value.open = open;
+	if (!open) {
+		errorText.value = '';
 	}
-	const { code, message: messageInfo } = await api(formState.value).finally(
-		() => {
-			loading.value = false;
-		},
-	);
+};
+
+const saveUserManager = async () => {
+	const api = formState.value.id ? editUserManager : addUserManager;
+	const { code, message: messageInfo } = await api(formState.value).finally(() => {
+		loading.value = false;
+	});
 	if (code === '200') {
-		message.success(messageInfo || '保存成功！');
+		message.success(messageInfo || '保存成功');
 		modelInfo.value.open = false;
 		emit('success');
 		initForm();
 	} else {
-		message.error(messageInfo || '保存失败！');
+		errorText.value = messageInfo || '保存失败';
+		message.error(errorText.value);
 	}
 };
 
-function initForm() {
+const initForm = () => {
 	formState.value = {
 		status: '1',
 		gender: '0',
 		roleIds: [],
 	};
-}
+};
 
 const loadRbacOptions = async () => {
 	const [orgResult, roleResult] = await Promise.all([
@@ -300,8 +337,42 @@ const loadRbacOptions = async () => {
 	}
 };
 
+const normalizeDetail = (data: UserManagerInfo | undefined) => {
+	formState.value = data || {};
+	const detail = data as
+		| (UserManagerInfo & {
+				orgInfoVo?: OrgInfoData;
+				roleInfoVo?: RoleInfoData;
+		  })
+		| undefined;
+	formState.value.orgId =
+		formState.value.orgId || (detail?.orgInfoVo?.id ? String(detail.orgInfoVo.id) : undefined);
+	formState.value.roleIds =
+		formState.value.roleIds ||
+		detail?.roleInfoVoList?.map((role) => String(role.id)) ||
+		(detail?.roleInfoVo?.id ? [String(detail.roleInfoVo.id)] : []);
+	if (formState.value.gender !== undefined && formState.value.gender !== null) {
+		formState.value.gender = String(formState.value.gender);
+	}
+	if (formState.value.status !== undefined && formState.value.status !== null) {
+		formState.value.status = String(formState.value.status);
+	}
+	if (formState.value.birthday) {
+		formState.value.birthday = dayjs(formState.value.birthday);
+	}
+	if (formState.value.avatar) {
+		fileInfo.value.id = formState.value.avatar;
+		fileInfo.value.url = formState.value.avatarUrl;
+		fileInfo.value.preUrl = formState.value.avatarUrl;
+		fileInfo.value.preThumbnailUrl = formState.value.avatarThumbnailUrl;
+	} else {
+		fileInfo.value = {};
+	}
+};
+
 const init = async () => {
 	pageLoading.value = true;
+	errorText.value = '';
 	await loadRbacOptions();
 	if (modelInfo.value?.id) {
 		try {
@@ -311,43 +382,19 @@ const init = async () => {
 				message: messageInfo,
 			} = await getUserManagerDetail(String(modelInfo.value.id));
 			if (code === '200') {
-				formState.value = data || {};
-				formState.value.orgId =
-					formState.value.orgId || ((data as any)?.orgInfoVo?.id ? String((data as any).orgInfoVo.id) : undefined);
-				formState.value.roleIds =
-					formState.value.roleIds ||
-					(data as any)?.roleInfoVoList?.map((role: RoleInfoData) => String(role.id)) ||
-					((data as any)?.roleInfoVo?.id ? [String((data as any).roleInfoVo.id)] : []);
-				if (
-					formState.value.gender !== undefined &&
-					formState.value.gender !== null
-				) {
-					formState.value.gender = String(formState.value.gender);
-				}
-				formState.value.birthday = dayjs(formState.value.birthday);
-				modelConfig.confirmLoading = false;
-				if (formState.value.avatar) {
-					fileInfo.value.id = formState.value.avatar;
-					fileInfo.value.url = formState.value.avatarUrl;
-					fileInfo.value.preUrl = formState.value.avatarUrl;
-					fileInfo.value.preThumbnailUrl = formState.value.avatarThumbnailUrl;
-				} else {
-					fileInfo.value = {};
-				}
+				normalizeDetail(data as UserManagerInfo | undefined);
 			} else {
-				message.error(messageInfo || '查询失败！');
+				errorText.value = messageInfo || '查询失败';
+				message.error(errorText.value);
 			}
-		} catch (error) {
-			console.error(error);
 		} finally {
 			pageLoading.value = false;
 		}
-	} else {
-		modelConfig.confirmLoading = false;
-		fileInfo.value = {};
-		initForm();
-		pageLoading.value = false;
+		return;
 	}
+	fileInfo.value = {};
+	initForm();
+	pageLoading.value = false;
 };
 
 watch(
@@ -365,4 +412,25 @@ watch(
 
 const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped></style>
+
+<style lang="less" scoped>
+.user-detail-form {
+	padding-bottom: 8px;
+
+	:deep(.ant-form-item) {
+		margin-bottom: 16px;
+	}
+
+	:deep(.ant-form-item-label > label) {
+		color: #6b7280;
+	}
+
+	:deep(.ant-input),
+	:deep(.ant-select-selector),
+	:deep(.ant-picker),
+	:deep(.ant-input-affix-wrapper) {
+		border-color: #e5e7eb;
+		border-radius: 6px;
+	}
+}
+</style>

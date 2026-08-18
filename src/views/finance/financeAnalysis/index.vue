@@ -333,19 +333,20 @@ const listConfigs = computed(() => [
 	},
 ]);
 // 初始化用户列表，添加"所有人"选项
-userList.value = [{ id: 0, nickName: '所有人' }];
+userList.value = [{ id: '0', nickName: '所有人' }];
 // 支出分析数据
 const pieExpenseData = ref<ItemInfo[]>([]);
 // 收入分析数据
 const pieIncomeData = ref<ItemInfo[]>([]);
 
 // 获取余额信息
-const getBalanceInfo = async (userid: string, dateStr: string) => {
+const getBalanceInfo = async (userid: number | string | null, dateStr: string) => {
+	const belongTo = userid === '0' || userid === 0 || userid === null || userid === undefined ? null : Number(userid);
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await getBalance(userId, dateStr);
+	} = await getBalance(belongTo, dateStr);
 	if (code === '200') {
 		// 余额列表数据
 		balanceList.value = data?.list || [];
@@ -389,12 +390,13 @@ const getBalanceDetailData = (
 };
 
 // 获取收入和支出信息
-const getIncomeAndExpenseInfo = async (userid: string, dateStr: string) => {
+const getIncomeAndExpenseInfo = async (userid: number | string | null, dateStr: string) => {
+	const belongTo = userid === '0' || userid === 0 || userid === null || userid === undefined ? null : Number(userid);
 	const {
 		code,
 		data,
 		message: messageInfo,
-	} = await getIncomeAndExpense(userId, dateStr);
+	} = await getIncomeAndExpense(belongTo, dateStr);
 	if (code === '200') {
 		let listData = Array.isArray(data) ? data : (data as any)?.list || [];
 
@@ -480,17 +482,14 @@ const monthConfig = ref<barItem>({
 
 const getExpenseSeries = async (
 	requestFn: (
-		userid: string,
-		dateStr: string,
-	) => Promise<{
-		code: string;
-		data?: AnalysisData[];
-		message?: string;
-	}>,
-	userid: string,
+		belongTo?: number | null,
+		dateStr?: string,
+	) => Promise<any>,
+	userid: number | string | null,
 	dateStr: string,
 ) => {
-	const { code, data, message: messageInfo } = await requestFn(userId, dateStr);
+	const belongTo = userid === '0' || userid === 0 || userid === null || userid === undefined ? null : Number(userid);
+	const { code, data, message: messageInfo } = await requestFn(belongTo, dateStr);
 	if (code === '200') {
 		const series: number[] = [];
 		const xAxis: string[] = [];
@@ -506,10 +505,10 @@ const getExpenseSeries = async (
 };
 
 // 获取日消费信息
-const getDayExpenseInfo = async (userid: string, dateStr: string) => {
+const getDayExpenseInfo = async (userid: number | string | null, dateStr: string) => {
 	const { xAxis, series } = await getExpenseSeries(
 		getDayExpense,
-		userId,
+		userid,
 		dateStr,
 	);
 	dayConfig.value.xAxis = xAxis;
@@ -518,10 +517,10 @@ const getDayExpenseInfo = async (userid: string, dateStr: string) => {
 };
 
 // 获取月消费信息
-const getMonthExpenseInfo = async (userid: string, dateStr: string) => {
+const getMonthExpenseInfo = async (userid: number | string | null, dateStr: string) => {
 	const { xAxis, series } = await getExpenseSeries(
 		getMonthExpense,
-		userId,
+		userid,
 		dateStr,
 	);
 	monthConfig.value.xAxis = xAxis;

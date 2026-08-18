@@ -22,7 +22,7 @@ interface Props {
 	selectedKeys: string[];
 }
 
-let curSelectedKeys = ref<string[]>(['finance']);
+let curSelectedKeys = ref<string[]>(['home']);
 
 let openKeys = ref<string[]>([]);
 
@@ -58,7 +58,7 @@ const buildMenuItem = (item: MenuDataItem): ItemType | null => {
 		label: item.meta?.title,
 		title: item.meta?.title,
 		// icon 暂不透传（string 不符合 ItemType.icon 类型）
-		icon: undefined,
+		// icon: undefined,
 		...(children && children.length ? { children } : {}),
 	} as ItemType;
 };
@@ -67,6 +67,27 @@ const menuItems = computed<ItemType[]>(() => {
 	// AI Agent：过滤掉 meta.hideInMenu/meta.hideInMenu 为 true 的菜单项
 	return props.routes?.map(buildMenuItem).filter(isItemType) || [];
 });
+
+/** 收集当前菜单树里「带子级」的节点 key，用于与 route.matched 对齐设置 openKeys */
+const collectSubmenuKeysFromItems = (items: ItemType[]): Set<string> => {
+	const keys = new Set<string>();
+	const walk = (list: ItemType[]) => {
+		for (const node of list) {
+			const item = node as {
+				key?: string | number;
+				children?: ItemType[];
+			};
+			const keyStr =
+				item.key !== undefined && item.key !== null ? String(item.key) : '';
+			if (item.children?.length) {
+				if (keyStr) keys.add(keyStr);
+				walk(item.children);
+			}
+		}
+	};
+	walk(items);
+	return keys;
+};
 
 // AI Agent：菜单点击跳转
 // 说明：buildMenuItem.key = name || path，所以这里优先按 name 跳转，失败再按 path 兜底。
@@ -88,19 +109,23 @@ const onMenuClick = async (info: { key: string | number }) => {
 	}
 };
 
-// AI Agent：根据当前路由同步菜单高亮/展开
+// AI Agent：根据当前路由同步菜单高亮/展开（openKeys 只包含菜单树中真实存在的「子菜单」key）
 const onSyncMenuByRoute = () => {
 	const matched = route.matched || [];
 	const name: string = (route?.name as string) || 'home';
 	curSelectedKeys.value = [name === 'dashboard' ? 'home' : name];
-	const parent = matched[matched.length - 2];
-	openKeys.value = [(parent?.name as string) || '', name].filter(Boolean);
-};
 
-onMounted(() => {
-	//获取用户信息
-	onSyncMenuByRoute();
-});
+	const submenuKeys = collectSubmenuKeysFromItems(menuItems.value);
+	const nextOpenKeys: string[] = [];
+	for (const rec of matched) {
+		if (rec.name === undefined || rec.name === null) continue;
+		const keyStr = String(rec.name);
+		if (submenuKeys.has(keyStr)) {
+			nextOpenKeys.push(keyStr);
+		}
+	}
+	openKeys.value = nextOpenKeys;
+};
 
 watch(
 	() => route.fullPath,

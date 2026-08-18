@@ -168,7 +168,6 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import type { ResponseBody } from '@/types/api';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -297,7 +296,7 @@ function saveShopStockManager() {
 			}
 			formState.value = {};
 		})
-		.catch((error: ResponseBody) => {
+		.catch((error: any) => {
 			let data = error?.response?.data;
 			if (data) {
 				message.error(data?.message || '保存失败！');

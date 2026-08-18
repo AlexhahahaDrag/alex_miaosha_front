@@ -402,7 +402,7 @@ const getOrgTreeData = async () => {
 function editOrgInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : id ?? null;
+	modelInfo.value.id = isAdd ? null : (id !== undefined && id !== null ? String(id) : null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

@@ -112,7 +112,7 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -304,7 +304,7 @@ function editPmsAttr(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id !== undefined ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;

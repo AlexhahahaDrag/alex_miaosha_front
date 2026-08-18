@@ -1,21 +1,24 @@
 <template>
 	<a-layout style="height: 100%">
-		<a-layout-sider v-model:collapsed="collapsed" collapsible>
-			<div class="logo"></div>
+		<a-layout-sider
+			v-model:collapsed="collapsed"
+			collapsible
+			class="app-sider"
+			:width="232"
+		>
+			<div class="app-logo" @click="goHome">
+				<div class="app-logo-mark">A</div>
+				<div v-if="!collapsed" class="app-logo-text">
+					<strong>Alex Platform</strong>
+					<span>Management Console</span>
+				</div>
+			</div>
 			<my-navbar :routes="routes" :selectedKeys="selectedKeys"></my-navbar>
 		</a-layout-sider>
 		<a-layout>
-			<a-layout-header style="background: #fff; padding: 0">
-				<div
-					class="navbar"
-					style="
-						display: flex;
-						align-items: center;
-						justify-content: space-between;
-					"
-				>
-					<my-breadcrumb class="breadcrumb-container"></my-breadcrumb>
-					<div class="right-menu" style="display: flex; align-items: center">
+			<a-layout-header class="app-header">
+				<div class="navbar">
+					<div class="right-menu">
 						<my-right-info></my-right-info>
 					</div>
 				</div>
@@ -32,14 +35,7 @@
 				v-if="showFooter"
 				style="height: 40px; background-color: #ffffff"
 			>
-				<div
-					style="
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						height: 100%;
-					"
-				>
+				<div class="app-footer-inner">
 					{{ appTitle }}
 				</div>
 			</a-layout-footer>
@@ -56,45 +52,107 @@ const routes = computed(() =>
 let collapsed = ref<boolean>(false);
 let selectedKeys = ref<string[]>(['1']);
 
-// 从环境变量获取配置
 const appTitle = import.meta.env.VITE_APP_DESCRIPTION || 'alex管理后台';
-
 const showFooter = import.meta.env.VITE_SHOW_FOOTER !== 'false';
+
+const goHome = async () => {
+	await router.push('/');
+};
 </script>
 <style lang="scss" scoped>
+.app-sider {
+	background: #0f172a !important;
+
+	:deep(.ant-layout-sider-trigger) {
+		background: #111827;
+	}
+
+	:deep(.ant-menu-dark) {
+		background: #0f172a;
+	}
+
+	:deep(.ant-menu-dark .ant-menu-sub) {
+		background: #111827;
+	}
+
+	:deep(.ant-menu-dark .ant-menu-item-selected) {
+		background: rgba(59, 130, 246, 0.15) !important;
+		border-left: 3px solid #3b82f6;
+	}
+
+	:deep(.ant-menu-dark .ant-menu-item) {
+		margin-inline: 8px;
+		width: calc(100% - 16px);
+		border-radius: 8px;
+	}
+
+	:deep(.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover) {
+		background: rgba(255, 255, 255, 0.06) !important;
+	}
+}
+
+.app-logo {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	height: 64px;
+	padding: 0 16px;
+	cursor: pointer;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.app-logo-mark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #1677ff, #4096ff);
+	color: #fff;
+	font-size: 18px;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+.app-logo-text {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+
+	strong {
+		color: #fff;
+		font-size: 14px;
+		line-height: 1.2;
+	}
+
+	span {
+		color: rgba(255, 255, 255, 0.45);
+		font-size: 11px;
+		line-height: 1.3;
+	}
+}
+
+.app-header {
+	background: #fff;
+	padding: 0;
+}
+
 .navbar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 	height: 50px;
 	overflow: hidden;
 	position: relative;
 	background: #fff;
-	box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-
-	.hamburger-container {
-		line-height: 46px;
-		height: 100%;
-		float: left;
-		cursor: pointer;
-		transition: background 0.3s;
-		-webkit-tap-highlight-color: transparent;
-
-		&:hover {
-			background: rgba(0, 0, 0, 0.025);
-		}
-	}
-
-	.breadcrumb-container {
-		float: left;
-	}
+	box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
 
 	.right-menu {
-		float: right;
+		display: flex;
+		align-items: center;
 		height: 100%;
-		line-height: 10px;
-		margin-right: 10px;
-
-		&:focus {
-			outline: none;
-		}
+		margin-right: 16px;
 	}
 }
 
@@ -113,5 +171,12 @@ const showFooter = import.meta.env.VITE_SHOW_FOOTER !== 'false';
 	background: #fff;
 	flex: 1;
 	overflow-y: auto;
+}
+
+.app-footer-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
 }
 </style>

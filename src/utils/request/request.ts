@@ -50,8 +50,21 @@ const requestHandler = (type: string) => {
 		if (token) {
 			if (config?.headers) {
 				config.headers['Authorization'] = token;
-				if (type === 'file') {
-					config.headers['Content-Type'] = 'multipart/form-data';
+				// FormData 必须由浏览器自动带 boundary；勿手写 multipart/form-data
+				if (
+					type === 'file' &&
+					typeof FormData !== 'undefined' &&
+					config.data instanceof FormData
+				) {
+					const headers = config.headers as {
+						delete?: (name: string) => void;
+						[key: string]: unknown;
+					};
+					if (typeof headers.delete === 'function') {
+						headers.delete('Content-Type');
+					} else {
+						delete headers['Content-Type'];
+					}
 				}
 			}
 		} else {
@@ -66,7 +79,8 @@ const responseHandler = (type: string) => {
 	return (
 		response: AxiosResponse<any>,
 	): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
-		if (type === 'file') {
+		// 下载类 blob 原样返回；上传等 JSON 与普通请求一致解密业务体
+		if (type === 'file' && response.config.responseType === 'blob') {
 			return response;
 		}
 		const { data } = response;

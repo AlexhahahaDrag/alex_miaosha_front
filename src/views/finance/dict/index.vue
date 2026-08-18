@@ -80,17 +80,14 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid === 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid === 1 ? '有效' : '失效' }}
+							{{ record.isValid === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 				</template>
 			</a-table>
-			<DictDetail
-				v-model:modelInfo="modelInfo"
-				@success="handleSuccess"
-			>
+			<DictDetail v-model:modelInfo="modelInfo" @success="handleSuccess">
 			</DictDetail>
 		</div>
 	</div>
@@ -206,7 +203,7 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 function editDict(type: string, id?: number) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : id ?? null;
+	modelInfo.value.id = isAdd ? undefined : (id !== undefined && id !== null ? String(id) : null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

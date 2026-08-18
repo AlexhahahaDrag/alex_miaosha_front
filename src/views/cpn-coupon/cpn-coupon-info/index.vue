@@ -51,7 +51,7 @@
 					<a-row :gutter="24">
 						<a-col :span="8" style="text-align: right; margin-bottom: 20px">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>

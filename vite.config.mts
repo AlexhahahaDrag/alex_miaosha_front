@@ -89,7 +89,12 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 						customCollections: ['my-menu-svg', 'my-finance-svg', 'my-soft-svg'],
 					}),
 				],
-				dirs: ['src/components', 'src/compoments', 'src/layout'],
+				dirs: [
+					'src/components',
+					'src/compoments',
+					'src/layout',
+					'src/views',
+				],
 			}),
 			// 仅在构建分析模式下启用，避免影响日常开发
 			isBuild &&
@@ -160,18 +165,18 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 								return 'framework';
 							}
 							// UI 组件库
-							if (
-								id.includes('node_modules/ant-design-vue') ||
-								id.includes('node_modules/@ant-design/icons-vue')
-							) {
-								return 'ui-antd';
+							if (id.includes('node_modules/@ant-design/icons-vue')) {
+								return 'antd-icons';
+							}
+							if (id.includes('node_modules/ant-design-vue')) {
+								return 'antd-core';
 							}
 							// 图表库
-							if (
-								id.includes('node_modules/echarts') ||
-								id.includes('node_modules/zrender')
-							) {
-								return 'charts';
+							if (id.includes('node_modules/echarts')) {
+								return 'echarts';
+							}
+							if (id.includes('node_modules/zrender')) {
+								return 'zrender';
 							}
 							// 常用工具库
 							if (
@@ -190,7 +195,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 			// 减少构建阶段体积统计开销
 			reportCompressedSize: false,
 			// 增加构建超时时间
-			chunkSizeWarningLimit: 1000,
+			chunkSizeWarningLimit: 1200,
 			// 启用源码映射（可选，会增加构建时间和内存使用）
 			sourcemap: false,
 			// 移除 console/debugger

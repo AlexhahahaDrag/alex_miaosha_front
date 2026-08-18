@@ -305,3 +305,25 @@ docker run -p 80:80 alex-miaosha-front
 Made with ❤️ by Alex Team
 
 </div>
+
+---
+
+## 礼尚往来管理
+
+管理端已新增礼尚往来管理页面，统一放在 `src/views/finance/gift/` 下，页面顺序与菜单顺序保持一致：
+
+1. 数据概览 - 礼尚往来管理：`dashboard`
+2. 亲友管理 - 礼尚往来管理：`person`
+3. 事由管理 - 礼尚往来管理：`event`
+4. 礼金记录 - 礼尚往来管理：`record`
+5. 统计报表 - 礼尚往来管理：`analysis`
+
+页面复用现有管理端框架、Ant Design Vue、路由权限和按钮权限逻辑。礼金记录与回礼管理不拆成两个页面，统一在礼金记录列表中通过方向、回礼状态、待回金额列展示。
+
+常用验证：
+
+```bash
+npm run build
+```
+
+Midscene 用例已补充到 `tests/midscene/rbac/cases/smoke.json`，可在具备运行环境后执行现有 smoke 脚本。

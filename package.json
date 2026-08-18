@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite",
 		"test": "vite --mode test",
-		"test:unit": "vitest run",
+		"test:unit": "vitest run && node --test tests/unit/*.test.mts",
 		"prod": "vite --mode production",
 		"build": "vite build",
 		"build:test": "vite build --mode test",

@@ -116,9 +116,9 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid === 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid === 1 ? '有效' : '失效' }}
+							{{ record.isValid === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'incomeAndExpenses'">

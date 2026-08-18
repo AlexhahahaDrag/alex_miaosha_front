@@ -7,42 +7,80 @@
 			:options="options"
 		></vue-particles>
 
+		<header class="login-brand-header">
+			<div class="login-logo">A</div>
+			<div class="login-brand-text">
+				<h1>Alex Platform</h1>
+				<p>Enterprise Management System</p>
+			</div>
+		</header>
+
 		<div class="login-container">
 			<!-- Left Side: Interactive Visuals -->
 			<div class="login-visual">
-				<div class="character-container">
-					<div
-						v-for="char in characters"
-						:key="char.id"
-						:class="['character', char.colorClass]"
-						:style="getCharacterStyle(char)"
-					>
-						<div class="eyes">
+				<div class="login-visual-panel">
+					<div class="panel-copy">
+						<h2 class="copy-title">{{ alexFriendsTitle }}</h2>
+						<p class="copy-slogan">{{ platformSlogan }}</p>
+						<div class="copy-divider"></div>
+						<ul class="copy-features">
+							<li v-for="friend in alexFriends" :key="friend.id">
+								<span :class="['feature-dot', friend.colorClass]"></span>
+								<component
+									:is="featureIconMap[friend.colorClass]"
+									class="feature-icon"
+								/>
+								<span class="feature-label">{{ friend.role }}</span>
+								<span class="feature-name">{{ friend.name }}</span>
+							</li>
+						</ul>
+						<div class="copy-divider"></div>
+						<p class="copy-warm">{{ platformWarmLine }}</p>
+					</div>
+					<div class="panel-stage">
+						<div class="character-halo"></div>
+						<div class="character-ground"></div>
+						<div
+							class="character-container"
+							:class="{ 'is-entered': pageEntered }"
+						>
 							<div
-								class="eye"
-								:style="{ height: char.isBlinking ? '2px' : '15px' }"
+								v-for="char in characters"
+								:key="char.id"
+								:class="['character', char.colorClass]"
+								:style="getCharacterStyle(char)"
 							>
-								<div
-									v-if="!char.isBlinking"
-									class="pupil"
-									:style="getPupilStyle()"
-								></div>
-							</div>
-							<div
-								class="eye"
-								:style="{ height: char.isBlinking ? '2px' : '15px' }"
-							>
-								<div
-									v-if="!char.isBlinking"
-									class="pupil"
-									:style="getPupilStyle()"
-								></div>
+								<div class="eyes">
+									<div
+										class="eye"
+										:style="{
+											height: char.isBlinking ? '2px' : '15px',
+										}"
+									>
+										<div
+											v-if="!char.isBlinking"
+											class="pupil"
+											:style="getPupilStyle()"
+										></div>
+									</div>
+									<div
+										class="eye"
+										:style="{
+											height: char.isBlinking ? '2px' : '15px',
+										}"
+									>
+										<div
+											v-if="!char.isBlinking"
+											class="pupil"
+											:style="getPupilStyle()"
+										></div>
+									</div>
+								</div>
+								<div v-if="char.hasMouth" class="mouth"></div>
 							</div>
 						</div>
-						<div v-if="char.hasMouth" class="mouth"></div>
 					</div>
 				</div>
-				<!-- Optional subtle particles overlay simplified -->
 				<div class="visual-gradient"></div>
 			</div>
 
@@ -50,8 +88,8 @@
 			<div class="login-content">
 				<div class="login-form-wrapper">
 					<div class="title-container">
-						<h1 class="main-title">Alex 管理系统</h1>
-						<p class="sub-title">一个你最需要的系统</p>
+						<h1 class="main-title">用户登录</h1>
+						<p class="sub-title">企业级管理平台</p>
 					</div>
 
 					<a-form
@@ -61,11 +99,11 @@
 						:rules="loginRules"
 						layout="vertical"
 					>
-						<a-form-item label="Username" name="username">
+						<a-form-item label="用户名" name="username">
 							<a-input
 								v-model:value="loginForm.username"
 								allow-clear
-								placeholder="Enter your username"
+								placeholder="请输入用户名"
 								autocomplete="on"
 								size="large"
 								@focus="isEmailFocused = true"
@@ -77,10 +115,10 @@
 							</a-input>
 						</a-form-item>
 
-						<a-form-item label="Password" name="password">
+						<a-form-item label="密码" name="password">
 							<a-input-password
 								v-model:value="loginForm.password"
-								placeholder="••••••••"
+								placeholder="请输入密码"
 								autocomplete="on"
 								size="large"
 								@focus="isPasswordFocused = true"
@@ -94,9 +132,9 @@
 
 						<div class="form-footer">
 							<a-checkbox v-model:checked="loginForm.isRememberMe">
-								Remember for 30 days
+								30 天内免登录
 							</a-checkbox>
-							<span class="forgot-link">Forgot password?</span>
+							<span class="forgot-link">忘记密码？</span>
 						</div>
 
 						<a-button
@@ -107,7 +145,7 @@
 							@click="onSubmit"
 							class="login-btn"
 						>
-							Log in
+							登 录
 						</a-button>
 
 						<!-- <p class="signup-prompt">
@@ -117,6 +155,11 @@
 				</div>
 			</div>
 		</div>
+
+		<footer class="login-page-footer">
+			<span>© 2026 Alex Technology</span>
+			<span>Version 0.1.0</span>
+		</footer>
 	</div>
 </template>
 
@@ -126,18 +169,45 @@ import type { FormInstance } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
 import type { LoginParams } from '@/views/login/config';
 import { loginRules, options } from '@/views/login/config';
+import {
+	ALEX_FRIENDS,
+	ALEX_FRIENDS_TITLE,
+	PLATFORM_SLOGAN,
+	PLATFORM_WARM_LINE,
+	type CharacterColorClass,
+} from '@/views/login/config/alexFriends';
 import { useUserStore } from '@/store/modules/user/user';
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import {
+	UserOutlined,
+	LockOutlined,
+	BarChartOutlined,
+	ApartmentOutlined,
+	RobotOutlined,
+} from '@ant-design/icons-vue';
 import { decryptSimple, encrypt } from '@/utils/crypto';
 import { useLoginStore } from '@/store/modules/login-store';
 
 interface CharacterItem {
 	id: number;
-	colorClass: 'coral' | 'purple' | 'black' | 'yellow';
+	name: string;
+	role: string;
+	colorClass: CharacterColorClass;
 	baseHeight: number;
 	hasMouth: boolean;
 	isBlinking: boolean;
 }
+
+const alexFriends = ALEX_FRIENDS;
+const alexFriendsTitle = ALEX_FRIENDS_TITLE;
+const platformSlogan = PLATFORM_SLOGAN;
+const platformWarmLine = PLATFORM_WARM_LINE;
+
+const featureIconMap: Record<CharacterColorClass, typeof UserOutlined> = {
+	coral: UserOutlined,
+	purple: BarChartOutlined,
+	black: ApartmentOutlined,
+	yellow: RobotOutlined,
+};
 
 const particlesGlobalKey = '__particles_installed__';
 
@@ -155,6 +225,7 @@ const loginForm: UnwrapRef<LoginParams> = reactive({
 // 登录按钮加载状态
 const loading = ref<boolean>(false);
 const particlesReady = ref(false);
+const pageEntered = ref(false);
 const formRef = ref<FormInstance>();
 const blinkTimerIds = ref<number[]>([]);
 
@@ -163,36 +234,12 @@ const mousePos = reactive({ x: 0, y: 0 });
 const isEmailFocused = ref(false);
 const isPasswordFocused = ref(false);
 
-const characters = reactive<CharacterItem[]>([
-	{
-		id: 1,
-		colorClass: 'coral',
-		baseHeight: 140,
-		hasMouth: false,
+const characters = reactive<CharacterItem[]>(
+	ALEX_FRIENDS.map((friend) => ({
+		...friend,
 		isBlinking: false,
-	},
-	{
-		id: 2,
-		colorClass: 'purple',
-		baseHeight: 260,
-		hasMouth: false,
-		isBlinking: false,
-	},
-	{
-		id: 3,
-		colorClass: 'black',
-		baseHeight: 200,
-		hasMouth: true,
-		isBlinking: false,
-	},
-	{
-		id: 4,
-		colorClass: 'yellow',
-		baseHeight: 180,
-		hasMouth: true,
-		isBlinking: false,
-	},
-]);
+	})),
+);
 
 const handleMouseMove = (e: MouseEvent) => {
 	mousePos.x = e.clientX;
@@ -244,7 +291,7 @@ const getPupilStyle = () => {
 };
 
 const scheduleBlink = (charIndex: number) => {
-	const delay = Math.random() * 4000 + 2000;
+	const delay = Math.random() * 4000 + 8000;
 	const blinkStartTimer = window.setTimeout(() => {
 		characters[charIndex].isBlinking = true;
 		const blinkEndTimer = window.setTimeout(() => {
@@ -314,6 +361,7 @@ const onSubmit = async () => {
 
 onMounted(async () => {
 	await initParticles();
+	pageEntered.value = true;
 	window.addEventListener('keydown', onKeydownEnter);
 	const loginInfo = loginStore.getLoginInfo;
 	if (loginInfo) {
@@ -340,20 +388,80 @@ const particlesLoaded = (container: unknown) => {
 <style lang="less" scoped>
 .login-wrapper {
 	display: flex;
+	flex-direction: column;
 	height: 100vh;
 	width: 100vw;
 	overflow: hidden;
-	background-color: transparent;
 	position: relative;
 	align-items: center;
 	justify-content: center;
+	background:
+		radial-gradient(
+			ellipse 80% 50% at 20% 40%,
+			rgba(22, 119, 255, 0.12),
+			transparent
+		),
+		radial-gradient(
+			ellipse 60% 40% at 80% 60%,
+			rgba(64, 150, 255, 0.1),
+			transparent
+		),
+		linear-gradient(135deg, #0f172a, #111827, #1e293b);
+}
+
+.login-brand-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 32px;
+	z-index: 10;
+
+	.login-logo {
+		width: 44px;
+		height: 44px;
+		border-radius: 8px;
+		background: linear-gradient(135deg, #1677ff, #4096ff);
+		color: #fff;
+		font-size: 22px;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.login-brand-text {
+		h1 {
+			margin: 0;
+			font-size: 24px;
+			font-weight: 700;
+			color: #fff;
+		}
+		p {
+			margin: 4px 0 0;
+			font-size: 14px;
+			color: rgba(255, 255, 255, 0.55);
+		}
+	}
+}
+
+.login-page-footer {
+	position: absolute;
+	bottom: 24px;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 48px;
+	font-size: 13px;
+	color: rgba(255, 255, 255, 0.35);
+	z-index: 10;
 }
 
 .login-container {
 	width: 90%;
-	max-width: 1300px;
-	height: 70vh;
-	min-height: 650px;
+	max-width: 1400px;
+	height: 75vh;
+	min-height: 680px;
 	display: flex;
 	background-color: rgba(255, 255, 255, 0.03);
 	backdrop-filter: blur(15px);
@@ -369,19 +477,157 @@ const particlesLoaded = (container: unknown) => {
 
 /* Left Side Styles */
 .login-visual {
-	flex: 1.1;
+	flex: 1.65;
 	background-color: transparent;
 	position: relative;
 	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	padding-bottom: 0;
+	flex-direction: column;
 	overflow: hidden;
 	z-index: 1;
 	border-right: 1px solid rgba(255, 255, 255, 0.05);
 
+	.login-visual-panel {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: 36px 48px 20px;
+		position: relative;
+		z-index: 2;
+	}
+
+	.panel-copy {
+		flex-shrink: 0;
+
+		.copy-title {
+			margin: 0 0 8px;
+			font-size: 26px;
+			font-weight: 700;
+			color: rgba(255, 255, 255, 0.92);
+		}
+
+		.copy-slogan {
+			margin: 0;
+			font-size: 14px;
+			color: rgba(255, 255, 255, 0.55);
+		}
+
+		.copy-divider {
+			height: 1px;
+			margin: 20px 0;
+			background: linear-gradient(
+				90deg,
+				rgba(22, 119, 255, 0.45),
+				rgba(255, 255, 255, 0.08),
+				transparent
+			);
+		}
+
+		.copy-features {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+
+			li {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 14px;
+				font-size: 15px;
+				color: rgba(255, 255, 255, 0.78);
+			}
+
+			.feature-dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				flex-shrink: 0;
+
+				&.coral {
+					background-color: #f07050;
+				}
+				&.purple {
+					background-color: #7c4dff;
+				}
+				&.black {
+					background-color: #334155;
+					box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.35);
+				}
+				&.yellow {
+					background-color: #fdd835;
+				}
+			}
+
+			.feature-icon {
+				font-size: 15px;
+				color: #1677ff;
+			}
+
+			.feature-label {
+				flex: 1;
+			}
+
+			.feature-name {
+				font-size: 12px;
+				color: rgba(255, 255, 255, 0.4);
+				letter-spacing: 0.02em;
+			}
+		}
+
+		.copy-warm {
+			margin: 0;
+			font-size: 15px;
+			font-weight: 500;
+			color: rgba(255, 255, 255, 0.65);
+			letter-spacing: 0.04em;
+		}
+	}
+
+	.panel-stage {
+		flex: 1;
+		min-height: 300px;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		position: relative;
+		margin-top: 8px;
+	}
+
+	.character-halo {
+		position: absolute;
+		bottom: 48px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 420px;
+		height: 300px;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(22, 119, 255, 0.2) 0%,
+			rgba(22, 119, 255, 0.06) 45%,
+			transparent 72%
+		);
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.character-ground {
+		position: absolute;
+		bottom: 8px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 460px;
+		height: 28px;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(0, 0, 0, 0.45) 0%,
+			rgba(22, 119, 255, 0.08) 35%,
+			transparent 72%
+		);
+		pointer-events: none;
+		z-index: 1;
+	}
+
 	#tsparticles {
-		display: none; /* Hide container-local particles if any */
+		display: none;
 	}
 
 	.character-container {
@@ -392,22 +638,35 @@ const particlesLoaded = (container: unknown) => {
 		z-index: 2;
 		width: 100%;
 		justify-content: center;
-		transform: translateY(20px);
+		opacity: 0;
+		transform: translateY(24px);
+
+		&.is-entered {
+			animation: character-rise-in 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+				forwards;
+		}
 	}
 
 	.character {
-		width: 120px;
-		border-radius: 60px 60px 0 0;
+		width: 145px;
+		border-radius: 72px 72px 0 0;
 		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: flex-start;
-		padding-top: 40px;
+		padding-top: 48px;
 		transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		box-shadow:
+			0 0 28px rgba(22, 119, 255, 0.22),
+			0 8px 24px rgba(0, 0, 0, 0.25);
+		outline: 2px solid rgba(22, 119, 255, 0.14);
 
 		&:hover {
-			transform: translateY(-5px);
+			transform: translateY(-6px);
+			box-shadow:
+				0 0 36px rgba(22, 119, 255, 0.32),
+				0 12px 28px rgba(0, 0, 0, 0.28);
 		}
 
 		&.coral {
@@ -498,12 +757,40 @@ const particlesLoaded = (container: unknown) => {
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: radial-gradient(
-			circle at center,
-			transparent 0%,
-			rgba(0, 0, 0, 0.2) 100%
-		);
+		background:
+			radial-gradient(
+				circle at 50% 85%,
+				rgba(22, 119, 255, 0.08) 0%,
+				transparent 45%
+			),
+			radial-gradient(
+				circle at 50% 20%,
+				rgba(0, 0, 0, 0.28) 0%,
+				transparent 50%
+			);
 		pointer-events: none;
+	}
+}
+
+@keyframes character-rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.login-visual .character-container {
+		opacity: 1;
+		transform: translateY(0);
+
+		&.is-entered {
+			animation: none;
+		}
 	}
 }
 
@@ -543,14 +830,14 @@ const particlesLoaded = (container: unknown) => {
 
 	:deep(.ant-input-affix-wrapper-large),
 	:deep(.ant-input-password-large) {
-		border-radius: 8px;
+		border-radius: 10px;
 		padding: 10px 15px;
 		border: 1px solid #e2e8f0;
 
 		&:hover,
 		&:focus-within {
-			border-color: #7c4dff;
-			box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.1);
+			border-color: #1677ff;
+			box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
 		}
 
 		.ant-input {
@@ -570,7 +857,7 @@ const particlesLoaded = (container: unknown) => {
 		margin-bottom: 30px;
 
 		.forgot-link {
-			color: #7c4dff;
+			color: #1677ff;
 			font-weight: 500;
 			cursor: pointer;
 			&:hover {
@@ -581,15 +868,15 @@ const particlesLoaded = (container: unknown) => {
 
 	.login-btn {
 		height: 48px;
-		border-radius: 8px;
-		background-color: #1a1a1a;
+		border-radius: 10px;
+		background-color: #1677ff;
 		border: none;
 		font-weight: 600;
 		font-size: 16px;
 		margin-bottom: 20px;
 
 		&:hover {
-			background-color: #333;
+			background-color: #4096ff;
 		}
 	}
 
@@ -629,6 +916,23 @@ const particlesLoaded = (container: unknown) => {
 
 /* Mobile Responsive */
 @media (max-width: 992px) {
+	.login-brand-header {
+		margin-bottom: 20px;
+
+		.login-brand-text h1 {
+			font-size: 20px;
+		}
+	}
+
+	.login-page-footer {
+		position: relative;
+		bottom: auto;
+		margin-top: 24px;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+
 	.login-container {
 		height: auto;
 		min-height: auto;

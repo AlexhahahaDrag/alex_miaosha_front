@@ -54,9 +54,9 @@
 					<template v-else-if="column.key === 'isValid'">
 						<a-tag
 							:key="record.isValid"
-							:color="record.isValid === 1 ? '#87d068' : 'grey'"
+							:color="record.isValid === '1' ? '#87d068' : 'grey'"
 						>
-							{{ record.isValid === 1 ? '有效' : '失效' }}
+							{{ record.isValid === '1' ? '有效' : '失效' }}
 						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'incomeAndExpenses'">
@@ -128,7 +128,6 @@ const {
 
 const route = useRoute();
 
-let rowIds: (string | number)[] = [];
 const selectedRowIds = ref<(string | number)[]>([]);
 
 const rowSelection = ref({
@@ -192,8 +191,9 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 	try {
 		const queryParam = {
 			...param,
-			infoDateStart: param.infoDateStart ? formatDate(param.infoDateStart) : null,
-			infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : null,
+			infoDateStart:
+				param.infoDateStart ? formatDate(param.infoDateStart) : undefined,
+			infoDateEnd: param.infoDateEnd ? formatDate(param.infoDateEnd) : undefined,
 		};
 		const {
 			code,
@@ -215,7 +215,7 @@ const getFinancePage = async (param: FinanceManagerData, cur: PageInfo) => {
 const editFinance = (type: string, id?: string) => {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : id ?? null;
+	modelInfo.value.id = isAdd ? null : (id ?? null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

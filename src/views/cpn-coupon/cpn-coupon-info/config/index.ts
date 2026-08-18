@@ -2,6 +2,9 @@ import type { TableColumnsType } from 'ant-design-vue';
 
 import type { Dayjs } from 'dayjs';
 import { formatTime } from '@/utils/dayjs';
+import { rulesRef } from '../cpn-coupon-info-detail/config';
+
+export { rulesRef };
 
 export const columns = ref<TableColumnsType>([
 	{

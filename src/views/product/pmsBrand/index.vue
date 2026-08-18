@@ -43,7 +43,7 @@
 						</a-col>
 						<a-col :span="6" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="query"> 查找</a-button>
+								<a-button type="primary" @click="() => query()"> 查找</a-button>
 								<a-button type="primary" @click="cancelQuery">清空</a-button>
 							</a-space>
 						</a-col>
@@ -242,7 +242,7 @@ function editPmsBrand(type: string, id?: number) {
 		modelInfo.value.id = undefined;
 	} else if (type === 'update') {
 		modelInfo.value.title = '修改明细';
-		modelInfo.value.id = id;
+		modelInfo.value.id = id !== undefined ? String(id) : undefined;
 	}
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
@@ -252,9 +252,5 @@ const handleSuccess = () => {
 	getPmsBrandListPage(searchInfo.value, pagination);
 };
 
-const initPage = () => {
-	pagination.current = 1;
-	pagination.pageSize = 10;
-};
 </script>
 <style lang="scss" scoped></style>

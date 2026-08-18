@@ -1,9 +1,11 @@
 <template>
 	<div class="user-info-container">
-		<a-badge :count="newsCount" :offset="[10, 0]">
-			<span class="welcome-text"> 欢迎你，{{ displayName }} </span>
+		<a-badge :count="newsCount" :offset="[-2, 2]">
+			<button type="button" class="notice-btn" aria-label="通知中心">
+				<bell-outlined />
+			</button>
 		</a-badge>
-
+		<span class="welcome-text">欢迎，{{ displayName }}</span>
 		<a-dropdown
 			placement="bottomRight"
 			:trigger="['hover', 'click']"
@@ -11,8 +13,8 @@
 		>
 			<div class="avatar-wrapper" @click.prevent>
 				<a-avatar
-					:size="40"
-					shape="square"
+					:size="44"
+					shape="circle"
 					:src="userInfo?.avatarUrl"
 					class="user-avatar"
 				>
@@ -33,9 +35,12 @@
 						<user-outlined />
 						<span>个人资料</span>
 					</a-menu-item>
-					<a-menu-item key="github" class="menu-item">
+					<a-menu-item key="github" class="menu-item github-item">
 						<github-outlined />
-						<span>GitHub</span>
+						<div class="text-wrapper">
+							<span class="main-text">GitHub</span>
+							<span class="subtext">GitHub, 社区贡献</span>
+						</div>
 					</a-menu-item>
 					<a-menu-divider />
 					<a-menu-item key="resetPwd" class="menu-item">
@@ -44,7 +49,7 @@
 					</a-menu-item>
 					<a-menu-item key="logout" class="menu-item logout-item">
 						<logout-outlined />
-						<span>注销</span>
+						<span>注销登录</span>
 					</a-menu-item>
 				</a-menu>
 			</template>
@@ -61,6 +66,7 @@ import {
 	GithubOutlined,
 	LockOutlined,
 	LogoutOutlined,
+	BellOutlined,
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import { logoutApi } from '@/views/login/api';
@@ -208,6 +214,26 @@ onMounted(() => {
 	padding: 8px 16px;
 	height: 100%;
 
+	.notice-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border: none;
+		border-radius: 8px;
+		background: transparent;
+		color: #667085;
+		font-size: 18px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+
+		&:hover {
+			background: rgba(22, 119, 255, 0.08);
+			color: #1677ff;
+		}
+	}
+
 	.welcome-text {
 		font-size: 14px;
 		color: #666;
@@ -233,11 +259,13 @@ onMounted(() => {
 		}
 
 		.user-avatar {
-			border: 2px solid #f0f0f0;
+			border: 2px solid #e6f7ff;
+			box-shadow: 0 0 8px rgba(24, 144, 255, 0.4);
 			transition: all 0.2s ease;
 
 			&:hover {
 				border-color: #1890ff;
+				box-shadow: 0 0 12px rgba(24, 144, 255, 0.6);
 				transform: scale(1.05);
 			}
 		}
@@ -257,29 +285,56 @@ onMounted(() => {
 }
 
 :deep(.user-dropdown-menu) {
-	min-width: 160px;
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	min-width: 180px;
+	border-radius: 12px;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+	padding: 8px;
 
 	.menu-item {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 8px 16px;
+		gap: 12px;
+		padding: 10px 16px;
 		transition: all 0.2s ease;
+		border-radius: 6px;
 
 		&:hover {
-			background-color: #f5f5f5;
+			background-color: #e6f4ff;
 		}
 
 		.anticon {
-			font-size: 14px;
-			width: 14px;
+			font-size: 16px;
+			width: 16px;
 			text-align: center;
 		}
 
 		span {
 			font-size: 14px;
+		}
+
+		&.github-item {
+			align-items: flex-start;
+
+			.anticon {
+				margin-top: 2px;
+			}
+
+			.text-wrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+
+				.main-text {
+					font-size: 14px;
+					line-height: 1.2;
+				}
+
+				.subtext {
+					font-size: 12px;
+					color: #8c8c8c;
+					line-height: 1.2;
+				}
+			}
 		}
 
 		&.logout-item {

@@ -1,13 +1,15 @@
 import type { Params } from '@/types/global';
 import request, { requestFile } from '@/utils/request/request';
 import type { ResponseBody } from '@/types/api';
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
 
 function formatUrl(url: string) {
 	// 将 /api/am-{service}/{path} 转换为 /api/am-{service}/{apiPrefix}/{path}
 	// 例如：/api/am-finance/dict-info/... → /api/am-finance/api/v1/dict-info/...
-	return url.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`).replace(/\/+/g, '/');
+	return url
+		.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`)
+		.replace(/\/+/g, '/');
 }
 
 export function getData<T = unknown>(
@@ -62,19 +64,30 @@ export function postFileData<T = unknown>(
 	params: unknown,
 	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
-	return requestFile.post<Params, ResponseBody<T>>(
-		formatUrl(url),
-		params,
-		config,
-	);
+	return requestFile.post<Params, ResponseBody<T>>(formatUrl(url), params, {
+		params: config,
+	});
 }
 
 // 文件下载方法 - 绕过响应解密拦截器，直接返回Blob
 export function downloadFile(
 	url: string,
 	config?: Record<string, unknown>,
-): Promise<any> {
+): Promise<AxiosResponse<Blob>> {
 	return requestFile.get(formatUrl(url), {
+		...config,
+		// 关键：告诉axios直接返回Blob，不经过响应拦截器处理
+		responseType: 'blob',
+	});
+}
+
+// 文件下载方法（POST 版）- 用于携带查询条件请求体的导出接口，直接返回 Blob 响应
+export function postDownloadFile(
+	url: string,
+	params: unknown,
+	config?: Record<string, unknown>,
+): Promise<AxiosResponse<Blob>> {
+	return requestFile.post(formatUrl(url), params, {
 		...config,
 		// 关键：告诉axios直接返回Blob，不经过响应拦截器处理
 		responseType: 'blob',

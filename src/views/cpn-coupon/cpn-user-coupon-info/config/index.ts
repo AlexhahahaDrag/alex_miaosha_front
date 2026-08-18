@@ -58,8 +58,8 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 
 // AI Agent：消费券核销数量请求（按数量核销）
 export interface CpnUserCouponRedeemReq {
-	userId: string;
-	couponId: string;
+	userId: number | string;
+	couponId: number | string;
 	// AI Agent：券明细ID（对应后端 userCouponId，用于取消核销）
 	userCouponId?: number;
 	redemptionQuantity: number;

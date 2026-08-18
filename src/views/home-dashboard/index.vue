@@ -207,7 +207,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-import * as echarts from 'echarts';
+import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import {
@@ -226,6 +226,7 @@ const router = useRouter();
 const { userInfo } = storeToRefs(useUserStore());
 
 const chartContainer = ref<HTMLElement>();
+let chartInstance: EChartsType | null = null;
 
 // 当前日期
 const currentDate = computed(() =>
@@ -294,15 +295,22 @@ const navigateTo = (path: string) => {
 };
 
 // 完成待办事项
-const completetdo = (id: string) => {
+const completetdo = (id: number) => {
 	tdoList.value = tdoList.value.filter((item) => item.id !== id);
 };
 
-// 初始化图表
-const initChart = () => {
-	if (!chartContainer.value) return;
+const onChartResize = () => {
+	chartInstance?.resize();
+};
 
-	const chart = echarts.init(chartContainer.value);
+// 初始化图表：走 loadEcharts，避免 Vite 8 全量 echarts 预构建崩溃
+const initChart = async () => {
+	if (!chartContainer.value || chartInstance) return;
+
+	const echarts = await loadEcharts();
+	if (!chartContainer.value || chartInstance) return;
+
+	chartInstance = echarts.init(chartContainer.value);
 
 	const option = {
 		title: {
@@ -363,16 +371,22 @@ const initChart = () => {
 		],
 	};
 
-	chart.setOption(option);
+	chartInstance.setOption(option);
+	window.addEventListener('resize', onChartResize);
+};
 
-	// 响应式调整
-	window.addEventListener('resize', () => {
-		chart?.resize();
-	});
+const disposeChart = () => {
+	window.removeEventListener('resize', onChartResize);
+	chartInstance?.dispose();
+	chartInstance = null;
 };
 
 onMounted(() => {
-	initChart();
+	void initChart();
+});
+
+onUnmounted(() => {
+	disposeChart();
 });
 </script>
 

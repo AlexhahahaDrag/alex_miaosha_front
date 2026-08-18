@@ -28,7 +28,7 @@ export const options = {
 	},
 	background: {
 		color: {
-			value: '#000', //粒子颜色
+			value: 'transparent',
 		},
 	},
 	fpsLimit: 60,
@@ -62,14 +62,14 @@ export const options = {
 	},
 	particles: {
 		color: {
-			value: '#ffffff',
+			value: '#94a3b8',
 		},
 		links: {
-			color: '#ffffff', //'#dedede'。线条颜色。
-			distance: 150, //线条长度
-			enable: true, //是否有线条
-			opacity: 0.5, //线条透明度。
-			width: 1, //线条宽度。
+			color: '#64748b',
+			distance: 150,
+			enable: true,
+			opacity: 0.25,
+			width: 1,
 		},
 		collisions: {
 			enable: false,
@@ -87,10 +87,10 @@ export const options = {
 				enable: true,
 				area: 800,
 			},
-			value: 80, //粒子数量。
+			value: 40,
 		},
 		opacity: {
-			value: 0.5, //粒子透明度。
+			value: 0.3,
 		},
 		shape: {
 			type: 'circle', //可用的粒子外观类型有："circle","edge","triangle", "polygon","star"
