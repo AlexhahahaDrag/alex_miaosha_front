@@ -167,13 +167,6 @@
 							<div>
 								<div class="name-row">
 									<strong>{{ record.personName || '-' }}</strong>
-									<a-tag
-										:color="getGradeColor(record.relationGrade)"
-										size="small"
-										class="grade-tag"
-									>
-										{{ getGradeLabel(record.relationGrade) }}
-									</a-tag>
 								</div>
 								<p>{{ record.remark || '暂无备注' }}</p>
 							</div>
@@ -182,11 +175,13 @@
 					<template v-else-if="column.key === 'relationType'">
 						<span class="relation-type-text">{{ relationLabel(record.relationType) }}</span>
 					</template>
-					<template v-else-if="column.key === 'relationStatus'">
-						<a-badge
-							:status="getStatusBadgeType(record.relationStatus)"
-							:text="getStatusLabel(record.relationStatus)"
-						/>
+					<template v-else-if="column.key === 'relationGrade'">
+						<a-tag
+							:color="getGradeColor(record.relationGrade)"
+							class="table-grade-tag"
+						>
+							{{ getGradeLabel(record.relationGrade) }}
+						</a-tag>
 					</template>
 					<template v-else-if="column.key === 'transactions'">
 						<div class="transactions-cell">
@@ -278,217 +273,21 @@
 			@success="handleSuccess"
 		/>
 
-		<!-- 快速记录往来 Modal -->
-		<a-modal
-			v-model:open="quickLogVisible"
-			title="快速记录人情往来"
-			@ok="submitQuickLog"
-			:confirm-loading="quickLogSubmitting"
-			destroy-on-close
-		>
-			<a-form
-				:model="quickLogForm"
-				:label-col="{ span: 5 }"
-				:wrapper-col="{ span: 17 }"
-			>
-				<a-form-item label="往来对象">
-					<strong>{{ quickLogTargetName }}</strong>
-				</a-form-item>
-				<a-form-item label="往来方向" required>
-					<a-radio-group v-model:value="quickLogForm.direction">
-						<a-radio value="RECEIVE">收礼 (别人送我)</a-radio>
-						<a-radio value="GIVE">送礼 (我送别人)</a-radio>
-					</a-radio-group>
-				</a-form-item>
-				<a-form-item label="事由" required>
-					<a-radio-group
-						v-model:value="eventTypeTab"
-						size="small"
-						style="margin-bottom: 12px; display: block"
-						button-style="solid"
-					>
-						<a-radio-button value="quick">快捷事由</a-radio-button>
-						<a-radio-button value="specific">关联具体活动</a-radio-button>
-					</a-radio-group>
-
-					<div v-if="eventTypeTab === 'quick'">
-						<div class="quick-event-tags">
-							<a-tag
-								v-for="item in quickEventTags"
-								:key="item.id"
-								class="quick-event-tag"
-								:color="isSelectedQuickTag(item) ? 'blue' : 'default'"
-								@click="selectQuickTag(item)"
-							>
-								<span>{{ item.icon }} {{ item.name }}</span>
-							</a-tag>
-							<a-popover
-								v-model:open="morePopoverVisible"
-								trigger="click"
-								placement="bottomLeft"
-							>
-								<template #content>
-									<div class="more-events-popover">
-										<a-input-search
-											v-model:value="eventTypeSearchKey"
-											placeholder="搜索事由"
-											size="small"
-											style="margin-bottom: 12px; width: 240px"
-											allow-clear
-										/>
-										<div v-if="eventTypeSearchKey" class="search-results">
-											<div v-if="filteredSearchOptions.length">
-												<div
-													v-for="opt in filteredSearchOptions"
-													:key="opt.id"
-													class="search-item"
-													@click="selectQuickTag(opt)"
-												>
-													{{ opt.icon || '💬' }} {{ opt.name }}
-												</div>
-											</div>
-											<div v-else class="no-result">
-												<span>暂无该事由</span>
-												<a-button
-													type="link"
-													size="small"
-													style="padding: 0 4px"
-													@click="createNewCustomType"
-												>
-													+ 创建“{{ eventTypeSearchKey }}”
-												</a-button>
-											</div>
-										</div>
-										<div v-else class="categorized-groups">
-											<div
-												v-for="(groupItems, groupName) in categorizedEventTypes"
-												:key="groupName"
-												class="category-group"
-											>
-												<div class="group-title">{{ groupName }}</div>
-												<div class="group-items">
-													<a-tag
-														v-for="opt in groupItems"
-														:key="opt.id"
-														class="popover-tag"
-														:color="
-															isSelectedQuickTag(opt) ? 'blue' : 'default'
-														"
-														@click="selectQuickTag(opt)"
-													>
-														{{ opt.icon || '💬' }} {{ opt.name }}
-													</a-tag>
-												</div>
-											</div>
-										</div>
-									</div>
-								</template>
-								<a-tag class="quick-event-tag more-tag" style="cursor: pointer">
-									<span>更多 ▾</span>
-								</a-tag>
-							</a-popover>
-						</div>
-						<div v-if="selectedQuickText" class="selected-reason-display">
-							已选事由：<strong style="color: #1890ff">{{
-								selectedQuickText
-							}}</strong>
-						</div>
-					</div>
-
-					<div v-else>
-						<a-select
-							v-model:value="quickLogForm.eventId"
-							placeholder="请选择具体活动事件"
-							allow-clear
-							:options="eventOptions"
-						/>
-					</div>
-				</a-form-item>
-
-				<a-form-item label="礼金金额" required>
-					<div class="quick-amounts" style="margin-bottom: 8px">
-						<a-spin :spinning="recommendLoading" size="small">
-							<a-tag
-								v-for="amount in recommendAmountTags.length ?
-									recommendAmountTags
-								:	quickGiftAmounts"
-								:key="amount"
-								class="quick-amount-tag"
-								:color="quickLogForm.amount === amount ? 'blue' : 'default'"
-								@click="quickLogForm.amount = amount"
-							>
-								{{ amount }}
-							</a-tag>
-						</a-spin>
-					</div>
-					<div
-						v-if="
-							recommendInfo.averageAmount && recommendInfo.averageAmount > 0
-						"
-						class="recommend-amount-tip"
-						style="margin-bottom: 8px"
-					>
-						💡 历史平均往来:
-						<strong style="color: #52c41a"
-							>¥{{ recommendInfo.averageAmount }}</strong
-						>
-						<span
-							v-if="
-								recommendInfo.latestAmount && recommendInfo.latestAmount > 0
-							"
-							style="margin-left: 8px"
-						>
-							(最近一次: ¥{{ recommendInfo.latestAmount }})
-						</span>
-					</div>
-					<div
-						v-else-if="
-							recommendInfo.defaultAmount && recommendInfo.defaultAmount > 0
-						"
-						class="recommend-amount-tip"
-						style="margin-bottom: 8px"
-					>
-						💡 默认推荐金额:
-						<strong style="color: #1890ff"
-							>¥{{ recommendInfo.defaultAmount }}</strong
-						>
-					</div>
-					<a-input-number
-						v-model:value="quickLogForm.amount"
-						:min="0.01"
-						:precision="2"
-						style="width: 100%"
-						placeholder="请输入礼金金额 (元)"
-					/>
-				</a-form-item>
-				<a-form-item label="往来日期" required>
-					<a-date-picker
-						v-model:value="quickLogForm.payTime"
-						style="width: 100%"
-						value-format="YYYY-MM-DD HH:mm:ss"
-						show-time
-					/>
-				</a-form-item>
-				<a-form-item label="备注说明">
-					<a-textarea
-						v-model:value="quickLogForm.remark"
-						placeholder="例如：婚礼红包、生日祝福、乔迁贺礼等"
-						:rows="3"
-					/>
-				</a-form-item>
-			</a-form>
-		</a-modal>
+		<gift-record-form-drawer
+			v-model:open="recordDrawerOpen"
+			:record="editingRecord"
+			@success="handleRecordSuccess"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
-import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
@@ -496,25 +295,19 @@ import {
 	deleteGiftPerson,
 	getGiftPersonBusinessPage,
 	getGiftPersonSummary,
-	getGiftEventList,
-	addGiftRecord,
-	getGiftRecordRecommendAmount,
 } from '@/views/finance/gift/api';
 import type {
-	GiftEventTypeOptionItem,
 	GiftPersonBusinessInfo,
 	GiftPersonInfo,
 	GiftPersonQuery,
 	GiftPersonSummary,
 	GiftRecordInfo,
-	GiftRecordRecommendAmount,
 } from '@/views/finance/gift/config';
 import {
 	directionLabel,
 	giftPersonScopeOptions,
 	money,
 	personAvatarSrc,
-	quickGiftAmounts,
 } from '@/views/finance/gift/config';
 
 const {
@@ -546,171 +339,17 @@ const summary = ref<GiftPersonSummary>({});
 const dataSource = ref<GiftPersonBusinessInfo[]>([]);
 
 // 快速记录往来相关 Refs
-const quickLogVisible = ref(false);
-const quickLogSubmitting = ref(false);
-const quickLogTargetName = ref('');
-const quickLogForm = ref<{
-	giverPersonId?: string;
-	receiverPersonId?: string;
-	direction: 'RECEIVE' | 'GIVE';
-	amount?: number;
-	eventId?: string;
-	eventType?: string;
-	eventOptionId?: string;
-	payTime?: string;
-	remark?: string;
-}>({
-	direction: 'RECEIVE',
-	payTime: undefined,
-});
-const eventOptions = ref<
-	{ label: string; value: string; eventType?: string }[]
->([]);
+const recordDrawerOpen = ref(false);
+const editingRecord = ref<GiftRecordInfo | undefined>(undefined);
 
-const { presetOptions, customOptions, loadEventTypeOptions } =
-	useGiftEventTypeOptions();
-
-const eventTypeTab = ref<'quick' | 'specific'>('quick');
-const morePopoverVisible = ref(false);
-const eventTypeSearchKey = ref('');
-
-const quickEventTags = computed(() => {
-	const names = ['婚礼', '生日', '满月', '乔迁', '春节', '白事'];
-	return presetOptions.value.filter((p) => names.includes(p.name));
-});
-
-const categorizedEventTypes = computed(() => {
-	const groups: Record<string, GiftEventTypeOptionItem[]> = {
-		婚庆类: [],
-		家庭类: [],
-		节日类: [],
-		其他: [],
-	};
-	const all = [...presetOptions.value, ...customOptions.value];
-	all.forEach((item) => {
-		const cat = item.category || '其他';
-		if (!groups[cat]) {
-			groups[cat] = [];
-		}
-		if (!groups[cat].some((x) => x.name === item.name)) {
-			groups[cat].push(item);
-		}
-	});
-	return groups;
-});
-
-const filteredSearchOptions = computed(() => {
-	const key = eventTypeSearchKey.value.trim().toLowerCase();
-	if (!key) return [];
-	const all = [...presetOptions.value, ...customOptions.value];
-	return all.filter((item) => item.name.toLowerCase().includes(key));
-});
-
-const selectedQuickText = computed(() => {
-	if (quickLogForm.value.eventId) {
-		return '';
-	}
-	const codeOrLabel = quickLogForm.value.eventType;
-	if (!codeOrLabel) return '';
-	const foundPreset = presetOptions.value.find(
-		(p) => p.eventCode === codeOrLabel || p.name === codeOrLabel,
-	);
-	const foundCustom = customOptions.value.find((c) => c.name === codeOrLabel);
-	const opt = foundPreset || foundCustom;
-	if (opt) {
-		return `${opt.icon || ''} ${opt.name}`;
-	}
-	return codeOrLabel;
-});
-
-const selectQuickTag = (item: GiftEventTypeOptionItem) => {
-	quickLogForm.value.eventId = undefined;
-	quickLogForm.value.eventOptionId = item.id;
-	quickLogForm.value.eventType = item.eventCode || item.name;
-	morePopoverVisible.value = false;
-	eventTypeSearchKey.value = '';
+const handleRecordSuccess = () => {
+	query();
 };
-
-const isSelectedQuickTag = (item: GiftEventTypeOptionItem) => {
-	if (quickLogForm.value.eventId) return false;
-	return String(quickLogForm.value.eventOptionId) === String(item.id);
-};
-
-const createNewCustomType = () => {
-	const name = eventTypeSearchKey.value.trim();
-	if (!name) return;
-	quickLogForm.value.eventId = undefined;
-	quickLogForm.value.eventOptionId = undefined;
-	quickLogForm.value.eventType = name;
-	morePopoverVisible.value = false;
-	eventTypeSearchKey.value = '';
-};
-
-watch(eventTypeTab, (tab) => {
-	if (tab === 'quick') {
-		quickLogForm.value.eventId = undefined;
-	} else {
-		quickLogForm.value.eventType = undefined;
-		quickLogForm.value.eventOptionId = undefined;
-	}
-});
-
-const targetPersonId = computed(() => {
-	return quickLogForm.value.giverPersonId;
-});
-
-const activeEventType = computed(() => {
-	if (eventTypeTab.value === 'quick') {
-		return quickLogForm.value.eventType;
-	} else {
-		const opt = eventOptions.value.find(
-			(o) => String(o.value) === String(quickLogForm.value.eventId),
-		);
-		return opt?.eventType;
-	}
-});
-
-const recommendLoading = ref(false);
-const recommendInfo = ref<GiftRecordRecommendAmount>({});
-const recommendAmountTags = ref<number[]>([]);
-
-const loadRecommendAmount = async () => {
-	const personId = targetPersonId.value;
-	const eventType = activeEventType.value;
-	if (!personId || !eventType) {
-		recommendInfo.value = {};
-		recommendAmountTags.value = [];
-		return;
-	}
-	recommendLoading.value = true;
-	try {
-		const { code, data } = await getGiftRecordRecommendAmount({
-			personId,
-			eventType,
-			direction: quickLogForm.value.direction,
-		});
-		if (code === '200' && data) {
-			recommendInfo.value = data;
-			recommendAmountTags.value = data.recommendations || [];
-		}
-	} catch (e) {
-		console.error(e);
-	} finally {
-		recommendLoading.value = false;
-	}
-};
-
-watch(
-	[targetPersonId, activeEventType, () => quickLogForm.value.direction],
-	() => {
-		void loadRecommendAmount();
-	},
-);
 
 const columns = [
 	{ title: '联系人', key: 'personName', width: 220 },
 	{ title: '关系', key: 'relationType', width: 120 },
-	{ title: '关系状态', key: 'relationStatus', width: 130 },
+	{ title: '关系等级', key: 'relationGrade', width: 130 },
 	{ title: '人情往来', key: 'transactions', width: 280 },
 	{ title: '最近互动', key: 'latestRecordTime', width: 220 },
 	{ title: '操作', key: 'operation', width: 260, fixed: 'right' as const },
@@ -879,102 +518,13 @@ const remove = async (id: string) => {
 const route = useRoute();
 
 // 快速记录往来逻辑
-async function openQuickLog(record: GiftPersonBusinessInfo) {
-	quickLogTargetName.value = record.personName || '';
-
-	// 格式化当前本地时间为 YYYY-MM-DD HH:mm:ss
-	const now = new Date();
-	const offset = now.getTimezoneOffset();
-	const localTime = new Date(now.getTime() - offset * 60 * 1000);
-	const payTimeStr = localTime.toISOString().substring(0, 19);
-
-	eventTypeTab.value = 'quick';
-	quickLogForm.value = {
+function openQuickLog(record: GiftPersonBusinessInfo) {
+	editingRecord.value = {
 		direction: 'RECEIVE',
-		amount: undefined,
-		eventId: undefined,
-		eventType: undefined,
-		eventOptionId: undefined,
-		payTime: payTimeStr,
-		remark: '',
-		giverPersonId: record.id,
+		giverPersonId: record.id ? String(record.id) : undefined,
 	};
-
-	quickLogVisible.value = true;
-	await loadEventTypeOptions();
-	void loadEvents();
+	recordDrawerOpen.value = true;
 }
-
-const submitQuickLog = async () => {
-	if (eventTypeTab.value === 'quick') {
-		if (!quickLogForm.value.eventType && !quickLogForm.value.eventOptionId) {
-			message.error('请选择或输入快捷事由');
-			return;
-		}
-	} else {
-		if (!quickLogForm.value.eventId) {
-			message.error('请选择关联活动事件');
-			return;
-		}
-	}
-	if (!quickLogForm.value.amount || quickLogForm.value.amount <= 0) {
-		message.error('请输入有效的礼金金额');
-		return;
-	}
-	if (!quickLogForm.value.payTime) {
-		message.error('请选择往来日期');
-		return;
-	}
-
-	quickLogSubmitting.value = true;
-	try {
-		const payload: GiftRecordInfo = {
-			direction: quickLogForm.value.direction,
-			amount: quickLogForm.value.amount,
-			eventId: quickLogForm.value.eventId,
-			eventType: quickLogForm.value.eventType,
-			eventOptionId: quickLogForm.value.eventOptionId,
-			payTime: quickLogForm.value.payTime,
-			remark: quickLogForm.value.remark,
-		};
-
-		// 区分收礼与送礼的往来人方向
-		if (quickLogForm.value.direction === 'RECEIVE') {
-			payload.giverPersonId = quickLogForm.value.giverPersonId;
-			payload.receiverPersonId = undefined;
-		} else {
-			payload.receiverPersonId = quickLogForm.value.giverPersonId;
-			payload.giverPersonId = undefined;
-		}
-
-		const { code, message: msg } = await addGiftRecord(payload);
-		if (code === '200') {
-			message.success('记录成功');
-			quickLogVisible.value = false;
-			query(); // 自动刷新顶部卡片和列表
-		} else {
-			message.error(msg || '记录失败');
-		}
-	} catch (e) {
-		console.error(e);
-	} finally {
-		quickLogSubmitting.value = false;
-	}
-};
-
-const loadEvents = async () => {
-	try {
-		const { code, data } = await getGiftEventList();
-		if (code === '200') {
-			eventOptions.value = (data || []).map((event) => ({
-				label: `${event.eventName} (${event.eventTime ? event.eventTime.slice(0, 10) : ''})`,
-				value: event.id || '',
-			}));
-		}
-	} catch (e) {
-		console.error(e);
-	}
-};
 
 // 关系分级和活跃度逻辑辅助函数
 const getAvatarClass = (grade?: string) => {
@@ -1050,7 +600,6 @@ const getStatusBadgeType = (status?: string) => {
 
 onMounted(async () => {
 	loadRelationOptions();
-	loadEvents();
 	query(true);
 	if (route.query.open === 'create' && hasPermission('gift:add')) {
 		openDrawer();

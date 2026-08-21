@@ -172,14 +172,6 @@
 							</a-tag>
 						</a-spin>
 					</div>
-
-					<!-- 历史平均推荐提示 -->
-					<div v-if="recommendInfo.averageAmount && recommendInfo.averageAmount > 0" class="recommend-amount-tip">
-						💡 历史参考：上次: <strong style="color: #cf1322;">¥{{ recommendInfo.latestAmount || 0 }}</strong> | 平均: <strong style="color: #1890ff;">¥{{ recommendInfo.averageAmount }}</strong> 
-					</div>
-					<div v-else-if="recommendInfo.defaultAmount && recommendInfo.defaultAmount > 0" class="recommend-amount-tip">
-						💡 默认推荐：<strong style="color: #1890ff;">¥{{ recommendInfo.defaultAmount }}</strong>
-					</div>
 				</a-form-item>
 
 				<!-- 礼金时间 -->
@@ -352,6 +344,7 @@ const loadRecentEvents = async () => {
 							id: ev.id,
 							name: ev.eventName,
 							eventType: ev.eventType,
+							eventTime: ev.eventTime,
 						});
 					}
 				});
@@ -370,6 +363,7 @@ const quickEventTags = computed(() => {
 		id: ev.id,
 		name: ev.name,
 		eventType: ev.eventType,
+		eventTime: (ev as any).eventTime,
 		icon: '📅',
 		isEvent: true,
 	}));
@@ -379,6 +373,9 @@ const selectQuickTag = (item: any) => {
 	formInfo.value.eventId = item.id;
 	formInfo.value.eventType = item.eventType;
 	formInfo.value.eventOptionId = undefined;
+	if (item.eventTime && !props.record?.id) {
+		formInfo.value.payTime = item.eventTime.substring(0, 10);
+	}
 };
 
 const isSelectedQuickTag = (item: any) => {
@@ -389,9 +386,12 @@ const handleEventSelect = (item: GiftEventInfo) => {
 	formInfo.value.eventId = item.id;
 	formInfo.value.eventType = item.eventType;
 	formInfo.value.eventOptionId = undefined;
+	if (item.eventTime && !props.record?.id) {
+		formInfo.value.payTime = item.eventTime.substring(0, 10);
+	}
 };
 
-// 监听事件 ID 获取详情卡片
+// 监听事件 ID 获取详情卡片并同步事件时间与类型
 watch(() => formInfo.value.eventId, async (newId) => {
 	if (!newId) {
 		selectedEventDetail.value = null;
@@ -402,6 +402,9 @@ watch(() => formInfo.value.eventId, async (newId) => {
 		if (code === '200' && data) {
 			selectedEventDetail.value = data;
 			formInfo.value.eventType = data.eventType;
+			if (data.eventTime && !props.record?.id) {
+				formInfo.value.payTime = data.eventTime.substring(0, 10);
+			}
 		}
 	} catch (e) {
 		console.error(e);
@@ -437,7 +440,7 @@ const recommendAmountTags = ref<number[]>([]);
 const loadRecommendAmount = async () => {
 	const personId = targetPersonId.value;
 	const eventType = activeEventType.value;
-	if (!personId || !eventType) {
+	if (!eventType) {
 		recommendInfo.value = {};
 		recommendAmountTags.value = [];
 		return;
@@ -445,13 +448,20 @@ const loadRecommendAmount = async () => {
 	recommendLoading.value = true;
 	try {
 		const { code, data } = await getGiftRecordRecommendAmount({
-			personId,
+			personId: personId || undefined,
 			eventType,
 			direction: formInfo.value.direction,
 		});
 		if (code === '200' && data) {
 			recommendInfo.value = data;
 			recommendAmountTags.value = data.recommendations || [];
+			// 自动填入推荐金额
+			if (!props.record?.id && !formInfo.value.amount) {
+				const autoAmount = data.latestAmount || data.averageAmount || data.defaultAmount;
+				if (autoAmount && autoAmount > 0) {
+					formInfo.value.amount = autoAmount;
+				}
+			}
 		}
 	} catch (e) {
 		console.error(e);
@@ -462,7 +472,7 @@ const loadRecommendAmount = async () => {
 
 watch([targetPersonId, activeEventType, () => formInfo.value.direction], () => {
 	void loadRecommendAmount();
-});
+}, { immediate: true });
 
 const loginUserId = computed(() => {
 	const user = userStore.getUserInfo;
@@ -509,7 +519,7 @@ const resetForm = (record?: GiftRecordInfo) => {
 
 	formInfo.value =
 		record ?
-			{ ...record, payTime: record.payTime?.substring(0, 10) }
+			{ ...record, payTime: record.payTime ? record.payTime.substring(0, 10) : payDateStr }
 		:	{
 				direction: 'GIVE',
 				giverPersonId: undefined,
@@ -556,7 +566,9 @@ const applyDefaultOrgMember = () => {
 		return;
 	}
 	familyPersonId.value = selfPersonId;
-	externalPersonId.value = undefined;
+	if (!props.record?.giverPersonId && !props.record?.receiverPersonId) {
+		externalPersonId.value = undefined;
+	}
 };
 
 const initializeForm = async (record?: GiftRecordInfo) => {

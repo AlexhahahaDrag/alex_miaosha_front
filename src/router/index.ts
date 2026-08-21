@@ -53,15 +53,6 @@ export const routes: MenuDataItem[] = [
 		},
 		component: modules['/src/views/login/index.vue'],
 	},
-	{
-		name: '404',
-		path: '/:catchAll(.*)',
-		meta: {
-			title: '404',
-			hideInMenu: true,
-		},
-		component: modules['/src/views/error-404/index.vue'],
-	},
 ];
 
 /** 静态路由数量，冻结在模块初始化时，用于区分静态/动态路由 */
@@ -169,6 +160,19 @@ const addRouter = async () => {
 		}
 	});
 
+	// 最后动态注入 404 通配路由，确保所有动态路由优先匹配
+	const notFoundRoute: RouteRecordRaw = {
+		name: '404',
+		path: '/:catchAll(.*)',
+		meta: {
+			title: '404',
+			hideInMenu: true,
+		},
+		component: modules['/src/views/error-404/index.vue'],
+	};
+	router.addRoute(notFoundRoute);
+	dynamicRouter.push(notFoundRoute);
+
 	userStore.changeRouteStatus(true);
 };
 
@@ -184,7 +188,8 @@ router.beforeEach(async (to: any, _from, next) => {
 		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
 			await addRouter();
-			next({ ...to, replace: true });
+			// 必须通过 path 重新解析，不能携带未匹配时固化的 name: '404'
+			next({ path: to.fullPath || to.path, query: to.query, hash: to.hash, replace: true });
 		} else {
 			next();
 		}
