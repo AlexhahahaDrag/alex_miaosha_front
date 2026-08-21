@@ -393,7 +393,7 @@ const eventTypeSelectOptions = computed(() => {
 	const all = [...presetOptions.value, ...customOptions.value];
 	return all.map((opt) => ({
 		label: `${getEventIcon(opt.eventCode || opt.name)} ${opt.name}`,
-		value: opt.name,
+		value: opt.eventCode || opt.name,
 	}));
 });
 

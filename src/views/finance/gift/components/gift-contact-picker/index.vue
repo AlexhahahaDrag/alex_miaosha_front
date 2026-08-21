@@ -3,7 +3,7 @@
 		<a-select
 			v-model:value="modelValue"
 			show-search
-			:filter-option="false"
+			:filter-option="filterOption"
 			:options="options"
 			:loading="loading"
 			:placeholder="placeholder"
@@ -80,9 +80,23 @@ const formatPersonOption = (person: GiftPersonInfo): PickerOption => {
 	};
 };
 
-const mergeOptions = (list: GiftPersonInfo[]) => {
+const filterOption = (input: string, option: any) => {
+	const label = option?.label ?? '';
+	return String(label).toLowerCase().includes(input.toLowerCase());
+};
+
+const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	const map = new Map<string, PickerOption>();
-	options.value.forEach((item) => map.set(item.value, item));
+	if (isSearch) {
+		if (modelValue.value) {
+			const selected = options.value.find((item) => item.value === modelValue.value);
+			if (selected) {
+				map.set(selected.value, selected);
+			}
+		}
+	} else {
+		options.value.forEach((item) => map.set(item.value, item));
+	}
 	list.forEach((person) => {
 		if (person.id) {
 			map.set(String(person.id), formatPersonOption(person));
@@ -95,7 +109,7 @@ const applyCachedContacts = () => {
 	if (!isWarmed()) {
 		return false;
 	}
-	mergeOptions(getContacts());
+	setOptions(getContacts(), false);
 	listLoaded.value = true;
 	return true;
 };
@@ -116,7 +130,7 @@ const fetchPersonList = async (keyword?: string) => {
 			personScope: 'CONTACT',
 		});
 		if (code === '200') {
-			mergeOptions(data || []);
+			setOptions(data || [], Boolean(trimmedKeyword));
 			if (!trimmedKeyword) {
 				listLoaded.value = true;
 			}
@@ -134,7 +148,7 @@ const ensureSelectedOption = async (personId?: string) => {
 	}
 	const { code, data } = await getGiftPersonDetail(personId);
 	if (code === '200' && data?.id) {
-		mergeOptions([data]);
+		setOptions([data], false);
 	}
 };
 

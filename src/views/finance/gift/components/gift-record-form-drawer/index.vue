@@ -204,14 +204,6 @@
 			<div style="display: flex; gap: 8px; justify-content: flex-end;">
 				<a-button @click="open = false">取消</a-button>
 				<a-button
-					v-if="!formInfo.id"
-					:loading="saving"
-					:disabled="formInitializing"
-					@click="handleSaveAndContinue"
-				>
-					保存并继续
-				</a-button>
-				<a-button
 					type="primary"
 					:loading="saving"
 					:disabled="formInitializing"
@@ -273,7 +265,9 @@ const { presetOptions, customOptions, loadEventTypeOptions } = useGiftEventTypeO
 const formRef = ref<FormInstance>();
 const saving = ref(false);
 const formInitializing = ref(false);
-const formInfo = ref<GiftRecordInfo>({});
+const formInfo = ref<GiftRecordInfo>({
+	direction: 'GIVE',
+});
 
 const formDirectionOptions = [
 	{ label: '🎁 我送出的', value: 'GIVE' },
@@ -629,7 +623,8 @@ const handleSave = async () => {
 				timeStr.includes('T') ? timeStr : `${timeStr}T00:00:00`;
 		}
 
-		const { code, message: msg } = await api(params as GiftRecordInfo);
+		const apiCall = formInfo.value.id ? updateGiftRecord : addGiftRecord;
+		const { code, message: msg } = await apiCall(params as GiftRecordInfo);
 		if (code === '200') {
 			message.success('保存成功');
 			open.value = false;
@@ -637,46 +632,14 @@ const handleSave = async () => {
 		} else {
 			message.error(msg || '保存失败');
 		}
-	} catch {
-		// 校验未通过
+	} catch (error) {
+		console.error('保存礼金记录失败:', error);
 	} finally {
 		saving.value = false;
 	}
 };
 
-const handleSaveAndContinue = async () => {
-	if (!formRef.value) {
-		return;
-	}
-	saving.value = true;
-	try {
-		await formRef.value.validateFields();
-		const payload = { ...formInfo.value };
-		if (payload.direction === 'GIVE' && isReturnGift.value) {
-			payload.direction = 'RETURN';
-		} else if (!isReturnGift.value) {
-			payload.relatedRecordId = undefined;
-		}
-		if (payload.payTime && !payload.payTime.includes('T')) {
-			payload.payTime = `${payload.payTime}T00:00:00`;
-		}
-		
-		const { code, message: msg } = await addGiftRecord(payload);
-		if (code === '200') {
-			message.success('保存成功');
-			emit('success');
-			// 重置金额与备注，方便连续录入
-			formInfo.value.amount = undefined;
-			formInfo.value.remark = '';
-		} else {
-			message.error(msg || '保存失败');
-		}
-	} catch {
-		// 校验未通过
-	} finally {
-		saving.value = false;
-	}
-};
+
 
 watch(
 	() => open.value,

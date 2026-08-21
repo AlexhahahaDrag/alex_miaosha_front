@@ -3,7 +3,7 @@
 		<a-select
 			v-model:value="modelValue"
 			show-search
-			:filter-option="false"
+			:filter-option="filterOption"
 			:options="options"
 			:loading="loading"
 			:placeholder="placeholder"
@@ -86,9 +86,23 @@ const formatPersonOption = (person: GiftPersonInfo): PickerOption => {
 	};
 };
 
-const mergeOptions = (list: GiftPersonInfo[]) => {
+const filterOption = (input: string, option: any) => {
+	const label = option?.label ?? '';
+	return String(label).toLowerCase().includes(input.toLowerCase());
+};
+
+const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	const map = new Map<string, PickerOption>();
-	options.value.forEach((item) => map.set(item.value, item));
+	if (isSearch) {
+		if (modelValue.value) {
+			const selected = options.value.find((item) => item.value === modelValue.value);
+			if (selected) {
+				map.set(selected.value, selected);
+			}
+		}
+	} else {
+		options.value.forEach((item) => map.set(item.value, item));
+	}
 	list.forEach((person) => {
 		if (person.id) {
 			map.set(String(person.id), formatPersonOption(person));
@@ -98,6 +112,7 @@ const mergeOptions = (list: GiftPersonInfo[]) => {
 };
 
 const fetchPersonList = async (keyword?: string) => {
+	const trimmedKeyword = keyword?.trim();
 	loading.value = true;
 	try {
 		const {
@@ -105,11 +120,11 @@ const fetchPersonList = async (keyword?: string) => {
 			data,
 			message: msg,
 		} = await getGiftPersonList({
-			keyword: keyword?.trim() || undefined,
+			keyword: trimmedKeyword || undefined,
 			personScope: props.personScope,
 		});
 		if (code === '200') {
-			mergeOptions(data || []);
+			setOptions(data || [], Boolean(trimmedKeyword));
 		} else {
 			message.error(msg || '亲友列表加载失败');
 		}
@@ -124,7 +139,7 @@ const ensureSelectedOption = async (personId?: string) => {
 	}
 	const { code, data } = await getGiftPersonDetail(personId);
 	if (code === '200' && data?.id) {
-		mergeOptions([data]);
+		setOptions([data], false);
 	}
 };
 

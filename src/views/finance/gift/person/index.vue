@@ -103,27 +103,33 @@
 						<span>人情净值</span>
 						<span class="card-icon">💰</span>
 					</div>
-					<strong v-if="summary.netAmount && summary.netAmount >= 0"
-						>+{{ money(summary.netAmount) }}</strong
-					>
-					<strong v-else>{{ money(summary.netAmount) }}</strong>
+					<div class="metric-value-row">
+						<strong v-if="summary.netAmount && summary.netAmount >= 0"
+							>+{{ money(summary.netAmount) }}</strong
+						>
+						<strong v-else>{{ money(summary.netAmount) }}</strong>
+						<div class="balance-tag-group">
+							<span class="tag-pos" title="人情余额正值和（收大于送的亲友差额总和）">正: +{{ money(summary.positiveBalanceSum) }}</span>
+							<span class="tag-neg" title="人情余额负值和（送大于收的亲友差额总和）">负: -{{ money(summary.negativeBalanceSum) }}</span>
+						</div>
+					</div>
 					<p>累计收礼与送礼差值</p>
 				</div>
-				<div class="metric-card metric-card-gold">
+				<div class="metric-card metric-card-green">
 					<div class="metric-top">
-						<span>近期活跃关系</span>
-						<span class="card-icon">🔥</span>
+						<span>人情收礼总值</span>
+						<span class="card-icon">📥</span>
 					</div>
-					<strong>{{ summary.activeCount || 0 }} 人</strong>
-					<p>90天内有往来互动</p>
+					<strong>{{ money(summary.totalReceiveAmount) }}</strong>
+					<p>累计收到人情礼金</p>
 				</div>
 				<div class="metric-card metric-card-red">
 					<div class="metric-top">
-						<span>待维护关系</span>
-						<span class="card-icon">⚠️</span>
+						<span>人情随礼总值</span>
+						<span class="card-icon">📤</span>
 					</div>
-					<strong>{{ summary.pendingMaintenanceCount || 0 }} 人</strong>
-					<p>超过半年无互动往来</p>
+					<strong>{{ money(summary.totalGiveAmount) }}</strong>
+					<p>累计送出随礼礼金</p>
 				</div>
 			</div>
 		</a-spin>
@@ -689,6 +695,47 @@ onMounted(async () => {
 		margin-top: 20px;
 		font-size: 22px;
 		line-height: 1;
+	}
+
+	.metric-value-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 6px;
+		margin-top: 16px;
+
+		strong {
+			margin-top: 0;
+			display: inline-block;
+		}
+	}
+
+	.balance-tag-group {
+		display: inline-flex;
+		flex-direction: column;
+		gap: 2px;
+		font-size: 11px;
+		line-height: 1.2;
+
+		.tag-pos {
+			color: #389e0d;
+			background: #f6ffed;
+			border: 1px solid #b7eb8f;
+			padding: 0 4px;
+			border-radius: 3px;
+			font-weight: 600;
+			white-space: nowrap;
+		}
+
+		.tag-neg {
+			color: #cf1322;
+			background: #fff1f0;
+			border: 1px solid #ffa39e;
+			padding: 0 4px;
+			border-radius: 3px;
+			font-weight: 600;
+			white-space: nowrap;
+		}
 	}
 
 	p {

@@ -39,6 +39,10 @@ export interface GiftPersonBusinessInfo extends GiftPersonInfo {
 export interface GiftPersonSummary {
 	personCount?: number;
 	netAmount?: number;
+	positiveBalanceSum?: number;
+	negativeBalanceSum?: number;
+	totalReceiveAmount?: number;
+	totalGiveAmount?: number;
 	activeCount?: number;
 	pendingMaintenanceCount?: number;
 	yearTotalAmount?: number;

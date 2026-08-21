@@ -3,7 +3,7 @@
 		<a-select
 			v-model:value="modelValue"
 			show-search
-			:filter-option="false"
+			:filter-option="filterOption"
 			:options="options"
 			:loading="loading"
 			:placeholder="placeholder"
@@ -58,9 +58,23 @@ const formatMemberOption = (person: GiftPersonInfo): PickerOption => ({
 	label: person.personName || '家庭成员',
 });
 
-const mergeOptions = (list: GiftPersonInfo[]) => {
+const filterOption = (input: string, option: any) => {
+	const label = option?.label ?? '';
+	return String(label).toLowerCase().includes(input.toLowerCase());
+};
+
+const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	const map = new Map<string, PickerOption>();
-	options.value.forEach((item) => map.set(item.value, item));
+	if (isSearch) {
+		if (modelValue.value) {
+			const selected = options.value.find((item) => item.value === modelValue.value);
+			if (selected) {
+				map.set(selected.value, selected);
+			}
+		}
+	} else {
+		options.value.forEach((item) => map.set(item.value, item));
+	}
 	list.forEach((person) => {
 		if (person.id) {
 			map.set(String(person.id), formatMemberOption(person));
@@ -73,7 +87,7 @@ const applyCachedOrgMembers = () => {
 	if (!isWarmed()) {
 		return false;
 	}
-	mergeOptions(getOrgMembers());
+	setOptions(getOrgMembers(), false);
 	listLoaded.value = true;
 	return true;
 };
@@ -91,7 +105,7 @@ const fetchMemberList = async (keyword?: string) => {
 			message: msg,
 		} = await getGiftOrgMemberOptions(trimmedKeyword || undefined);
 		if (code === '200') {
-			mergeOptions(data || []);
+			setOptions(data || [], Boolean(trimmedKeyword));
 			if (!trimmedKeyword) {
 				listLoaded.value = true;
 			}
@@ -109,7 +123,7 @@ const ensureSelectedOption = async (personId?: string) => {
 	}
 	const { code, data } = await getGiftPersonDetail(personId);
 	if (code === '200' && data?.id) {
-		mergeOptions([data]);
+		setOptions([data], false);
 	}
 };
 
