@@ -101,6 +101,11 @@
 				:row-selection="rowSelection"
 				data-testid="rbac-role-table"
 			>
+				<template #emptyText>
+					<a-empty
+						description="当前机构范围内暂无角色。可新建并绑定机构，或请超管将角色绑定到本机构。"
+					/>
+				</template>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
 						<a-space>

@@ -69,3 +69,13 @@ export function assignRolePermissions(
 		permissionIds,
 	});
 }
+
+export function assignRoleOrgs(
+	roleId: string,
+	orgIds: string[],
+): Promise<ResponseBody<boolean>> {
+	return postData(baseService.user + baseRoleInfo + '/assign-orgs', {
+		roleId,
+		orgIds,
+	});
+}

@@ -83,6 +83,24 @@
 						</a-form-item>
 					</a-col>
 				</a-row>
+				<a-row :gutter="24">
+					<a-col :span="24">
+						<a-form-item
+							:name="labelMap['orgIds'].name"
+							:label="labelMap['orgIds'].label"
+						>
+							<a-select
+								v-model:value="formState.orgIds"
+								mode="multiple"
+								:options="orgOptions"
+								:field-names="{ label: 'orgName', value: 'id' }"
+								:placeholder="'请选择' + labelMap['orgIds'].label"
+								allow-clear
+								data-testid="rbac-role-org-select"
+							/>
+						</a-form-item>
+					</a-col>
+				</a-row>
 			</a-form>
 			<div>菜单权限</div>
 			<div>
@@ -111,7 +129,10 @@ import {
 	addRoleInfo,
 	editRoleInfo,
 	assignRolePermissions,
+	assignRoleOrgs,
 } from '@/views/user/roleInfo/api';
+import { getOrgInfoPage } from '@/views/user/orgInfo/api';
+import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { getPermissionInfoList } from '@/views/user/permissionInfo/api';
 
 const { getDictByType } = useDictInfo('is_valid');
@@ -127,14 +148,29 @@ const modelConfig = {
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
-const formState = ref<RoleInfoData>({});
+const formState = ref<RoleInfoData>({ orgIds: [] });
+
+const initialOrgIds = ref<string[]>([]);
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
 
+const orgOptions = ref<OrgInfoData[]>([]);
+
 const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
+
+const normalizeOrgIds = (ids?: (string | number)[] | null): string[] =>
+	(ids || []).map((id) => String(id)).filter(Boolean);
+
+const orgIdsChanged = (next: string[], prev: string[]) => {
+	if (next.length !== prev.length) {
+		return true;
+	}
+	const prevSet = new Set(prev);
+	return next.some((id) => !prevSet.has(id));
+};
 
 const handleOk = () => {
 	loading.value = true;
@@ -152,10 +188,11 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
-// 主数据与权限两阶段保存：先 add/edit 角色，再 assign-permissions
+// 主数据与权限两阶段保存：先 add/edit 角色，再 assign-permissions；编辑时机构变更再 assign-orgs
 const saveRoleInfoManager = async () => {
 	const payload = { ...formState.value };
 	delete (payload as { permissionList?: unknown }).permissionList;
+	payload.orgIds = normalizeOrgIds(payload.orgIds);
 
 	const isEdit = !!payload.id;
 	let roleId = '';
@@ -169,7 +206,7 @@ const saveRoleInfoManager = async () => {
 		}
 		roleId = String(payload.id);
 	} else {
-		// 新增：直接使用后端返回的新建角色 id，避免 roleCode LIKE 回查误匹配
+		// 新增：orgIds 随 RoleInfoVo 一并提交，后端可直接绑定
 		const { code, data, message: messageInfo } = await addRoleInfo(payload);
 		if (code !== '200') {
 			loading.value = false;
@@ -185,6 +222,18 @@ const saveRoleInfoManager = async () => {
 		modelInfo.value.open = false;
 		emit('success');
 		return;
+	}
+
+	if (isEdit && orgIdsChanged(payload.orgIds || [], initialOrgIds.value)) {
+		const {
+			code: orgCode,
+			message: orgMessage,
+		} = await assignRoleOrgs(roleId, payload.orgIds || []);
+		if (orgCode !== '200') {
+			loading.value = false;
+			message.error(orgMessage || '角色已保存，机构绑定失败');
+			return;
+		}
 	}
 
 	const permissionIds = selectPermission.value.map((id) => String(id));
@@ -203,11 +252,30 @@ const saveRoleInfoManager = async () => {
 	}
 };
 
+const loadOrgOptions = async () => {
+	const { code, data, message: messageInfo } = await getOrgInfoPage(
+		{ status: '1' },
+		1,
+		1000,
+	);
+	if (code === '200') {
+		orgOptions.value = (data?.records || []).map((item) => ({
+			...item,
+			id: item.id != null ? String(item.id) : item.id,
+		}));
+	} else {
+		message.error(messageInfo || '获取机构列表失败！');
+	}
+};
+
 const init = async () => {
 	permissionTree.value = [];
 	selectPermission.value = [];
-	formState.value = {};
+	formState.value = { orgIds: [] };
+	initialOrgIds.value = [];
 	modelConfig.confirmLoading = true;
+
+	await loadOrgOptions();
 
 	const roleId = modelInfo.value?.id;
 	if (roleId) {
@@ -217,7 +285,10 @@ const init = async () => {
 			message: messageInfo,
 		} = await getRoleInfoDetail(String(roleId));
 		if (code === '200') {
-			formState.value = data || {};
+			const detail = data || {};
+			const orgIds = normalizeOrgIds(detail.orgIds);
+			formState.value = { ...detail, orgIds };
+			initialOrgIds.value = [...orgIds];
 			permissionTree.value =
 				(data as { permissionList?: unknown[] })?.permissionList || [];
 			selectPermission.value =

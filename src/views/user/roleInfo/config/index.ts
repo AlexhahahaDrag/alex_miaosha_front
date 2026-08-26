@@ -32,6 +32,7 @@ export const columns = ref<TableColumnsType>([
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orgId: { name: 'orgId', label: '公司角色id' },
+	orgIds: { name: 'orgIds', label: '绑定机构' },
 	userId: { name: 'userId', label: '用户id' },
 	roleCode: { name: 'roleCode', label: '角色编码' },
 	roleName: { name: 'roleName', label: '角色名称' },
@@ -45,6 +46,7 @@ export interface RoleInfoData {
 	roleName?: string;
 	summary?: string;
 	status?: string;
+	orgIds?: string[];
 	permissionList?: PermissionInfo[];
 }
 
@@ -71,6 +73,14 @@ export const rulesRef = reactive({
 		{
 			required: true,
 			message: '状态不能为空！',
+		},
+	],
+	orgIds: [
+		{
+			required: true,
+			type: 'array',
+			min: 1,
+			message: '请至少绑定一个机构！',
 		},
 	],
 });
