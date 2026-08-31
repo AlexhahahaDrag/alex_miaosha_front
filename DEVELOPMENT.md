@@ -219,6 +219,12 @@ src/views/finance/gift/
 
 > 按 `.cursorrules` 要求：功能变动需同步记录，避免遗漏上下文。
 
+## AI 对话接口路径（2026-08-31）
+
+- PC `src/views/tools/ai-chat`：`chatAi` / `chatAiStream` 对应网关
+  `POST /am-ai/api/v1/ai/chat` 与 `POST /am-ai/api/v1/ai/chat/stream`（原 `/analyze*` 已硬切下线）。
+- 响应仍为结构化 `summary` + `keyPoints`；流式事件 `meta` / `delta` / `done` / `error`。
+
 ## RBAC 批次 3（2026-08-11）
 
 - **机构表批量删除**：`src/views/user/orgInfo/index.vue` 表格新增 `rowSelection` + 批量删除按钮（`data-testid="rbac-org-batch-delete"`），复用已支持逗号串 `ids` 的 `deleteOrgInfo`。
