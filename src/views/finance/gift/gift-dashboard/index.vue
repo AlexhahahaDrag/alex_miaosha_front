@@ -265,6 +265,7 @@ import {
 import GiftEmptyState from '@/views/finance/gift/gift-dashboard/components/GiftEmptyState.vue';
 import GiftMetricCard from '@/views/finance/gift/gift-dashboard/components/GiftMetricCard.vue';
 import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
+import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import {
 	averageOf,
 	buildSparklinePoints,
@@ -475,16 +476,7 @@ const aiSuggestionText = computed(() => {
 	return `根据您的历史记录，建议为近期重要往来预留约 ${money(aiReserveAmount.value)} 的礼金支出，以保持良好的人情关系。`;
 });
 
-const hasOverviewData = computed(() => {
-	const o = summary.value;
-	return (
-		o.recordCount != null ||
-		o.receiveAmount != null ||
-		o.giveAmount != null ||
-		o.returnAmount != null ||
-		o.netAmount != null
-	);
-});
+const hasOverviewData = computed(() => hasMeaningfulOverview(summary.value));
 
 const showAiInsight = computed(
 	() => hasPermission('gift:view') && hasOverviewData.value,

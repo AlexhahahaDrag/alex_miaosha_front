@@ -170,6 +170,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
+import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import { usePermission } from '@/composables/usePermission';
 import {
 	getGiftAnalysisEventRanking,
@@ -286,16 +287,7 @@ const toRankingRows = (rows: GiftRankingItem[]) => {
 const eventRankingRows = computed(() => toRankingRows(eventRanking.value));
 const personRankingRows = computed(() => toRankingRows(personRanking.value));
 
-const hasOverviewData = computed(() => {
-	const o = overview.value;
-	return (
-		o.recordCount != null ||
-		o.receiveAmount != null ||
-		o.giveAmount != null ||
-		o.returnAmount != null ||
-		o.netAmount != null
-	);
-});
+const hasOverviewData = computed(() => hasMeaningfulOverview(overview.value));
 
 const showAiInsight = computed(
 	() => hasPermission('gift:view') && hasOverviewData.value,
