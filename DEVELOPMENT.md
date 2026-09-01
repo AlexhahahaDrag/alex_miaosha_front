@@ -188,13 +188,15 @@ alex_miaosha_front/
 
 ```text
 src/views/finance/gift/
+├── ai/                 # Gift AI 客户端与洞察面板（P0–P1）
 ├── api/
 ├── config/
-├── dashboard/
+├── gift-dashboard/
 ├── person/
 ├── event/
 ├── record/
-└── analysis/
+├── analysis/
+└── components/
 ```
 
 ### 页面规范
@@ -224,6 +226,12 @@ src/views/finance/gift/
 - PC `src/views/tools/ai-chat`：`chatAi` / `chatAiStream` 对应网关
   `POST /am-ai/api/v1/ai/chat` 与 `POST /am-ai/api/v1/ai/chat/stream`（原 `/analyze*` 已硬切下线）。
 - 响应仍为结构化 `summary` + `keyPoints`；流式事件 `meta` / `delta` / `done` / `error`。
+
+## Gift AI 洞察面板（2026-09-01）
+
+- `src/views/finance/gift/ai/GiftAiInsightPanel.vue`：可复用「AI 解读」流式面板，消费 `buildGiftAnalysisAiRequest` + `chatGiftAiStream`。
+- 挂载：`gift-dashboard/index.vue`、`analysis/index.vue`；仅 `hasPermission('gift:view')` 且 overview 字段非空时渲染。
+- AI 只读展示文案，不调用 gift CRUD / `recommend-amount`。
 
 ## RBAC 批次 3（2026-08-11）
 

@@ -73,6 +73,21 @@
 				</div>
 			</div>
 
+			<section
+				v-if="showAiInsight"
+				class="ai-insight-mount"
+				data-testid="gift-analysis-ai-insight"
+			>
+				<gift-ai-insight-panel
+					:overview="aiOverview"
+					:trend="trendRows"
+					:relation-distribution="relationRows"
+					:event-ranking="eventRanking"
+					:person-ranking="personRanking"
+					:disabled="loading"
+				/>
+			</section>
+
 			<div class="main-grid">
 				<section class="panel trend-panel">
 					<div class="panel-head">
@@ -154,6 +169,7 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
+import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
 import { usePermission } from '@/composables/usePermission';
 import {
 	getGiftAnalysisEventRanking,
@@ -269,6 +285,25 @@ const toRankingRows = (rows: GiftRankingItem[]) => {
 
 const eventRankingRows = computed(() => toRankingRows(eventRanking.value));
 const personRankingRows = computed(() => toRankingRows(personRanking.value));
+
+const hasOverviewData = computed(() => {
+	const o = overview.value;
+	return (
+		o.recordCount != null ||
+		o.receiveAmount != null ||
+		o.giveAmount != null ||
+		o.returnAmount != null ||
+		o.netAmount != null
+	);
+});
+
+const showAiInsight = computed(
+	() => hasPermission('gift:view') && hasOverviewData.value,
+);
+
+const aiOverview = computed(
+	() => ({ ...overview.value }) as Record<string, unknown>,
+);
 
 const relationPercent = (count?: number) => {
 	const maxCount = Math.max(
@@ -405,6 +440,10 @@ watch([period, analysisType], () => {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 14px;
+	margin-bottom: 16px;
+}
+
+.ai-insight-mount {
 	margin-bottom: 16px;
 }
 
