@@ -13,7 +13,7 @@ export default defineConfig({
 	},
 	test: {
 		environment: 'node',
-		include: ['tests/**/*.test.ts'],
+		include: ['tests/**/*.test.ts', 'src/**/*.spec.ts'],
 		// 既有 permission-context 为裸断言脚本，非 vitest describe；排除以免误跑
 		exclude: ['tests/permission/**'],
 		setupFiles: ['tests/setup.ts'],
