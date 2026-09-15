@@ -7,14 +7,12 @@ import {
 
 const admin = {
 	permissionContext: {
-		menuList: [{ id: '1', permissionCode: 'user:list' }],
 		roleList: [{ roleCode: 'admin' }],
 		orgInfo: { id: '10', orgName: '总公司' },
 		permissionCodes: ['user:list'],
 		buttonPermissionCodes: ['user:add'],
 		superAdmin: false,
 	},
-	menuInfoVoList: [],
 	roleInfoVo: { roleCode: 'old', permissionList: [] },
 	orgInfoVo: null,
 };
@@ -22,8 +20,8 @@ const admin = {
 const context = normalizePermissionContext(admin as any);
 const permissionSet = buildPermissionSet(context);
 
-if (context.menuList.length !== 1) {
-	throw new Error('permissionContext.menuList should be preferred over legacy menuInfoVoList');
+if ('menuList' in context) {
+	throw new Error('PermissionContext should not include menuList');
 }
 
 if (!canAccessPermission(permissionSet, 'user:add', false)) {

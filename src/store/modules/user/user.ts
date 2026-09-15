@@ -72,8 +72,8 @@ export const useUserStore = defineStore(
 			localStorage.setItem('token', token.value);
 		}
 
-		function setMenuInfo(info: MenuInfoData[]) {
-			menuInfo.value = info ? info : null;
+		function setMenuInfo(info: MenuInfoData[] | null | undefined) {
+			menuInfo.value = info ?? null;
 			localStorage.setItem('menuInfo', JSON.stringify(menuInfo.value));
 		}
 
@@ -126,7 +126,8 @@ export const useUserStore = defineStore(
 					// save token
 					setToken(tokenVal);
 					setPermissionContext(normalizedContext);
-					setMenuInfo(normalizedContext.menuList);
+					// Menus loaded on enter via GET /user/menus (login slim)
+					setMenuInfo([]);
 					setRoleInfo(normalizedContext.roleList[0] || null);
 					setOrgInfo(normalizedContext.orgInfo);
 					changeRouteStatus(false);

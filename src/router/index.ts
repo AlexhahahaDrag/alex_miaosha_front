@@ -10,6 +10,8 @@ import {
 	canAccessPermission,
 	isSuperAdmin,
 } from '@/utils/permission';
+import { getUserMenusApi } from '@/views/login/api';
+import { message } from 'ant-design-vue';
 
 const modules = import.meta.glob([
 	'@/views/**/**.vue',
@@ -183,6 +185,27 @@ router.beforeEach(async (to: any, _from, next) => {
 	} else if (userStore.getToken) {
 		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
+			if (!userStore.getMenuInfo?.length) {
+				try {
+					const {
+						code,
+						data,
+						message: messageInfo,
+					} = await getUserMenusApi();
+					if (code == '200' && data?.length) {
+						userStore.setMenuInfo(data);
+					} else {
+						message.error(messageInfo || '加载菜单失败');
+						next({ name: 'login' });
+						return;
+					}
+				} catch (error: unknown) {
+					console.error('加载用户菜单失败：', error);
+					message.error('加载菜单失败，请重新登录');
+					next({ name: 'login' });
+					return;
+				}
+			}
 			await addRouter();
 			next({ ...to, replace: true });
 		} else {

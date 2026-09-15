@@ -43,7 +43,10 @@
 通用能力按职责分层，避免在业务页面重复实现：
 
 - **路由与权限**：`src/router/`、`src/utils/permission/`
+  - 登录响应**不含**菜单树；进入系统时由路由守卫调用 `GET /user/menus`（`getUserMenusApi`）再 `setMenuInfo` + `addRouter`。
+  - **PermissionContext**：仅 org / roles / permissionCodes / buttonPermissionCodes / superAdmin；**不含**菜单。菜单仅守卫 `GET /user/menus` → `setMenuInfo`。
 - **状态管理（Pinia）**：`src/store/modules/`
+  - `app-user.login` 只持久化 token / 用户 / 机构角色 / 权限码；菜单不从登录体写入。
 - **通用组件**：`src/components/`、`src/layout/`
 - **业务页面**：`src/views/`
 - **工具方法**：`src/utils/`
