@@ -144,10 +144,16 @@
 					<a-row :gutter="24">
 						<a-col :span="20" style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="() => query(true)"
-									>查找</a-button
+								<a-button
+									type="primary"
+									data-testid="rbac-menu-btn-query"
+									@click="() => query(true)"
 								>
-								<a-button @click="cancelQuery">清空</a-button>
+									查找
+								</a-button>
+								<a-button data-testid="rbac-menu-btn-reset" @click="cancelQuery">
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -159,6 +165,7 @@
 				<a-button
 					v-permission="'menu:add'"
 					type="primary"
+					data-testid="rbac-menu-btn-add"
 					@click="editMenuInfo('add')"
 				>
 					新增
@@ -167,6 +174,7 @@
 					v-permission="'menu:delete'"
 					type="primary"
 					danger
+					data-testid="rbac-menu-btn-batch-delete"
 					@click="batchDelMenuInfo"
 				>
 					删除
@@ -182,6 +190,7 @@
 				:pagination="pagination"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				data-testid="rbac-menu-table"
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
@@ -191,6 +200,7 @@
 								v-permission="'menu:add'"
 								type="primary"
 								size="small"
+								data-testid="rbac-menu-row-add-child"
 								@click="openSubMenuManager(record)"
 							>
 								子菜单
@@ -199,6 +209,7 @@
 								v-permission="'menu:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-menu-row-edit"
 								@click="editMenuInfo('update', record.id)"
 							>
 								编辑
@@ -210,7 +221,14 @@
 								cancel-text="取消"
 								@confirm="delMenuInfo(record.id)"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-menu-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>
@@ -233,7 +251,7 @@
 <script setup lang="ts">
 // 1. Imports (框架 > 公共组件 > 业务组件 > 工具函数 > 类型定义)
 import { ref, computed, watch } from 'vue';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import MenuInfoDetail from './menuInfoDetail/index.vue';
 import SubMenuManager from './subMenuManager/index.vue';
@@ -308,7 +326,14 @@ const batchDelMenuInfo = () => {
 		message.warning('请先选择数据！');
 		return;
 	}
-	delMenuInfo(rowIds.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delMenuInfo(rowIds.join(',')),
+	});
 };
 
 const editMenuInfo = (type: string, id?: string) => {

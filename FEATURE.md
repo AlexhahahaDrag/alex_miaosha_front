@@ -14,11 +14,17 @@
 
 ### 页面能力
 
-- 数据概览：展示本月收礼、本月随礼、待回礼、人情净值与趋势。
+- 数据概览：展示本月收礼、本月随礼、待回礼、人情净值与趋势；在具备 `gift:view` 且 overview 有数据时挂载 `GiftAiInsightPanel`（流式 AI 解读，只读展示）。
 - 亲友管理：支持搜索、新增、编辑、详情抽屉、历史送礼、历史收礼、人情净值、参与事件。
 - 事由管理：支持新增、编辑、删除、汇总统计、收礼人数、随礼人数、总金额。
 - 礼金记录：支持高级筛选、分页、排序、汇总统计、Excel 导出、回礼状态列、待回金额列。
-- 统计报表：支持月度统计、年度统计、收礼排行、随礼排行、人情净值分析与趋势图表。
+- 统计报表：支持月度统计、年度统计、收礼排行、随礼排行、人情净值分析与趋势图表；同样在 `gift:view` + overview 非空时挂载 AI 洞察面板。
+
+### Gift AI（P0–P1）
+
+- 客户端：`src/views/finance/gift/ai/`（`chatGiftAi` / `chatGiftAiStream`、`buildGiftAnalysisAiRequest`、`GiftAiInsightPanel`）。
+- 约束：AI 不写 gift CRUD；`bizType=gift-analysis`；context 中 ID 为 string、默认不含手机号；入口权限 `gift:view`。
+- 测试标识：`gift-ai-insight-panel` / `gift-ai-insight-run` / `gift-ai-insight-abort` / `gift-ai-insight-summary` / `gift-ai-insight-error` / `gift-ai-insight-keypoints`。
 
 ### 权限
 

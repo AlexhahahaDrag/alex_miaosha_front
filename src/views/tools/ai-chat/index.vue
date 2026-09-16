@@ -65,6 +65,13 @@
 
 					<div class="header-right">
 						<a-space :size="12" wrap>
+							<a-radio-group
+								v-model:value="responseMode"
+								option-type="button"
+								button-style="solid"
+								size="small"
+								:options="responseModeOptions"
+							/>
 							<a-select
 								v-model:value="engine"
 								style="width: 130px"
@@ -148,10 +155,10 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { analyzeAi } from './api';
-import type { AiAnalyzeReq, AiAnalyzeResp } from './api';
+import { chatAi, chatAiStream } from './api';
+import type { AiAnalyzeReq, AiAnalyzeResp, AiResponseMode } from './api';
 
-type EngineKey = 'deepseek' | 'rule-based';
+type EngineKey = 'deepseek' | 'rule-based' | 'sensenova';
 type MessageRole = 'user' | 'assistant';
 type MessageStatus = 'done' | 'loading' | 'error';
 
@@ -178,6 +185,11 @@ const engineOptions = [
 	{ label: '规则引擎', value: 'rule-based' },
 ];
 
+const responseModeOptions = [
+	{ label: '整包', value: 'batch' },
+	{ label: '流式', value: 'stream' },
+];
+
 const keyword = ref<string>('');
 const conversations = ref<Conversation[]>([]);
 const activeConversationId = ref<string>('');
@@ -185,10 +197,12 @@ const activeConversationId = ref<string>('');
 const engine = ref<EngineKey>('deepseek');
 const model = ref<string>('');
 const temperature = ref<number>(0.2);
+const responseMode = ref<AiResponseMode>('batch');
 
 const input = ref<string>('');
 const sending = ref<boolean>(false);
 const messagesWrapRef = ref<HTMLDivElement | null>(null);
+let streamAbort: AbortController | null = null;
 
 const activeEngineLabel = computed(() => {
 	const hit = engineOptions.find((i) => i.value === engine.value);
@@ -227,6 +241,7 @@ const onPersist = () => {
 			engine: engine.value,
 			model: model.value,
 			temperature: temperature.value,
+			responseMode: responseMode.value,
 		};
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 	} catch {
@@ -246,6 +261,7 @@ const onRestore = () => {
 			engine: EngineKey;
 			model: string;
 			temperature: number;
+			responseMode: AiResponseMode;
 		}>;
 		conversations.value = parsed.conversations || [];
 		activeConversationId.value =
@@ -254,6 +270,8 @@ const onRestore = () => {
 		model.value = parsed.model || '';
 		temperature.value =
 			typeof parsed.temperature === 'number' ? parsed.temperature : 0.2;
+		responseMode.value =
+			parsed.responseMode === 'stream' ? 'stream' : 'batch';
 	} catch {
 		// ignore
 	}
@@ -305,6 +323,13 @@ const onClearInput = () => {
 	input.value = '';
 };
 
+const abortActiveStream = () => {
+	if (streamAbort) {
+		streamAbort.abort();
+		streamAbort = null;
+	}
+};
+
 const buildAssistantText = (resp: AiAnalyzeResp | undefined): string => {
 	if (!resp) return 'AI 返回为空。';
 	const summary = (resp.summary || '').trim();
@@ -318,6 +343,33 @@ const buildAssistantText = (resp: AiAnalyzeResp | undefined): string => {
 	);
 };
 
+const finishAssistantFromStream = (
+	assistantMsg: ChatMessage,
+	streamed: string,
+	resp?: AiAnalyzeResp,
+) => {
+	// 中途 LLM 失败后 Router 回退：wire 上可能已有 LLM delta，done.engine 含 fallback 时整段替换，避免拼接污染
+	const engine = (resp?.engine || '').toLowerCase();
+	if (engine.includes('fallback')) {
+		assistantMsg.content = buildAssistantText(resp);
+		assistantMsg.status = 'done';
+		return;
+	}
+	const points = resp?.keyPoints || [];
+	const summary = (resp?.summary || '').trim();
+	const body = streamed.trim() || summary;
+	if (body && points.length) {
+		assistantMsg.content = `${body}\n\n要点：\n- ${points.join('\n- ')}`;
+	} else if (body) {
+		assistantMsg.content = body;
+	} else if (points.length) {
+		assistantMsg.content = `要点：\n- ${points.join('\n- ')}`;
+	} else {
+		assistantMsg.content = buildAssistantText(resp);
+	}
+	assistantMsg.status = 'done';
+};
+
 const onSend = async () => {
 	if (!canSend.value) return;
 
@@ -327,6 +379,8 @@ const onSend = async () => {
 	}
 	const conv = activeConversation.value;
 	if (!conv) return;
+
+	abortActiveStream();
 
 	const content = input.value.trim();
 	input.value = '';
@@ -340,15 +394,19 @@ const onSend = async () => {
 		createdAt: Date.now(),
 	};
 
+	const isStream = responseMode.value === 'stream';
 	const assistantMsg: ChatMessage = {
 		id: buildId(),
 		role: 'assistant',
-		content: '思考中…',
+		content: isStream ? '' : '思考中…',
 		status: 'loading',
 		createdAt: Date.now(),
 	};
 
 	conv.messages.push(userMsg, assistantMsg);
+	// 取数组内响应式代理，保证流式 delta 能触发视图更新
+	const assistant =
+		conv.messages[conv.messages.length - 1] || assistantMsg;
 	conv.updatedAt = Date.now();
 
 	// AI Agent：首条消息更新标题（更像 ChatGPT）
@@ -376,20 +434,55 @@ const onSend = async () => {
 	};
 
 	try {
-		const { code, data, message: msg } = await analyzeAi(req);
-		if (code === '200') {
-			assistantMsg.content = buildAssistantText(data);
-			assistantMsg.status = 'done';
+		if (isStream) {
+			const controller = new AbortController();
+			streamAbort = controller;
+			let streamed = '';
+
+			await chatAiStream(
+				req,
+				{
+					onDelta: (text) => {
+						streamed += text;
+						assistant.content = streamed;
+						onScrollToBottom();
+					},
+					onDone: (data) => {
+						finishAssistantFromStream(assistant, streamed, data);
+					},
+					onError: (err) => {
+						assistant.content =
+							err.message || streamed || 'AI 流式对话失败';
+						assistant.status = 'error';
+						message.error(err.message || 'AI 流式对话失败');
+					},
+				},
+				controller.signal,
+			);
+
+			if (controller.signal.aborted && assistant.status === 'loading') {
+				assistant.content = streamed || '已取消';
+				assistant.status = 'error';
+			}
 		} else {
-			assistantMsg.content = msg || 'AI 分析失败';
-			assistantMsg.status = 'error';
-			message.error(msg || 'AI 分析失败');
+			const { code, data, message: msg } = await chatAi(req);
+			if (code === '200') {
+				assistant.content = buildAssistantText(data);
+				assistant.status = 'done';
+			} else {
+				assistant.content = msg || 'AI 对话失败';
+				assistant.status = 'error';
+				message.error(msg || 'AI 对话失败');
+			}
 		}
 	} catch (e: any) {
-		assistantMsg.content = '网络异常或服务不可用，请稍后重试。';
-		assistantMsg.status = 'error';
+		assistant.content = '网络异常或服务不可用，请稍后重试。';
+		assistant.status = 'error';
 		message.error('请求失败，请检查网关/AI 服务是否已启动');
 	} finally {
+		if (streamAbort) {
+			streamAbort = null;
+		}
 		sending.value = false;
 		conv.updatedAt = Date.now();
 		onPersist();
@@ -416,6 +509,10 @@ onMounted(() => {
 	onScrollToBottom();
 });
 
+onUnmounted(() => {
+	abortActiveStream();
+});
+
 watch(
 	() => [
 		conversations.value,
@@ -423,6 +520,7 @@ watch(
 		engine.value,
 		model.value,
 		temperature.value,
+		responseMode.value,
 	],
 	() => {
 		onPersist();

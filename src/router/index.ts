@@ -11,6 +11,8 @@ import {
 	canAccessPermission,
 	isSuperAdmin,
 } from '@/utils/permission';
+import { getUserMenusApi } from '@/views/login/api';
+import { message } from 'ant-design-vue';
 
 const ParentLayout = defineComponent({
 	name: 'ParentLayout',
@@ -41,6 +43,20 @@ export const routes: MenuDataItem[] = [
 				component: modules['/src/views/home-dashboard/index.vue'],
 				name: 'homeDashboard',
 				meta: { title: '首页', icon: 'dashboard', hideInMenu: true },
+			},
+			{
+				// RBAC-PC-RELATION-001：独立机构-用户关系配置页，暂未纳入后端菜单树，
+				// 通过机构/角色列表页的快捷入口跳转访问，hideInMenu 避免在侧边栏产生重复入口。
+				path: '/user/org-user-info',
+				component: modules['/src/views/user/orgUserInfo/index.vue'],
+				name: 'orgUserInfo',
+				meta: { title: '机构-用户关系配置', hideInMenu: true },
+			},
+			{
+				path: '/user/role-user-info',
+				component: modules['/src/views/user/roleUserInfo/index.vue'],
+				name: 'roleUserInfo',
+				meta: { title: '角色-用户关系配置', hideInMenu: true },
 			},
 		],
 	},
@@ -187,6 +203,27 @@ router.beforeEach(async (to: any, _from, next) => {
 	} else if (userStore.getToken) {
 		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
+			if (!userStore.getMenuInfo?.length) {
+				try {
+					const {
+						code,
+						data,
+						message: messageInfo,
+					} = await getUserMenusApi();
+					if (code == '200' && data?.length) {
+						userStore.setMenuInfo(data);
+					} else {
+						message.error(messageInfo || '加载菜单失败');
+						next({ name: 'login' });
+						return;
+					}
+				} catch (error: unknown) {
+					console.error('加载用户菜单失败：', error);
+					message.error('加载菜单失败，请重新登录');
+					next({ name: 'login' });
+					return;
+				}
+			}
 			await addRouter();
 			// 必须通过 path 重新解析，不能携带未匹配时固化的 name: '404'
 			next({ path: to.fullPath || to.path, query: to.query, hash: to.hash, replace: true });

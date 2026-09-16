@@ -63,3 +63,12 @@ export function editPermissionInfo(
 		params,
 	);
 }
+
+export function getPermissionInfoList(
+	params?: Record<string, unknown>,
+): Promise<ResponseBody<unknown[]>> {
+	return postData(
+		baseService.user + basePermissionInfo + '/list',
+		params ?? {},
+	);
+}

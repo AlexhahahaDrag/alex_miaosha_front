@@ -43,7 +43,10 @@
 通用能力按职责分层，避免在业务页面重复实现：
 
 - **路由与权限**：`src/router/`、`src/utils/permission/`
+  - 登录响应**不含**菜单树；进入系统时由路由守卫调用 `GET /user/menus`（`getUserMenusApi`）再 `setMenuInfo` + `addRouter`。
+  - **PermissionContext**：仅 org / roles / permissionCodes / buttonPermissionCodes / superAdmin；**不含**菜单。菜单仅守卫 `GET /user/menus` → `setMenuInfo`。
 - **状态管理（Pinia）**：`src/store/modules/`
+  - `app-user.login` 只持久化 token / 用户 / 机构角色 / 权限码；菜单不从登录体写入。
 - **通用组件**：`src/components/`、`src/layout/`
 - **业务页面**：`src/views/`
 - **工具方法**：`src/utils/`
@@ -188,13 +191,15 @@ alex_miaosha_front/
 
 ```text
 src/views/finance/gift/
+├── ai/                 # Gift AI 客户端与洞察面板（P0–P1）
 ├── api/
 ├── config/
-├── dashboard/
+├── gift-dashboard/
 ├── person/
 ├── event/
 ├── record/
-└── analysis/
+├── analysis/
+└── components/
 ```
 
 ### 页面规范
@@ -212,3 +217,34 @@ src/views/finance/gift/
 - 联系人头像：读写 `avatar`（fileId，string）；展示用只读 `fileInfoVo`（`GiftFileInfo`，对齐 `my-upload` 的 `FileInfo`）；`personAvatarSrc` 优先缩略图。保存 payload 勿回传 `fileInfoVo`。
 - 不手动修改 `components.d.ts`、`src/auto-imports.d.ts` 等生成文件。
 - 新增 Midscene/RBAC smoke 用例时，统一维护在 `tests/midscene/rbac/cases/smoke.json`。
+
+---
+
+# 开发笔记（DEVELOPMENT）
+
+> 按 `.cursorrules` 要求：功能变动需同步记录，避免遗漏上下文。
+
+## AI 对话接口路径（2026-08-31）
+
+- PC `src/views/tools/ai-chat`：`chatAi` / `chatAiStream` 对应网关
+  `POST /am-ai/api/v1/ai/chat` 与 `POST /am-ai/api/v1/ai/chat/stream`（原 `/analyze*` 已硬切下线）。
+- 响应仍为结构化 `summary` + `keyPoints`；流式事件 `meta` / `delta` / `done` / `error`。
+
+## Gift AI 洞察面板（2026-09-01）
+
+- `src/views/finance/gift/ai/GiftAiInsightPanel.vue`：可复用「AI 解读」流式面板，消费 `buildGiftAnalysisAiRequest` + `chatGiftAiStream`。
+- 挂载：`gift-dashboard/index.vue`、`analysis/index.vue`；仅 `hasPermission('gift:view')` 且 overview 字段非空时渲染。
+- AI 只读展示文案，不调用 gift CRUD / `recommend-amount`。
+
+## RBAC 批次 3（2026-08-11）
+
+- **机构表批量删除**：`src/views/user/orgInfo/index.vue` 表格新增 `rowSelection` + 批量删除按钮（`data-testid="rbac-org-batch-delete"`），复用已支持逗号串 `ids` 的 `deleteOrgInfo`。
+- **机构树数据源**：机构管理左树改为消费后端 `POST /org-info/tree`（`getOrgInfoTree`），不再前端拼树。
+- **rbac 组件接线**：`orgInfoDetail` 由 `a-modal` 改为 `BaseRbacDrawer`；`roleInfo/authorizationDetail` 的权限树由旧 `menu-tree` 改为 `RbacPermissionTreePanel`。
+- **用户启停**：`userManager` 列表状态列改为 `a-switch`，调用新增的 `PUT /user/status`（`updateUserStatus`），行内 loading 防连点。
+- **独立关系配置页**（RBAC-PC-RELATION-001）：
+  - `src/views/user/orgUserInfo/index.vue`：机构-用户关系（单用户唯一有效机构），路由 `/user/org-user-info`。
+  - `src/views/user/roleUserInfo/index.vue`：角色-用户关系（全量替换），路由 `/user/role-user-info`。
+  - 两页均使用 `RbacDualListSelector` 编辑草稿 + `RbacDiffPreview` 预览变更 + 保存后落库；原有角色/机构详情内的快捷分配入口保留，同时在列表页新增跳转按钮。
+  - 两条路由暂以静态路由（`hideInMenu: true`）挂在 `home` 布局下，尚未在后端菜单树注册；如需侧边栏可见，需后续补充菜单数据。
+- **数据范围提示**（RBAC-PC-SCOPE-001/002）：新增 `useDataScopeHint()`（`src/composables/useDataScopeHint.ts`，纯映射逻辑拆到 `dataScopeHint.ts` 便于单测），挂到用户/机构/角色列表页顶栏；口径：超级管理员「全部机构」、机构管理员「本机构及下级机构」、普通用户「仅本人所属机构」。单测见 `tests/scope/data-scope-hint.test.ts`。

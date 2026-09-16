@@ -1,25 +1,15 @@
 <template>
 	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '860px'"
+		<base-rbac-drawer
+			:open="!!modelInfo.open"
+			:width="modelInfo?.width || 640"
 			:title="modelInfo?.title || '机构信息'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
+			:loading="loading || modelConfig.confirmLoading"
+			:destroy-on-close="modelConfig.destroyOnClose"
+			@update:open="(open) => (modelInfo.open = open)"
+			@save="handleOk"
 			@cancel="handleCancel"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
 			<a-form
 				ref="formRef"
 				name="OrgInfoForm"
@@ -120,7 +110,7 @@
 					</a-col>
 				</a-row>
 			</a-form>
-		</a-modal>
+		</base-rbac-drawer>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -142,7 +132,7 @@ import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
 
-const props = defineProps<{
+defineProps<{
 	treeData?: TreeDataItem[];
 }>();
 

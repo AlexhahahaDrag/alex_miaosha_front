@@ -233,6 +233,19 @@
 					查看详细预测
 				</a-button>
 			</section>
+
+			<section
+				v-if="showAiInsight"
+				class="ai-insight-mount"
+				data-testid="gift-dashboard-ai-insight"
+			>
+				<gift-ai-insight-panel
+					:overview="aiOverview"
+					:trend="trendRows"
+					:person-ranking="personRanking"
+					:disabled="loading"
+				/>
+			</section>
 		</div>
 	</a-spin>
 </template>
@@ -252,6 +265,8 @@ import {
 } from '@ant-design/icons-vue';
 import GiftEmptyState from '@/views/finance/gift/gift-dashboard/components/GiftEmptyState.vue';
 import GiftMetricCard from '@/views/finance/gift/gift-dashboard/components/GiftMetricCard.vue';
+import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
+import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import {
 	averageOf,
 	buildSparklinePoints,
@@ -461,6 +476,16 @@ const aiSuggestionText = computed(() => {
 	}
 	return `根据您的历史记录，建议为近期重要往来预留约 ${money(aiReserveAmount.value)} 的礼金支出，以保持良好的人情关系。`;
 });
+
+const hasOverviewData = computed(() => hasMeaningfulOverview(summary.value));
+
+const showAiInsight = computed(
+	() => hasPermission('gift:view') && hasOverviewData.value,
+);
+
+const aiOverview = computed(
+	() => ({ ...summary.value }) as Record<string, unknown>,
+);
 
 const assertOk = (code: string, msg?: string) => {
 	if (code !== '200') {
@@ -902,6 +927,10 @@ onMounted(loadData);
 	background: #fff;
 	border: none;
 	border-radius: 8px;
+}
+
+.ai-insight-mount {
+	margin-top: 16px;
 }
 
 @media (max-width: 1200px) {

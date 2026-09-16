@@ -1,5 +1,12 @@
 <template>
 	<div class="page-info">
+		<a-tag
+			color="blue"
+			data-testid="rbac-data-scope-hint"
+			style="margin-bottom: 12px"
+		>
+			{{ scopeHintText }}
+		</a-tag>
 		<div class="search">
 			<div class="search-box">
 				<a-form
@@ -16,6 +23,7 @@
 								<a-input
 									v-model:value="searchInfo.roleCode"
 									:placeholder="'请填写' + labelMap['roleCode'].label"
+									data-testid="rbac-role-search-rolecode"
 									allow-clear
 								/>
 							</a-form-item>
@@ -34,8 +42,20 @@
 						</a-col>
 						<a-col style="text-align: right">
 							<a-space>
-								<a-button type="primary" @click="() => query(true)"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-role-btn-query"
+									@click="() => query(true)"
+								>
+									查找
+								</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-role-btn-reset"
+									@click="cancelQuery"
+								>
+									清空
+								</a-button>
 							</a-space>
 						</a-col>
 					</a-row>
@@ -44,9 +64,28 @@
 		</div>
 		<div class="button">
 			<a-space>
-				<a-button v-permission="'role:add'" type="primary" @click="editRoleInfo('add')">新增</a-button>
-				<a-button v-permission="'role:delete'" type="primary" danger @click="batchDelRoleInfo">
+				<a-button
+					v-permission="'role:add'"
+					type="primary"
+					data-testid="rbac-role-btn-add"
+					@click="editRoleInfo('add')"
+				>
+					新增
+				</a-button>
+				<a-button
+					v-permission="'role:delete'"
+					type="primary"
+					danger
+					data-testid="rbac-role-btn-batch-delete"
+					@click="batchDelRoleInfo"
+				>
 					删除
+				</a-button>
+				<a-button
+					data-testid="rbac-role-btn-goto-relation"
+					@click="router.push('/user/role-user-info')"
+				>
+					角色-用户关系配置
 				</a-button>
 			</a-space>
 		</div>
@@ -60,7 +99,13 @@
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content', y: 520 }"
 				:row-selection="rowSelection"
+				data-testid="rbac-role-table"
 			>
+				<template #emptyText>
+					<a-empty
+						description="当前机构范围内暂无角色。可新建并绑定机构，或请超管将角色绑定到本机构。"
+					/>
+				</template>
 				<template #bodyCell="{ column, record }">
 					<template v-if="column.key === 'operation'">
 						<a-space>
@@ -68,6 +113,7 @@
 								v-permission="'role:edit'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-edit"
 								@click="editRoleInfo('update', record.id)"
 							>
 								编辑
@@ -76,6 +122,7 @@
 								v-permission="'role:auth'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-authorize"
 								@click="roleAuthorizationInfo(String(record.id))"
 							>
 								授权
@@ -84,6 +131,7 @@
 								v-permission="'role:auth'"
 								type="primary"
 								size="small"
+								data-testid="rbac-role-row-users"
 								@click="roleUserAssignmentInfo(String(record.id))"
 							>
 								用户
@@ -96,7 +144,14 @@
 								@confirm="delRoleInfo(record.id)"
 								@cancel="cancel"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button
+									type="primary"
+									size="small"
+									danger
+									data-testid="rbac-role-row-delete"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>
@@ -135,7 +190,8 @@ import {
 	labelMap,
 } from '@/views/user/roleInfo/config';
 import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
-import { message } from 'ant-design-vue';
+import { useDataScopeHint } from '@/composables/useDataScopeHint';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import UserAssignmentDetail from './userAssignmentDetail/index.vue';
 
@@ -146,6 +202,9 @@ const {
 	setTotal,
 	resetPagination,
 } = usePagination();
+
+const router = useRouter();
+const { scopeHintText } = useDataScopeHint();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -210,7 +269,14 @@ const batchDelRoleInfo = (): void => {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delRoleInfo(rowIds.value.join(','));
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.value.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delRoleInfo(rowIds.value.join(',')),
+	});
 };
 
 const cancel = (e: MouseEvent) => {

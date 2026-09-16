@@ -4,6 +4,7 @@
 			<div class="tree-title">组织架构</div>
 			<a-tree
 				:tree-data="treeData"
+				data-testid="rbac-org-tree"
 				v-model:expandedKeys="expandedKeys"
 				v-model:selectedKeys="selectedKeys"
 				v-model:checkedKeys="checkedKeys"
@@ -26,12 +27,20 @@
 		</div>
 		<div class="right-content">
 			<div class="top-area">
+				<a-tag
+					color="blue"
+					data-testid="rbac-data-scope-hint"
+					style="margin-bottom: 12px"
+				>
+					{{ scopeHintText }}
+				</a-tag>
 				<div class="search">
 					<a-form :model="searchInfo" layout="inline" class="search-form">
 						<a-form-item name="orgName" label="机构名称：">
 							<a-input
 								v-model:value="searchInfo.orgName"
 								placeholder="请输入机构名称"
+								data-testid="rbac-org-search-orgname"
 								allow-clear
 							/>
 						</a-form-item>
@@ -61,8 +70,16 @@
 						</a-form-item>
 						<a-form-item>
 							<a-space>
-								<a-button type="primary" @click="() => query()">查找</a-button>
-								<a-button @click="cancelQuery">清空</a-button>
+								<a-button
+									type="primary"
+									data-testid="rbac-org-btn-query"
+									@click="() => query()"
+								>
+									查找
+								</a-button>
+								<a-button data-testid="rbac-org-btn-reset" @click="cancelQuery">
+									清空
+								</a-button>
 							</a-space>
 						</a-form-item>
 					</a-form>
@@ -70,14 +87,20 @@
 				<a-divider style="margin: 16px 0" />
 				<div class="button-group">
 					<a-space>
-						<a-button v-permission="'org:add'" type="primary" @click="editOrgInfo('add')">
+						<a-button
+							v-permission="'org:add'"
+							type="primary"
+							data-testid="rbac-org-btn-add"
+							@click="editOrgInfo('add')"
+						>
 							<template #icon><plus-outlined /></template>
 							新增
 						</a-button>
 						<a-button
 							v-permission="'org:edit'"
 							type="primary"
-							@click="editOrgInfo('update', Number(selectedKeys[0]))"
+							data-testid="rbac-org-btn-edit-node"
+							@click="editOrgInfo('update', String(selectedKeys[0]))"
 							:disabled="!hasSelectedNode"
 						>
 							<template #icon><edit-outlined /></template>
@@ -91,11 +114,32 @@
 							@confirm="delOrgInfo(selectedKeys.join(','))"
 							:disabled="!hasSelectedNode"
 						>
-							<a-button type="primary" danger :disabled="!hasSelectedNode">
+							<a-button
+								type="primary"
+								danger
+								data-testid="rbac-org-btn-delete-node"
+								:disabled="!hasSelectedNode"
+							>
 								<template #icon><delete-outlined /></template>
 								删除
 							</a-button>
 						</a-popconfirm>
+						<a-button
+							v-permission="'org:delete'"
+							type="primary"
+							danger
+							data-testid="rbac-org-batch-delete"
+							@click="batchDelOrgInfo"
+						>
+							<template #icon><delete-outlined /></template>
+							批量删除
+						</a-button>
+						<a-button
+							data-testid="rbac-org-btn-goto-relation"
+							@click="router.push('/user/org-user-info')"
+						>
+							机构-用户关系配置
+						</a-button>
 					</a-space>
 				</div>
 			</div>
@@ -108,7 +152,9 @@
 					:pagination="pagination"
 					@change="handleTableChange"
 					:scroll="{ x: 'max-content' }"
+					:row-selection="rowSelection"
 					class="custom-table"
+					data-testid="rbac-org-table"
 				>
 					<template #bodyCell="{ column, record }">
 						<template v-if="column.key === 'status'">
@@ -132,6 +178,7 @@
 									type="link"
 									size="small"
 									style="padding: 0"
+									data-testid="rbac-org-row-edit"
 									@click="editOrgInfo('update', record.id)"
 								>
 									编辑
@@ -143,7 +190,13 @@
 									cancel-text="取消"
 									@confirm="delOrgInfo(String(record.id || ''))"
 								>
-									<a-button type="link" danger size="small" style="padding: 0">
+									<a-button
+										type="link"
+										danger
+										size="small"
+										style="padding: 0"
+										data-testid="rbac-org-row-delete"
+									>
 										删除
 									</a-button>
 								</a-popconfirm>
@@ -175,9 +228,14 @@ import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { columns } from '@/views/user/orgInfo/config';
-import { getOrgInfoPage, deleteOrgInfo } from '@/views/user/orgInfo/api';
+import {
+	getOrgInfoPage,
+	getOrgInfoTree,
+	deleteOrgInfo,
+} from '@/views/user/orgInfo/api';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { message } from 'ant-design-vue';
+import { useDataScopeHint } from '@/composables/useDataScopeHint';
+import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
 import type { TreeProps } from 'ant-design-vue';
@@ -201,6 +259,9 @@ const {
 } = usePagination();
 const { getDictByType } = useDictInfo('is_valid');
 const statusList = computed(() => getDictByType('is_valid'));
+const { scopeHintText } = useDataScopeHint();
+
+const router = useRouter();
 
 const treeData = ref<TreeDataItem[]>([]);
 const expandedKeys = ref<Key[]>([]);
@@ -212,6 +273,15 @@ const modelInfo = ref<ModelInfo>({});
 const searchInfo = ref<OrgInfoData>({});
 const currentParentId = ref<string | undefined>(undefined);
 const hasSelectedNode = computed(() => selectedKeys.value.length > 0);
+const rowIds = ref<(string | number)[]>([]);
+
+// 表格行选择（批量删除）
+const rowSelection = ref({
+	checkStrictly: false,
+	onChange: (selectedRowKeys: (string | number)[]) => {
+		rowIds.value = selectedRowKeys;
+	},
+});
 
 // 查询
 const query = (resetPage: boolean = false) => {
@@ -256,6 +326,22 @@ const delOrgInfo = async (ids: string) => {
 	}
 };
 
+// 批量删除表格中选中的机构
+const batchDelOrgInfo = (): void => {
+	if (!rowIds.value.length) {
+		message.warning('请先选择数据！', 3);
+		return;
+	}
+	Modal.confirm({
+		title: '确认删除',
+		content: `确定删除选中的 ${rowIds.value.length} 条数据吗？`,
+		okText: '删除',
+		okType: 'danger',
+		cancelText: '取消',
+		onOk: () => delOrgInfo(rowIds.value.join(',')),
+	});
+};
+
 const onTreeSelect: TreeProps['onSelect'] = (keys, info) => {
 	if (keys.length > 0) {
 		currentParentId.value = String((info.node as unknown as OrgTreeNode).id || '');
@@ -289,49 +375,21 @@ const getOrgDataPage = async () => {
 	}
 };
 
-const buildTree = (data: OrgTreeNode[]): OrgTreeNode[] => {
-	const map = new Map<Key, OrgTreeNode>();
-	const roots: OrgTreeNode[] = [];
-
-	data.forEach((item) => {
-		map.set(item.id, { ...item, children: [] });
-	});
-
-	data.forEach((item) => {
-		const node = map.get(item.id)!;
-		const parentId = item.parentId;
-		if (!parentId || String(parentId) === '0') {
-			roots.push(node);
-		} else {
-			const parent = map.get(parentId);
-			if (parent) {
-				parent.children = parent.children || [];
-				parent.children.push(node);
-			} else {
-				roots.push(node);
-			}
-		}
-	});
-
-	return roots;
-};
+// 递归补齐 tree 组件所需的 key 字段（后端已按 parentId 组装好 children，无需前端再拼树）
+const withTreeKey = (nodes: OrgInfoData[]): OrgTreeNode[] =>
+	nodes.map((item) => ({
+		...item,
+		key: item.id,
+		children: item.children?.length
+			? withTreeKey(item.children as OrgInfoData[])
+			: undefined,
+	})) as OrgTreeNode[];
 
 const getOrgTreeData = async () => {
 	try {
-		// Fetch arbitrarily large number for generating tree
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getOrgInfoPage({}, 1, 1000);
-		if (code === '200' && data?.records) {
-			const rawRecords: OrgTreeNode[] = data.records.map(
-				(item: OrgInfoData) => ({
-					...item,
-					key: item.id,
-				}),
-			) as OrgTreeNode[];
-			treeData.value = buildTree(rawRecords);
+		const { code, data, message: messageInfo } = await getOrgInfoTree();
+		if (code === '200') {
+			treeData.value = withTreeKey(data || []);
 		} else {
 			message.error(messageInfo || '机构树加载失败！');
 		}
@@ -341,7 +399,7 @@ const getOrgTreeData = async () => {
 };
 
 //新增和修改弹窗
-function editOrgInfo(type: string, id?: number | string) {
+function editOrgInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
 	modelInfo.value.id = isAdd ? null : (id !== undefined && id !== null ? String(id) : null);

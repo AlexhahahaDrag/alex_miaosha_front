@@ -5,25 +5,42 @@
 		placement="right"
 		v-model:open="modelInfo.open"
 		:footer-style="{ textAlign: 'right' }"
+		data-testid="rbac-relation-drawer"
 		@close="handleCancel"
 	>
 		<template #footer>
-			<a-button style="margin-right: 8px" key="back" @click="handleCancel">
+			<a-button
+				style="margin-right: 8px"
+				key="back"
+				data-testid="rbac-relation-btn-cancel"
+				@click="handleCancel"
+			>
 				取消
 			</a-button>
 			<a-button
 				key="submit"
 				type="primary"
 				:loading="loading"
+				data-testid="rbac-relation-btn-submit"
 				@click="handleOk"
 			>
 				保存
 			</a-button>
 		</template>
-		<menu-tree
-			:treeData="permissionTree"
-			v-model:selectedKeys="selectPermission"
-		></menu-tree>
+		<rbac-permission-tree-panel
+			title="菜单权限树"
+			description="勾选角色可访问的菜单/按钮权限，支持批量展开收起"
+			:tree-data="rbacTreeData"
+			:checked-keys="selectPermission"
+			:expanded-keys="expandedKeys"
+			:half-checked-keys="halfCheckedKeys"
+			@update:checkedKeys="(keys) => (selectPermission = keys.map(String))"
+			@update:expandedKeys="(keys) => (expandedKeys = keys.map(String))"
+			@select-all="selectPermission = allPermissionKeys"
+			@clear="selectPermission = []"
+			@expand-all="expandedKeys = allPermissionKeys"
+			@collapse-all="expandedKeys = []"
+		/>
 	</a-drawer>
 </template>
 <script lang="ts" setup>
@@ -32,11 +49,34 @@ import type { RoleInfoData } from '../config';
 // 字典数据已通过 useDictInfo 自动加载
 import {
 	getRoleInfoDetail,
-	addRoleInfo,
-	editRoleInfo,
+	assignRolePermissions,
 } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
+import type { RbacTreeNode } from '@/components/rbac';
+
+interface RawPermissionNode {
+	id?: string;
+	permissionName?: string;
+	children?: RawPermissionNode[];
+}
+
+// 将后端 id/permissionName/children 结构映射为 RbacPermissionTreePanel 所需的 key/title/children
+const toRbacTree = (nodes: RawPermissionNode[]): RbacTreeNode[] =>
+	(nodes || []).map((node) => ({
+		key: String(node.id ?? ''),
+		title: node.permissionName ?? '',
+		children: node.children?.length ? toRbacTree(node.children) : undefined,
+	}));
+
+const collectAllKeys = (nodes: RbacTreeNode[]): string[] =>
+	nodes.flatMap((node) => [
+		String(node.key),
+		...(node.children?.length ? collectAllKeys(node.children) : []),
+	]);
+
 const loading = ref<boolean>(false);
+const expandedKeys = ref<string[]>([]);
+const halfCheckedKeys = ref<string[]>([]);
 
 const modelConfig = {
 	confirmLoading: true,
@@ -53,7 +93,9 @@ const formState = ref<RoleInfoData>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 
-const permissionTree = ref<unknown[]>([]);
+const permissionTree = ref<RawPermissionNode[]>([]);
+const rbacTreeData = computed(() => toRbacTree(permissionTree.value));
+const allPermissionKeys = computed(() => collectAllKeys(rbacTreeData.value));
 
 const selectPermission = ref<string[]>([]);
 
@@ -67,18 +109,19 @@ const handleCancel = () => {
 };
 
 const saveRoleInfoManager = async () => {
-	let api = addRoleInfo;
-	if (formState.value?.id) {
-		api = editRoleInfo;
+	const roleId = formState.value?.id != null ? String(formState.value.id) : '';
+	if (!roleId) {
+		loading.value = false;
+		message.error('角色 ID 缺失，无法保存权限');
+		return;
 	}
-	formState.value.permissionList = selectPermission.value.map(
-		(id) => ({ id: Number(id) }) as any,
-	);
-	const { code, message: messageInfo } = await api(formState.value).finally(
-		() => {
-			loading.value = false;
-		},
-	);
+	const permissionIds = selectPermission.value.map((id) => String(id));
+	const { code, message: messageInfo } = await assignRolePermissions(
+		roleId,
+		permissionIds,
+	).finally(() => {
+		loading.value = false;
+	});
 	if (code === '200') {
 		message.success(messageInfo || '保存成功！');
 		modelInfo.value.open = false;
@@ -102,7 +145,8 @@ const getAllPermissions = async () => {
 			if (code === '200') {
 				formState.value = data as RoleInfoData;
 				permissionTree.value =
-					(data as { permissionList?: unknown[] })?.permissionList || [];
+					(data as { permissionList?: RawPermissionNode[] })
+						?.permissionList || [];
 				selectPermission.value =
 					(
 						data as { rolePermissionInfoVoList?: { id: string }[] }
@@ -125,6 +169,8 @@ const init = async () => {
 	// 重置状态
 	permissionTree.value = [];
 	selectPermission.value = [];
+	expandedKeys.value = [];
+	halfCheckedKeys.value = [];
 	formState.value = {};
 	modelConfig.confirmLoading = true;
 

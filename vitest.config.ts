@@ -1,9 +1,9 @@
-import { defineConfig } from 'vitest/config';
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vitest/config';
 
 /**
- * 单测独立配置：优先级高于 vite.config.mts，
- * 避免加载 Rolldown 构建插件链（unplugin 系列）拖慢/干扰纯逻辑单测。
+ * 单测独立配置：不加载 vite.config 的 Rolldown/插件链，
+ * 避免 vitest 与 Vite 8 运行时冲突。
  */
 export default defineConfig({
 	resolve: {
@@ -12,7 +12,10 @@ export default defineConfig({
 		},
 	},
 	test: {
-		include: ['tests/unit/**/*.spec.ts'],
 		environment: 'node',
+		include: ['tests/**/*.test.ts', 'src/**/*.spec.ts'],
+		// 既有 permission-context 为裸断言脚本，非 vitest describe；排除以免误跑
+		exclude: ['tests/permission/**'],
+		setupFiles: ['tests/setup.ts'],
 	},
 });

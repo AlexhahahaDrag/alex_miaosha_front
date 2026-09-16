@@ -12,6 +12,7 @@ const baseOrgInfo = '/org-info';
 
 const OrgInfoUrl = {
 	page: '/page',
+	tree: '/tree',
 	url: '',
 };
 
@@ -24,6 +25,13 @@ export function getOrgInfoPage(
 		pageNum: pageNum ? pageNum : 1,
 		pageSize: pageSize ? pageSize : 10,
 	});
+}
+
+// 获取机构树（后端按 parentId 组装 children，并复用数据权限过滤）
+export function getOrgInfoTree(
+	params?: OrgInfoData,
+): Promise<ResponseBody<OrgInfoData[]>> {
+	return postData(baseService.user + baseOrgInfo + OrgInfoUrl.tree, params || {});
 }
 
 export function getOrgInfoDetail(

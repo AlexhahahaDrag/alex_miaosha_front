@@ -14,6 +14,7 @@ const userMangerUrl = {
 	page: '/page',
 	url: '',
 	list: '/list',
+	status: '/status',
 };
 
 // 获取用户分页列表
@@ -61,6 +62,17 @@ export function editUserManager(
 		baseService.user + baseUserManager + userMangerUrl.url,
 		params,
 	);
+}
+
+// 更新用户启停状态（仅更新 status，不改其它字段）
+export function updateUserStatus(
+	id: string,
+	status: string,
+): Promise<ResponseBody> {
+	return putData(baseService.user + baseUserManager + userMangerUrl.status, {
+		id,
+		status,
+	});
 }
 
 // 获取用户列表

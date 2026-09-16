@@ -92,8 +92,8 @@ const editSubMenu = (type: string, id?: string) => {
 	};
 };
 
-const delSubMenu = async (id: number) => {
-	const { code, message: messageInfo } = await deleteMenuInfo(String(id));
+const delSubMenu = async (id: string) => {
+	const { code, message: messageInfo } = await deleteMenuInfo(id);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功');
 		getSubMenuList();
