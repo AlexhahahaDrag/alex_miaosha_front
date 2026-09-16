@@ -9,7 +9,7 @@ const platformGoodsUrl = {
 
 export function getPlatformList(params: any): Promise<ResponseBody> {
 	return getData(
-		baseService.mission + baseGoods + platformGoodsUrl.list,
+		baseService.product + baseGoods + platformGoodsUrl.list,
 		params,
 	);
 }

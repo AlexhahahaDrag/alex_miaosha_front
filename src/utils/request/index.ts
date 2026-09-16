@@ -97,7 +97,6 @@ export function postDownloadFile(
 export const baseService = {
 	finance: '/api/am-finance',
 	user: '/api/am-user',
-	mission: '/api/am-mission',
 	file: '/api/am-oss',
 	product: '/api/am-product',
 	// AI Agent：AI 服务（需网关配置 am-ai -> alex-ai-${profile}）
