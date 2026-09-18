@@ -4,7 +4,7 @@ import axios from 'axios';
 import type { ResponseBody } from '@/types/api';
 import { message } from 'ant-design-vue';
 import router from '@/router';
-import { decrypt } from '@/utils/crypto';
+import { decrypt, decryptGcm } from '@/utils/crypto';
 
 const request = axios.create({
 	timeout: 30000,
@@ -14,7 +14,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 // 异常拦截处理器
 const errorHandler = (type: string) => {
-	return (error: AxiosError): Promise<any> => {
+	return async (error: AxiosError): Promise<any> => {
 		let response = null;
 		if ('ECONNABORTED' == error.code) {
 			message.warning('请求超时，请稍后再试！', 3);
@@ -24,7 +24,7 @@ const errorHandler = (type: string) => {
 			return Promise.reject(error.response);
 		}
 		if (error.response) {
-			const { status } = error.response;
+			const { status, headers } = error.response;
 			// 403 无权限
 			if (status === 403) {
 				message.warning('请先登录！', 3);
@@ -33,7 +33,12 @@ const errorHandler = (type: string) => {
 			}
 			const { data } = error.response;
 			if (data) {
-				response = decrypt(data as string);
+				const version = headers ? (headers['x-crypto-version'] || headers['X-Crypto-Version']) : null;
+				if (version === '2.0' && typeof data === 'string') {
+					response = await decryptGcm(data);
+				} else {
+					response = decrypt(data as string);
+				}
 			}
 		}
 		return Promise.resolve(response);
@@ -45,6 +50,9 @@ const requestHandler = (type: string) => {
 	return (
 		config: AxiosRequestConfig<any>,
 	): AxiosRequestConfig<any> | Promise<AxiosRequestConfig<any>> | any => {
+		if (config?.headers) {
+			config.headers['X-Crypto-Version'] = '2.0';
+		}
 		const userStore = useUserStore();
 		const token = userStore.getToken;
 		if (token) {
@@ -76,16 +84,22 @@ const requestHandler = (type: string) => {
 
 // 响应拦截器
 const responseHandler = (type: string) => {
-	return (
+	return async (
 		response: AxiosResponse<any>,
-	): ResponseBody<any> | AxiosResponse<any> | Promise<any> | any => {
+	): Promise<ResponseBody<any> | AxiosResponse<any> | any> => {
 		// 下载类 blob 原样返回；上传等 JSON 与普通请求一致解密业务体
 		if (type === 'file' && response.config.responseType === 'blob') {
 			return response;
 		}
-		const { data } = response;
-		let resData = decrypt(data);
-		if (resData.code == 403) {
+		const { data, headers } = response;
+		const version = headers ? (headers['x-crypto-version'] || headers['X-Crypto-Version']) : null;
+		let resData;
+		if (version === '2.0' && typeof data === 'string') {
+			resData = await decryptGcm(data);
+		} else {
+			resData = decrypt(data);
+		}
+		if (resData?.code == 403) {
 			router.push({ name: 'login' });
 			return;
 		}
