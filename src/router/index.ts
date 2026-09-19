@@ -1,7 +1,7 @@
 import Layout from '@/views/layout/index.vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory, RouterView } from 'vue-router';
-import { h, defineComponent, reactive } from 'vue';
+import { h, defineComponent, reactive, markRaw } from 'vue';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
@@ -14,12 +14,14 @@ import {
 import { getUserMenusApi } from '@/views/login/api';
 import { message } from 'ant-design-vue';
 
-const ParentLayout = defineComponent({
-	name: 'ParentLayout',
-	render() {
-		return h(RouterView);
-	},
-});
+const ParentLayout = markRaw(
+	defineComponent({
+		name: 'ParentLayout',
+		render() {
+			return h(RouterView);
+		},
+	}),
+);
 
 const modules = import.meta.glob([
 	'/src/views/**/**.vue',
@@ -32,7 +34,7 @@ export const routes: MenuDataItem[] = reactive([
 		name: 'home',
 		path: '/',
 		redirect: '/home-dashboard',
-		component: Layout,
+		component: markRaw(Layout),
 		meta: {
 			title: '首页',
 			hideInMenu: false,
@@ -106,7 +108,7 @@ const judgeMenuPermission = (
 /** 根据 MenuInfo 解析对应的 Vue 组件 */
 const getComponent = (item: MenuInfoData) => {
 	if (!item.component) {
-		return modules['/src/views/error-404/index.vue'];
+		return markRaw(modules['/src/views/error-404/index.vue']);
 	}
 	if (item.component === 'Layout') {
 		return ParentLayout;
@@ -117,11 +119,12 @@ const getComponent = (item: MenuInfoData) => {
 		? `/src${item.component}`
 		: `/src/views/${item.component}`;
 
-	return (
+	const comp =
 		modules[path] ||
 		modules[item.component] ||
-		modules['/src/views/error-404/index.vue']
-	);
+		modules['/src/views/error-404/index.vue'];
+
+	return typeof comp === 'object' && comp !== null ? markRaw(comp) : comp;
 };
 
 /** 递归将 MenuInfo 转换为 RouteRecordRaw */
@@ -163,6 +166,7 @@ const buildRouteRecord = (
 const addRouter = async () => {
 	const userStore = useUserStore();
 	try {
+		routes.splice(BASE_ROUTE_COUNT);
 		if (userStore.getMenuInfo?.length) {
 			const permissionContext = userStore.getPermissionContext;
 			const superAdmin = isSuperAdmin(permissionContext || userStore.getRoleInfo);
@@ -186,7 +190,7 @@ const addRouter = async () => {
 				title: '404',
 				hideInMenu: true,
 			},
-			component: modules['/src/views/error-404/index.vue'],
+			component: markRaw(modules['/src/views/error-404/index.vue']),
 		};
 		router.addRoute(notFoundRoute);
 		dynamicRouter.push(notFoundRoute);
@@ -204,7 +208,7 @@ router.beforeEach(async (to: any, _from, next) => {
 	if (to.path === '/login') {
 		next();
 	} else if (userStore.getToken) {
-		if (!userStore.getRouteStatus) {
+		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
 			dynamicRouter = [];
 			if (!userStore.getMenuInfo?.length) {
 				try {

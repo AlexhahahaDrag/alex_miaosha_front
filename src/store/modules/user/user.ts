@@ -34,7 +34,11 @@ export const useUserStore = defineStore(
 		});
 
 		const getMenuInfo = computed((): MenuInfoData[] | null => {
-			return menuInfo.value || getAuthInfo('menuInfo');
+			if (menuInfo.value && menuInfo.value.length > 0) {
+				return menuInfo.value;
+			}
+			const cached = getAuthInfo('menuInfo');
+			return cached && cached.length > 0 ? cached : null;
 		});
 
 		const getSessionTimeout = computed((): boolean => {
@@ -126,7 +130,7 @@ export const useUserStore = defineStore(
 					setToken(tokenVal);
 					setPermissionContext(normalizedContext);
 					// Menus loaded on enter via GET /user/menus (login slim)
-					setMenuInfo([]);
+					setMenuInfo(null);
 					setRoleInfo(normalizedContext.roleList[0] || null);
 					setOrgInfo(normalizedContext.orgInfo);
 					changeRouteStatus(false);

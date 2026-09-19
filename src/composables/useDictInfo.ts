@@ -11,7 +11,6 @@ export function useDictInfo(initialDictTypes?: string) {
 		loading.value = true;
 		try {
 			const { code, data, message: messageInfo } = await getDictList(dictTypes);
-			console.log(`获取字典数据:`, data, code, messageInfo, dictTypes);
 			if (code === '200') {
 				// 按 belongTo 分组数据
 				const groupedData = new Map<string, DictInfo[]>();
@@ -28,7 +27,6 @@ export function useDictInfo(initialDictTypes?: string) {
 			}
 		} catch (error: unknown) {
 			console.log(`获取字典数据时发生错误:`, error);
-			message.error('获取字典数据时发生错误');
 		} finally {
 			loading.value = false;
 		}
