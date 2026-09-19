@@ -135,19 +135,21 @@
 						</span>
 					</template>
 					<template v-else-if="column.key === 'payWay'">
-						<div
+						<template
 							v-for="(fromSource, index) in fromSourceTransferList"
 							:key="index"
 						>
-							<MySvgIcon
+							<component
 								v-if="
+									record.payWay &&
+									fromSource.value !== '' &&
 									record.payWay.indexOf(fromSource.value) >= 0 &&
-									fromSource.value !== ''
+									iconComponentMap[`finance-${fromSource.value}`]
 								"
-								:name="fromSource.label"
+								:is="iconComponentMap[`finance-${fromSource.value}`]"
 								class="pay-way-icon"
-							></MySvgIcon>
-						</div>
+							/>
+						</template>
 					</template>
 				</template>
 			</a-table>
@@ -161,6 +163,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
+import { iconComponentMap } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
 import { usePagination } from '@/composables/usePagination';
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';

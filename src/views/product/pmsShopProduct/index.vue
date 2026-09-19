@@ -122,13 +122,18 @@
 						<span v-else>{{ record.price }}</span>
 					</template>
 					<template v-else-if="column.key === 'source'">
-						<div v-for="source in sourceTransferList" :key="source.value">
-							<MySvgIcon
+						<template
+							v-for="source in sourceTransferList"
+							:key="source.value"
+						>
+							<component
 								v-if="
+									record.source &&
+									source.value !== '' &&
 									record.source.indexOf(source.value) >= 0 &&
-									source.value !== ''
+									iconComponentMap[`soft-${source.label}`]
 								"
-								:name="source.label"
+								:is="iconComponentMap[`soft-${source.label}`]"
 								class="svg"
 								style="
 									width: 1.5em;
@@ -137,8 +142,8 @@
 									cursor: pointer;
 									vertical-align: middle;
 								"
-							></MySvgIcon>
-						</div>
+							/>
+						</template>
 					</template>
 					<template
 						v-else-if="column.key === 'operateTime' && record.operateTime"
@@ -163,6 +168,7 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
+import { iconComponentMap } from '@/views/common/config';
 import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 import {
 	columns,

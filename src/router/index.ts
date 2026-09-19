@@ -1,7 +1,7 @@
 import Layout from '@/views/layout/index.vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory, RouterView } from 'vue-router';
-import { h, defineComponent } from 'vue';
+import { h, defineComponent, reactive } from 'vue';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
@@ -27,7 +27,7 @@ const modules = import.meta.glob([
 	'!/src/views/layout/index.vue',
 ]);
 
-export const routes: MenuDataItem[] = [
+export const routes: MenuDataItem[] = reactive([
 	{
 		name: 'home',
 		path: '/',
@@ -69,7 +69,7 @@ export const routes: MenuDataItem[] = [
 		},
 		component: modules['/src/views/login/index.vue'],
 	},
-];
+]);
 
 /** 静态路由数量，冻结在模块初始化时，用于区分静态/动态路由 */
 const BASE_ROUTE_COUNT = routes.length;
@@ -83,12 +83,15 @@ let dynamicRouter: RouteRecordRaw[] = [];
 
 // ─── 工具函数（定义在使用之前）─────────────────────────────────────────────────
 
-/** 根据 permissionCode 判断是否有权限 */
+/** 根据 permissionCode 判断是否有权限，无 permissionCode 则默认由后端菜单树控制放行 */
 const judgePermission = (
 	permissionSet: Set<string>,
 	permissionCode: string | undefined,
 	superAdmin: boolean,
-): boolean => canAccessPermission(permissionSet, permissionCode, superAdmin);
+): boolean => {
+	if (superAdmin || !permissionCode) return true;
+	return canAccessPermission(permissionSet, permissionCode, superAdmin);
+};
 
 const judgeMenuPermission = (
 	item: MenuInfoData,
@@ -159,37 +162,37 @@ const buildRouteRecord = (
 
 const addRouter = async () => {
 	const userStore = useUserStore();
-	if (!userStore.getMenuInfo?.length) return;
+	try {
+		if (userStore.getMenuInfo?.length) {
+			const permissionContext = userStore.getPermissionContext;
+			const superAdmin = isSuperAdmin(permissionContext || userStore.getRoleInfo);
+			const permissionSet = buildPermissionSet(permissionContext);
 
-	const permissionContext = userStore.getPermissionContext;
-	const superAdmin = isSuperAdmin(permissionContext || userStore.getRoleInfo);
-	const permissionSet = buildPermissionSet(permissionContext);
-
-	if (!superAdmin && !permissionSet.size) return;
-
-	userStore.getMenuInfo.forEach((item: MenuInfoData) => {
-		if (judgeMenuPermission(item, permissionSet, superAdmin)) {
-			const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
-			router.addRoute('home', newRoute);
-			dynamicRouter.push(newRoute);
-			routes.push(newRoute as MenuDataItem);
+			userStore.getMenuInfo.forEach((item: MenuInfoData) => {
+				if (judgeMenuPermission(item, permissionSet, superAdmin)) {
+					const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
+					router.addRoute('home', newRoute);
+					dynamicRouter.push(newRoute);
+					routes.push(newRoute as MenuDataItem);
+				}
+			});
 		}
-	});
 
-	// 最后动态注入 404 通配路由，确保所有动态路由优先匹配
-	const notFoundRoute: RouteRecordRaw = {
-		name: '404',
-		path: '/:catchAll(.*)',
-		meta: {
-			title: '404',
-			hideInMenu: true,
-		},
-		component: modules['/src/views/error-404/index.vue'],
-	};
-	router.addRoute(notFoundRoute);
-	dynamicRouter.push(notFoundRoute);
-
-	userStore.changeRouteStatus(true);
+		// 最后动态注入 404 通配路由，确保所有动态路由优先匹配
+		const notFoundRoute: RouteRecordRaw = {
+			name: '404',
+			path: '/:catchAll(.*)',
+			meta: {
+				title: '404',
+				hideInMenu: true,
+			},
+			component: modules['/src/views/error-404/index.vue'],
+		};
+		router.addRoute(notFoundRoute);
+		dynamicRouter.push(notFoundRoute);
+	} finally {
+		userStore.changeRouteStatus(true);
+	}
 };
 
 // ─── 导航守卫 ──────────────────────────────────────────────────────────────────
@@ -201,7 +204,7 @@ router.beforeEach(async (to: any, _from, next) => {
 	if (to.path === '/login') {
 		next();
 	} else if (userStore.getToken) {
-		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
+		if (!userStore.getRouteStatus) {
 			dynamicRouter = [];
 			if (!userStore.getMenuInfo?.length) {
 				try {
@@ -213,14 +216,22 @@ router.beforeEach(async (to: any, _from, next) => {
 					if (code == '200' && data?.length) {
 						userStore.setMenuInfo(data);
 					} else {
-						message.error(messageInfo || '加载菜单失败');
-						next({ name: 'login' });
+						message.error(messageInfo || '加载菜单失败，请重新登录');
+						userStore.resetAuth();
+						next({
+							name: 'login',
+							query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
+						});
 						return;
 					}
 				} catch (error: unknown) {
 					console.error('加载用户菜单失败：', error);
 					message.error('加载菜单失败，请重新登录');
-					next({ name: 'login' });
+					userStore.resetAuth();
+					next({
+						name: 'login',
+						query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
+					});
 					return;
 				}
 			}
@@ -231,7 +242,10 @@ router.beforeEach(async (to: any, _from, next) => {
 			next();
 		}
 	} else {
-		next({ name: 'login' });
+		next({
+			name: 'login',
+			query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
+		});
 	}
 });
 

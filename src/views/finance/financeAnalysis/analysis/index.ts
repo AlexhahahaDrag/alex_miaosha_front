@@ -11,6 +11,8 @@ export interface AnalysisData {
 	typeName?: string;
 	incomeAndExpenses?: string;
 	amount: number;
+	incomeAmount?: number;
+	expenseAmount?: number;
 	infoDate: string;
 	userId?: string;
 	username?: string;

@@ -46,7 +46,7 @@ export const useUserStore = defineStore(
 		});
 
 		const getRouteStatus = computed((): boolean => {
-			return hasMenu.value || getAuthInfo('hasRoute') === 'true';
+			return hasMenu.value;
 		});
 
 		const getRoleInfo = computed((): RoleInfoData => {
@@ -78,8 +78,7 @@ export const useUserStore = defineStore(
 		}
 
 		function changeRouteStatus(state: any) {
-			hasMenu.value = state;
-			localStorage.setItem('hasRoute', state);
+			hasMenu.value = !!state;
 		}
 
 		//设置用户信息
@@ -146,6 +145,30 @@ export const useUserStore = defineStore(
 			}
 		}
 
+		function resetAuth() {
+			token.value = '';
+			userInfo.value = null;
+			roleList.value = [];
+			menuInfo.value = null;
+			hasMenu.value = false;
+			orgInfo.value = null;
+			roleInfo.value = null;
+			permissionContext.value = null;
+			sessionTimeout.value = false;
+			const keys = [
+				'token',
+				'userInfo',
+				'menuInfo',
+				'hasRoute',
+				'roleInfo',
+				'orgInfo',
+				'permissionContext',
+				'app-user',
+			];
+			keys.forEach((key) => localStorage.removeItem(key));
+			refreshRouter();
+		}
+
 		return {
 			userInfo,
 			token,
@@ -174,9 +197,18 @@ export const useUserStore = defineStore(
 			setOrgInfo,
 			setPermissionContext,
 			login,
+			resetAuth,
 		};
 	},
 	{
-		persist: piniaPersistConfig('app-user'),
+		persist: piniaPersistConfig('app-user', [
+			'userInfo',
+			'token',
+			'roleList',
+			'menuInfo',
+			'orgInfo',
+			'roleInfo',
+			'permissionContext',
+		]),
 	},
 );

@@ -151,33 +151,33 @@ git clone https://github.com/AlexhahahaDrag/alex_miaosha_front.git
 cd alex_miaosha_front
 
 # 安装依赖
-yarn install
+pnpm install
 ```
 
 ### 启动项目
 
 ```bash
 # 开发环境
-yarn dev
+pnpm dev
 
 # 测试环境
-yarn dev:test
+pnpm test
 
 # 生产环境预览
-yarn dev:prod
+pnpm prod
 ```
 
 ### 构建部署
 
 ```bash
 # 构建测试环境
-yarn build:test
+pnpm build:test
 
 # 构建生产环境
-yarn build:prod
+pnpm build:prod
 
 # 预览构建结果
-yarn preview
+pnpm preview
 ```
 
 ## 📸 项目截图

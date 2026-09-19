@@ -25,9 +25,11 @@ const errorHandler = (type: string) => {
 		}
 		if (error.response) {
 			const { status, headers } = error.response;
-			// 403 无权限
-			if (status === 403) {
-				message.warning('请先登录！', 3);
+			// 401 / 403 鉴权失败或无权限，清理过期凭据并跳登录页
+			if (status === 401 || status === 403) {
+				message.warning('登录态已失效，请重新登录！', 3);
+				const userStore = useUserStore();
+				userStore.resetAuth();
 				router.push({ name: 'login' });
 				return Promise.resolve(error);
 			}
@@ -99,7 +101,15 @@ const responseHandler = (type: string) => {
 		} else {
 			resData = decrypt(data);
 		}
-		if (resData?.code == 403) {
+		if (
+			resData?.code == 401 ||
+			resData?.code == 403 ||
+			resData?.code == '401' ||
+			resData?.code == '403'
+		) {
+			message.warning(resData?.message || '登录态已失效，请重新登录！', 3);
+			const userStore = useUserStore();
+			userStore.resetAuth();
 			router.push({ name: 'login' });
 			return;
 		}

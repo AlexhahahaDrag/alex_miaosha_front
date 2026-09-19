@@ -10,7 +10,6 @@ import IconOrder from '~icons/my-menu-svg/order';
 import IconOrderManager from '~icons/my-menu-svg/orderManager';
 import IconProduct from '~icons/my-menu-svg/product';
 import IconPromotion from '~icons/my-menu-svg/promotion';
-import IconSeckill from '~icons/my-menu-svg/seckill';
 import IconShopFinance from '~icons/my-menu-svg/shopFinance';
 import IconShopFinanceAnalysis from '~icons/my-menu-svg/shopFinanceAnalysis';
 import IconUser from '~icons/my-menu-svg/user';
@@ -50,7 +49,6 @@ export const iconComponentMap: Record<string, any> = {
 	'menu-orderManager': IconOrderManager,
 	'menu-product': IconProduct,
 	'menu-promotion': IconPromotion,
-	'menu-seckill': IconSeckill,
 	'menu-shopFinance': IconShopFinance,
 	'menu-shopFinanceAnalysis': IconShopFinanceAnalysis,
 	'menu-user': IconUser,
