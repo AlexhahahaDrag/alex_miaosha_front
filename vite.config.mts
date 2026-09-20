@@ -140,20 +140,23 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 				},
 			},
 		},
+		esbuild:
+			isProduction ?
+				{
+					drop: ['console', 'debugger'],
+				}
+			:	undefined,
 		build: {
 			target: 'esnext',
 			minify: isProduction,
 			modulePreload: {
 				polyfill: false,
 			},
-			// 增加构建内存限制
 			rollupOptions: {
 				output: {
-					//静态资源分类打包
 					chunkFileNames: 'static/js/[name]-[hash].js',
 					entryFileNames: 'static/js/[name]-[hash].js',
 					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
-					// 优化代码分割策略，减少chunk数量
 					manualChunks(id) {
 						if (id.includes('node_modules')) {
 							// 核心框架
@@ -164,19 +167,16 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 							) {
 								return 'framework';
 							}
-							// UI 组件库
+							// UI 图标库
 							if (id.includes('node_modules/@ant-design/icons-vue')) {
 								return 'antd-icons';
 							}
-							if (id.includes('node_modules/ant-design-vue')) {
-								return 'antd-core';
-							}
-							// 图表库
-							if (id.includes('node_modules/echarts')) {
+							// 图表库（合并 echarts 与底层 zrender）
+							if (
+								id.includes('node_modules/echarts') ||
+								id.includes('node_modules/zrender')
+							) {
 								return 'echarts';
-							}
-							if (id.includes('node_modules/zrender')) {
-								return 'zrender';
 							}
 							// 常用工具库
 							if (
@@ -184,30 +184,15 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 							) {
 								return 'utils';
 							}
-							return 'vendor';
 						}
 					},
 				},
-				// 优化构建性能
 				treeshake: true,
 			},
 			outDir: env.VITE_OUTPUT_DIR || 'dist',
-			// 减少构建阶段体积统计开销
 			reportCompressedSize: false,
-			// 增加构建超时时间
-			chunkSizeWarningLimit: 1200,
-			// 启用源码映射（可选，会增加构建时间和内存使用）
+			chunkSizeWarningLimit: 800,
 			sourcemap: false,
-			// 移除 console/debugger
-			terserOptions:
-				isProduction ?
-					{
-						compress: {
-							drop_console: true,
-							drop_debugger: true,
-						},
-					}
-				:	undefined,
 		},
 		envPrefix: 'VITE_',
 		// 优化依赖处理
