@@ -2,59 +2,67 @@ import type { TableColumnsType } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form/interface';
 import type { Dayjs } from 'dayjs';
 
-export const columns = ref<TableColumnsType>([
+export const columns: TableColumnsType = [
 	{
 		title: '名称',
 		dataIndex: 'name',
 		key: 'name',
+		ellipsis: true,
 	},
 	{
 		title: '类别',
 		dataIndex: 'typeCode',
 		key: 'typeCode',
+		width: 110,
 	},
 	{
 		title: '金额',
 		dataIndex: 'amount',
 		key: 'amount',
-		align: 'center',
-		width: '4',
+		align: 'right',
+		width: 130,
 	},
 	{
 		title: '支付方式',
 		dataIndex: 'fromSource',
 		align: 'center',
 		key: 'fromSource',
+		width: 120,
 	},
 	{
 		title: '收支类型',
 		dataIndex: 'incomeAndExpenses',
 		align: 'center',
 		key: 'incomeAndExpenses',
+		width: 100,
 	},
 	{
 		title: '属于',
 		dataIndex: 'belongToName',
 		key: 'belongToName',
+		width: 110,
 	},
 	{
 		title: '状态',
 		dataIndex: 'isValid',
 		align: 'center',
 		key: 'isValid',
+		width: 90,
 	},
 	{
 		title: '业务时间',
 		dataIndex: 'infoDate',
 		key: 'infoDate',
+		width: 180,
 	},
 	{
 		title: '操作',
 		key: 'operation',
-		// fixed: 'right',
-		width: '8',
+		fixed: 'right',
+		align: 'center',
+		width: 130,
 	},
-]);
+];
 
 export interface FinanceManagerData {
 	id?: string;

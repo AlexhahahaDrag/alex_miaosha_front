@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -63,4 +63,18 @@ export function editFinanceManger(
 		baseService.finance + baseFinanceManager + financeMangerUrl.url,
 		params,
 	);
+}
+
+export interface FinanceSummaryData {
+	totalExpense?: number;
+	totalIncome?: number;
+	totalBalance?: number;
+	totalCount?: number;
+}
+
+export function getFinanceSummary(
+	params: FinanceManagerData,
+): Promise<ResponseBody<FinanceSummaryData>> {
+	let url = baseService.finance + baseFinanceManager + '/summary';
+	return postData(url, params);
 }
