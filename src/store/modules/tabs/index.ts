@@ -167,6 +167,20 @@ export const useTabsStore = defineStore(
 			activeKey.value = key || '';
 		}
 
+		const isContentFullscreen = ref<boolean>(false);
+
+		const getIsContentFullscreen = computed((): boolean => {
+			return isContentFullscreen.value;
+		});
+
+		function toggleContentFullscreen(val?: boolean) {
+			if (typeof val === 'boolean') {
+				isContentFullscreen.value = val;
+			} else {
+				isContentFullscreen.value = !isContentFullscreen.value;
+			}
+		}
+
 		/**
 		 * AI Agent：移除 Tab
 		 * @returns nextKey 删除后建议跳转的 key（为空则表示无需跳转）
@@ -239,6 +253,60 @@ export const useTabsStore = defineStore(
 		}
 
 		/**
+		 * AI Agent：关闭目标 Tab 左侧的所有业务 Tab（保留首页与目标 Tab 自身）
+		 */
+		function closeLeftTabs(currentKey?: string): string {
+			const targetKey = currentKey || activeKey.value || DEFAULT_HOME_KEY;
+			if (isHomeLike(targetKey)) {
+				return activeKey.value;
+			}
+
+			const targetIndex = tabs.value.findIndex((t) => t.key === targetKey);
+			if (targetIndex <= 1) {
+				// 目标在第 1 个（紧邻首页）或不存在，左侧无业务 Tab 可关
+				return activeKey.value;
+			}
+
+			// 保留 index 0（首页）以及 targetIndex 及以后的所有 tab
+			const homeTab = tabs.value[0];
+			const remaining = tabs.value.slice(targetIndex);
+			tabs.value = normalizeTabsOrder([homeTab, ...remaining]);
+
+			// 若原激活 tab 在被关闭的左侧区域中，重置激活为 targetKey
+			const currentExists = tabs.value.some((t) => t.key === activeKey.value);
+			if (!currentExists) {
+				activeKey.value = targetKey;
+			}
+			return activeKey.value;
+		}
+
+		/**
+		 * AI Agent：关闭目标 Tab 右侧的所有业务 Tab（保留目标 Tab 及其左侧所有 Tab）
+		 */
+		function closeRightTabs(currentKey?: string): string {
+			const targetKey = currentKey || activeKey.value || DEFAULT_HOME_KEY;
+			if (isHomeLike(targetKey)) {
+				return closeAllTabs();
+			}
+
+			const targetIndex = tabs.value.findIndex((t) => t.key === targetKey);
+			if (targetIndex === -1 || targetIndex >= tabs.value.length - 1) {
+				// 目标不存在或已经是最后一个 tab，右侧无可关
+				return activeKey.value;
+			}
+
+			// 保留 0 到 targetIndex 的所有 tab
+			tabs.value = tabs.value.slice(0, targetIndex + 1);
+
+			// 若原激活 tab 在被关闭的右侧区域中，重置激活为 targetKey
+			const currentExists = tabs.value.some((t) => t.key === activeKey.value);
+			if (!currentExists) {
+				activeKey.value = targetKey;
+			}
+			return activeKey.value;
+		}
+
+		/**
 		 * AI Agent：通过 key 获取 tab（用于跳转）
 		 */
 		function getTabByKey(key: string): TabItem | undefined {
@@ -248,6 +316,9 @@ export const useTabsStore = defineStore(
 		return {
 			activeKey,
 			tabs,
+			isContentFullscreen,
+			getIsContentFullscreen,
+			toggleContentFullscreen,
 			getActiveKey,
 			getTabs,
 			initByRoute,
@@ -256,13 +327,15 @@ export const useTabsStore = defineStore(
 			removeTab,
 			closeAllTabs,
 			closeOtherTabs,
+			closeLeftTabs,
+			closeRightTabs,
 			getTabByKey,
 		};
 	},
 	{
 		persist: {
 			key: 'app-tabs',
-			storage: window.sessionStorage,
+			storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
 		},
 	},
 );

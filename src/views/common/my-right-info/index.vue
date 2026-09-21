@@ -215,6 +215,7 @@ import {
 	FullscreenExitOutlined,
 } from '@ant-design/icons-vue';
 import { logoutApi } from '@/views/login/api';
+import { getUserManagerDetail } from '@/views/user/userManager/api';
 import { useUserStore } from '@/store/modules/user/user';
 import { refreshRouter } from '@/router';
 import { storeToRefs } from 'pinia';
@@ -270,12 +271,47 @@ const toggleFullscreen = () => {
 	}
 };
 
+// 静默异步兜底补全头像
+let avatarChecked = false;
+const ensureAvatarLoaded = async () => {
+	if (avatarChecked) return;
+	const current = userInfo.value;
+	const currentId = current?.id || current?.userId;
+	if (!currentId) return;
+	avatarChecked = true;
+	if (current?.avatarUrl) return;
+	try {
+		const { code, data } = await getUserManagerDetail(String(currentId));
+		if (code === '200' && data?.avatarUrl) {
+			userStore.setUserInfo({
+				...userInfo.value,
+				avatar: data.avatar ?? userInfo.value?.avatar,
+				avatarUrl: data.avatarUrl,
+				avatarThumbnailUrl: data.avatarThumbnailUrl,
+			});
+		}
+	} catch {
+		// 静默降级，不阻断正常业务
+	}
+};
+
+watch(
+	() => userInfo.value,
+	(val) => {
+		if (val && (val.id || val.userId)) {
+			ensureAvatarLoaded();
+		}
+	},
+	{ immediate: true },
+);
+
 // 监听全屏变化
 onMounted(() => {
 	document.addEventListener('fullscreenchange', () => {
 		isFullscreen.value = !!document.fullscreenElement;
 	});
 	fetchNewsCount();
+	console.log('【顶部导航栏 - 当前登录用户信息 userInfo】:', userInfo.value);
 });
 
 // 消息通知点击

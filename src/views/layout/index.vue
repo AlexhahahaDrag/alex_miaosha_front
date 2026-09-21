@@ -1,6 +1,7 @@
 <template>
 	<a-layout style="height: 100%">
 		<a-layout-sider
+			v-show="!isFullscreen"
 			v-model:collapsed="collapsed"
 			collapsible
 			class="app-sider"
@@ -16,7 +17,7 @@
 			<my-navbar :routes="routes" :selectedKeys="selectedKeys"></my-navbar>
 		</a-layout-sider>
 		<a-layout>
-			<a-layout-header class="app-header">
+			<a-layout-header v-show="!isFullscreen" class="app-header">
 				<div class="navbar">
 					<div class="right-menu">
 						<my-right-info></my-right-info>
@@ -28,11 +29,11 @@
 					<my-tabs></my-tabs>
 				</div>
 				<div class="content-container">
-					<router-view />
+					<router-view v-if="isRouterAlive" />
 				</div>
 			</a-layout-content>
 			<a-layout-footer
-				v-if="showFooter"
+				v-if="showFooter && !isFullscreen"
 				style="height: 40px; background-color: #ffffff"
 			>
 				<div class="app-footer-inner">
@@ -45,8 +46,21 @@
 <script setup lang="ts">
 import { routes as globalRoutes } from '@/router';
 import { algorithm } from '@/utils/algorithm';
+import { useTabsStore } from '@/store/modules/tabs';
 
 const router = useRouter();
+const tabsStore = useTabsStore();
+const isFullscreen = computed(() => tabsStore.getIsContentFullscreen);
+
+const isRouterAlive = ref(true);
+const reloadRouteView = () => {
+	isRouterAlive.value = false;
+	nextTick(() => {
+		isRouterAlive.value = true;
+	});
+};
+provide('reloadRouteView', reloadRouteView);
+
 const routes = computed(() =>
 	algorithm.increaseIndexes(globalRoutes),
 );
@@ -59,6 +73,20 @@ const showFooter = import.meta.env.VITE_SHOW_FOOTER !== 'false';
 const goHome = async () => {
 	await router.push('/');
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+	if (e.key === 'Escape' && tabsStore.getIsContentFullscreen) {
+		tabsStore.toggleContentFullscreen(false);
+	}
+};
+
+onMounted(() => {
+	window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('keydown', handleKeyDown);
+});
 </script>
 <style lang="scss" scoped>
 .app-sider {

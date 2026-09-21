@@ -1,544 +1,155 @@
 <template>
-	<div class="dashboard-container">
-		<!-- 欢迎区域 -->
-		<div class="welcome-section">
-			<a-card class="welcome-card">
-				<div class="welcome-content">
-					<div class="welcome-text">
-						<h2>欢迎回来，{{ userInfo?.nickName }}！</h2>
-						<p>今天是 {{ currentDate }}，祝您工作愉快！</p>
-					</div>
-					<div class="welcome-image">
-						<a-avatar :size="64" style="background-color: #1890ff">
-							<template #icon>
-								<user-outlined />
-							</template>
-						</a-avatar>
-					</div>
-				</div>
-			</a-card>
+	<div class="dashboard-wrapper" data-testid="dash-main-container">
+		<!-- 超级管理员专属沙盒视角预览工具栏 -->
+		<div
+			v-if="isRealSuperAdmin"
+			class="super-sandbox-toolbar"
+			data-testid="dash-sandbox-toolbar"
+		>
+			<div class="sandbox-label">
+				<experiment-outlined class="sandbox-icon" />
+				<span class="sandbox-title">超管专属视角预览沙盒：</span>
+			</div>
+			<a-radio-group
+				v-model:value="currentActiveRole"
+				button-style="solid"
+				size="small"
+				data-testid="dash-sandbox-role-radios"
+			>
+				<a-radio-button value="super_admin" data-testid="dash-role-btn-super">
+					<crown-outlined />
+					超级管理员视角
+				</a-radio-button>
+				<a-radio-button value="org_admin" data-testid="dash-role-btn-org">
+					<bank-outlined />
+					机构管理员视角
+				</a-radio-button>
+				<a-radio-button value="user" data-testid="dash-role-btn-user">
+					<user-outlined />
+					普通用户视角
+				</a-radio-button>
+			</a-radio-group>
 		</div>
 
-		<!-- 数据统计卡片 -->
-		<div class="stats-section">
-			<a-row :gutter="[16, 16]">
-				<a-col :xs="24" :sm="12" :md="6">
-					<a-card class="stat-card">
-						<a-statistic
-							title="今日订单"
-							:value="statsData.todayOrders"
-							:value-style="{ color: '#3f8600' }"
-						>
-							<template #prefix>
-								<shopping-cart-outlined />
-							</template>
-						</a-statistic>
-						<div class="stat-trend">
-							<span class="trend-up">↗ +12.5%</span>
-						</div>
-					</a-card>
-				</a-col>
-				<a-col :xs="24" :sm="12" :md="6">
-					<a-card class="stat-card">
-						<a-statistic
-							title="今日销售额"
-							:value="statsData.todayRevenue"
-							prefix="¥"
-							:value-style="{ color: '#1890ff' }"
-						/>
-						<div class="stat-trend">
-							<span class="trend-up">↗ +8.3%</span>
-						</div>
-					</a-card>
-				</a-col>
-				<a-col :xs="24" :sm="12" :md="6">
-					<a-card class="stat-card">
-						<a-statistic
-							title="活跃用户"
-							:value="statsData.activeUsers"
-							:value-style="{ color: '#52c41a' }"
-						>
-							<template #prefix>
-								<team-outlined />
-							</template>
-						</a-statistic>
-						<div class="stat-trend">
-							<span class="trend-down">↘ -2.1%</span>
-						</div>
-					</a-card>
-				</a-col>
-				<a-col :xs="24" :sm="12" :md="6">
-					<a-card class="stat-card">
-						<a-statistic
-							title="商品数量"
-							:value="statsData.totalProducts"
-							:value-style="{ color: '#722ed1' }"
-						>
-							<template #prefix>
-								<appstore-outlined />
-							</template>
-						</a-statistic>
-						<div class="stat-trend">
-							<span class="trend-up">↗ +5.2%</span>
-						</div>
-					</a-card>
-				</a-col>
-			</a-row>
-		</div>
-
-		<!-- 图表和快捷操作 -->
-		<div class="content-section">
-			<a-row :gutter="[16, 16]">
-				<!-- 销售趋势图表 -->
-				<a-col :xs="24" :lg="16">
-					<a-card title="销售趋势" class="chart-card">
-						<div ref="chartContainer" style="height: 300px"></div>
-					</a-card>
-				</a-col>
-
-				<!-- 快捷操作 -->
-				<a-col :xs="24" :lg="8">
-					<a-card title="快捷操作" class="quick-actions-card">
-						<div class="quick-actions">
-							<a-button
-								type="primary"
-								size="large"
-								block
-								class="action-btn"
-								@click="navigateTo('/product')"
-							>
-								<plus-outlined />
-								添加商品
-							</a-button>
-							<a-button
-								size="large"
-								block
-								class="action-btn"
-								@click="navigateTo('/seckill')"
-							>
-								<thunderbolt-outlined />
-								秒杀管理
-							</a-button>
-							<a-button
-								size="large"
-								block
-								class="action-btn"
-								@click="navigateTo('/order')"
-							>
-								<file-text-outlined />
-								订单管理
-							</a-button>
-							<a-button
-								size="large"
-								block
-								class="action-btn"
-								@click="navigateTo('/user')"
-							>
-								<user-outlined />
-								用户管理
-							</a-button>
-						</div>
-					</a-card>
-				</a-col>
-			</a-row>
-		</div>
-
-		<!-- 最新动态和待办事项 -->
-		<div class="bottom-section">
-			<a-row :gutter="[16, 16]">
-				<!-- 最新动态 -->
-				<a-col :xs="24" :lg="12">
-					<a-card title="最新动态" class="activity-card">
-						<a-timeline>
-							<a-timeline-item
-								v-for="(item, index) in recentActivities"
-								:key="index"
-								:color="item.color"
-							>
-								<div class="activity-item">
-									<div class="activity-title">{{ item.title }}</div>
-									<div class="activity-time">{{ item.time }}</div>
-								</div>
-							</a-timeline-item>
-						</a-timeline>
-					</a-card>
-				</a-col>
-
-				<!-- 待办事项 -->
-				<a-col :xs="24" :lg="12">
-					<a-card title="待办事项" class="tdo-card">
-						<a-list :data-source="tdoList" size="small">
-							<template #renderItem="{ item }">
-								<a-list-item>
-									<template #actions>
-										<a-button
-											type="link"
-											size="small"
-											@click="completetdo(item.id)"
-										>
-											完成
-										</a-button>
-									</template>
-									<div class="tdo-item">
-										<a-tag
-											:color="
-												item.priority === 'high' ? 'red'
-												: item.priority === 'medium' ? 'orange'
-												: 'green'
-											"
-										>
-											{{
-												item.priority === 'high' ? '高'
-												: item.priority === 'medium' ? '中'
-												: '低'
-											}}
-										</a-tag>
-										<span>{{ item.task }}</span>
-									</div>
-								</a-list-item>
-							</template>
-						</a-list>
-					</a-card>
-				</a-col>
-			</a-row>
-		</div>
+		<!-- 动态挂载对应角色看板 -->
+		<transition name="fade-dashboard" mode="out-in">
+			<component :is="activeDashboardComponent" :key="currentActiveRole" />
+		</transition>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
+import { loadEcharts } from '@/utils/echarts/loadEcharts';
 import {
+	resolveDashboardRole,
+	type DashboardRoleType,
+} from './config';
+import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard.vue';
+import OrgAdminDashboard from './components/org-admin/OrgAdminDashboard.vue';
+import UserDashboard from './components/user/UserDashboard.vue';
+import {
+	ExperimentOutlined,
+	CrownOutlined,
+	BankOutlined,
 	UserOutlined,
-	ShoppingCartOutlined,
-	TeamOutlined,
-	AppstoreOutlined,
-	PlusOutlined,
-	ThunderboltOutlined,
-	FileTextOutlined,
 } from '@ant-design/icons-vue';
-import { storeToRefs } from 'pinia';
 
-const router = useRouter();
+// 首页初始化时后台预热 loadEcharts，使各角色看板图表渲染秒开，避免 Vite 8 预构建崩溃
+onMounted(() => {
+	void loadEcharts();
+});
 
-const { userInfo } = storeToRefs(useUserStore());
+const userStore = useUserStore();
 
-const chartContainer = ref<HTMLElement>();
-let chartInstance: EChartsType | null = null;
+// 计算当前登录用户的物理真实身份
+const actualRoleType = computed<DashboardRoleType>(() => {
+	const permContext = userStore.getPermissionContext;
+	const currentRole = userStore.getRoleInfo;
+	return resolveDashboardRole(
+		permContext,
+		currentRole?.roleCode,
+		currentRole?.roleName,
+	);
+});
 
-// 当前日期
-const currentDate = computed(() =>
-	dayjs().locale('zh-cn').format('YYYY年MM月DD日 dddd'),
+// 是否为真超管（仅真超管可看到视角切换条）
+const isRealSuperAdmin = computed(
+	() => actualRoleType.value === 'super_admin',
 );
 
-// 统计数据
-const statsData = ref({
-	todayOrders: 1234,
-	todayRevenue: 56789,
-	activeUsers: 8901,
-	totalProducts: 456,
-});
+// 当前正在渲染的看板角色（支持超管预览切角）
+const currentActiveRole = ref<DashboardRoleType>('user');
 
-// 最新动态
-const recentActivities = ref([
-	{
-		title: '用户张三完成了一笔订单',
-		time: '2小时前',
-		color: 'green',
+// 初始化并保持响应
+watch(
+	actualRoleType,
+	(val) => {
+		currentActiveRole.value = val;
 	},
-	{
-		title: '新商品"iPhone 15"已上架',
-		time: '4小时前',
-		color: 'blue',
-	},
-	{
-		title: '秒杀活动"双11预热"已开始',
-		time: '6小时前',
-		color: 'red',
-	},
-	{
-		title: '系统维护完成',
-		time: '1天前',
-		color: 'gray',
-	},
-]);
+	{ immediate: true },
+);
 
-// 待办事项
-const tdoList = ref([
-	{
-		id: 1,
-		task: '审核待上架商品',
-		priority: 'high',
-	},
-	{
-		id: 2,
-		task: '处理用户退款申请',
-		priority: 'medium',
-	},
-	{
-		id: 3,
-		task: '更新商品库存信息',
-		priority: 'low',
-	},
-	{
-		id: 4,
-		task: '制定下周营销计划',
-		priority: 'medium',
-	},
-]);
-
-// 导航到指定页面
-const navigateTo = (path: string) => {
-	router.push(path);
-};
-
-// 完成待办事项
-const completetdo = (id: number) => {
-	tdoList.value = tdoList.value.filter((item) => item.id !== id);
-};
-
-const onChartResize = () => {
-	chartInstance?.resize();
-};
-
-// 初始化图表：走 loadEcharts，避免 Vite 8 全量 echarts 预构建崩溃
-const initChart = async () => {
-	if (!chartContainer.value || chartInstance) return;
-
-	const echarts = await loadEcharts();
-	if (!chartContainer.value || chartInstance) return;
-
-	chartInstance = echarts.init(chartContainer.value);
-
-	const option = {
-		title: {
-			text: '最近7天销售趋势',
-			textStyle: {
-				fontSize: 14,
-				fontWeight: 'normal',
-			},
-		},
-		tooltip: {
-			trigger: 'axis',
-			axisPointer: {
-				type: 'cross',
-			},
-		},
-		grid: {
-			left: '3%',
-			right: '4%',
-			bottom: '3%',
-			containLabel: true,
-		},
-		xAxis: {
-			type: 'category',
-			data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-		},
-		yAxis: {
-			type: 'value',
-		},
-		series: [
-			{
-				name: '销售额',
-				type: 'line',
-				smooth: true,
-				data: [12000, 15000, 13000, 17000, 16000, 18000, 20000],
-				itemStyle: {
-					color: '#1890ff',
-				},
-				areaStyle: {
-					color: {
-						type: 'linear',
-						x: 0,
-						y: 0,
-						x2: 0,
-						y2: 1,
-						colorStops: [
-							{
-								offset: 0,
-								color: 'rgba(24, 144, 255, 0.3)',
-							},
-							{
-								offset: 1,
-								color: 'rgba(24, 144, 255, 0.1)',
-							},
-						],
-					},
-				},
-			},
-		],
-	};
-
-	chartInstance.setOption(option);
-	window.addEventListener('resize', onChartResize);
-};
-
-const disposeChart = () => {
-	window.removeEventListener('resize', onChartResize);
-	chartInstance?.dispose();
-	chartInstance = null;
-};
-
-onMounted(() => {
-	void initChart();
-});
-
-onUnmounted(() => {
-	disposeChart();
+// 根据当前选中角色计算激活组件
+const activeDashboardComponent = computed(() => {
+	switch (currentActiveRole.value) {
+		case 'super_admin':
+			return SuperAdminDashboard;
+		case 'org_admin':
+			return OrgAdminDashboard;
+		case 'user':
+		default:
+			return UserDashboard;
+	}
 });
 </script>
 
 <style scoped lang="scss">
-.dashboard-container {
+.dashboard-wrapper {
 	padding: 20px;
 	background-color: #f0f2f5;
-	min-height: calc(100vh - 140px);
-}
+	min-height: calc(100vh - 120px);
 
-.welcome-section {
-	margin-bottom: 20px;
+	.super-sandbox-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		background: #ffffff;
+		padding: 8px 16px;
+		border-radius: 8px;
+		margin-bottom: 16px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+		border: 1px solid #e8e8e8;
 
-	.welcome-card {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		border: none;
-		color: white;
-
-		:deep(.ant-card-body) {
-			padding: 24px;
-		}
-
-		.welcome-content {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-
-			.welcome-text {
-				h2 {
-					color: white;
-					margin: 0 0 8px 0;
-					font-size: 24px;
-				}
-
-				p {
-					color: rgba(255, 255, 255, 0.8);
-					margin: 0;
-					font-size: 14px;
-				}
-			}
-		}
-	}
-}
-
-.stats-section {
-	margin-bottom: 20px;
-
-	.stat-card {
-		text-align: center;
-
-		:deep(.ant-statistic-title) {
-			color: #666;
-			font-size: 14px;
-		}
-
-		:deep(.ant-statistic-content) {
-			font-size: 24px;
-			font-weight: bold;
-		}
-
-		.stat-trend {
-			margin-top: 8px;
-
-			.trend-up {
-				color: #52c41a;
-				font-size: 12px;
-			}
-
-			.trend-down {
-				color: #ff4d4f;
-				font-size: 12px;
-			}
-		}
-	}
-}
-
-.content-section {
-	margin-bottom: 20px;
-
-	.chart-card {
-		height: 400px;
-
-		:deep(.ant-card-body) {
-			height: calc(100% - 57px);
-		}
-	}
-
-	.quick-actions-card {
-		height: 400px;
-
-		.quick-actions {
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-
-			.action-btn {
-				height: 48px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 16px;
-
-				&:hover {
-					transform: translateY(-2px);
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-					transition: all 0.3s ease;
-				}
-			}
-		}
-	}
-}
-
-.bottom-section {
-	.activity-card,
-	.tdo-card {
-		.activity-item {
-			.activity-title {
-				font-size: 14px;
-				margin-bottom: 4px;
-			}
-
-			.activity-time {
-				font-size: 12px;
-				color: #999;
-			}
-		}
-
-		.tdo-item {
+		.sandbox-label {
 			display: flex;
 			align-items: center;
-			gap: 8px;
+			gap: 6px;
+			margin-right: 12px;
+			color: #722ed1;
+			font-size: 13px;
+			font-weight: 600;
+
+			.sandbox-icon {
+				font-size: 15px;
+			}
 		}
 	}
 }
 
-// 响应式设计
-@media (max-width: 768px) {
-	.dashboard-container {
-		padding: 12px;
-	}
+/* 视图平滑过渡动效 */
+.fade-dashboard-enter-active,
+.fade-dashboard-leave-active {
+	transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+}
 
-	.welcome-content {
-		flex-direction: column;
-		text-align: center;
-		gap: 16px;
-	}
+.fade-dashboard-enter-from {
+	opacity: 0;
+	transform: translateY(6px);
+}
 
-	.content-section {
-		.chart-card,
-		.quick-actions-card {
-			height: auto;
-		}
-	}
+.fade-dashboard-leave-to {
+	opacity: 0;
+	transform: translateY(-6px);
 }
 </style>

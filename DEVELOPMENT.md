@@ -47,6 +47,8 @@
   - **PermissionContext**：仅 org / roles / permissionCodes / buttonPermissionCodes / superAdmin；**不含**菜单。菜单仅守卫 `GET /user/menus` → `setMenuInfo`。
 - **状态管理（Pinia）**：`src/store/modules/`
   - `app-user.login` 只持久化 token / 用户 / 机构角色 / 权限码；菜单不从登录体写入。
+- **个人头像与展示**：`src/views/common/my-right-info/`
+  - 登录接口并行拉取 OSS 预签名头像链接并带 600ms 超时保护；进系统后由导航栏用户胶囊（`my-right-info`）自动侦测，若存在用户 ID 但缺少 `avatarUrl` 时，自动调用 `getUserManagerDetail` 静默兜底补全并写回 Pinia `userStore`。
 - **通用组件**：`src/components/`、`src/layout/`
 - **业务页面**：`src/views/`
 - **工具方法**：`src/utils/`

@@ -123,6 +123,7 @@ export const useUserStore = defineStore(
 				} = await loginApi(loginParams);
 				if (code == '200') {
 					const { token: tokenVal, admin } = data;
+					console.log('【登录响应 - 个人信息 admin】:', admin);
 					const normalizedContext = normalizePermissionContext(admin);
 					// save userInfo
 					setUserInfo(admin);

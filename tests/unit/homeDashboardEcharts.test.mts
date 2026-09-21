@@ -20,22 +20,31 @@ const homeDashboardPath = path.resolve(
 
 describe('home-dashboard echarts 加载契约', () => {
 	it('禁止同步全量 import echarts，必须走 loadEcharts', () => {
-		const source = fs.readFileSync(homeDashboardPath, 'utf8');
+		const targetFiles = [
+			homeDashboardPath,
+			path.resolve(__dirname, '../../src/views/home-dashboard/components/super-admin/SuperAdminDashboard.vue'),
+			path.resolve(__dirname, '../../src/views/home-dashboard/components/org-admin/OrgAdminDashboard.vue'),
+			path.resolve(__dirname, '../../src/views/home-dashboard/components/user/UserDashboard.vue'),
+		];
 
-		assert.match(
-			source,
-			/from ['"]@\/utils\/echarts\/loadEcharts['"]/,
-			'应通过 loadEcharts 异步加载',
-		);
-		assert.doesNotMatch(
-			source,
-			/import\s+\*\s+as\s+echarts\s+from\s+['"]echarts['"]/,
-			'禁止 import * as echarts from "echarts"',
-		);
-		assert.doesNotMatch(
-			source,
-			/from\s+['"]echarts['"]/,
-			'禁止任何直接 from "echarts" 的同步导入',
-		);
+		for (const file of targetFiles) {
+			const source = fs.readFileSync(file, 'utf8');
+
+			assert.match(
+				source,
+				/from ['"]@\/utils\/echarts\/loadEcharts['"]/,
+				`${path.basename(file)} 应通过 loadEcharts 异步加载`,
+			);
+			assert.doesNotMatch(
+				source,
+				/import\s+\*\s+as\s+echarts\s+from\s+['"]echarts['"]/,
+				`${path.basename(file)} 禁止 import * as echarts from "echarts"`,
+			);
+			assert.doesNotMatch(
+				source,
+				/from\s+['"]echarts['"]/,
+				`${path.basename(file)} 禁止任何直接 from "echarts" 的同步导入`,
+			);
+		}
 	});
 });

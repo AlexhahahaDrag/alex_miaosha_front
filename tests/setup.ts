@@ -3,5 +3,6 @@
  * 以便可直接 import 依赖 ref/reactive 的业务 config。
  */
 import { computed, reactive, ref, watch } from 'vue';
+import { defineStore } from 'pinia';
 
-Object.assign(globalThis, { ref, reactive, computed, watch });
+Object.assign(globalThis, { ref, reactive, computed, watch, defineStore });
