@@ -554,88 +554,90 @@ onMounted(loadData);
 <style scoped lang="less">
 .gift-dashboard {
 	min-height: 100%;
-	padding: 18px;
-	background: #f3f6fa;
-	color: #17233d;
+	padding: 20px;
+	background: #f8fafc; /* Tailwind bg-slate-50 */
+	color: #0f172a;
 }
 
 .dashboard-header {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 
 	h2 {
 		margin: 0;
-		font-size: 20px;
-		font-weight: 700;
-		color: #101828;
+		font-size: 22px;
+		font-weight: 800;
+		color: #0f172a; /* Tailwind slate-900 */
+		letter-spacing: -0.4px;
 	}
 
 	p {
 		margin: 6px 0 0;
 		font-size: 13px;
-		color: #667085;
+		color: #64748b; /* Tailwind slate-500 */
 	}
 }
 
 .today-summary {
 	margin-left: 8px;
 	padding-left: 8px;
-	border-left: 1px solid #d0d5dd;
-	color: #1677ff;
+	border-left: 1px solid #cbd5e1;
+	color: #2563eb; /* Tailwind blue-600 */
 	font-weight: 600;
 }
 
 .primary-action {
-	height: 34px;
+	height: 36px;
 	border-radius: 8px;
 	font-weight: 600;
-	background: #1677ff;
-	border-color: #1677ff;
-	box-shadow: 0 6px 14px rgba(22, 119, 255, 0.18);
+	background: #2563eb;
+	border-color: #2563eb;
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .metric-grid {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 14px;
-	margin-bottom: 16px;
+	gap: 16px;
+	margin-bottom: 20px;
 }
 
 .main-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 2.15fr) minmax(280px, 0.85fr);
 	gap: 16px;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 }
 
 .panel {
-	background: #fff;
-	border: 1px solid #e5eaf1;
+	background: #ffffff;
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
 }
 
 .panel-secondary {
-	border-radius: 10px;
-	box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .panel-tertiary {
-	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .panel-head {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
-	padding: 16px 18px 8px;
+	padding: 18px 20px 10px;
 
 	h3 {
 		margin: 0;
 		font-size: 16px;
-		font-weight: 800;
-		color: #17233d;
+		font-weight: 700;
+		color: #0f172a;
+		letter-spacing: -0.2px;
 	}
 }
 

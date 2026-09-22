@@ -130,23 +130,26 @@
 							>
 								编辑
 							</a-button>
-							<a-popconfirm
-								title="确认删除用户信息?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delUser(record.id)"
+							<span
 								v-if="record.username !== 'superman'"
 								v-permission="'user:delete'"
 							>
-								<a-button
-									type="primary"
-									size="small"
-									danger
-									data-testid="rbac-user-row-delete"
+								<a-popconfirm
+									title="确认删除用户信息?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delUser(record.id)"
 								>
-									删除
-								</a-button>
-							</a-popconfirm>
+									<a-button
+										type="primary"
+										size="small"
+										danger
+										data-testid="rbac-user-row-delete"
+									>
+										删除
+									</a-button>
+								</a-popconfirm>
+							</span>
 						</a-space>
 						<span></span>
 					</template>

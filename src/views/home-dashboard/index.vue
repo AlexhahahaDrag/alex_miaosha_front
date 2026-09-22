@@ -107,26 +107,27 @@ const activeDashboardComponent = computed(() => {
 <style scoped lang="scss">
 .dashboard-wrapper {
 	padding: 20px;
-	background-color: #f0f2f5;
+	background-color: #f8fafc; /* Tailwind bg-slate-50 */
 	min-height: calc(100vh - 120px);
 
 	.super-sandbox-toolbar {
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
-		background: #ffffff;
+		background: rgba(255, 255, 255, 0.9);
+		backdrop-filter: blur(8px);
 		padding: 8px 16px;
-		border-radius: 8px;
+		border-radius: 12px;
 		margin-bottom: 16px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-		border: 1px solid #e8e8e8;
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+		border: 1px solid #e2e8f0;
 
 		.sandbox-label {
 			display: flex;
 			align-items: center;
 			gap: 6px;
 			margin-right: 12px;
-			color: #722ed1;
+			color: #6366f1; /* Tailwind indigo-500 */
 			font-size: 13px;
 			font-weight: 600;
 

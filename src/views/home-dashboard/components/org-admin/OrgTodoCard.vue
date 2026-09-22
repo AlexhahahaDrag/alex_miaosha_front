@@ -151,21 +151,30 @@ watch(
 
 <style scoped lang="scss">
 .org-todo-card {
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 	margin-bottom: 20px;
+	background: #ffffff;
 
 	:deep(.ant-card-head) {
-		border-bottom: 1px solid #f0f0f0;
-		font-weight: 600;
+		border-bottom: 1px solid #f1f5f9;
+		font-weight: 700;
+		color: #0f172a;
+		font-size: 15px;
+		letter-spacing: -0.2px;
+		padding: 0 20px;
 	}
 
 	.todo-list-item {
-		padding: 12px 0;
-		border-bottom: 1px solid #f5f5f5;
+		padding: 12px 14px;
+		border-radius: 10px;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		margin-bottom: 4px;
+		border-bottom: 1px solid #f8fafc;
 
-		&:last-child {
-			border-bottom: none;
+		&:hover {
+			background: #f8fafc; /* Tailwind bg-slate-50 */
 		}
 
 		.todo-meta-wrap {
@@ -176,19 +185,24 @@ watch(
 			.priority-tag {
 				margin-top: 2px;
 				font-size: 11px;
+				border-radius: 9999px; /* Tailwind rounded-full */
+				font-weight: 500;
+				padding: 0 8px;
 			}
 
 			.todo-text-wrap {
 				.todo-title {
 					font-size: 13px;
-					color: #262626;
+					font-weight: 600;
+					color: #0f172a; /* Tailwind slate-900 */
 					line-height: 1.4;
 					margin-bottom: 2px;
 				}
 
 				.todo-time {
-					font-size: 11px;
-					color: #bfbfbf;
+					font-size: 12px;
+					color: #94a3b8; /* Tailwind slate-400 */
+					font-weight: 400;
 				}
 			}
 		}

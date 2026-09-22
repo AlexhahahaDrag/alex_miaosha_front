@@ -70,9 +70,16 @@ withDefaults(defineProps<Props>(), {
 	min-height: 132px;
 	padding: 20px 18px 16px;
 	background: #fff;
-	border: 1px solid #e5eaf1;
-	border-radius: 12px;
-	box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+		border-color: #cbd5e1;
+	}
 }
 
 .gift-metric-card__top {
@@ -83,17 +90,17 @@ withDefaults(defineProps<Props>(), {
 
 .gift-metric-card__title {
 	font-size: 13px;
-	font-weight: 700;
-	color: #344054;
+	font-weight: 500;
+	color: #64748b; /* Tailwind slate-500 */
 }
 
 .gift-metric-card__icon {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 34px;
-	height: 34px;
-	border-radius: 8px;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px; /* Tailwind rounded-xl */
 	font-size: 16px;
 }
 
@@ -106,10 +113,10 @@ withDefaults(defineProps<Props>(), {
 }
 
 .gift-metric-card__value {
-	font-size: 36px;
-	font-weight: 700;
+	font-size: 30px;
+	font-weight: 800;
 	line-height: 1.1;
-	letter-spacing: -0.02em;
+	letter-spacing: -0.5px;
 }
 
 .gift-metric-card__trend {
@@ -122,22 +129,22 @@ withDefaults(defineProps<Props>(), {
 }
 
 .gift-metric-card__trend-up {
-	color: #14803c;
+	color: #059669; /* Tailwind emerald-600 */
 }
 
 .gift-metric-card__trend-down {
-	color: #d92d20;
+	color: #e11d48; /* Tailwind rose-600 */
 }
 
 .gift-metric-card__trend-flat,
 .gift-metric-card__trend-none {
-	color: #667085;
+	color: #94a3b8; /* Tailwind slate-400 */
 }
 
 .gift-metric-card__sub {
 	margin-top: 6px;
 	font-size: 12px;
-	color: #667085;
+	color: #64748b; /* Tailwind slate-500 */
 }
 
 .gift-metric-card__sparkline {
@@ -149,62 +156,66 @@ withDefaults(defineProps<Props>(), {
 
 .gift-metric-card-income {
 	.gift-metric-card__value {
-		color: #14803c;
+		color: #059669; /* Tailwind emerald-600 */
 	}
 
 	.gift-metric-card__icon-income {
-		color: #168a3a;
-		background: #ddf6df;
+		color: #059669;
+		background: #ecfdf5;
+		border: 1px solid #a7f3d0;
 	}
 
 	.gift-metric-card__sparkline {
-		color: #69b66b;
+		color: #10b981;
 	}
 }
 
 .gift-metric-card-expense {
 	.gift-metric-card__value {
-		color: #d92d20;
+		color: #e11d48; /* Tailwind rose-600 */
 	}
 
 	.gift-metric-card__icon-expense {
-		color: #d92d20;
-		background: #ffe7e7;
+		color: #e11d48;
+		background: #fff1f2;
+		border: 1px solid #fecdd3;
 	}
 
 	.gift-metric-card__sparkline {
-		color: #f97066;
+		color: #f43f5e;
 	}
 }
 
 .gift-metric-card-balance {
 	.gift-metric-card__value {
-		color: #1677ff;
+		color: #2563eb; /* Tailwind blue-600 */
 	}
 
 	.gift-metric-card__icon-balance {
-		color: #1677ff;
-		background: #dcecff;
+		color: #2563eb;
+		background: #eff6ff;
+		border: 1px solid #dbeafe;
 	}
 
 	.gift-metric-card__sparkline {
-		color: #4096ff;
+		color: #3b82f6;
 	}
 }
 
 .gift-metric-card-todo {
 	.gift-metric-card__value {
-		color: #9a6712;
-		font-size: 30px;
+		color: #d97706; /* Tailwind amber-600 */
+		font-size: 28px;
 	}
 
 	.gift-metric-card__icon-todo {
-		color: #9a6712;
-		background: #f5ead5;
+		color: #d97706;
+		background: #fffbeb;
+		border: 1px solid #fde68a;
 	}
 
 	.gift-metric-card__sparkline {
-		color: #d4a017;
+		color: #f59e0b;
 	}
 }
 </style>

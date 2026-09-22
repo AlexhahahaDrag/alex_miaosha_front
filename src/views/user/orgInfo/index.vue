@@ -106,24 +106,25 @@
 							<template #icon><edit-outlined /></template>
 							编辑
 						</a-button>
-						<a-popconfirm
-							v-permission="'org:delete'"
-							title="确认删除选中的机构?"
-							ok-text="确认"
-							cancel-text="取消"
-							@confirm="delOrgInfo(selectedKeys.join(','))"
-							:disabled="!hasSelectedNode"
-						>
-							<a-button
-								type="primary"
-								danger
-								data-testid="rbac-org-btn-delete-node"
+						<span v-permission="'org:delete'">
+							<a-popconfirm
+								title="确认删除选中的机构?"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="delOrgInfo(selectedKeys.join(','))"
 								:disabled="!hasSelectedNode"
 							>
-								<template #icon><delete-outlined /></template>
-								删除
-							</a-button>
-						</a-popconfirm>
+								<a-button
+									type="primary"
+									danger
+									data-testid="rbac-org-btn-delete-node"
+									:disabled="!hasSelectedNode"
+								>
+									<template #icon><delete-outlined /></template>
+									删除
+								</a-button>
+							</a-popconfirm>
+						</span>
 						<a-button
 							v-permission="'org:delete'"
 							type="primary"
@@ -183,23 +184,24 @@
 								>
 									编辑
 								</a-button>
-								<a-popconfirm
-									v-permission="'org:delete'"
-									title="确认删除该机构?"
-									ok-text="确认"
-									cancel-text="取消"
-									@confirm="delOrgInfo(String(record.id || ''))"
-								>
-									<a-button
-										type="link"
-										danger
-										size="small"
-										style="padding: 0"
-										data-testid="rbac-org-row-delete"
+								<span v-permission="'org:delete'">
+									<a-popconfirm
+										title="确认删除该机构?"
+										ok-text="确认"
+										cancel-text="取消"
+										@confirm="delOrgInfo(String(record.id || ''))"
 									>
-										删除
-									</a-button>
-								</a-popconfirm>
+										<a-button
+											type="link"
+											danger
+											size="small"
+											style="padding: 0"
+											data-testid="rbac-org-row-delete"
+										>
+											删除
+										</a-button>
+									</a-popconfirm>
+								</span>
 							</a-space>
 						</template>
 					</template>

@@ -214,22 +214,23 @@
 							>
 								编辑
 							</a-button>
-							<a-popconfirm
-								v-permission="'menu:delete'"
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delMenuInfo(record.id)"
-							>
-								<a-button
-									type="primary"
-									size="small"
-									danger
-									data-testid="rbac-menu-row-delete"
+							<span v-permission="'menu:delete'">
+								<a-popconfirm
+									title="确认删除?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delMenuInfo(record.id)"
 								>
-									删除
-								</a-button>
-							</a-popconfirm>
+									<a-button
+										type="primary"
+										size="small"
+										danger
+										data-testid="rbac-menu-row-delete"
+									>
+										删除
+									</a-button>
+								</a-popconfirm>
+							</span>
 						</a-space>
 					</template>
 				</template>

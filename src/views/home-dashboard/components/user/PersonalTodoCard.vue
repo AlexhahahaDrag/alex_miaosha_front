@@ -154,13 +154,19 @@ const handleDelete = (id: string) => {
 
 <style scoped lang="scss">
 .personal-todo-card {
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 	margin-bottom: 20px;
+	background: #ffffff;
 
 	:deep(.ant-card-head) {
-		border-bottom: 1px solid #f0f0f0;
-		font-weight: 600;
+		border-bottom: 1px solid #f1f5f9;
+		font-weight: 700;
+		color: #0f172a;
+		font-size: 15px;
+		letter-spacing: -0.2px;
+		padding: 0 20px;
 	}
 
 	.add-todo-bar {
@@ -176,27 +182,30 @@ const handleDelete = (id: string) => {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 10px 12px;
-			background: #fbfcfe;
-			border: 1px solid #f0f2f6;
-			border-radius: 8px;
-			transition: all 0.2s ease;
+			padding: 10px 14px;
+			background: #f8fafc; /* Tailwind bg-slate-50 */
+			border: 1px solid #f1f5f9;
+			border-radius: 12px; /* Tailwind rounded-xl */
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
 			&:hover {
 				background: #ffffff;
-				border-color: #d6e4ff;
+				border-color: #bfdbfe; /* Tailwind border-blue-200 */
+				box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
+
 				.del-btn {
 					opacity: 1;
 				}
 			}
 
 			&.completed {
-				background: #f5f5f5;
-				border-color: #e8e8e8;
+				background: #f8fafc;
+				border-color: #f1f5f9;
+				opacity: 0.65;
 
 				.todo-text {
 					text-decoration: line-through;
-					color: #8c8c8c;
+					color: #94a3b8;
 				}
 			}
 
@@ -209,7 +218,8 @@ const handleDelete = (id: string) => {
 
 				.todo-text {
 					font-size: 13px;
-					color: #262626;
+					font-weight: 500;
+					color: #0f172a; /* Tailwind slate-900 */
 					word-break: break-all;
 				}
 			}
@@ -222,8 +232,8 @@ const handleDelete = (id: string) => {
 				margin-left: 8px;
 
 				.todo-due-date {
-					font-size: 11px;
-					color: #8c8c8c;
+					font-size: 12px;
+					color: #94a3b8;
 				}
 
 				.del-btn {

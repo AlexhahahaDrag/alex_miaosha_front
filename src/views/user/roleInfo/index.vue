@@ -136,23 +136,24 @@
 							>
 								用户
 							</a-button>
-							<a-popconfirm
-								v-permission="'role:delete'"
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delRoleInfo(record.id)"
-								@cancel="cancel"
-							>
-								<a-button
-									type="primary"
-									size="small"
-									danger
-									data-testid="rbac-role-row-delete"
+							<span v-permission="'role:delete'">
+								<a-popconfirm
+									title="确认删除?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delRoleInfo(record.id)"
+									@cancel="cancel"
 								>
-									删除
-								</a-button>
-							</a-popconfirm>
+									<a-button
+										type="primary"
+										size="small"
+										danger
+										data-testid="rbac-role-row-delete"
+									>
+										删除
+									</a-button>
+								</a-popconfirm>
+							</span>
 						</a-space>
 					</template>
 					<template v-else-if="column.key === 'status'">

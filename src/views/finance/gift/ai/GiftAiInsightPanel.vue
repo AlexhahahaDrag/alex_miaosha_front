@@ -164,39 +164,72 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .gift-ai-insight {
-	padding: 16px 18px;
-	background: #fff;
-	border: 1px solid #e5eaf1;
-	border-radius: 10px;
-	box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+	padding: 18px 20px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+	transition: all 0.2s ease;
 }
 
 .gift-ai-insight__actions {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
+
+	:deep(.ant-btn-primary) {
+		border-radius: 8px;
+		background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+		border: none;
+		box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+		font-weight: 600;
+		transition: all 0.2s ease;
+
+		&:hover {
+			opacity: 0.92;
+			transform: translateY(-1px);
+			box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+		}
+	}
 }
 
 .gift-ai-insight__error {
 	margin: 12px 0 0;
-	color: #d92d20;
+	color: #e11d48;
 	font-size: 13px;
 	line-height: 1.5;
+	background: #fff1f2;
+	border: 1px solid #fecdd3;
+	border-radius: 8px;
+	padding: 8px 12px;
 }
 
 .gift-ai-insight__summary {
-	margin-top: 12px;
-	color: #101828;
+	margin-top: 14px;
+	color: #1e293b;
 	font-size: 14px;
 	line-height: 1.7;
 	white-space: pre-wrap;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 14px 16px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .gift-ai-insight__keypoints {
-	margin: 10px 0 0;
-	padding-left: 18px;
-	color: #344054;
+	margin: 12px 0 0;
+	padding-left: 20px;
+	color: #334155;
 	font-size: 13px;
-	line-height: 1.7;
+	line-height: 1.8;
+
+	li {
+		margin-bottom: 4px;
+
+		&::marker {
+			color: #4f46e5;
+		}
+	}
 }
 </style>

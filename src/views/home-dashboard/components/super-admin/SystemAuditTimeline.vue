@@ -88,13 +88,19 @@ const handleViewAllLogs = () => {
 
 <style scoped lang="scss">
 .audit-timeline-card {
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 	margin-bottom: 20px;
+	background: #ffffff;
 
 	:deep(.ant-card-head) {
-		border-bottom: 1px solid #f0f0f0;
-		font-weight: 600;
+		border-bottom: 1px solid #f1f5f9;
+		font-weight: 700;
+		color: #0f172a;
+		font-size: 15px;
+		letter-spacing: -0.2px;
+		padding: 0 20px;
 	}
 
 	.audit-timeline {
@@ -113,27 +119,27 @@ const handleViewAllLogs = () => {
 				margin-bottom: 4px;
 
 				.audit-actor {
-					font-weight: 600;
-					color: #262626;
+					font-weight: 700;
+					color: #0f172a; /* Tailwind slate-900 */
 					font-size: 13px;
 				}
 
 				.audit-action {
-					color: #595959;
+					color: #475569; /* Tailwind slate-600 */
 					font-size: 13px;
 				}
 			}
 
 			.audit-detail {
 				font-size: 12px;
-				color: #8c8c8c;
+				color: #64748b; /* Tailwind slate-500 */
 				line-height: 1.5;
 				margin-bottom: 4px;
 			}
 
 			.audit-time {
 				font-size: 11px;
-				color: #bfbfbf;
+				color: #94a3b8; /* Tailwind slate-400 */
 			}
 		}
 	}

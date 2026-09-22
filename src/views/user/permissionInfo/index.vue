@@ -143,23 +143,24 @@
 							>
 								编辑
 							</a-button>
-							<a-popconfirm
-								v-permission="'permission:delete'"
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delPermissionInfo(record.id)"
-								@cancel="cancel"
-							>
-								<a-button
-									type="primary"
-									size="small"
-									danger
-									data-testid="rbac-perm-row-delete"
+							<span v-permission="'permission:delete'">
+								<a-popconfirm
+									title="确认删除?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delPermissionInfo(record.id)"
+									@cancel="cancel"
 								>
-									删除
-								</a-button>
-							</a-popconfirm>
+									<a-button
+										type="primary"
+										size="small"
+										danger
+										data-testid="rbac-perm-row-delete"
+									>
+										删除
+									</a-button>
+								</a-popconfirm>
+							</span>
 						</a-space>
 						<span></span>
 					</template>

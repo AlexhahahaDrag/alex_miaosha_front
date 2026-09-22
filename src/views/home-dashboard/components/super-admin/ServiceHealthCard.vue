@@ -68,13 +68,19 @@ const handleRefresh = () => {
 
 <style scoped lang="scss">
 .service-health-card {
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+	border-radius: 16px; /* Tailwind rounded-2xl */
+	border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 	margin-bottom: 20px;
+	background: #ffffff;
 
 	:deep(.ant-card-head) {
-		border-bottom: 1px solid #f0f0f0;
-		font-weight: 600;
+		border-bottom: 1px solid #f1f5f9;
+		font-weight: 700;
+		color: #0f172a;
+		font-size: 15px;
+		letter-spacing: -0.2px;
+		padding: 0 20px;
 	}
 
 	.service-list {
@@ -88,15 +94,15 @@ const handleRefresh = () => {
 		align-items: center;
 		justify-content: space-between;
 		padding: 12px 16px;
-		background: #fbfcfe;
-		border: 1px solid #f0f2f6;
-		border-radius: 8px;
-		transition: all 0.2s ease;
+		background: #f8fafc; /* Tailwind bg-slate-50 */
+		border: 1px solid #f1f5f9;
+		border-radius: 12px; /* Tailwind rounded-xl */
+		transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
 		&:hover {
 			background: #ffffff;
-			border-color: #d6e4ff;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+			border-color: #bfdbfe; /* Tailwind border-blue-200 */
+			box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
 		}
 
 		.service-meta {
@@ -108,8 +114,8 @@ const handleRefresh = () => {
 
 				.service-name {
 					font-size: 14px;
-					font-weight: 600;
-					color: #262626;
+					font-weight: 700;
+					color: #0f172a; /* Tailwind slate-900 */
 				}
 
 				.service-port {

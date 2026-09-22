@@ -235,25 +235,27 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 	z-index: 1;
 
 	.welcome-banner-card {
-		border-radius: 12px;
+		border-radius: 16px; /* Tailwind rounded-2xl */
 		color: #ffffff;
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-		transition: all 0.3s ease;
+		box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 10px -6px rgba(37, 99, 235, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		overflow: hidden;
 
 		:deep(.ant-card-body) {
 			padding: 24px 28px;
 		}
 
 		&.banner-super {
-			background: linear-gradient(135deg, #1f1c2c 0%, #442a58 50%, #302b63 100%);
+			background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #311042 100%);
 		}
 
 		&.banner-org {
-			background: linear-gradient(135deg, #0b4870 0%, #16697a 50%, #2b7a78 100%);
+			background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #4f46e5 100%);
 		}
 
 		&.banner-user {
-			background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+			background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #2563eb 100%);
 		}
 	}
 
@@ -272,8 +274,8 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 
 		.user-avatar {
 			border: 2px solid rgba(255, 255, 255, 0.85);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-			background-color: #1890ff;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+			background-color: #3b82f6;
 			flex-shrink: 0;
 		}
 
@@ -287,9 +289,9 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 			.greeting-title {
 				margin: 0;
 				font-size: 22px;
-				font-weight: 600;
+				font-weight: 700;
 				color: #ffffff;
-				letter-spacing: 0.5px;
+				letter-spacing: -0.3px;
 			}
 
 			.roles-badge-container {
@@ -300,50 +302,54 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 			}
 
 			.role-tag {
-				font-size: 13px;
-				border-radius: 16px;
+				font-size: 12px;
+				border-radius: 9999px; /* Tailwind rounded-full */
 				padding: 2px 10px;
 				display: inline-flex;
 				align-items: center;
 				gap: 4px;
 				font-weight: 500;
 				margin: 0;
+				background: rgba(255, 255, 255, 0.14) !important;
+				backdrop-filter: blur(8px);
+				border: 1px solid rgba(255, 255, 255, 0.25) !important;
+				color: #ffffff !important;
 			}
 
 			.header-v-divider {
 				display: inline-block;
 				width: 1px;
 				height: 16px;
-				background: rgba(255, 255, 255, 0.35);
+				background: rgba(255, 255, 255, 0.25);
 				margin: 0 4px;
 			}
 
 			.org-affiliation-chip {
 				display: inline-flex;
 				align-items: center;
-				background: rgba(0, 0, 0, 0.26);
-				backdrop-filter: blur(8px);
-				border: 1px solid rgba(255, 255, 255, 0.3);
-				border-radius: 6px;
+				background: rgba(255, 255, 255, 0.14);
+				backdrop-filter: blur(12px);
+				border: 1px solid rgba(255, 255, 255, 0.24);
+				border-radius: 8px;
 				overflow: hidden;
-				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
-				transition: all 0.25s ease;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+				transition: all 0.2s ease;
 
 				&:hover {
-					border-color: rgba(255, 255, 255, 0.55);
-					background: rgba(0, 0, 0, 0.35);
+					border-color: rgba(255, 255, 255, 0.45);
+					background: rgba(255, 255, 255, 0.2);
 				}
 
 				.org-chip-prefix {
 					display: inline-flex;
 					align-items: center;
 					gap: 4px;
-					background: rgba(24, 144, 255, 0.28);
+					background: rgba(255, 255, 255, 0.12);
 					border-right: 1px solid rgba(255, 255, 255, 0.2);
 					padding: 3px 8px;
 					font-size: 11px;
 					font-weight: 600;
-					color: #91caff;
+					color: rgba(255, 255, 255, 0.92);
 					letter-spacing: 0.5px;
 
 					.org-icon {
@@ -363,7 +369,7 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 
 		.subtitle {
 			margin: 0;
-			color: rgba(255, 255, 255, 0.82);
+			color: rgba(255, 255, 255, 0.88);
 			font-size: 14px;
 		}
 	}
@@ -377,13 +383,14 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 			align-items: center;
 			gap: 12px;
 			background: rgba(255, 255, 255, 0.12);
-			backdrop-filter: blur(8px);
-			border: 1px solid rgba(255, 255, 255, 0.18);
+			backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
 			padding: 10px 18px;
-			border-radius: 10px;
+			border-radius: 12px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 
 			.date-calendar-icon {
-				font-size: 24px;
+				font-size: 22px;
 				color: #ffffff;
 			}
 
@@ -399,7 +406,7 @@ const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
 
 				.date-sub {
 					font-size: 12px;
-					color: rgba(255, 255, 255, 0.75);
+					color: rgba(255, 255, 255, 0.8);
 				}
 			}
 		}
