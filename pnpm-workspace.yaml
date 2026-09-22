@@ -1,6 +1,8 @@
 packages:
   - '.'
 
+minimumReleaseAge: 0
+
 allowBuilds:
   '@parcel/watcher': true
   '@tsparticles/engine': true

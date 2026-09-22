@@ -11,15 +11,38 @@ body {
 	padding: 0;
 }
 
+:root {
+	--primary-color: #1677ff;
+	--page-bg: #f6f9fb;
+	--card-bg: #ffffff;
+	--card-text: #1e293b;
+	--card-border: rgba(0, 0, 0, 0.06);
+}
+
+html.dark {
+	--page-bg: #0b0f19;
+	--card-bg: #1e293b;
+	--card-text: #f1f5f9;
+	--card-border: rgba(255, 255, 255, 0.08);
+
+	body {
+		background-color: var(--page-bg);
+		color: var(--card-text);
+	}
+}
+
 .page-info {
 	width: 100%;
-	background-color: #f6f9fb;
+	background-color: var(--page-bg);
 	padding: 10px;
 	height: 100%;
+	transition: background-color 0.3s ease;
+
 	.search {
-		background: #ffffff;
+		background: var(--card-bg);
 		border-radius: 10px;
 		margin: 8px;
+		transition: background-color 0.3s ease;
 	}
 
 	.search-box {
@@ -32,10 +55,11 @@ body {
 	}
 
 	.content {
-		background: #ffffff;
+		background: var(--card-bg);
 		padding: 10px 10px 10px 10px;
 		margin: 18px 8px 8px 8px;
 		border-radius: 10px;
+		transition: background-color 0.3s ease;
 	}
 }
 

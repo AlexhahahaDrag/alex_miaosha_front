@@ -40,6 +40,8 @@
 					</button>
 				</a-badge>
 			</a-tooltip>
+
+			<ThemeSetting />
 		</div>
 
 		<div class="tool-divider"></div>
@@ -219,6 +221,7 @@ import { getUserManagerDetail } from '@/views/user/userManager/api';
 import { useUserStore } from '@/store/modules/user/user';
 import { refreshRouter } from '@/router';
 import { storeToRefs } from 'pinia';
+import ThemeSetting from './components/ThemeSetting.vue';
 
 // 响应式数据
 const userStore = useUserStore();

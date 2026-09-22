@@ -34,7 +34,7 @@
 			</a-layout-content>
 			<a-layout-footer
 				v-if="showFooter && !isFullscreen"
-				style="height: 40px; background-color: #ffffff"
+				style="height: 40px; background-color: var(--card-bg, #ffffff)"
 			>
 				<div class="app-footer-inner">
 					{{ appTitle }}
