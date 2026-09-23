@@ -255,7 +255,7 @@ import { ref, watch, computed, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import type { FormInstance } from 'ant-design-vue';
-import { formatDate } from '@/utils/dayjs';
+import { formatDate, formatTime } from '@/utils/dayjs';
 import {
 	getGiftEventBusinessPage,
 	addGiftEvent,
@@ -473,11 +473,11 @@ const loadEvents = async () => {
 			keyword: searchKey.value.trim() || undefined,
 			eventType: categoryFilter.value || undefined,
 		};
-		const today = new Date().toISOString().slice(0, 10);
+		const today = formatDate(new Date());
 		if (statusFilter.value === 'UPCOMING') {
-			queryParams.eventTimeStart = `${today}T00:00:00`;
+			queryParams.eventTimeStart = formatTime(today, 'YYYY-MM-DD 00:00:00');
 		} else if (statusFilter.value === 'FINISHED') {
-			queryParams.eventTimeEnd = `${today}T23:59:59`;
+			queryParams.eventTimeEnd = formatTime(today, 'YYYY-MM-DD 23:59:59');
 		}
 
 		const { code, data } = await getGiftEventBusinessPage(
@@ -552,7 +552,7 @@ const openCreatePanel = () => {
 	createForm.value = {
 		eventName: '',
 		eventType: undefined,
-		eventTime: new Date().toISOString().slice(0, 10),
+		eventTime: formatDate(new Date()),
 		hostPersonId: undefined,
 	};
 	showCreateForm.value = true;
@@ -570,9 +570,7 @@ const handleCreate = async () => {
 			hostPersonId: createForm.value.hostPersonId || undefined,
 		};
 		if (createForm.value.eventTime) {
-			const timeStr = createForm.value.eventTime;
-			params.eventTime =
-				timeStr.includes('T') ? timeStr : `${timeStr}T00:00:00`;
+			params.eventTime = formatTime(createForm.value.eventTime);
 		}
 
 		const { code, data, message: msg } = await addGiftEvent(

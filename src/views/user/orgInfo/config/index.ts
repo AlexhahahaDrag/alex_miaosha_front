@@ -14,32 +14,38 @@ export const columns = ref<TableColumnsType>([
 		title: '机构编码',
 		dataIndex: 'orgCode',
 		key: 'orgCode',
+		width: 140,
 	},
 	{
 		title: '机构名称',
 		dataIndex: 'orgName',
 		key: 'orgName',
+		width: 180,
 	},
 	{
 		title: '机构简称',
 		dataIndex: 'orgShortName',
 		key: 'orgShortName',
+		width: 140,
 	},
 	{
 		title: '父级机构',
 		dataIndex: 'parentOrgName',
 		key: 'parentOrgName',
+		width: 160,
 	},
 	{
 		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
+		width: 90,
+		align: 'center',
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		width: 150,
 	},
 ]);
 

@@ -1,5 +1,5 @@
 <template>
-	<div class="page-info">
+	<div class="page-info finance-manager-page">
 		<!-- 1. 单行紧凑日常记账筛选栏 -->
 		<finance-manager-filter
 			v-model:searchInfo="searchInfo"
@@ -91,7 +91,7 @@
 		</div>
 
 		<!-- 4. 账单明细表格 -->
-		<div class="content">
+		<div class="content" ref="tableContainerRef">
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
@@ -99,7 +99,7 @@
 				:row-key="(record: FinanceManagerData) => record.id || ''"
 				:pagination="pagination"
 				@change="handleTableChange"
-				:scroll="{ x: 1080 }"
+				:scroll="{ x: 'max-content', y: tableScrollY }"
 				:row-selection="rowSelection"
 			>
 				<template #bodyCell="{ column, record }">
@@ -424,19 +424,66 @@ const init = () => {
 	fetchSummary(queryParam);
 };
 
+// 表格高度自适应计算
+const tableContainerRef = ref<HTMLElement | null>(null);
+const tableScrollY = ref<number>(450);
+
+const updateTableScrollY = () => {
+	if (!tableContainerRef.value) return;
+	const containerHeight = tableContainerRef.value.clientHeight;
+	if (containerHeight > 180) {
+		// 扣除表头(~50px) + 底部分页器与间距(~66px) + 容器内边距(24px) + 边框安全量(12px) ≈ 152px
+		tableScrollY.value = Math.max(containerHeight - 152, 160);
+	}
+};
+
+let resizeObserver: ResizeObserver | null = null;
+
+onMounted(() => {
+	nextTick(() => {
+		updateTableScrollY();
+		if (tableContainerRef.value && typeof ResizeObserver !== 'undefined') {
+			resizeObserver = new ResizeObserver(() => {
+				updateTableScrollY();
+			});
+			resizeObserver.observe(tableContainerRef.value);
+		}
+	});
+	window.addEventListener('resize', updateTableScrollY);
+});
+
+onUnmounted(() => {
+	if (resizeObserver) {
+		resizeObserver.disconnect();
+		resizeObserver = null;
+	}
+	window.removeEventListener('resize', updateTableScrollY);
+});
+
 init();
 </script>
 
 <style lang="scss" scoped>
-.page-info {
-	padding: 0;
+.finance-manager-page {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 10px 10px 12px;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+:deep(.search) {
+	flex-shrink: 0;
+	margin: 0 0 8px;
 }
 
 .summary-bar {
+	flex-shrink: 0;
 	background: #fff;
-	padding: 12px 18px;
+	padding: 10px 16px;
 	border-radius: 8px;
-	margin: 0 8px 12px 8px;
+	margin: 0 0 8px;
 	border: 1px solid #f0f0f0;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 	display: flex;
@@ -515,16 +562,54 @@ init();
 }
 
 .button {
-	margin: 12px 8px;
+	flex-shrink: 0;
+	margin: 0 0 8px;
 }
 
 .content {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
 	background: #fff;
-	padding: 16px;
+	padding: 12px 16px;
 	border-radius: 8px;
 	border: 1px solid #f0f0f0;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-	margin: 0 8px;
+	margin: 0;
+	overflow: hidden;
+
+	:deep(.ant-table-wrapper) {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+
+		.ant-spin-nested-loading {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+
+			.ant-spin-container {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				min-height: 0;
+
+				.ant-table {
+					flex: 1;
+					min-height: 0;
+				}
+
+				.ant-pagination {
+					flex-shrink: 0;
+					margin: 12px 0 0 !important;
+					padding-bottom: 2px;
+				}
+			}
+		}
+	}
 }
 
 .amount-text {

@@ -16,7 +16,7 @@
 			</div>
 			<my-navbar :routes="routes" :selectedKeys="selectedKeys"></my-navbar>
 		</a-layout-sider>
-		<a-layout>
+		<a-layout class="main-layout">
 			<a-layout-header v-show="!isFullscreen" class="app-header">
 				<div class="navbar">
 					<div class="right-menu">
@@ -162,9 +162,16 @@ onUnmounted(() => {
 	}
 }
 
+.main-layout {
+	height: 100%;
+	overflow: hidden;
+}
+
 .app-header {
 	background: #fff;
 	padding: 0;
+	height: 50px;
+	line-height: 50px;
 }
 
 .navbar {
@@ -188,7 +195,8 @@ onUnmounted(() => {
 .layout-content {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	flex: 1;
+	min-height: 0;
 }
 
 .tabs-container {
@@ -197,8 +205,9 @@ onUnmounted(() => {
 }
 
 .content-container {
-	background: #fff;
+	background-color: var(--page-bg, #f6f9fb);
 	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 }
 

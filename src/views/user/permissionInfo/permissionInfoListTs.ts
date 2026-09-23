@@ -28,6 +28,8 @@ const columns = ref<TableColumnsType>([
 		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
+		width: 100,
+		align: 'center',
 	},
 	{
 		title: 'url',
@@ -38,7 +40,7 @@ const columns = ref<TableColumnsType>([
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		width: 150,
 	},
 ]);
 

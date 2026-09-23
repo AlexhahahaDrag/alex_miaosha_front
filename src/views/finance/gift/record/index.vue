@@ -282,7 +282,7 @@ import { DownOutlined } from '@ant-design/icons-vue';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import { formatDate } from '@/utils/dayjs';
+import { formatDate, formatTime } from '@/utils/dayjs';
 import {
 	deleteGiftRecord,
 	exportGiftRecords,
@@ -337,8 +337,10 @@ watch(
 );
 
 watch(payRange, (value) => {
-	searchInfo.value.payTimeStart = value?.[0];
-	searchInfo.value.payTimeEnd = value?.[1];
+	searchInfo.value.payTimeStart =
+		value?.[0] ? formatTime(value[0], 'YYYY-MM-DD 00:00:00') : undefined;
+	searchInfo.value.payTimeEnd =
+		value?.[1] ? formatTime(value[1], 'YYYY-MM-DD 23:59:59') : undefined;
 });
 
 const selectDirection = (value: string) => {

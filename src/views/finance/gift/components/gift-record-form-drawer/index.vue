@@ -8,7 +8,12 @@
 		@close="open = false"
 	>
 		<a-spin :spinning="formInitializing">
-			<a-form ref="formRef" :model="formInfo" layout="vertical">
+			<a-form
+				ref="formRef"
+				:model="formInfo"
+				layout="vertical"
+				:scroll-to-first-error="{ behavior: 'smooth', block: 'center' }"
+			>
 				<!-- 礼金方向 -->
 				<a-form-item
 					v-if="!formInfo.id"
@@ -229,7 +234,7 @@ import { ref, watch, computed, nextTick } from 'vue';
 import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
-import { formatDate } from '@/utils/dayjs';
+import { formatDate, formatTime } from '@/utils/dayjs';
 import { useUserStore } from '@/store/modules/user/user';
 import {
 	addGiftRecord,
@@ -368,8 +373,9 @@ const selectQuickTag = (item: any) => {
 	formInfo.value.eventType = item.eventType;
 	formInfo.value.eventOptionId = undefined;
 	if (item.eventTime && !props.record?.id) {
-		formInfo.value.payTime = item.eventTime.substring(0, 10);
+		formInfo.value.payTime = formatDate(item.eventTime);
 	}
+	formRef.value?.clearValidate('eventId');
 };
 
 const isSelectedQuickTag = (item: any) => {
@@ -381,8 +387,9 @@ const handleEventSelect = (item: GiftEventInfo) => {
 	formInfo.value.eventType = item.eventType;
 	formInfo.value.eventOptionId = undefined;
 	if (item.eventTime && !props.record?.id) {
-		formInfo.value.payTime = item.eventTime.substring(0, 10);
+		formInfo.value.payTime = formatDate(item.eventTime);
 	}
+	formRef.value?.clearValidate('eventId');
 };
 
 // 监听事件 ID 获取详情卡片并同步事件时间与类型
@@ -498,7 +505,7 @@ const amountRules: Rule[] = [
 	{ required: true, message: '请输入金额' },
 	{
 		validator: async (_rule, value?: number) => {
-			if (value == null || value <= 0) {
+			if (value != null && value <= 0) {
 				throw new Error('金额必须大于 0');
 			}
 		},
@@ -506,14 +513,11 @@ const amountRules: Rule[] = [
 ];
 
 const resetForm = (record?: GiftRecordInfo) => {
-	const now = new Date();
-	const offset = now.getTimezoneOffset();
-	const localTime = new Date(now.getTime() - offset * 60 * 1000);
-	const payDateStr = localTime.toISOString().substring(0, 10); // YYYY-MM-DD
+	const payDateStr = formatDate(new Date());
 
 	formInfo.value =
 		record ?
-			{ ...record, payTime: record.payTime ? record.payTime.substring(0, 10) : payDateStr }
+			{ ...record, payTime: record.payTime ? formatDate(record.payTime) : payDateStr }
 		:	{
 				direction: 'GIVE',
 				giverPersonId: undefined,
@@ -618,9 +622,7 @@ const handleSave = async () => {
 			params.relatedRecordId = undefined;
 		}
 		if (formInfo.value.payTime) {
-			const timeStr = formInfo.value.payTime;
-			params.payTime =
-				timeStr.includes('T') ? timeStr : `${timeStr}T00:00:00`;
+			params.payTime = formatTime(formInfo.value.payTime);
 		}
 
 		const apiCall = formInfo.value.id ? updateGiftRecord : addGiftRecord;
@@ -632,8 +634,14 @@ const handleSave = async () => {
 		} else {
 			message.error(msg || '保存失败');
 		}
-	} catch (error) {
+	} catch (error: any) {
 		console.error('保存礼金记录失败:', error);
+		if (error?.errorFields?.[0]?.name) {
+			formRef.value?.scrollToField(error.errorFields[0].name, {
+				behavior: 'smooth',
+				block: 'center',
+			});
+		}
 	} finally {
 		saving.value = false;
 	}

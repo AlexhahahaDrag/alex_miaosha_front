@@ -171,7 +171,11 @@ const openCreatePersonModal = () => {
 	};
 };
 
-const handleCreatedPerson = async () => {
+const handleCreatedPerson = async (person?: GiftPersonInfo) => {
+	if (person?.id) {
+		setOptions([person], false);
+		modelValue.value = String(person.id);
+	}
 	await fetchPersonList();
 };
 

@@ -295,6 +295,10 @@ const modelInfo = defineModel<GiftPersonDrawerInfo>('modelInfo', {
 	default: () => ({}),
 });
 
+const emit = defineEmits<{
+	(e: 'success', person?: GiftPersonInfo): void;
+}>();
+
 const { hasPermission } = usePermission();
 
 const formRef = ref<FormInstance>();
@@ -441,14 +445,20 @@ const toSavePayload = (): GiftPersonInfo => {
 };
 
 const saveGiftPerson = async () => {
-	const api = formState.value.id ? updateGiftPerson : addGiftPerson;
-	const { code, message: msg } = await api(toSavePayload());
+	const isEdit = Boolean(formState.value.id);
+	const payload = toSavePayload();
+	const api = isEdit ? updateGiftPerson : addGiftPerson;
+	const { code, data, message: msg } = await api(payload);
 	if (code === '200') {
 		message.success('保存成功');
 		modelInfo.value.open = false;
 		formState.value = {};
 		avatarPreviewUrl.value = '';
-		emit('success');
+		const resultPerson: GiftPersonInfo | undefined =
+			!isEdit && data && typeof data === 'object' && (data as GiftPersonInfo).id
+				? (data as GiftPersonInfo)
+				: { ...payload, id: !isEdit && data && typeof data === 'object' ? (data as any).id : payload.id };
+		emit('success', resultPerson);
 	} else {
 		message.error(msg || '保存失败');
 	}
@@ -580,7 +590,7 @@ const getGradeColor = (grade?: string) => {
 	}
 };
 
-const emit = defineEmits(['success']);
+
 </script>
 
 <style scoped lang="less">

@@ -162,7 +162,11 @@
 								</a-popconfirm>
 							</span>
 						</a-space>
-						<span></span>
+					</template>
+					<template v-else-if="column.key === 'status'">
+						<a-tag :color="String(record.status) === '1' ? '#87d068' : 'grey'">
+							{{ String(record.status) === '1' ? '有效' : '失效' }}
+						</a-tag>
 					</template>
 				</template>
 			</a-table>
@@ -175,11 +179,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import { useDictInfo } from '@/composables/useDictInfo';
-
-const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
+import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	type SearchInfo,
 	columns,
@@ -190,6 +192,7 @@ import {
 	getPermissionInfoPage,
 	deletePermissionInfo,
 } from '@/views/user/permissionInfo/api';
+import PermissionInfoDetail from './permissionInfoDetail/index.vue';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
@@ -201,12 +204,14 @@ const {
 	resetPagination,
 } = usePagination();
 
+const { getDictByType } = useDictInfo('is_valid');
+
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-let rowIds: (string | number)[] = [];
+const rowIds = ref<string[]>([]);
 
-let searchInfo = ref<SearchInfo>({});
+const searchInfo = ref<SearchInfo>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
@@ -214,7 +219,7 @@ const statusList = computed(() => getDictByType('is_valid'));
 const rowSelection = ref({
 	checkStrictly: false,
 	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
+		rowIds.value = selectedRowKeys.map((key) => String(key));
 	},
 	onSelect: (
 		record: PermissionInfo,
@@ -231,8 +236,6 @@ const rowSelection = ref({
 		console.log(selected, selectedRows, changeRows);
 	},
 });
-
-// 字典数据已通过 useDictInfo 自动加载
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -251,10 +254,8 @@ const handleTableChange = (paginationInfo: PageInfo) => {
 	getPermissionInfoListPage(searchInfo.value, pagination);
 };
 
-const delPermissionInfo = async (ids: string | number) => {
-	const { code, message: messageInfo } = await deletePermissionInfo(
-		String(ids),
-	);
+const delPermissionInfo = async (ids: string) => {
+	const { code, message: messageInfo } = await deletePermissionInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
 		query(true);
@@ -264,23 +265,23 @@ const delPermissionInfo = async (ids: string | number) => {
 };
 
 const batchDelPermissionInfo = (): void => {
-	if (!rowIds?.length) {
+	if (!rowIds.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
 	Modal.confirm({
 		title: '确认删除',
-		content: `确定删除选中的 ${rowIds.length} 条数据吗？`,
+		content: `确定删除选中的 ${rowIds.value.length} 条数据吗？`,
 		okText: '删除',
 		okType: 'danger',
 		cancelText: '取消',
-		onOk: () => delPermissionInfo(rowIds.join(',')),
+		onOk: () => delPermissionInfo(rowIds.value.join(',')),
 	});
 };
 
-let loading = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
-let dataSource = ref<PermissionInfo[]>([]);
+const dataSource = ref<PermissionInfo[]>([]);
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);
@@ -306,24 +307,24 @@ const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 };
 
 const init = () => {
-	//获取权限信息表页面数据
+	// 获取权限信息表页面数据
 	getPermissionInfoListPage(searchInfo.value, pagination);
 };
 
-init();
+onMounted(() => {
+	init();
+});
 
 const modelInfo = ref<ModelInfo>({});
 
-//新增和修改弹窗
+// 新增和修改弹窗
 function editPermissionInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : (id ?? null);
+	modelInfo.value.id = isAdd ? null : (id !== undefined && id !== null ? String(id) : null);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
-
-// 移除冗余的 handleSuccess 函数
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
 const triggerDebouncedQuery = debounce(() => {

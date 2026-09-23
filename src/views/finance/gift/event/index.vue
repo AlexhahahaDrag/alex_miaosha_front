@@ -451,7 +451,7 @@ import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { usePagination } from '@/composables/usePagination';
-import { formatDate } from '@/utils/dayjs';
+import { formatDate, formatTime } from '@/utils/dayjs';
 import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 import {
 	addGiftEvent,
@@ -520,9 +520,9 @@ watch(
 
 watch(eventRange, (value) => {
 	searchInfo.value.eventTimeStart =
-		value?.[0] ? `${value[0]}T00:00:00` : undefined;
+		value?.[0] ? formatTime(value[0], 'YYYY-MM-DD 00:00:00') : undefined;
 	searchInfo.value.eventTimeEnd =
-		value?.[1] ? `${value[1]}T23:59:59` : undefined;
+		value?.[1] ? formatTime(value[1], 'YYYY-MM-DD 23:59:59') : undefined;
 });
 
 const selectEventType = (presetId: string) => {
@@ -650,7 +650,7 @@ const loadPage = async (page: PageInfo) => {
 const openDrawer = (record?: GiftEventBusinessInfo) => {
 	const mapped = record ? mapEventTypeToFormFields(record) : {};
 	if (mapped.eventTime) {
-		mapped.eventTime = mapped.eventTime.replace('T', ' ').slice(0, 10);
+		mapped.eventTime = formatDate(mapped.eventTime);
 	}
 	formInfo.value = mapped;
 	drawerOpen.value = true;
@@ -667,9 +667,7 @@ const toSavePayload = (): GiftEventInfo => {
 		remark: formInfo.value.remark?.trim() || undefined,
 	};
 	if (formInfo.value.eventTime) {
-		const timeStr = formInfo.value.eventTime;
-		params.eventTime =
-			timeStr.length === 10 ? `${timeStr}T00:00:00` : timeStr;
+		params.eventTime = formatTime(formInfo.value.eventTime);
 	}
 	return params as GiftEventInfo;
 };

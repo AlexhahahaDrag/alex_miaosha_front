@@ -32,7 +32,7 @@
 					:icon="item.icon"
 					:trend-text="item.trendText"
 					:trend-direction="item.trendDirection"
-					:sparkline-points="item.sparklinePoints"
+					:sparkline-data="item.sparklineData"
 					:sub="item.sub"
 				/>
 			</div>
@@ -58,38 +58,19 @@
 						</a-select>
 					</div>
 					<gift-empty-state
-						v-if="chartRows.length === 0"
+						v-if="scopedTrendRows.length === 0"
 						title="暂无趋势数据"
 						description="录入礼金记录后，这里会展示近几个月的收支变化。"
 						action-text="去记一笔礼金 →"
 						:to="recordPath"
 						:icon="BarChartOutlined"
 					/>
-					<template v-else>
-						<div class="bar-chart">
-							<div
-								v-for="item in chartRows"
-								:key="item.label"
-								class="bar-group"
-							>
-								<div class="bar-stage">
-									<div
-										class="bar bar-income"
-										:style="{ height: `${item.receiveHeight}%` }"
-									/>
-									<div
-										class="bar bar-expense"
-										:style="{ height: `${item.giveHeight}%` }"
-									/>
-								</div>
-								<div class="bar-label">{{ item.label }}</div>
-							</div>
-						</div>
-						<div class="legend-row">
-							<span><i class="legend-dot legend-income" />收入</span>
-							<span><i class="legend-dot legend-expense" />支出</span>
-						</div>
-					</template>
+					<div
+						v-else
+						ref="trendChartRef"
+						class="trend-echarts-container"
+						data-testid="gift-dashboard-trend-chart"
+					/>
 				</section>
 
 				<section class="panel panel-secondary ranking-panel">
@@ -264,7 +245,9 @@ import {
 	TeamOutlined,
 } from '@ant-design/icons-vue';
 import GiftEmptyState from '@/views/finance/gift/gift-dashboard/components/GiftEmptyState.vue';
-import GiftMetricCard from '@/views/finance/gift/gift-dashboard/components/GiftMetricCard.vue';
+import GiftMetricCard, {
+	type SparklineData,
+} from '@/views/finance/gift/gift-dashboard/components/GiftMetricCard.vue';
 import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
 import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import {
@@ -272,6 +255,7 @@ import {
 	buildSparklinePoints,
 	calcMomTrend,
 } from '@/views/finance/gift/gift-dashboard/utils/metrics';
+import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import { usePermission } from '@/composables/usePermission';
 import {
 	getGiftAnalysisPersonRanking,
@@ -307,7 +291,7 @@ interface MetricCardView {
 	icon: typeof DollarOutlined;
 	trendText: string;
 	trendDirection: 'up' | 'down' | 'flat' | 'none';
-	sparklinePoints: string;
+	sparklineData: SparklineData;
 }
 
 const recordPath = '/finance/gift/record';
@@ -344,7 +328,12 @@ const netSeries = computed(() =>
 	),
 );
 
+const trendLabels = computed(() =>
+	scopedTrendRows.value.map((item) => item.label || '-'),
+);
+
 const metricCards = computed<MetricCardView[]>(() => {
+	const labels = trendLabels.value;
 	const receiveAmount = Number(summary.value.receiveAmount || 0);
 	const giveAmount =
 		Number(summary.value.giveAmount || 0) +
@@ -366,7 +355,7 @@ const metricCards = computed<MetricCardView[]>(() => {
 			tone: 'income',
 			trendText: receiveTrend.text,
 			trendDirection: receiveTrend.direction,
-			sparklinePoints: buildSparklinePoints(receiveSeries.value),
+			sparklineData: { labels, values: receiveSeries.value },
 		},
 		{
 			title: '累计支出',
@@ -376,7 +365,7 @@ const metricCards = computed<MetricCardView[]>(() => {
 			tone: 'expense',
 			trendText: giveTrend.text,
 			trendDirection: giveTrend.direction,
-			sparklinePoints: buildSparklinePoints(giveSeries.value),
+			sparklineData: { labels, values: giveSeries.value },
 		},
 		{
 			title: '结余总计',
@@ -386,7 +375,7 @@ const metricCards = computed<MetricCardView[]>(() => {
 			tone: 'balance',
 			trendText: balanceTrend.text,
 			trendDirection: balanceTrend.direction,
-			sparklinePoints: buildSparklinePoints(netSeries.value),
+			sparklineData: { labels, values: netSeries.value },
 		},
 		{
 			title: '待办礼金',
@@ -399,32 +388,181 @@ const metricCards = computed<MetricCardView[]>(() => {
 			tone: 'todo',
 			trendText: pendingAmount > 0 ? '建议优先处理待回礼' : '暂无待办回礼',
 			trendDirection: 'none',
-			sparklinePoints: buildSparklinePoints(
-				netSeries.value.length > 0 ? netSeries.value : [pendingAmount],
-			),
+			sparklineData: {
+				labels,
+				values: netSeries.value.length > 0 ? netSeries.value : [pendingAmount],
+			},
 		},
 	];
 });
 
-const chartRows = computed(() => {
-	const source = scopedTrendRows.value;
-	if (source.length === 0) return [];
-	const maxAmount = Math.max(
-		1,
-		...source.flatMap((item) => [
-			Number(item.receiveAmount || 0),
-			Number(item.giveAmount || 0),
-		]),
-	);
-	return source.map((item) => ({
-		label: item.label || '-',
-		receiveHeight: Math.max(
-			8,
-			(Number(item.receiveAmount || 0) / maxAmount) * 100,
-		),
-		giveHeight: Math.max(8, (Number(item.giveAmount || 0) / maxAmount) * 100),
-	}));
-});
+const trendChartRef = ref<HTMLDivElement>();
+let trendChartInstance: EChartsType | null = null;
+
+const renderTrendChart = async () => {
+	if (!trendChartRef.value) return;
+	const rows = scopedTrendRows.value;
+	if (!rows || rows.length === 0) {
+		if (trendChartInstance) {
+			trendChartInstance.clear();
+		}
+		return;
+	}
+
+	const echarts = await loadEcharts();
+	if (!trendChartInstance) {
+		trendChartInstance = echarts.init(trendChartRef.value);
+	}
+
+	const labels = rows.map((item) => item.label || '-');
+	const receiveValues = rows.map((item) => Number(item.receiveAmount || 0));
+	const giveValues = rows.map((item) => Number(item.giveAmount || 0));
+
+	const option: any = {
+		animation: true,
+		animationDuration: 400,
+		legend: {
+			bottom: 0,
+			itemWidth: 10,
+			itemHeight: 10,
+			itemGap: 24,
+			textStyle: {
+				color: '#475569',
+				fontSize: 12,
+			},
+			data: ['收入', '支出'],
+		},
+		grid: {
+			top: 20,
+			right: 16,
+			bottom: 36,
+			left: 16,
+			containLabel: true,
+		},
+		tooltip: {
+			trigger: 'axis',
+			appendToBody: true,
+			axisPointer: {
+				type: 'shadow',
+				shadowStyle: {
+					color: 'rgba(203, 213, 225, 0.25)',
+				},
+			},
+			backgroundColor: 'rgba(15, 23, 42, 0.94)',
+			borderColor: 'transparent',
+			borderRadius: 8,
+			padding: [10, 14],
+			textStyle: {
+				color: '#fff',
+				fontSize: 12,
+			},
+			extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 99999;',
+			formatter: (params: any) => {
+				if (!params || params.length === 0) return '';
+				const month = params[0].name;
+				const receiveItem = params.find((p: any) => p.seriesName === '收入');
+				const giveItem = params.find((p: any) => p.seriesName === '支出');
+				const receive = Number(receiveItem?.value ?? 0);
+				const give = Number(giveItem?.value ?? 0);
+				const net = receive - give;
+				const netSign = net > 0 ? '+' : '';
+				const netColor = net >= 0 ? '#10b981' : '#f43f5e';
+
+				return `
+					<div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#94a3b8;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:4px;">
+						📅 ${month}
+					</div>
+					<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:4px;">
+						<span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#2563eb;margin-right:6px;"></i>收入:</span>
+						<strong style="color:#fff">¥${receive.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+					</div>
+					<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:4px;">
+						<span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f43f5e;margin-right:6px;"></i>支出:</span>
+						<strong style="color:#fff">¥${give.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+					</div>
+					<div style="display:flex;justify-content:space-between;gap:20px;border-top:1px dashed rgba(255,255,255,0.15);padding-top:4px;margin-top:2px;">
+						<span>净结余:</span>
+						<strong style="color:${netColor}">${netSign}¥${net.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+					</div>
+				`;
+			},
+		},
+		xAxis: {
+			type: 'category',
+			data: labels,
+			axisLine: {
+				lineStyle: {
+					color: '#e2e8f0',
+				},
+			},
+			axisTick: { show: false },
+			axisLabel: {
+				color: '#64748b',
+				fontSize: 12,
+			},
+		},
+		yAxis: {
+			type: 'value',
+			axisLine: { show: false },
+			axisTick: { show: false },
+			splitLine: {
+				lineStyle: {
+					color: '#f1f5f9',
+					type: 'dashed',
+				},
+			},
+			axisLabel: {
+				color: '#94a3b8',
+				fontSize: 11,
+				formatter: (val: number) => (val >= 10000 ? `${(val / 10000).toFixed(1)}w` : `¥${val}`),
+			},
+		},
+		series: [
+			{
+				name: '收入',
+				type: 'bar',
+				data: receiveValues,
+				barMaxWidth: 20,
+				itemStyle: {
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{ offset: 0, color: '#3b82f6' },
+						{ offset: 1, color: '#2563eb' },
+					]),
+					borderRadius: [4, 4, 0, 0],
+				},
+			},
+			{
+				name: '支出',
+				type: 'bar',
+				data: giveValues,
+				barMaxWidth: 20,
+				itemStyle: {
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{ offset: 0, color: '#fb7185' },
+						{ offset: 1, color: '#f43f5e' },
+					]),
+					borderRadius: [4, 4, 0, 0],
+				},
+			},
+		],
+	};
+
+	trendChartInstance.setOption(option);
+};
+
+const handleTrendResize = () => {
+	trendChartInstance?.resize();
+};
+
+watch(
+	() => scopedTrendRows.value,
+	() => {
+		void nextTick(() => {
+			void renderTrendChart();
+		});
+	},
+	{ deep: true },
+);
 
 const trendStats = computed(() => {
 	const source = scopedTrendRows.value;
@@ -548,7 +686,22 @@ const loadData = async () => {
 	}
 };
 
-onMounted(loadData);
+onMounted(() => {
+	void loadData().then(() => {
+		void nextTick(() => {
+			void renderTrendChart();
+		});
+	});
+	window.addEventListener('resize', handleTrendResize);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('resize', handleTrendResize);
+	if (trendChartInstance) {
+		trendChartInstance.dispose();
+		trendChartInstance = null;
+	}
+});
 </script>
 
 <style scoped lang="less">
@@ -654,73 +807,10 @@ onMounted(loadData);
 	width: 112px;
 }
 
-.bar-chart {
-	display: grid;
-	grid-template-columns: repeat(6, 1fr);
-	gap: 22px;
-	height: 200px;
-	padding: 16px 40px 12px;
-}
-
-.bar-group {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-end;
-}
-
-.bar-stage {
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	gap: 10px;
+.trend-echarts-container {
 	width: 100%;
-	height: 160px;
-}
-
-.bar {
-	width: 24px;
-	min-height: 14px;
-	border-radius: 2px 2px 0 0;
-}
-
-.bar-income {
-	background: #1677ff;
-}
-
-.bar-expense {
-	background: #f97066;
-}
-
-.bar-label {
-	margin-top: 10px;
-	font-size: 12px;
-	color: #667085;
-}
-
-.legend-row {
-	display: flex;
-	justify-content: center;
-	gap: 28px;
-	padding: 0 0 16px;
-	font-size: 12px;
-	color: #344054;
-}
-
-.legend-dot {
-	display: inline-block;
-	width: 8px;
-	height: 8px;
-	margin-right: 6px;
-	border-radius: 50%;
-}
-
-.legend-income {
-	background: #1677ff;
-}
-
-.legend-expense {
-	background: #f97066;
+	height: 230px;
+	padding: 4px 12px 12px;
 }
 
 .ranking-panel {
