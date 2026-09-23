@@ -170,7 +170,7 @@ const initChart = async () => {
 			right: '4%',
 			bottom: '3%',
 			top: '40px',
-			containLabel: true,
+			outerBoundsMode: 'same',
 		},
 		xAxis: {
 			type: 'category',

@@ -137,6 +137,50 @@ export const ORG_ADMIN_ACTIONS: QuickActionItem[] = [
 	},
 ];
 
+/** 家庭管理员快捷入口 (针对家庭记账与人情专属定制) */
+export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
+	{
+		title: '记一笔日常账',
+		icon: 'PlusCircleOutlined',
+		path: '/finance/financeManager',
+		color: '#1890ff',
+		desc: '快速登记家庭日常开销或收入',
+		testId: 'dash-family-action-add-finance',
+	},
+	{
+		title: '随礼/收礼登记',
+		icon: 'AccountBookOutlined',
+		path: '/finance/gift/record',
+		color: '#eb2f96',
+		desc: '登记亲友人情往来礼金流水',
+		testId: 'dash-family-action-add-gift',
+	},
+	{
+		title: '人情事由大盘',
+		icon: 'CalendarOutlined',
+		path: '/finance/gift/event',
+		color: '#52c41a',
+		desc: '家庭重大宴席与事由簿统揽',
+		testId: 'dash-family-action-event',
+	},
+	{
+		title: '家庭财务分析',
+		icon: 'PieChartOutlined',
+		path: '/finance/financeAnalysis',
+		color: '#722ed1',
+		desc: '查看月度收支走势与分类构成',
+		testId: 'dash-family-action-finance-analysis',
+	},
+	{
+		title: '家庭成员档案',
+		icon: 'TeamOutlined',
+		path: '/finance/gift/person',
+		color: '#fa8c16',
+		desc: '维护家庭成员与亲友往来档案',
+		testId: 'dash-family-action-person',
+	},
+];
+
 /** 普通用户快捷入口 */
 export const USER_ACTIONS: QuickActionItem[] = [
 	{

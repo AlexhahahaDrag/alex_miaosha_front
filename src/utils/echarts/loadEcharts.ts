@@ -8,7 +8,7 @@ import {
 	DatasetComponent,
 	TransformComponent,
 } from 'echarts/components';
-import { LabelLayout, UniversalTransition } from 'echarts/features';
+import { LabelLayout, UniversalTransition, LegacyGridContainLabel } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsType } from 'echarts/core';
 
@@ -24,6 +24,7 @@ echarts.use([
 	PieChart,
 	LabelLayout,
 	UniversalTransition,
+	LegacyGridContainLabel,
 	CanvasRenderer,
 ]);
 

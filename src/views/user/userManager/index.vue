@@ -1,12 +1,5 @@
 <template>
 	<div class="page-info">
-		<a-tag
-			color="blue"
-			data-testid="rbac-data-scope-hint"
-			style="margin-bottom: 12px"
-		>
-			{{ scopeHintText }}
-		</a-tag>
 		<div class="search">
 			<div class="search-box">
 				<a-form
@@ -15,7 +8,7 @@
 					:wrapper-col="wrapperCol"
 				>
 					<a-row :gutter="24">
-						<a-col :span="6">
+						<a-col :span="8">
 							<a-form-item name="username" label="用户名">
 								<a-input
 									v-model:value="searchInfo.username"
@@ -26,7 +19,7 @@
 								/>
 							</a-form-item>
 						</a-col>
-						<a-col :span="6">
+						<a-col :span="8">
 							<a-form-item name="status" label="状态">
 								<a-select
 									v-model:value="searchInfo.status"
@@ -37,24 +30,12 @@
 								/>
 							</a-form-item>
 						</a-col>
-						<a-col :span="6">
+						<a-col :span="8">
 							<a-form-item name="orgId" label="所属机构">
 								<a-select
 									v-model:value="searchInfo.orgId"
 									placeholder="请选择机构"
 									:options="orgOptions"
-									show-search
-									:filter-option="filterOption"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item name="roleId" label="角色">
-								<a-select
-									v-model:value="searchInfo.roleId"
-									placeholder="请选择角色"
-									:options="roleOptions"
 									show-search
 									:filter-option="filterOption"
 									allow-clear
@@ -188,6 +169,29 @@
 							:preview="{ src: record.avatarUrl }"
 						/>
 					</template>
+					<template v-else-if="column.key === 'roleName'">
+						<span v-if="record.roleInfoVoList && record.roleInfoVoList.length > 0">
+							<a-tag
+								v-for="role in record.roleInfoVoList"
+								:key="role.id || role.roleCode || role.roleName"
+								color="blue"
+								class="mr-1 mb-1"
+							>
+								{{ role.roleName || role.roleCode }}
+							</a-tag>
+						</span>
+						<span v-else-if="record.roleName">
+							<a-tag
+								v-for="role in record.roleName.split(',')"
+								:key="role.trim()"
+								color="blue"
+								class="mr-1 mb-1"
+							>
+								{{ role.trim() }}
+							</a-tag>
+						</span>
+						<span v-else class="text-gray-400">-</span>
+					</template>
 				</template>
 			</a-table>
 			<user-manager-detail
@@ -207,7 +211,6 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { columns, labelCol, wrapperCol } from '@/views/user/userManager/config';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
-import type { RoleInfoData } from '@/views/user/roleInfo/config';
 import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
@@ -215,8 +218,6 @@ import {
 	updateUserStatus,
 } from '@/views/user/userManager/api';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
-import { getRoleInfoPage } from '@/views/user/roleInfo/api';
-import { useDataScopeHint } from '@/composables/useDataScopeHint';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
@@ -235,7 +236,6 @@ const {
 	resetPagination,
 } = usePagination();
 const { getDictByType } = useDictInfo('is_valid');
-const { scopeHintText } = useDataScopeHint();
 
 // State
 const searchInfo = ref<UserManagerInfo>({});
@@ -243,7 +243,6 @@ const loading = ref<boolean>(false);
 const dataSource = ref<UserManagerInfo[]>([]);
 const modelInfo = ref<ModelInfo>({});
 const orgOptions = ref<FilterOption[]>([]);
-const roleOptions = ref<FilterOption[]>([]);
 // 记录每行状态切换的 loading，避免秒杀高频操作下的重复点击
 const statusLoadingMap = ref<Record<string, boolean>>({});
 const statusOptions = computed(() => getDictByType('is_valid'));
@@ -388,22 +387,15 @@ const triggerDebouncedQuery = debounce(() => {
 }, 300);
 
 const loadFilterOptions = async () => {
-	const [orgRes, roleRes] = await Promise.all([
-		getOrgInfoPage({ status: '1' }, 1, 1000),
-		getRoleInfoPage({ status: '1' }, 1, 1000),
-	]);
-	const { code: orgCode, data: orgData } = orgRes;
+	const { code: orgCode, data: orgData } = await getOrgInfoPage(
+		{ status: '1' },
+		1,
+		1000,
+	);
 	if (orgCode === '200') {
 		orgOptions.value = (orgData?.records || []).map((o: OrgInfoData) => ({
 			label: o.orgName || '',
 			value: String(o.id),
-		}));
-	}
-	const { code: roleCode, data: roleData } = roleRes;
-	if (roleCode === '200') {
-		roleOptions.value = (roleData?.records || []).map((r: RoleInfoData) => ({
-			label: r.roleName || '',
-			value: String(r.id),
 		}));
 	}
 };

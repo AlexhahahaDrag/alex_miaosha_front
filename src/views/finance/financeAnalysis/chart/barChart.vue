@@ -66,7 +66,7 @@ const options = computed(() => {
 			},
 		},
 		legend: {
-			data: ['收入 (流入)', '支出 (流出)'],
+			data: ['收入', '支出'],
 			right: 16,
 			top: 14,
 			itemWidth: 10,
@@ -119,7 +119,7 @@ const options = computed(() => {
 			right: '4%',
 			top: 55,
 			bottom: '8%',
-			containLabel: true,
+			outerBoundsMode: 'same',
 		},
 		xAxis: {
 			type: 'category',
@@ -169,7 +169,7 @@ const options = computed(() => {
 		},
 		series: [
 			{
-				name: '收入 (流入)',
+				name: '收入',
 				type: 'bar',
 				data: props.incomeData || [],
 				barMaxWidth: 14,
@@ -189,7 +189,7 @@ const options = computed(() => {
 				},
 			},
 			{
-				name: '支出 (流出)',
+				name: '支出',
 				type: 'bar',
 				data: props.expenseData || [],
 				barMaxWidth: 14,
