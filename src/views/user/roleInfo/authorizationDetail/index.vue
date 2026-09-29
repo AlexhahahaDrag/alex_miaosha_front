@@ -80,13 +80,21 @@ interface RawPermissionNode {
 	children?: RawPermissionNode[];
 }
 
+const aiRecommendedKeys = ref<string[]>([]);
+
 // 将后端 id/permissionName/children 结构映射为 RbacPermissionTreePanel 所需的 key/title/children
 const toRbacTree = (nodes: RawPermissionNode[]): RbacTreeNode[] =>
-	(nodes || []).map((node) => ({
-		key: String(node.id ?? ''),
-		title: node.permissionName ?? '',
-		children: node.children?.length ? toRbacTree(node.children) : undefined,
-	}));
+	(nodes || []).map((node) => {
+		const key = String(node.id ?? '');
+		const isAiRec = aiRecommendedKeys.value.includes(key);
+		return {
+			key,
+			title: isAiRec
+				? `${node.permissionName ?? ''}  [✨ AI推荐]`
+				: (node.permissionName ?? ''),
+			children: node.children?.length ? toRbacTree(node.children) : undefined,
+		};
+	});
 
 const collectAllKeys = (nodes: RbacTreeNode[]): string[] =>
 	nodes.flatMap((node) => [
@@ -132,11 +140,12 @@ const handleAiRecommendPermissions = async () => {
 		if (code === '200' && data) {
 			if (data.recommendedMenuIds && data.recommendedMenuIds.length > 0) {
 				const ids = data.recommendedMenuIds.map(String);
+				aiRecommendedKeys.value = ids;
 				selectPermission.value = ids;
 				expandedKeys.value = ids;
 				aiReasoning.value =
 					data.reasoning || '已根据角色岗位特征智能匹配最契合的功能权限。';
-				message.success(`AI 已推荐并自动勾选 ${ids.length} 项权限！`);
+				message.success(`AI 已推荐并自动勾选 ${ids.length} 项权限（已在权限树高亮标记）！`);
 			} else {
 				message.info('未匹配到特定权限，请根据需要手动勾选。');
 			}
@@ -224,6 +233,7 @@ const init = async () => {
 	halfCheckedKeys.value = [];
 	formState.value = {};
 	aiReasoning.value = '';
+	aiRecommendedKeys.value = [];
 	modelConfig.confirmLoading = true;
 
 	// 始终获取所有权限列表

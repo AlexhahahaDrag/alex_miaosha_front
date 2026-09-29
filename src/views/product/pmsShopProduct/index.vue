@@ -240,6 +240,11 @@
 					</div>
 					<div class="result-content desc-text">{{ aiCopyResult.marketingDescription }}</div>
 				</div>
+				<div class="result-apply-bar" style="margin-top: 16px;">
+					<a-button type="primary" block data-testid="btn-apply-ai-copy" @click="handleApplyToProduct">
+						⚡ 一键应用至选中商品 / 复制全套文案
+					</a-button>
+				</div>
 			</div>
 		</a-modal>
 	</div>
@@ -431,6 +436,23 @@ const copyText = (text?: string) => {
 		navigator.clipboard.writeText(text);
 	}
 	message.success('已复制到剪贴板');
+};
+
+const handleApplyToProduct = () => {
+	if (!aiCopyResult.value) return;
+	const fullText = `【${aiCopyResult.value.title || ''}】\n口号：${aiCopyResult.value.slogan || ''}\n核心卖点：${aiCopyResult.value.sellingPoints?.join(' | ') || ''}\n种草描述：${aiCopyResult.value.marketingDescription || ''}`;
+	copyText(fullText);
+
+	if (rowIds.value.length > 0) {
+		const targetId = String(rowIds.value[0]);
+		const targetItem = dataSource.value.find((item) => String(item.id) === targetId);
+		if (targetItem && aiCopyResult.value.title) {
+			targetItem.name = aiCopyResult.value.title;
+			message.success(`已同时将爆款标题同步至当前商品行【${targetItem.name}】！`);
+		}
+	} else {
+		message.info('当前未勾选特定商品行，已将全套营销方案复制至剪贴板供粘贴使用');
+	}
 };
 
 onMounted(() => {
