@@ -27,6 +27,25 @@
 				保存
 			</a-button>
 		</template>
+		<div class="ai-role-recommend-bar" data-testid="rbac-ai-recommend-bar">
+			<div class="ai-bar-header">
+				<span class="ai-badge">✨ AI 智能权限推荐</span>
+				<a-button
+					type="primary"
+					size="small"
+					ghost
+					:loading="aiLoading"
+					data-testid="btn-ai-recommend-permissions"
+					@click="handleAiRecommendPermissions"
+				>
+					一键智能推荐勾选
+				</a-button>
+			</div>
+			<div v-if="aiReasoning" class="ai-reasoning-box">
+				<span class="ai-reason-label">推荐分析：</span>
+				<span>{{ aiReasoning }}</span>
+			</div>
+		</div>
 		<rbac-permission-tree-panel
 			title="菜单权限树"
 			description="勾选角色可访问的菜单/按钮权限，支持批量展开收起"
@@ -50,6 +69,7 @@ import type { RoleInfoData } from '../config';
 import {
 	getRoleInfoDetail,
 	assignRolePermissions,
+	aiRecommendRolePermissions,
 } from '@/views/user/roleInfo/api';
 import { message } from 'ant-design-vue';
 import type { RbacTreeNode } from '@/components/rbac';
@@ -77,6 +97,8 @@ const collectAllKeys = (nodes: RbacTreeNode[]): string[] =>
 const loading = ref<boolean>(false);
 const expandedKeys = ref<string[]>([]);
 const halfCheckedKeys = ref<string[]>([]);
+const aiLoading = ref<boolean>(false);
+const aiReasoning = ref<string>('');
 
 const modelConfig = {
 	confirmLoading: true,
@@ -98,6 +120,35 @@ const rbacTreeData = computed(() => toRbacTree(permissionTree.value));
 const allPermissionKeys = computed(() => collectAllKeys(rbacTreeData.value));
 
 const selectPermission = ref<string[]>([]);
+
+const handleAiRecommendPermissions = async () => {
+	aiLoading.value = true;
+	try {
+		const { code, data, message: msg } = await aiRecommendRolePermissions({
+			roleName: formState.value?.roleName,
+			roleCode: formState.value?.roleCode,
+			description: formState.value?.description || formState.value?.roleName,
+		});
+		if (code === '200' && data) {
+			if (data.recommendedMenuIds && data.recommendedMenuIds.length > 0) {
+				const ids = data.recommendedMenuIds.map(String);
+				selectPermission.value = ids;
+				expandedKeys.value = ids;
+				aiReasoning.value =
+					data.reasoning || '已根据角色岗位特征智能匹配最契合的功能权限。';
+				message.success(`AI 已推荐并自动勾选 ${ids.length} 项权限！`);
+			} else {
+				message.info('未匹配到特定权限，请根据需要手动勾选。');
+			}
+		} else {
+			message.warning(msg || 'AI 权限推荐未返回结果');
+		}
+	} catch (err) {
+		message.error('AI 权限推荐请求失败');
+	} finally {
+		aiLoading.value = false;
+	}
+};
 
 const handleOk = () => {
 	loading.value = true;
@@ -172,6 +223,7 @@ const init = async () => {
 	expandedKeys.value = [];
 	halfCheckedKeys.value = [];
 	formState.value = {};
+	aiReasoning.value = '';
 	modelConfig.confirmLoading = true;
 
 	// 始终获取所有权限列表
@@ -192,4 +244,38 @@ watch(
 
 const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ai-role-recommend-bar {
+	margin-bottom: 12px;
+	padding: 10px 14px;
+	background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+	border: 1px solid #adc6ff;
+	border-radius: 6px;
+
+	.ai-bar-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		.ai-badge {
+			font-weight: 600;
+			color: #1d39c4;
+			font-size: 13px;
+		}
+	}
+
+	.ai-reasoning-box {
+		margin-top: 8px;
+		padding: 6px 8px;
+		background: rgba(255, 255, 255, 0.7);
+		border-radius: 4px;
+		font-size: 12px;
+		color: #2f54eb;
+		line-height: 1.5;
+
+		.ai-reason-label {
+			font-weight: 600;
+		}
+	}
+}
+</style>

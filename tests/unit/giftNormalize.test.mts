@@ -98,4 +98,24 @@ describe('normalizeGiftResponse', () => {
 		const resNull = { code: '200', message: 'ok', data: null } as never;
 		assert.equal(normalizeGiftResponse(resNull), resNull);
 	});
+
+	it('AI 记账解析响应中的 personId 与 eventId 转 string', () => {
+		const res = normalizeGiftResponse({
+			code: '200',
+			message: 'ok',
+			data: {
+				personName: '王五',
+				personId: 9000000000000000001n,
+				eventId: 9100000000000000002n,
+				amount: 800,
+				direction: 'GIVE',
+				aiReasoning: '吉利双数推荐',
+			},
+		} as never);
+		const data = res.data as any;
+		assert.equal(data.personId, '9000000000000000001');
+		assert.equal(data.eventId, '9100000000000000002');
+		assert.equal(data.amount, 800);
+		assert.equal(data.aiReasoning, '吉利双数推荐');
+	});
 });

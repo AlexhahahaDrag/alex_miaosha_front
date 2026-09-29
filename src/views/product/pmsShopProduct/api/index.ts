@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -94,3 +94,33 @@ export function editPmsShopProduct(
 		params,
 	);
 }
+
+/** 商品/秒杀 AI 文案生成请求 */
+export interface ProductAiCopyReq {
+	productName: string;
+	categoryName?: string;
+	originalPrice?: number;
+	seckillPrice?: number;
+	targetAudience?: string;
+	features?: string;
+}
+
+/** 商品/秒杀 AI 文案生成响应 */
+export interface ProductAiCopyVo {
+	title?: string;
+	slogan?: string;
+	sellingPoints?: string[];
+	marketingDescription?: string;
+	discountText?: string;
+}
+
+/**
+ * 商品秒杀营销文案与卖点 AI 生成
+ */
+export function generateProductAiCopy(
+	params: ProductAiCopyReq,
+): Promise<ResponseBody<ProductAiCopyVo>> {
+	const url = baseService.product + basePmsShopProduct + '/ai-copy';
+	return postData<ResponseBody<ProductAiCopyVo>>(url, params);
+}
+

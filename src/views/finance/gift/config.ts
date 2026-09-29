@@ -402,6 +402,30 @@ export interface GiftRecordRecommendAmount {
 	latestAmount?: number;
 	defaultAmount?: number;
 	recommendations?: number[];
+	aiReasoning?: string;
+	aiGreetingTip?: string;
+}
+
+export interface GiftRecordAiParseReq {
+	content: string;
+	defaultDirection?: string;
+}
+
+export interface GiftRecordAiParseVo {
+	personName?: string;
+	personId?: string;
+	isNewPerson?: boolean;
+	relationType?: string;
+	relationName?: string;
+	eventId?: string;
+	eventType?: string;
+	eventTypeName?: string;
+	amount?: number;
+	direction?: 'GIVE' | 'RECEIVE' | 'RETURN';
+	payTime?: string;
+	location?: string;
+	remark?: string;
+	rawText?: string;
 }
 
 export interface GiftEventFormState extends GiftEventInfo {

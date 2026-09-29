@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getData,
 	postData,
 	putData,
@@ -90,3 +90,34 @@ export async function editCpnCouponInfo(
 		params,
 	);
 }
+
+/** 优惠券 AI 智能策划请求 */
+export interface CpnCouponAiPlanReq {
+	budget?: number;
+	targetGoal?: string;
+	industryCategory?: string;
+	expectedUsers?: number;
+}
+
+/** 优惠券 AI 智能策划响应 */
+export interface CpnCouponAiPlanVo {
+	couponName?: string;
+	unitValue?: number;
+	minSpend?: number;
+	totalQuantity?: number;
+	validDays?: number;
+	discountRate?: string;
+	marketingCopy?: string;
+	strategyReasoning?: string;
+}
+
+/**
+ * 优惠券 AI 智能策划
+ */
+export async function aiPlanCpnCoupon(
+	params: CpnCouponAiPlanReq,
+): Promise<ResponseBody<CpnCouponAiPlanVo>> {
+	const url = baseService.finance + baseCpnCouponInfo + '/ai-plan';
+	return postData<ResponseBody<CpnCouponAiPlanVo>>(url, params);
+}
+

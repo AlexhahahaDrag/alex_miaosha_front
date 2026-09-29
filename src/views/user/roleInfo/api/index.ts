@@ -79,3 +79,22 @@ export function assignRoleOrgs(
 		orgIds,
 	});
 }
+
+export interface RoleAiRecommendReq {
+	roleName?: string;
+	roleCode?: string;
+	description?: string;
+}
+
+export interface RoleAiRecommendVo {
+	recommendedMenuIds?: string[];
+	recommendedMenuNames?: string[];
+	recommendedPermissionCodes?: string[];
+	reasoning?: string;
+}
+
+export function aiRecommendRolePermissions(
+	params: RoleAiRecommendReq,
+): Promise<ResponseBody<RoleAiRecommendVo>> {
+	return postData(baseService.user + baseRoleInfo + '/ai-recommend-permissions', params);
+}

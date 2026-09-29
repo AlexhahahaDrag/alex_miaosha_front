@@ -30,6 +30,8 @@ import type {
 	GiftRecordInfo,
 	GiftRecordQuery,
 	GiftRecordSummary,
+	GiftRecordAiParseReq,
+	GiftRecordAiParseVo,
 	GiftRecordRecommendAmount,
 	GiftRelationDistribution,
 } from '@/views/finance/gift/config';
@@ -322,6 +324,18 @@ export function markGiftReturned(
 	return putData(`${baseUrl(giftApi.record)}/mark-returned`, {}, {
 		receiveRecordId,
 	} as unknown as AxiosRequestConfig);
+}
+
+/**
+ * AI 自然语言快速记账解析
+ */
+export function aiParseGiftRecord(
+	data: GiftRecordAiParseReq,
+): Promise<ResponseBody<GiftRecordAiParseVo>> {
+	return postData<GiftRecordAiParseVo>(
+		`${baseUrl(giftApi.record)}/ai-parse`,
+		data,
+	).then(normalizeGiftResponse);
 }
 
 /** analysis 筛选参数：period 统计粒度（month/year），direction 方向过滤（RECEIVE/GIVE/RETURN） */

@@ -65,6 +65,9 @@
 				<a-button type="primary" danger @click="batchDelPmsShopProduct">
 					删除
 				</a-button>
+				<a-button type="dashed" @click="openAiCopyModal">
+					✨ AI 秒杀营销文案生成
+				</a-button>
 			</a-space>
 		</div>
 		<div class="content">
@@ -164,6 +167,81 @@
 			>
 			</PmsShopProductDetail>
 		</div>
+
+		<!-- AI 营销文案生成 Modal -->
+		<a-modal
+			v-model:open="aiCopyModalVisible"
+			title="✨ AI 秒杀营销文案与核心卖点生成"
+			width="680px"
+			:footer="null"
+		>
+			<a-form layout="vertical" :model="aiCopyReq">
+				<a-row :gutter="16">
+					<a-col :span="12">
+						<a-form-item label="商品名称" required>
+							<a-input v-model:value="aiCopyReq.productName" placeholder="如：降噪无线蓝牙耳机" />
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item label="商品品类">
+							<a-input v-model:value="aiCopyReq.categoryName" placeholder="如：数码影音" />
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-row :gutter="16">
+					<a-col :span="12">
+						<a-form-item label="商品原价(元)">
+							<a-input-number v-model:value="aiCopyReq.originalPrice" :min="0" style="width: 100%" placeholder="如：399" />
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item label="秒杀促销价(元)">
+							<a-input-number v-model:value="aiCopyReq.seckillPrice" :min="0" style="width: 100%" placeholder="如：199" />
+						</a-form-item>
+					</a-col>
+				</a-row>
+				<a-form-item label="商品核心亮点/规格">
+					<a-input v-model:value="aiCopyReq.features" placeholder="如：主动混合降噪40dB，长续航30小时" />
+				</a-form-item>
+				<a-form-item>
+					<a-button type="primary" block :loading="aiCopyLoading" @click="handleGenerateAiCopy">
+						🚀 一键生成爆款营销文案
+					</a-button>
+				</a-form-item>
+			</a-form>
+
+			<div v-if="aiCopyResult" class="ai-copy-result-card">
+				<div class="result-item">
+					<div class="result-header">
+						<span class="result-label">🔥 爆款标题</span>
+						<a-button type="link" size="small" @click="copyText(aiCopyResult.title)">复制</a-button>
+					</div>
+					<div class="result-content title-text">{{ aiCopyResult.title }}</div>
+				</div>
+				<div class="result-item">
+					<div class="result-header">
+						<span class="result-label">💬 一句话口号</span>
+						<a-button type="link" size="small" @click="copyText(aiCopyResult.slogan)">复制</a-button>
+					</div>
+					<div class="result-content slogan-text">{{ aiCopyResult.slogan }}</div>
+				</div>
+				<div class="result-item">
+					<div class="result-header">
+						<span class="result-label">🎯 核心卖点清单</span>
+					</div>
+					<div class="result-tags">
+						<a-tag v-for="(point, idx) in aiCopyResult.sellingPoints" :key="idx" color="blue">{{ point }}</a-tag>
+					</div>
+				</div>
+				<div class="result-item">
+					<div class="result-header">
+						<span class="result-label">📝 营销种草详情</span>
+						<a-button type="link" size="small" @click="copyText(aiCopyResult.marketingDescription)">复制</a-button>
+					</div>
+					<div class="result-content desc-text">{{ aiCopyResult.marketingDescription }}</div>
+				</div>
+			</div>
+		</a-modal>
 	</div>
 </template>
 <script setup lang="ts">
@@ -177,6 +255,9 @@ import {
 import {
 	getNewestPmsShopProductPage,
 	deletePmsShopProduct,
+	generateProductAiCopy,
+	type ProductAiCopyReq,
+	type ProductAiCopyVo,
 } from '@/views/product/pmsShopProduct/api';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
@@ -297,6 +378,61 @@ function editPmsShopProduct(type: string, id?: string) {
 
 // 移除冗余的 handleSuccess 函数
 
+// ── AI 营销文案助手
+const aiCopyModalVisible = ref(false);
+const aiCopyLoading = ref(false);
+const aiCopyReq = ref<ProductAiCopyReq>({
+	productName: '',
+	categoryName: '',
+	originalPrice: undefined,
+	seckillPrice: undefined,
+	targetAudience: '',
+	features: '',
+});
+const aiCopyResult = ref<ProductAiCopyVo | null>(null);
+
+const openAiCopyModal = () => {
+	if (rowIds.value.length > 0) {
+		const selected = dataSource.value.find((item) => String(item.id) === String(rowIds.value[0]));
+		if (selected) {
+			aiCopyReq.value.productName = selected.name || '';
+			aiCopyReq.value.originalPrice = selected.comparePrice ? Number(selected.comparePrice) : undefined;
+			aiCopyReq.value.seckillPrice = selected.price ? Number(selected.price) : undefined;
+		}
+	}
+	aiCopyModalVisible.value = true;
+};
+
+const handleGenerateAiCopy = async () => {
+	if (!aiCopyReq.value.productName?.trim()) {
+		message.warning('请输入商品名称');
+		return;
+	}
+	aiCopyLoading.value = true;
+	try {
+		const { code, data, message: msg } = await generateProductAiCopy(aiCopyReq.value);
+		if (code === '200' && data) {
+			aiCopyResult.value = data;
+			message.success('营销文案生成成功');
+		} else {
+			message.error(msg || '文案生成失败');
+		}
+	} catch (e) {
+		console.error(e);
+		message.error('文案生成异常');
+	} finally {
+		aiCopyLoading.value = false;
+	}
+};
+
+const copyText = (text?: string) => {
+	if (!text) return;
+	if (navigator.clipboard?.writeText) {
+		navigator.clipboard.writeText(text);
+	}
+	message.success('已复制到剪贴板');
+};
+
 onMounted(() => {
 	init();
 });
@@ -320,4 +456,58 @@ watch(
 	},
 );
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ai-copy-result-card {
+	margin-top: 16px;
+	padding: 16px;
+	border-radius: 12px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	.result-item {
+		.result-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 4px;
+
+			.result-label {
+				font-size: 13px;
+				font-weight: 600;
+				color: #0f172a;
+			}
+		}
+
+		.title-text {
+			font-size: 14px;
+			font-weight: 700;
+			color: #1e293b;
+		}
+
+		.slogan-text {
+			font-size: 13px;
+			color: #dc2626;
+			font-weight: 600;
+		}
+
+		.desc-text {
+			font-size: 12px;
+			line-height: 1.6;
+			color: #475569;
+			background: #ffffff;
+			padding: 8px 10px;
+			border-radius: 6px;
+			border: 1px solid #f1f5f9;
+		}
+
+		.result-tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+		}
+	}
+}
+</style>
