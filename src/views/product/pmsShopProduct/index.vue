@@ -65,7 +65,7 @@
 				<a-button type="primary" danger @click="batchDelPmsShopProduct">
 					删除
 				</a-button>
-				<a-button type="dashed" @click="openAiCopyModal">
+				<a-button type="dashed" data-testid="btn-open-ai-copy" @click="openAiCopyModal">
 					✨ AI 秒杀营销文案生成
 				</a-button>
 			</a-space>
@@ -179,7 +179,7 @@
 				<a-row :gutter="16">
 					<a-col :span="12">
 						<a-form-item label="商品名称" required>
-							<a-input v-model:value="aiCopyReq.productName" placeholder="如：降噪无线蓝牙耳机" />
+							<a-input v-model:value="aiCopyReq.productName" data-testid="ai-copy-input-name" placeholder="如：降噪无线蓝牙耳机" />
 						</a-form-item>
 					</a-col>
 					<a-col :span="12">
@@ -204,7 +204,7 @@
 					<a-input v-model:value="aiCopyReq.features" placeholder="如：主动混合降噪40dB，长续航30小时" />
 				</a-form-item>
 				<a-form-item>
-					<a-button type="primary" block :loading="aiCopyLoading" @click="handleGenerateAiCopy">
+					<a-button type="primary" block :loading="aiCopyLoading" data-testid="btn-generate-ai-copy" @click="handleGenerateAiCopy">
 						🚀 一键生成爆款营销文案
 					</a-button>
 				</a-form-item>

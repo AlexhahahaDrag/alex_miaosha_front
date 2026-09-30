@@ -32,7 +32,7 @@
 			</template>
 
 			<!-- AI 营销策划助手面板（仅在新增时展示） -->
-			<div v-if="!formState.id" class="ai-plan-bar">
+			<div v-if="!formState.id" class="ai-plan-bar" data-testid="ai-plan-bar">
 				<div class="ai-plan-bar-header">
 					<span class="ai-tag">✨ AI 营销策划助手</span>
 					<span class="ai-tip">输入预算与目标，一键生成最优满减/折扣券方案</span>
@@ -44,11 +44,13 @@
 						:step="500"
 						placeholder="预算(元)"
 						style="width: 110px"
+						data-testid="ai-plan-input-budget"
 					/>
 					<a-select
 						v-model:value="aiPlanParams.targetGoal"
 						placeholder="营销目标"
 						style="width: 120px"
+						data-testid="ai-plan-select-goal"
 						:options="[
 							{ label: '拉新获客', value: '拉新获客' },
 							{ label: '老客促活', value: '老客促活' },
@@ -60,18 +62,20 @@
 						v-model:value="aiPlanParams.industryCategory"
 						placeholder="适用品类(如美食)"
 						style="width: 130px"
+						data-testid="ai-plan-input-category"
 					/>
 					<a-button
 						type="primary"
 						ghost
 						size="middle"
 						:loading="aiPlanning"
+						data-testid="btn-generate-ai-plan"
 						@click="handleAiPlan"
 					>
 						智能生成方案
 					</a-button>
 				</a-space>
-				<div v-if="aiPlanResult" class="ai-plan-result-card">
+				<div v-if="aiPlanResult" class="ai-plan-result-card" data-testid="ai-plan-result">
 					<div class="ai-plan-reason">
 						<strong>💡 策略考量：</strong>{{ aiPlanResult.strategyReasoning }} <span class="discount-badge">{{ aiPlanResult.discountRate }}</span>
 					</div>

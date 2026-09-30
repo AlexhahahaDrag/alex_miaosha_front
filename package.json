@@ -17,6 +17,8 @@
 		"test:midscene:ci": "node scripts/midscene/run-smoke.mjs",
 		"test:rbac:smoke:local": "node scripts/playwright/run-rbac-smoke.mjs",
 		"test:rbac:smoke:ci": "node scripts/playwright/run-rbac-smoke.mjs",
+		"test:ai:smoke": "node scripts/playwright/run-domain-ai-smoke.mjs",
+		"test:ai:smoke:ci": "node scripts/playwright/run-domain-ai-smoke.mjs",
 		"lint": "eslint . --fix",
 		"lint:fix": "eslint . --fix",
 		"type-check": "vue-tsc --noEmit",

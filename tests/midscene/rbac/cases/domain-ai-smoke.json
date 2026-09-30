@@ -1,0 +1,20 @@
+[
+	{
+		"caseId": "AI-COUPON-001",
+		"title": "优惠券新增弹窗 AI 营销策划与自动回填",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "AI-PRODUCT-001",
+		"title": "商品秒杀营销文案 AI 生成与一键应用",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "AI-ROLE-001",
+		"title": "角色权限配置抽屉 AI 智能推荐与 Diff 高亮",
+		"persona": "super_super",
+		"level": "flow"
+	}
+]

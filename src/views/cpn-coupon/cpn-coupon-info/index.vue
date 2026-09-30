@@ -61,7 +61,7 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" @click="editCpnCouponInfo('add')">
+				<a-button type="primary" data-testid="btn-add-coupon" @click="editCpnCouponInfo('add')">
 					新增
 				</a-button>
 				<a-button type="primary" danger @click="batchDelCpnCouponInfo">
