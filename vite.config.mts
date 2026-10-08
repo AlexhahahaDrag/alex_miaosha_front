@@ -20,7 +20,6 @@ const alias: Record<string, string> = {
 	'@': pathResolve('src'),
 	'@v': pathResolve('src/views'),
 	'@u': pathResolve('src/utils'),
-	'@a': pathResolve('src/api'),
 	'@r': pathResolve('src/router'),
 };
 const vendorLibs = ['axios', 'lodash-es', 'dayjs', 'bignumber.js', 'crypto-es'];
@@ -91,7 +90,6 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 				],
 				dirs: [
 					'src/components',
-					'src/compoments',
 					'src/layout',
 					'src/views',
 				],
