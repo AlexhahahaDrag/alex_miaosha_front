@@ -6,7 +6,11 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import type {
+	FinanceManagerData,
+	FinanceBudgetStatusVo,
+	FinanceBudgetSaveReq,
+} from '@/views/finance/financeManager/config';
 
 const baseFinanceManager = '/finance-info';
 
@@ -77,4 +81,35 @@ export function getFinanceSummary(
 ): Promise<ResponseBody<FinanceSummaryData>> {
 	let url = baseService.finance + baseFinanceManager + '/summary';
 	return postData(url, params);
+}
+
+const baseBudgetManager = '/finance-budget';
+
+export function getBudgetStatus(
+	yearMonth: string,
+	belongTo?: string,
+): Promise<ResponseBody<FinanceBudgetStatusVo>> {
+	return getDataOne(
+		baseService.finance + baseBudgetManager + '/status',
+		{ yearMonth, belongTo },
+	);
+}
+
+export function saveMonthlyBudget(
+	params: FinanceBudgetSaveReq,
+): Promise<ResponseBody<boolean>> {
+	return postData(
+		baseService.finance + baseBudgetManager + '/save',
+		params,
+	);
+}
+
+export function getBudgetCategories(
+	yearMonth: string,
+	belongTo?: string,
+): Promise<ResponseBody<string[]>> {
+	return getDataOne(
+		baseService.finance + baseBudgetManager + '/categories',
+		{ yearMonth, belongTo },
+	);
 }

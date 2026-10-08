@@ -7,54 +7,118 @@
 			@cancelQuery="cancelQuery"
 		/>
 
-		<!-- 2. 轻量日常记账概览条（随过滤条件实时联动） -->
-		<div class="summary-bar">
-			<div class="summary-left">
-				<span class="summary-tag-title">
-					<CalendarOutlined class="summary-title-icon" />
-					<span>{{ summaryTitle }}</span>
-				</span>
-
-				<!-- 全部 或 支出模式：展示支出 -->
-				<div
-					v-if="!searchInfo.incomeAndExpenses || searchInfo.incomeAndExpenses === 'expense'"
-					class="summary-item expense"
-				>
-					<span class="label">{{ searchInfo.incomeAndExpenses === 'expense' ? '支出合计' : '总支出' }}</span>
-					<span class="value">-¥{{ formatAmount(summaryData.totalExpense) }}</span>
-				</div>
-
-				<!-- 全部 或 收入模式：展示收入 -->
-				<div
-					v-if="!searchInfo.incomeAndExpenses || searchInfo.incomeAndExpenses === 'income'"
-					class="summary-item income"
-				>
-					<span class="label">{{ searchInfo.incomeAndExpenses === 'income' ? '收入合计' : '总收入' }}</span>
-					<span class="value">+¥{{ formatAmount(summaryData.totalIncome) }}</span>
-				</div>
-
-				<!-- 仅在全部模式下展示结余 -->
-				<div
-					v-if="!searchInfo.incomeAndExpenses"
-					class="summary-item balance"
-				>
-					<span class="label">净结余</span>
-					<span
-						:class="[
-							'value',
-							(summaryData.totalBalance || 0) >= 0 ? 'text-income' : 'text-expense',
-						]"
-					>
-						{{ (summaryData.totalBalance || 0) >= 0 ? '+' : '-' }}¥{{
-							formatAmount(Math.abs(summaryData.totalBalance || 0))
-						}}
+		<!-- 2. 一体化概览面板（账单统计与月度预算并排，节省纵向空间） -->
+		<div class="finance-overview-card">
+			<!-- 左侧：账单收支统计 -->
+			<div class="overview-section bill-stats-section">
+				<div class="section-header">
+					<span class="summary-tag-title">
+						<CalendarOutlined class="summary-title-icon" />
+						<span>{{ summaryTitle }}</span>
+					</span>
+					<span class="record-total-badge">
+						共 <strong>{{ summaryData.totalCount ?? pagination.total ?? 0 }}</strong> 笔账单
 					</span>
 				</div>
+
+				<div class="stats-metrics-group">
+					<!-- 全部 或 支出模式：展示支出 -->
+					<div
+						v-if="!searchInfo.incomeAndExpenses || searchInfo.incomeAndExpenses === 'expense'"
+						class="stat-metric expense"
+					>
+						<span class="label">{{ searchInfo.incomeAndExpenses === 'expense' ? '支出合计' : '总支出' }}</span>
+						<span class="value">-¥{{ formatAmount(summaryData.totalExpense) }}</span>
+					</div>
+
+					<!-- 全部 或 收入模式：展示收入 -->
+					<div
+						v-if="!searchInfo.incomeAndExpenses || searchInfo.incomeAndExpenses === 'income'"
+						class="stat-metric income"
+					>
+						<span class="label">{{ searchInfo.incomeAndExpenses === 'income' ? '收入合计' : '总收入' }}</span>
+						<span class="value">+¥{{ formatAmount(summaryData.totalIncome) }}</span>
+					</div>
+
+					<!-- 仅在全部模式下展示结余 -->
+					<div
+						v-if="!searchInfo.incomeAndExpenses"
+						class="stat-metric balance"
+					>
+						<span class="label">净结余</span>
+						<span
+							:class="[
+								'value',
+								(summaryData.totalBalance || 0) >= 0 ? 'text-income' : 'text-expense',
+							]"
+						>
+							{{ (summaryData.totalBalance || 0) >= 0 ? '+' : '-' }}¥{{
+								formatAmount(Math.abs(summaryData.totalBalance || 0))
+							}}
+						</span>
+					</div>
+				</div>
 			</div>
-			<div class="summary-right">
-				<span class="record-total-badge">
-					共 <strong>{{ summaryData.totalCount ?? pagination.total ?? 0 }}</strong> 笔账单
-				</span>
+
+			<!-- 中间细垂直分割线 -->
+			<div class="overview-divider"></div>
+
+			<!-- 右侧：零花钱月度预算 -->
+			<div class="overview-section budget-section">
+				<div class="section-header">
+					<div class="budget-title-line">
+						<WalletOutlined class="budget-icon" />
+						<span class="budget-title">{{ currentMonthStr }} 零花钱预算</span>
+						<a-tag v-if="budgetStatus?.isInherited" color="processing" class="budget-tag">
+							继承自上月
+						</a-tag>
+						<a-tag v-if="budgetStatus?.isOverBudget" color="error" class="budget-tag">
+							已超支
+						</a-tag>
+					</div>
+					<a-button type="link" size="small" class="budget-setting-btn" @click="openBudgetModal">
+						<template #icon><SettingOutlined /></template>
+						调整预算
+					</a-button>
+				</div>
+
+				<div class="budget-metrics-group">
+					<div class="budget-stat-item">
+						<span class="stat-label">{{ budgetStatus?.isOverBudget ? '超支金额:' : '剩余可用:' }}</span>
+						<span :class="['stat-val', budgetStatus?.isOverBudget ? 'text-expense' : 'text-income']">
+							{{ budgetStatus?.isOverBudget ? '-' : '' }}¥{{ formatAmount(Math.abs(budgetStatus?.remainingAmount || 0)) }}
+						</span>
+					</div>
+
+					<div class="budget-sub-stats">
+						<span class="sub-stat">上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
+						<span class="sub-sep">/</span>
+						<span class="sub-stat">已用 ¥{{ formatAmount(budgetStatus?.actualExpense || 0) }}</span>
+					</div>
+
+					<div class="budget-progress-wrap">
+						<a-progress
+							:percent="Math.min(budgetStatus?.usagePercent || 0, 100)"
+							:stroke-color="progressStrokeColor"
+							:format="() => `${budgetStatus?.usagePercent || 0}%`"
+							size="small"
+							class="budget-progress"
+						/>
+					</div>
+
+					<div class="budget-category-hints" :title="budgetStatus?.categoryNames?.length ? budgetStatus.categoryNames.join('、') : '全部分类（不含转账）'">
+						<span class="hint-label">计入:</span>
+						<template v-if="budgetStatus?.categoryNames?.length">
+							<a-tag v-for="cat in budgetStatus.categoryNames.slice(0, 2)" :key="cat" class="cat-pill">
+								{{ cat }}
+							</a-tag>
+							<span v-if="budgetStatus.categoryNames.length > 2" class="cat-pill-more">
+								+{{ budgetStatus.categoryNames.length - 2 }}
+							</span>
+						</template>
+						<span v-else class="cat-pill-all">全分类</span>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -197,6 +261,169 @@
 				@success="() => query()"
 			></finance-manager-detail>
 		</div>
+
+		<!-- 调整零花钱预算弹窗 (Tailwind 现代风格) -->
+		<a-modal
+			v-model:open="budgetModalVisible"
+			:confirm-loading="budgetSaving"
+			width="620px"
+			:mask-closable="false"
+			:destroy-on-close="true"
+			@ok="handleSaveBudget"
+		>
+			<template #title>
+				<div class="flex items-center gap-2 text-slate-800 font-semibold text-base">
+					<WalletOutlined class="text-amber-500 text-lg" />
+					<span>设置 / 调整零花钱预算</span>
+				</div>
+			</template>
+
+			<div class="space-y-4 py-1">
+				<!-- 1. 预算基础信息卡片 -->
+				<div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60 space-y-3.5">
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-slate-600">预算月份</span>
+						<div class="flex items-center gap-2">
+							<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+								{{ currentMonthStr }}
+							</span>
+							<span class="text-xs text-slate-400">每月独立保存，次月自动继承</span>
+						</div>
+					</div>
+
+					<div class="flex items-center justify-between gap-4">
+						<div class="flex flex-col">
+							<span class="text-sm font-medium text-slate-700 flex items-center gap-1">
+								月度预算额度 <span class="text-rose-500">*</span>
+							</span>
+							<span class="text-xs text-slate-400">设为 0 表示不设置限额</span>
+						</div>
+						<div class="w-64">
+							<a-input-number
+								v-model:value="budgetEditForm.budgetAmount"
+								:min="0"
+								:precision="2"
+								prefix="¥"
+								placeholder="0.00"
+								class="w-full !rounded-lg"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. 消费分类配置卡片 (Tailwind 胶囊交互) -->
+				<div class="bg-white rounded-xl p-4 border border-slate-200 space-y-3">
+					<div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+						<div>
+							<div class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+								<span>计入零花钱的消费分类</span>
+								<span class="text-xs font-normal text-slate-400">
+									(已选 {{ budgetEditForm.categoryCodes.length }} 项)
+								</span>
+							</div>
+							<div class="text-xs text-slate-400 mt-0.5">
+								仅勾选的类别支出会计入预算，不勾选则默认统计全部支出（不含转账）
+							</div>
+						</div>
+						<div class="flex items-center gap-2 text-xs">
+							<button
+								type="button"
+								class="text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+								@click="selectAllCategories"
+							>
+								全选
+							</button>
+							<span class="text-slate-300">|</span>
+							<button
+								type="button"
+								class="text-slate-500 hover:text-slate-700 font-medium px-2 py-1 rounded hover:bg-slate-100 transition-colors"
+								@click="clearAllCategories"
+							>
+								清空
+							</button>
+						</div>
+					</div>
+
+					<!-- 收支大类 (支出 / 收入) -->
+					<div class="space-y-1.5">
+						<div class="text-xs font-medium text-slate-500 flex items-center gap-1">
+							<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+							<span>收支类型</span>
+						</div>
+						<div class="flex flex-wrap gap-2">
+							<div
+								v-for="item in incomeExpenseTypes"
+								:key="item.value"
+								:class="[
+									'cursor-pointer px-3 py-1.5 rounded-lg border text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									isCategorySelected(item.value)
+										? 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-1 ring-blue-500/20'
+										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+								]"
+								@click="toggleCategory(item.value)"
+							>
+								<span
+									v-if="isCategorySelected(item.value)"
+									class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"
+								></span>
+								<span>{{ item.label }}</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- 近两月真实账目类别 (上月 + 本月动态提取) -->
+					<div class="space-y-1.5 pt-1">
+						<div class="text-xs font-medium text-slate-500 flex items-center justify-between">
+							<div class="flex items-center gap-1">
+								<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+								<span>账目类别 (提取自上月及本月账本)</span>
+							</div>
+							<span v-if="categoriesLoading" class="text-xs text-slate-400">加载中...</span>
+						</div>
+
+						<div v-if="recentCategories.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+							<div
+								v-for="cat in recentCategories"
+								:key="cat"
+								:class="[
+									'cursor-pointer px-3 py-1.5 rounded-lg border text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									isCategorySelected(cat)
+										? 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-1 ring-blue-500/20'
+										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+								]"
+								@click="toggleCategory(cat)"
+							>
+								<span
+									v-if="isCategorySelected(cat)"
+									class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"
+								></span>
+								<span>{{ cat }}</span>
+							</div>
+						</div>
+						<div
+							v-else-if="!categoriesLoading"
+							class="text-xs text-slate-400 py-3 text-center bg-slate-50/60 rounded-lg border border-dashed border-slate-200"
+						>
+							近两个月暂无具体类别记账，默认统计全部支出
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<template #footer>
+				<div class="flex items-center justify-end gap-2.5 pt-2">
+					<a-button @click="budgetModalVisible = false" class="!rounded-lg">取消</a-button>
+					<a-button
+						type="primary"
+						:loading="budgetSaving"
+						class="!rounded-lg !bg-blue-600 hover:!bg-blue-500"
+						@click="handleSaveBudget"
+					>
+						保存配置
+					</a-button>
+				</div>
+			</template>
+		</a-modal>
 	</div>
 </template>
 
@@ -216,15 +443,22 @@ import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
 	getFinanceSummary,
+	getBudgetStatus,
+	saveMonthlyBudget,
+	getBudgetCategories,
 	type FinanceSummaryData,
 } from '@/views/finance/financeManager/api';
+import type { FinanceBudgetStatusVo } from '@/views/finance/financeManager/config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
+import { useUserStore } from '@/store/modules/user/user';
 import dayjs from 'dayjs';
 import {
 	CalendarOutlined,
 	PlusOutlined,
 	DeleteOutlined,
 	ReloadOutlined,
+	WalletOutlined,
+	SettingOutlined,
 } from '@ant-design/icons-vue';
 
 // 使用分页组合式函数
@@ -236,6 +470,7 @@ const {
 } = usePagination();
 
 const route = useRoute();
+const userStore = useUserStore();
 
 // 选中的 ID 列表（严格 string 类型）
 const selectedRowIds = ref<string[]>([]);
@@ -260,6 +495,139 @@ const summaryData = ref<FinanceSummaryData>({
 	totalCount: 0,
 });
 const summaryLoading = ref<boolean>(false);
+
+// 零花钱月度预算状态
+const currentMonthStr = computed(() => dayjs().format('YYYY-MM'));
+const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
+const budgetModalVisible = ref(false);
+const budgetSaving = ref(false);
+const budgetEditForm = reactive({
+	budgetAmount: 0,
+	categoryCodes: [] as string[],
+});
+
+const progressStrokeColor = computed(() => {
+	const pct = budgetStatus.value?.usagePercent || 0;
+	if (pct >= 100) return '#ff4d4f';
+	if (pct >= 80) return '#faad14';
+	return '#1677ff';
+});
+
+const incomeExpenseTypes = [
+	{ label: '支出', value: '支出' },
+	{ label: '收入', value: '收入' },
+];
+const recentCategories = ref<string[]>([]);
+const categoriesLoading = ref(false);
+
+const isCategorySelected = (val: string) => {
+	return budgetEditForm.categoryCodes.includes(val);
+};
+
+const toggleCategory = (val: string) => {
+	const idx = budgetEditForm.categoryCodes.indexOf(val);
+	if (idx > -1) {
+		budgetEditForm.categoryCodes.splice(idx, 1);
+	} else {
+		budgetEditForm.categoryCodes.push(val);
+	}
+};
+
+const selectAllCategories = () => {
+	const all = Array.from(
+		new Set([
+			...incomeExpenseTypes.map((t) => t.value),
+			...recentCategories.value,
+		]),
+	);
+	budgetEditForm.categoryCodes = all;
+};
+
+const clearAllCategories = () => {
+	budgetEditForm.categoryCodes = [];
+};
+
+const getEffectiveBudgetBelongTo = () => {
+	return searchInfo.value.belongTo || userStore.getUserInfo?.id;
+};
+
+const fetchRecentCategories = async () => {
+	categoriesLoading.value = true;
+	try {
+		const { code, data } = await getBudgetCategories(
+			currentMonthStr.value,
+			getEffectiveBudgetBelongTo(),
+		);
+		if (code === '200' && Array.isArray(data)) {
+			// 保留当前已选的其他类别以防历史配置不显示
+			const existingSelected = budgetEditForm.categoryCodes.filter(
+				(c) => c !== '支出' && c !== '收入',
+			);
+			recentCategories.value = Array.from(
+				new Set([...data, ...existingSelected]),
+			).sort();
+		}
+	} catch (e) {
+		console.warn('获取近两月记账类别失败:', e);
+	} finally {
+		categoriesLoading.value = false;
+	}
+};
+
+const loadBudgetStatus = async () => {
+	try {
+		const { code, data } = await getBudgetStatus(
+			currentMonthStr.value,
+			getEffectiveBudgetBelongTo(),
+		);
+		if (code === '200' && data) {
+			budgetStatus.value = data;
+		}
+	} catch (e) {
+		console.warn('获取零花钱预算失败:', e);
+	}
+};
+
+const openBudgetModal = async () => {
+	budgetEditForm.budgetAmount = Number(budgetStatus.value?.budgetAmount || 0);
+	budgetEditForm.categoryCodes = [...(budgetStatus.value?.categoryCodes || [])];
+	budgetModalVisible.value = true;
+	await fetchRecentCategories();
+};
+
+const handleSaveBudget = async () => {
+	if (budgetEditForm.budgetAmount < 0) {
+		message.warning('预算金额不能为负数！');
+		return;
+	}
+	budgetSaving.value = true;
+	try {
+		const { code, message: msg } = await saveMonthlyBudget({
+			yearMonth: currentMonthStr.value,
+			belongTo: getEffectiveBudgetBelongTo(),
+			budgetAmount: budgetEditForm.budgetAmount,
+			categoryCodes: budgetEditForm.categoryCodes,
+		});
+		if (code === '200') {
+			message.success('零花钱预算已更新');
+			budgetModalVisible.value = false;
+			await loadBudgetStatus();
+		} else {
+			message.error(msg || '保存失败');
+		}
+	} catch (e: any) {
+		message.error(e?.message || '保存预算失败');
+	} finally {
+		budgetSaving.value = false;
+	}
+};
+
+watch(
+	() => searchInfo.value.belongTo,
+	() => {
+		loadBudgetStatus();
+	},
+);
 
 // 统计标签标题自适应
 const summaryTitle = computed(() => {
@@ -343,6 +711,7 @@ const query = (resetPage = false) => {
 	const queryParam = buildQueryParams(searchInfo.value);
 	getFinancePage(queryParam, pagination);
 	fetchSummary(queryParam);
+	loadBudgetStatus();
 };
 
 // 分页变化
@@ -422,6 +791,8 @@ const init = () => {
 	const queryParam = buildQueryParams(searchInfo.value);
 	getFinancePage(queryParam, pagination);
 	fetchSummary(queryParam);
+	loadBudgetStatus();
+	fetchRecentCategories();
 };
 
 // 表格高度自适应计算
@@ -478,25 +849,47 @@ init();
 	margin: 0 0 8px;
 }
 
-.summary-bar {
+.finance-overview-card {
 	flex-shrink: 0;
 	background: #fff;
-	padding: 10px 16px;
+	padding: 8px 16px;
 	border-radius: 8px;
 	margin: 0 0 8px;
 	border: 1px solid #f0f0f0;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	gap: 12px;
+	gap: 16px;
 
-	.summary-left {
+	.overview-divider {
+		width: 1px;
+		align-self: stretch;
+		background: #f0f0f0;
+		flex-shrink: 0;
+		margin: 2px 0;
+	}
+
+	.overview-section {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-width: 0;
+
+		&.bill-stats-section {
+			flex: 1.1;
+		}
+
+		&.budget-section {
+			flex: 1.3;
+		}
+	}
+
+	.section-header {
 		display: flex;
 		align-items: center;
-		flex-wrap: wrap;
-		gap: 18px;
+		justify-content: space-between;
+		margin-bottom: 5px;
+		line-height: 20px;
 	}
 
 	.summary-tag-title {
@@ -504,54 +897,17 @@ init();
 		align-items: center;
 		gap: 6px;
 		font-size: 13px;
-		font-weight: 500;
-		color: #595959;
-		background: #f5f5f5;
-		padding: 4px 10px;
-		border-radius: 4px;
+		font-weight: 600;
+		color: #262626;
 
 		.summary-title-icon {
 			color: #1677ff;
+			font-size: 14px;
 		}
-	}
-
-	.summary-item {
-		display: inline-flex;
-		align-items: baseline;
-		gap: 6px;
-		font-size: 13px;
-
-		.label {
-			color: #8c8c8c;
-		}
-
-		.value {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-				'Helvetica Neue', Arial, sans-serif;
-			font-weight: 600;
-			font-size: 15px;
-			font-variant-numeric: tabular-nums;
-		}
-
-		&.expense .value {
-			color: #ff4d4f;
-		}
-
-		&.income .value {
-			color: #52c41a;
-		}
-	}
-
-	.text-income {
-		color: #52c41a !important;
-	}
-
-	.text-expense {
-		color: #ff4d4f !important;
 	}
 
 	.record-total-badge {
-		font-size: 13px;
+		font-size: 12px;
 		color: #8c8c8c;
 
 		strong {
@@ -559,6 +915,173 @@ init();
 			font-weight: 600;
 		}
 	}
+
+	.stats-metrics-group {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		flex-wrap: wrap;
+
+		.stat-metric {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 4px;
+			font-size: 12px;
+
+			.label {
+				color: #8c8c8c;
+			}
+
+			.value {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+					'Helvetica Neue', Arial, sans-serif;
+				font-weight: 600;
+				font-size: 14px;
+				font-variant-numeric: tabular-nums;
+			}
+
+			&.expense .value {
+				color: #ff4d4f;
+			}
+
+			&.income .value {
+				color: #52c41a;
+			}
+		}
+	}
+
+	.budget-title-line {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+
+		.budget-icon {
+			color: #fa8c16;
+			font-size: 14px;
+		}
+
+		.budget-title {
+			font-weight: 600;
+			font-size: 13px;
+			color: #262626;
+		}
+
+		.budget-tag {
+			font-size: 11px;
+			line-height: 18px;
+			padding: 0 5px;
+			margin: 0;
+		}
+	}
+
+	.budget-setting-btn {
+		padding: 0 4px;
+		font-size: 12px;
+		height: 20px;
+		line-height: 20px;
+	}
+
+	.budget-metrics-group {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		flex-wrap: wrap;
+
+		.budget-stat-item {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 4px;
+			font-size: 12px;
+
+			.stat-label {
+				color: #8c8c8c;
+			}
+
+			.stat-val {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+					'Helvetica Neue', Arial, sans-serif;
+				font-weight: 600;
+				font-size: 14px;
+				font-variant-numeric: tabular-nums;
+			}
+		}
+
+		.budget-sub-stats {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			font-size: 12px;
+			color: #8c8c8c;
+
+			.sub-sep {
+				color: #d9d9d9;
+			}
+
+			.sub-stat {
+				font-variant-numeric: tabular-nums;
+			}
+		}
+
+		.budget-progress-wrap {
+			width: 110px;
+			flex-shrink: 0;
+
+			.budget-progress {
+				margin: 0;
+			}
+		}
+
+		.budget-category-hints {
+			display: inline-flex;
+			align-items: center;
+			gap: 3px;
+			font-size: 12px;
+			max-width: 140px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			.hint-label {
+				color: #8c8c8c;
+			}
+
+			.cat-pill {
+				font-size: 11px;
+				line-height: 16px;
+				padding: 0 4px;
+				margin: 0;
+			}
+
+			.cat-pill-more {
+				font-size: 11px;
+				color: #8c8c8c;
+			}
+
+			.cat-pill-all {
+				color: #8c8c8c;
+			}
+		}
+	}
+}
+
+@media (max-width: 1300px) {
+	.finance-overview-card {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+
+		.overview-divider {
+			display: none;
+		}
+	}
+}
+
+.text-income {
+	color: #52c41a !important;
+}
+
+.text-expense {
+	color: #ff4d4f !important;
 }
 
 .button {
