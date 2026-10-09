@@ -28,7 +28,7 @@
 						class="stat-metric expense"
 					>
 						<span class="label">{{ searchInfo.incomeAndExpenses === 'expense' ? '支出合计' : '总支出' }}</span>
-						<span class="value">-¥{{ formatAmount(summaryData.totalExpense) }}</span>
+						<span class="value">-¥{{ formatAmount(summaryData.totalExpense || 0) }}</span>
 					</div>
 
 					<!-- 全部 或 收入模式：展示收入 -->
@@ -37,7 +37,7 @@
 						class="stat-metric income"
 					>
 						<span class="label">{{ searchInfo.incomeAndExpenses === 'income' ? '收入合计' : '总收入' }}</span>
-						<span class="value">+¥{{ formatAmount(summaryData.totalIncome) }}</span>
+						<span class="value">+¥{{ formatAmount(summaryData.totalIncome || 0) }}</span>
 					</div>
 
 					<!-- 仅在全部模式下展示结余 -->
@@ -56,6 +56,32 @@
 								formatAmount(Math.abs(summaryData.totalBalance || 0))
 							}}
 						</span>
+					</div>
+				</div>
+
+				<!-- 微洞察行：日均支出 + Top 3 支出大头微标签 -->
+				<div class="stats-insights-row">
+					<div class="insight-item daily-avg" :title="`基于${effectiveDaysInfo.label}计算`">
+						<span class="insight-label">日均支出:</span>
+						<span class="insight-val">
+							¥{{ formatAmount(dailyExpenseAvg) }}
+							<span class="insight-unit">/天</span>
+						</span>
+					</div>
+
+					<div v-if="topExpenseCategories.length > 0" class="insight-item top-categories">
+						<span class="insight-label">主要支出:</span>
+						<div class="insight-tags-wrap">
+							<span
+								v-for="cat in topExpenseCategories"
+								:key="cat.name"
+								class="insight-top-tag"
+								:title="`点击筛选【${cat.name}】，本期支出 ¥${formatAmount(cat.amount)} (${cat.percent}%)`"
+								@click="filterByCategory(cat.name)"
+							>
+								{{ cat.name }} <span class="tag-pct">{{ cat.percent }}%</span>
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -314,7 +340,7 @@
 			></finance-manager-detail>
 		</div>
 
-		<!-- 调整零花钱预算弹窗 (Tailwind 现代风格) -->
+		<!-- 调整零花钱预算弹窗 (Taste-Skill 极简现代高质感风格) -->
 		<a-modal
 			v-model:open="budgetModalVisible"
 			:confirm-loading="budgetSaving"
@@ -325,161 +351,224 @@
 		>
 			<template #title>
 				<div class="flex items-center gap-2.5 text-slate-800 font-semibold text-base py-0.5">
-					<div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-solid border-blue-100">
+					<div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-solid border-blue-100 shadow-2xs">
 						<WalletOutlined class="text-base" />
 					</div>
 					<div>
 						<div class="leading-snug">设置 / 调整零花钱预算</div>
-						<div class="text-xs font-normal text-slate-400">独立设定每月预算额度及纳入统计的收支方向与分类</div>
+						<div class="text-xs font-normal text-slate-400">独立设定每月预算额度，支持快捷档位填充与全量/自选分类统计</div>
 					</div>
 				</div>
 			</template>
 
 			<div class="space-y-4 py-2">
-				<!-- 1. 预算基础信息卡片 -->
-				<div class="bg-slate-50/80 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3.5">
+				<!-- 1. 预算额度与快捷填充卡片 -->
+				<div class="bg-slate-50/70 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3">
 					<div class="flex items-center justify-between">
 						<span class="text-sm font-medium text-slate-700">预算月份</span>
 						<div class="flex items-center gap-2">
-							<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100/80 text-blue-700 border border-solid border-blue-200/60">
+							<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100/80 text-blue-700 border border-solid border-blue-200/60 font-mono">
 								{{ currentMonthStr }}
 							</span>
 							<span class="text-xs text-slate-400">每月独立保存，次月自动继承</span>
 						</div>
 					</div>
 
-					<div class="flex items-center justify-between gap-4">
+					<div class="flex items-center justify-between gap-4 pt-1">
 						<div class="flex flex-col">
 							<span class="text-sm font-medium text-slate-700 flex items-center gap-1">
 								月度预算额度 <span class="text-rose-500">*</span>
 							</span>
 							<span class="text-xs text-slate-400">设为 0 表示不设置限额</span>
 						</div>
-						<div class="w-64">
+						<div class="w-56">
 							<a-input-number
 								v-model:value="budgetEditForm.budgetAmount"
 								:min="0"
 								:precision="2"
 								prefix="¥"
 								placeholder="0.00"
-								class="w-full !rounded-lg"
+								class="w-full !rounded-lg font-mono font-medium"
 							/>
+						</div>
+					</div>
+
+					<!-- 快捷档位无边框胶囊，融入输入卡片 -->
+					<div class="flex items-center justify-between pt-1">
+						<span class="text-xs text-slate-400">快捷填充</span>
+						<div class="flex items-center gap-1.5 flex-wrap">
+							<button
+								v-for="preset in QUICK_BUDGET_PRESETS"
+								:key="preset"
+								type="button"
+								:class="[
+									'cursor-pointer px-2.5 py-1 rounded-md text-xs font-medium transition-all select-none border border-solid',
+									budgetEditForm.budgetAmount === preset
+										? '!bg-blue-600 !text-white !border-blue-600 shadow-2xs'
+										: 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'
+								]"
+								@click="applyQuickPreset(preset)"
+							>
+								¥{{ preset }}
+							</button>
+							<button
+								type="button"
+								:class="[
+									'cursor-pointer px-2.5 py-1 rounded-md text-xs font-medium transition-all select-none border border-solid',
+									budgetEditForm.budgetAmount === 0
+										? '!bg-slate-700 !text-white !border-slate-700 shadow-2xs'
+										: 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+								]"
+								@click="applyQuickPreset(0)"
+							>
+								不设上限
+							</button>
 						</div>
 					</div>
 				</div>
 
-				<!-- 2. 统计范围与分类配置卡片 (双层卡片结构 + 胶囊交互) -->
-				<div class="bg-slate-50/40 rounded-xl p-4 border border-solid border-slate-200 space-y-4">
-					<div class="flex items-center justify-between border-b border-solid border-slate-200/70 pb-3">
-						<div>
-							<div class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-								<span>统计范围与账目分类</span>
-								<span class="text-xs font-normal text-slate-400">
-									(已选 {{ budgetEditForm.categoryCodes.length }} 项分类)
+				<!-- 2. 统计范围与收支方向卡片 (自然心智流 + 无分割线容器化) -->
+				<div class="bg-slate-50/70 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3.5">
+					<!-- 收支方向全局前置 -->
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<span class="text-xs font-medium text-slate-700">收支方向:</span>
+							<div class="flex items-center gap-2">
+								<button
+									type="button"
+									:class="[
+										'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
+										isDirectionSelected('expense')
+											? 'bg-rose-50/90 text-rose-600 border-rose-300 shadow-2xs ring-1 ring-rose-200'
+											: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+									]"
+									@click="toggleDirection('expense')"
+								>
+									<CheckOutlined v-if="isDirectionSelected('expense')" class="text-xs" />
+									<span>支出 (消费)</span>
+								</button>
+								<button
+									type="button"
+									:class="[
+										'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
+										isDirectionSelected('income')
+											? 'bg-emerald-50/90 text-emerald-600 border-emerald-300 shadow-2xs ring-1 ring-emerald-200'
+											: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+									]"
+									@click="toggleDirection('income')"
+								>
+									<CheckOutlined v-if="isDirectionSelected('income')" class="text-xs" />
+									<span>收入</span>
+								</button>
+							</div>
+						</div>
+						<span class="text-xs text-slate-400">
+							{{ budgetEditForm.selectedDirections.length === 2 ? '双向统计' : (isDirectionSelected('income') ? '仅限收入' : '仅限支出') }}
+						</span>
+					</div>
+
+					<!-- 统计范畴控制器 (紧随其后) -->
+					<div class="flex items-center justify-between pt-0.5">
+						<div class="flex items-center gap-1.5">
+							<span class="text-xs font-medium text-slate-700">统计范畴</span>
+							<a-tooltip title="全量日常模式自动汇总当月所有非转账类别的日常收支；自选模式可精细勾选特定消费分类">
+								<QuestionCircleOutlined class="text-slate-400 hover:text-slate-600 cursor-pointer text-xs" />
+							</a-tooltip>
+						</div>
+
+						<!-- 原生 Segmented 分段切换，自带丝滑滑块 -->
+						<a-segmented
+							v-model:value="scopeMode"
+							:options="scopeModeOptions"
+							class="!rounded-lg text-xs"
+						/>
+					</div>
+
+					<!-- 自选分类列表 (紧贴控制器展开，白底微质感内嵌容器，无割裂线) -->
+					<div
+						v-if="scopeMode === 'custom'"
+						class="bg-white rounded-xl p-3.5 border border-solid border-slate-200/70 shadow-2xs space-y-2.5 transition-all"
+					>
+						<div class="flex items-center justify-between text-xs">
+							<div class="flex items-center gap-1.5">
+								<span class="text-slate-600 font-medium">选择纳入预算的分类</span>
+								<span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-2xs font-semibold bg-blue-50 text-blue-600 border border-solid border-blue-200/50 font-mono">
+									已选 {{ budgetEditForm.categoryCodes.length }} 项
 								</span>
 							</div>
-							<div class="text-xs text-slate-500 mt-0.5">
-								{{ modalHintText }}
+							<div class="flex items-center gap-2">
+								<a-button type="link" size="small" class="!text-xs !p-0 !text-blue-600 font-medium" @click="selectAllCategories">
+									全选
+								</a-button>
+								<span class="text-slate-200 text-xs">|</span>
+								<a-button type="link" size="small" class="!text-xs !p-0 !text-slate-400 hover:!text-slate-600" @click="clearAllCategories">
+									清空
+								</a-button>
 							</div>
-						</div>
-						<div class="flex items-center gap-2 text-xs">
-							<button
-								type="button"
-								class="cursor-pointer text-blue-600 hover:text-blue-700 font-medium px-2.5 py-1 rounded-md bg-blue-50/80 hover:bg-blue-100/80 border border-solid border-blue-200 transition-colors"
-								@click="selectAllCategories"
-							>
-								全选分类
-							</button>
-							<button
-								type="button"
-								class="cursor-pointer text-slate-500 hover:text-slate-700 font-medium px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200/80 border border-solid border-slate-200 transition-colors"
-								@click="clearAllCategories"
-							>
-								清空
-							</button>
-						</div>
-					</div>
-
-					<!-- 收支类型 (支出 / 收入: 支持多选与全选) -->
-					<div class="space-y-2">
-						<div class="text-xs font-medium text-slate-600 flex items-center justify-between">
-							<div class="flex items-center gap-1.5">
-								<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-								<span>收支类型 (支持单选或同时勾选)</span>
-							</div>
-							<span class="text-xs text-slate-400">
-								{{ budgetEditForm.selectedDirections.length === 2 ? '已选：支出 + 收入' : (budgetEditForm.selectedDirections.includes('income') ? '已选：仅收入' : '已选：仅支出') }}
-							</span>
-						</div>
-						<div class="flex items-center gap-2.5">
-							<div
-								:class="[
-									'cursor-pointer px-3.5 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
-									isDirectionSelected('expense')
-										? 'bg-rose-50/90 border-rose-400 text-rose-600 shadow-xs ring-1 ring-rose-400/20'
-										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-								]"
-								@click="toggleDirection('expense')"
-							>
-								<span
-									v-if="isDirectionSelected('expense')"
-									class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500"
-								></span>
-								<span>支出 (消费)</span>
-							</div>
-							<div
-								:class="[
-									'cursor-pointer px-3.5 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
-									isDirectionSelected('income')
-										? 'bg-emerald-50/90 border-emerald-400 text-emerald-600 shadow-xs ring-1 ring-emerald-400/20'
-										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-								]"
-								@click="toggleDirection('income')"
-							>
-								<span
-									v-if="isDirectionSelected('income')"
-									class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"
-								></span>
-								<span>收入</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- 近两月真实账目类别 (上月 + 本月动态提取) -->
-					<div class="space-y-2 pt-1">
-						<div class="text-xs font-medium text-slate-600 flex items-center justify-between">
-							<div class="flex items-center gap-1.5">
-								<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-								<span>账目类别 (提取自上月及本月账本流水)</span>
-							</div>
-							<span v-if="categoriesLoading" class="text-xs text-slate-400">加载中...</span>
 						</div>
 
-						<div v-if="recentCategories.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1 py-1">
+						<!-- 现代全圆角灵动微胶囊 Pills -->
+						<div v-if="availableCategories.length" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1 py-0.5">
 							<div
-								v-for="cat in recentCategories"
+								v-for="cat in availableCategories"
 								:key="cat"
 								:class="[
-									'cursor-pointer px-3 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									'cursor-pointer px-3 py-1 rounded-full text-xs font-medium transition-all select-none flex items-center gap-1.5 border border-solid active:scale-95',
 									isCategorySelected(cat)
-										? 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-1 ring-blue-500/20'
-										: 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
+										? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+										: 'bg-slate-50 border-slate-200/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70'
 								]"
 								@click="toggleCategory(cat)"
 							>
-								<span
-									v-if="isCategorySelected(cat)"
-									class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"
-								></span>
+								<CheckOutlined v-if="isCategorySelected(cat)" class="text-2xs" />
 								<span>{{ cat }}</span>
 							</div>
 						</div>
-						<div
-							v-else-if="!categoriesLoading"
-							class="text-xs text-slate-400 py-4 text-center bg-white rounded-lg border border-dashed border-slate-200"
-						>
-							近两个月暂无具体类别记账，默认统计当前所选收支类型的全部记录
+					</div>
+				</div>
+
+				<!-- 3. 实时试算与健康度模拟卡片 (高质感金融轻量卡片) -->
+				<div class="bg-slate-50/80 rounded-xl p-3.5 border border-solid border-slate-200/80 space-y-2.5">
+					<div class="flex items-center justify-between text-xs">
+						<span class="font-medium flex items-center gap-1.5 text-slate-700">
+							<BarChartOutlined class="text-blue-500" />
+							<span>实时试算与健康度模拟</span>
+						</span>
+						<span v-if="previewStats.budget > 0" :class="['font-medium', previewStats.isOver ? 'text-rose-600 font-semibold' : 'text-blue-600']">
+							{{ previewStats.isOver ? '预算已透支超额' : `已使用 ${previewStats.percent}%` }}
+						</span>
+						<span v-else class="text-slate-400">未设置限额</span>
+					</div>
+
+					<div class="grid grid-cols-3 gap-2">
+						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
+							<div class="text-xs text-slate-400">设定预算</div>
+							<div class="text-sm font-semibold text-slate-800 mt-0.5 font-mono">
+								¥{{ previewStats.budget > 0 ? previewStats.budget.toFixed(2) : '无上限' }}
+							</div>
 						</div>
+						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
+							<div class="text-xs text-slate-400">本月已计</div>
+							<div class="text-sm font-semibold text-slate-700 mt-0.5 font-mono">
+								¥{{ previewStats.actual.toFixed(2) }}
+							</div>
+						</div>
+						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
+							<div class="text-xs text-slate-400">试算结余</div>
+							<div :class="['text-sm font-semibold mt-0.5 font-mono', previewStats.isOver ? 'text-rose-600' : 'text-emerald-600']">
+								¥{{ previewStats.remaining.toFixed(2) }}
+							</div>
+						</div>
+					</div>
+
+					<div v-if="previewStats.budget > 0" class="pt-0.5">
+						<a-progress
+							:percent="previewStats.percent"
+							:status="previewStats.isOver ? 'exception' : 'active'"
+							:stroke-color="previewStats.isOver ? '#ff4d4f' : (previewStats.percent >= 80 ? '#faad14' : '#1677ff')"
+							:show-info="false"
+							size="small"
+						/>
 					</div>
 				</div>
 			</div>
@@ -530,9 +619,12 @@ import {
 	CalendarOutlined,
 	PlusOutlined,
 	DeleteOutlined,
-	ReloadOutlined,
 	WalletOutlined,
 	SettingOutlined,
+	BarChartOutlined,
+	InfoCircleOutlined,
+	QuestionCircleOutlined,
+	CheckOutlined,
 } from '@ant-design/icons-vue';
 
 // 使用分页组合式函数
@@ -582,6 +674,30 @@ const budgetEditForm = reactive({
 	categoryCodes: [] as string[],
 });
 
+// 快捷预算金额档位
+const QUICK_BUDGET_PRESETS = [1000, 2000, 3000, 5000];
+
+// 统计范围模式: 'all' 全部流水(推荐) | 'custom' 指定特定分类
+const scopeMode = ref<'all' | 'custom'>('all');
+const scopeModeOptions = [
+	{ label: '全部日常账目 (推荐)', value: 'all' },
+	{ label: '自选专属分类', value: 'custom' },
+];
+
+// 系统内置基础分类（防止新月份或新用户记账较少时分类池为空）
+const SYSTEM_DEFAULT_CATEGORIES = [
+	'餐饮美食',
+	'日用百货',
+	'交通出行',
+	'休闲娱乐',
+	'数码电器',
+	'服饰美容',
+	'医疗保健',
+	'住房物业',
+	'人情往来',
+	'工资薪酬',
+];
+
 const isDirectionSelected = (dir: string) => {
 	return budgetEditForm.selectedDirections.includes(dir);
 };
@@ -602,15 +718,22 @@ const toggleDirection = (dir: string) => {
 	budgetEditForm.incomeAndExpenses = current.join(',');
 };
 
+const applyQuickPreset = (amount: number) => {
+	budgetEditForm.budgetAmount = amount;
+};
+
 const modalHintText = computed(() => {
 	const dirs = budgetEditForm.selectedDirections;
 	const isBoth = dirs.includes('expense') && dirs.includes('income');
 	const isInc = dirs.includes('income');
 	const dirName = isBoth ? '收支流水' : (isInc ? '收入' : '支出');
-	if (budgetEditForm.categoryCodes.length > 0) {
-		return `已选 ${budgetEditForm.categoryCodes.length} 项分类，仅这些类别的${dirName}会计入预算（不含转账）`;
+	if (scopeMode.value === 'all') {
+		return `统计模式：全部日常${dirName}（不限分类，不含内部转账）`;
 	}
-	return `未勾选具体分类，默认统计全部${dirName}（不含转账）`;
+	if (budgetEditForm.categoryCodes.length > 0) {
+		return `统计模式：仅计入已选的 ${budgetEditForm.categoryCodes.length} 项分类${dirName}`;
+	}
+	return `未勾选具体分类，建议切换为“全部流水”或勾选上方分类`;
 });
 
 const budgetDirectionLabel = computed(() => {
@@ -641,6 +764,34 @@ const progressStrokeColor = computed(() => {
 const recentCategories = ref<string[]>([]);
 const categoriesLoading = ref(false);
 
+// 可用分类集合：合并系统默认分类与近两月流水分类并去重
+const availableCategories = computed(() => {
+	const set = new Set<string>();
+	SYSTEM_DEFAULT_CATEGORIES.forEach((c) => set.add(c));
+	recentCategories.value.forEach((c) => {
+		if (c && c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income') {
+			set.add(c);
+		}
+	});
+	return Array.from(set);
+});
+
+// 弹窗内实时试算与健康度预警
+const previewStats = computed(() => {
+	const budget = Number(budgetEditForm.budgetAmount || 0);
+	const actual = Number(budgetStatus.value?.usedAmount || 0);
+	const remaining = budget > 0 ? Number((budget - actual).toFixed(2)) : 0;
+	const percent = budget > 0 ? Math.min(Math.round((actual / budget) * 100), 100) : 0;
+	const isOver = budget > 0 && actual > budget;
+	return {
+		budget,
+		actual,
+		remaining,
+		percent,
+		isOver,
+	};
+});
+
 const isCategorySelected = (cat: string) => {
 	return budgetEditForm.categoryCodes.includes(cat);
 };
@@ -655,15 +806,18 @@ const toggleCategory = (cat: string) => {
 };
 
 const selectAllCategories = () => {
-	budgetEditForm.categoryCodes = [...recentCategories.value];
+	budgetEditForm.categoryCodes = [...availableCategories.value];
 };
 
 const clearAllCategories = () => {
 	budgetEditForm.categoryCodes = [];
 };
 
-const getEffectiveBudgetBelongTo = () => {
-	return searchInfo.value.belongTo || userStore.getUserInfo?.id;
+const getEffectiveBudgetBelongTo = (): string | undefined => {
+	if (searchInfo.value.belongTo) {
+		return String(searchInfo.value.belongTo);
+	}
+	return undefined;
 };
 
 const fetchRecentCategories = async () => {
@@ -714,9 +868,11 @@ const openBudgetModal = async () => {
 		.filter((s) => s === 'expense' || s === 'income');
 	budgetEditForm.selectedDirections = parsed.length ? parsed : ['expense'];
 	budgetEditForm.incomeAndExpenses = budgetEditForm.selectedDirections.join(',');
-	budgetEditForm.categoryCodes = [...(budgetStatus.value?.categoryCodes || [])].filter(
+	const existingCats = [...(budgetStatus.value?.categoryCodes || [])].filter(
 		(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
 	);
+	budgetEditForm.categoryCodes = existingCats;
+	scopeMode.value = existingCats.length > 0 ? 'custom' : 'all';
 	budgetModalVisible.value = true;
 	await fetchRecentCategories();
 };
@@ -732,15 +888,24 @@ const handleSaveBudget = async () => {
 	}
 	budgetSaving.value = true;
 	try {
+		const effectiveCategoryCodes =
+			scopeMode.value === 'all'
+				? []
+				: budgetEditForm.categoryCodes.filter(
+						(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+				  );
+		const saveBelongTo =
+			getEffectiveBudgetBelongTo() ||
+			(userStore.getUserInfo?.id !== undefined && userStore.getUserInfo?.id !== null
+				? String(userStore.getUserInfo?.id)
+				: undefined);
 		const { code, message: msg } = await saveMonthlyBudget({
 			budgetMonth: currentMonthStr.value,
 			yearMonth: currentMonthStr.value,
-			belongTo: getEffectiveBudgetBelongTo(),
+			belongTo: saveBelongTo,
 			incomeAndExpenses: budgetEditForm.selectedDirections.join(','),
 			budgetAmount: budgetEditForm.budgetAmount,
-			categoryCodes: budgetEditForm.categoryCodes.filter(
-				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
-			),
+			categoryCodes: effectiveCategoryCodes,
 		});
 		if (code === '200') {
 			message.success('零花钱预算已更新');
@@ -785,6 +950,88 @@ const summaryTitle = computed(() => {
 		return `至 ${dayjs(end).format('YYYY-MM-DD')} 止`;
 	}
 	return '全量账单统计';
+});
+
+// 有效统计天数计算（用于日均支出）
+const effectiveDaysInfo = computed(() => {
+	const start = searchInfo.value.infoDateStart;
+	const end = searchInfo.value.infoDateEnd;
+	const today = dayjs().startOf('day');
+
+	if (start && end) {
+		const startDate = dayjs(start).startOf('day');
+		const endDate = dayjs(end).endOf('day');
+		// 若为当月（起始为当月1号），按当月已过天数统计更贴合真实花销节奏
+		const isCurrentMonth = startDate.isSame(today, 'month') && startDate.date() === 1;
+		if (isCurrentMonth && !today.isAfter(endDate, 'day')) {
+			const passedDays = today.diff(startDate, 'day') + 1;
+			return { days: Math.max(1, passedDays), label: `本月已过 ${passedDays} 天` };
+		}
+		const diffDays = Math.max(1, dayjs(end).diff(dayjs(start), 'day') + 1);
+		return { days: diffDays, label: `区间共 ${diffDays} 天` };
+	}
+
+	if (start) {
+		const startDate = dayjs(start).startOf('day');
+		const diffDays = Math.max(1, today.diff(startDate, 'day') + 1);
+		return { days: diffDays, label: `已过 ${diffDays} 天` };
+	}
+
+	if (end) {
+		return { days: 30, label: '参考 30 天' };
+	}
+
+	// 全量未设时间筛选时，默认以当月已过天数为参考
+	const daysThisMonth = today.date();
+	return { days: Math.max(1, daysThisMonth), label: `参考本月已过 ${daysThisMonth} 天` };
+});
+
+// 日均支出
+const dailyExpenseAvg = computed(() => {
+	const totalExp = Number(summaryData.value?.totalExpense) || 0;
+	if (totalExp <= 0) return 0;
+	const days = effectiveDaysInfo.value.days;
+	return Number((totalExp / days).toFixed(2));
+});
+
+// Top 3 支出分类结构统计
+interface TopExpenseCategoryItem {
+	name: string;
+	amount: number;
+	percent: number;
+}
+
+const topExpenseCategories = computed<TopExpenseCategoryItem[]>(() => {
+	const records = dataSource.value || [];
+	const expenseMap = new Map<string, number>();
+	let totalExpenseInList = 0;
+
+	for (const item of records) {
+		const isExpense =
+			item.incomeAndExpenses === 'expense' ||
+			(!item.incomeAndExpenses && (Number(item.amount) || 0) < 0);
+		if (isExpense && item.typeCode) {
+			const amt = Math.abs(Number(item.amount) || 0);
+			if (amt > 0) {
+				expenseMap.set(item.typeCode, (expenseMap.get(item.typeCode) || 0) + amt);
+				totalExpenseInList += amt;
+			}
+		}
+	}
+
+	if (expenseMap.size === 0 || totalExpenseInList <= 0) {
+		return [];
+	}
+
+	const sorted = Array.from(expenseMap.entries())
+		.map(([name, amount]) => ({
+			name,
+			amount,
+			percent: Math.round((amount / totalExpenseInList) * 100),
+		}))
+		.sort((a, b) => b.amount - a.amount);
+
+	return sorted.slice(0, 3);
 });
 
 // 构建规整后的查询参数（过滤空字符串并格式化日期）
@@ -905,6 +1152,13 @@ const drillDownBudgetMonth = () => {
 	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
 	if (dir === 'expense' || dir === 'income') {
 		searchInfo.value.incomeAndExpenses = dir;
+	} else {
+		searchInfo.value.incomeAndExpenses = undefined;
+	}
+	if (budgetStatus.value?.categoryCodes && budgetStatus.value.categoryCodes.length > 0) {
+		searchInfo.value.typeCode = budgetStatus.value.categoryCodes.join(',');
+	} else {
+		searchInfo.value.typeCode = undefined;
 	}
 	activeLinkageFilter.value = {
 		type: 'budgetMonth',
@@ -1169,6 +1423,82 @@ init();
 
 			&.income .value {
 				color: #52c41a;
+			}
+		}
+	}
+
+	.stats-insights-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-top: 6px;
+		padding-top: 5px;
+		border-top: 1px dashed #f0f0f0;
+		font-size: 12px;
+		flex-wrap: wrap;
+
+		.insight-item {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+
+			&.daily-avg {
+				flex-shrink: 0;
+			}
+
+			.insight-label {
+				color: #8c8c8c;
+				font-size: 11px;
+			}
+
+			.insight-val {
+				color: #595959;
+				font-weight: 600;
+				font-variant-numeric: tabular-nums;
+				font-size: 12px;
+
+				.insight-unit {
+					font-weight: normal;
+					color: #8c8c8c;
+					font-size: 11px;
+				}
+			}
+		}
+
+		.insight-tags-wrap {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			flex-wrap: wrap;
+		}
+
+		.insight-top-tag {
+			display: inline-flex;
+			align-items: center;
+			gap: 2px;
+			padding: 1px 6px;
+			border-radius: 10px;
+			background: #fafafa;
+			border: 1px solid #e8e8e8;
+			color: #595959;
+			font-size: 11px;
+			line-height: 16px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+
+			.tag-pct {
+				color: #8c8c8c;
+				font-size: 10px;
+			}
+
+			&:hover {
+				background: #e6f4ff;
+				border-color: #91caff;
+				color: #1677ff;
+
+				.tag-pct {
+					color: #1677ff;
+				}
 			}
 		}
 	}

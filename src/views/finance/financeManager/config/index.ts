@@ -68,6 +68,7 @@ export const columns: TableColumnsType = [
 
 export interface FinanceManagerData {
 	id?: string;
+	orgId?: string;
 	name?: string;
 	typeCode?: string;
 	typeName?: string;
@@ -84,6 +85,7 @@ export interface FinanceManagerData {
 
 export interface FinanceBudgetStatusVo {
 	id?: string;
+	orgId?: string;
 	belongTo?: string;
 	budgetMonth?: string;
 	yearMonth?: string;
@@ -99,6 +101,8 @@ export interface FinanceBudgetStatusVo {
 }
 
 export interface FinanceBudgetSaveReq {
+	id?: string;
+	orgId?: string;
 	budgetMonth?: string;
 	yearMonth?: string;
 	incomeAndExpenses?: string;
