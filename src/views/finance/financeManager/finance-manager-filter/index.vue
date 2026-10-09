@@ -16,6 +16,19 @@
 						<a-radio-button value="income">收入</a-radio-button>
 					</a-radio-group>
 
+					<!-- 周期快捷 Pill 胶囊 -->
+					<div class="period-pills-group">
+						<button
+							v-for="p in periodPresets"
+							:key="p.key"
+							type="button"
+							:class="['period-pill-btn', { active: currentPeriodKey === p.key }]"
+							@click="selectPeriod(p.key)"
+						>
+							{{ p.label }}
+						</button>
+					</div>
+
 					<!-- 业务时间范围（带常用预设） -->
 					<a-range-picker
 						v-model:value="dateRange"
@@ -153,6 +166,73 @@ const isExpanded = ref(false);
 // 日期范围绑定
 const dateRange = ref<[Dayjs, Dayjs] | undefined>(undefined);
 
+// 快捷周期预设
+const periodPresets = [
+	{ label: '本月', key: 'thisMonth' },
+	{ label: '上月', key: 'lastMonth' },
+	{ label: '近30天', key: 'last30Days' },
+	{ label: '全部', key: 'all' },
+];
+
+const currentPeriodKey = computed(() => {
+	const start = searchInfo.value.infoDateStart;
+	const end = searchInfo.value.infoDateEnd;
+	if (!start && !end) return 'all';
+	if (
+		start &&
+		end &&
+		dayjs(start).isSame(dayjs().startOf('month'), 'day') &&
+		dayjs(end).isSame(dayjs().endOf('month'), 'day')
+	) {
+		return 'thisMonth';
+	}
+	if (
+		start &&
+		end &&
+		dayjs(start).isSame(dayjs().subtract(1, 'month').startOf('month'), 'day') &&
+		dayjs(end).isSame(dayjs().subtract(1, 'month').endOf('month'), 'day')
+	) {
+		return 'lastMonth';
+	}
+	if (
+		start &&
+		end &&
+		dayjs(start).isSame(dayjs().subtract(29, 'day').startOf('day'), 'day') &&
+		dayjs(end).isSame(dayjs().endOf('day'), 'day')
+	) {
+		return 'last30Days';
+	}
+	return 'custom';
+});
+
+const selectPeriod = (key: string) => {
+	debouncedQuery.cancel();
+	if (key === 'thisMonth') {
+		const s = dayjs().startOf('month');
+		const e = dayjs().endOf('month');
+		searchInfo.value.infoDateStart = s;
+		searchInfo.value.infoDateEnd = e;
+		dateRange.value = [s, e];
+	} else if (key === 'lastMonth') {
+		const s = dayjs().subtract(1, 'month').startOf('month');
+		const e = dayjs().subtract(1, 'month').endOf('month');
+		searchInfo.value.infoDateStart = s;
+		searchInfo.value.infoDateEnd = e;
+		dateRange.value = [s, e];
+	} else if (key === 'last30Days') {
+		const s = dayjs().subtract(29, 'day').startOf('day');
+		const e = dayjs().endOf('day');
+		searchInfo.value.infoDateStart = s;
+		searchInfo.value.infoDateEnd = e;
+		dateRange.value = [s, e];
+	} else if (key === 'all') {
+		searchInfo.value.infoDateStart = undefined;
+		searchInfo.value.infoDateEnd = undefined;
+		dateRange.value = undefined;
+	}
+	emit('query', true);
+};
+
 // 快捷预设（日常记账高频维度：本月、上月、近30天、今年）
 const rangePresets = ref([
 	{
@@ -274,6 +354,41 @@ onUnmounted(() => {
 		line-height: 30px;
 		padding: 0 14px;
 		font-size: 13px;
+	}
+}
+
+.period-pills-group {
+	display: inline-flex;
+	align-items: center;
+	background: #f1f5f9;
+	padding: 2px;
+	border-radius: 6px;
+	gap: 2px;
+	height: 32px;
+	box-sizing: border-box;
+}
+
+.period-pill-btn {
+	border: none;
+	background: transparent;
+	font-size: 12px;
+	color: #64748b;
+	padding: 4px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+	line-height: 1.2;
+	transition: all 0.15s ease;
+
+	&:hover {
+		color: #1e293b;
+		background: rgba(255, 255, 255, 0.6);
+	}
+
+	&.active {
+		color: #1677ff;
+		background: #ffffff;
+		font-weight: 600;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 	}
 }
 

@@ -93,7 +93,14 @@
 					<div class="budget-sub-stats">
 						<span class="sub-stat">上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
 						<span class="sub-sep">/</span>
-						<span class="sub-stat">已用 ¥{{ formatAmount(budgetStatus?.actualExpense || 0) }}</span>
+						<span
+							class="sub-stat clickable-sub-stat"
+							@click="drillDownBudgetMonth"
+							title="点击联动查看当月已计入明细"
+						>
+							{{ budgetSpentLabel }} ¥{{ formatAmount(budgetStatus?.actualExpense || 0) }}
+							<span class="drill-icon">↗</span>
+						</span>
 					</div>
 
 					<div class="budget-progress-wrap">
@@ -106,20 +113,51 @@
 						/>
 					</div>
 
-					<div class="budget-category-hints" :title="budgetStatus?.categoryNames?.length ? budgetStatus.categoryNames.join('、') : '全部分类（不含转账）'">
+					<div class="budget-category-hints" :title="budgetStatus?.categoryNames?.length ? budgetStatus.categoryNames.join('、') : budgetDirectionLabel">
 						<span class="hint-label">计入:</span>
 						<template v-if="budgetStatus?.categoryNames?.length">
-							<a-tag v-for="cat in budgetStatus.categoryNames.slice(0, 2)" :key="cat" class="cat-pill">
+							<a-tag
+								v-for="cat in budgetStatus.categoryNames.slice(0, 2)"
+								:key="cat"
+								class="cat-pill clickable-cat-pill"
+								@click="drillDownCategory(cat)"
+								:title="`点击仅查看本月【${cat}】账目`"
+							>
 								{{ cat }}
 							</a-tag>
-							<span v-if="budgetStatus.categoryNames.length > 2" class="cat-pill-more">
+							<span
+								v-if="budgetStatus.categoryNames.length > 2"
+								class="cat-pill-more clickable-cat-more"
+								@click="drillDownCategory(budgetStatus.categoryNames[2])"
+								:title="`点击仅查看本月【${budgetStatus.categoryNames[2]}】账目`"
+							>
 								+{{ budgetStatus.categoryNames.length - 2 }}
 							</span>
 						</template>
-						<span v-else class="cat-pill-all">全分类</span>
+						<span
+							v-else
+							class="cat-pill-all clickable-cat-pill"
+							@click="drillDownBudgetMonth"
+							title="点击查看当月全部预算收支明细"
+						>
+							{{ budgetDirectionLabel }}
+						</span>
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<!-- 联动筛选指示栏 -->
+		<div v-if="activeLinkageFilter" class="linkage-active-banner">
+			<div class="banner-content">
+				<span class="banner-dot"></span>
+				<span class="banner-text">
+					已联动过滤：<strong>{{ activeLinkageFilter.label }}</strong>
+				</span>
+			</div>
+			<a-button type="link" size="small" class="banner-close-btn" @click="clearLinkageFilter">
+				清除联动，查看全量
+			</a-button>
 		</div>
 
 		<!-- 3. 操作按钮区 -->
@@ -198,6 +236,20 @@
 						</a-space>
 					</template>
 
+					<!-- 类别列：语义化彩色胶囊 -->
+					<template v-else-if="column.key === 'typeCode'">
+						<span
+							v-if="record.typeCode"
+							class="category-pill"
+							:style="getCategoryPillStyle(record.typeCode)"
+							@click="filterByCategory(record.typeCode)"
+							:title="`点击仅筛选【${record.typeCode}】`"
+						>
+							{{ record.typeCode }}
+						</span>
+						<span v-else class="text-slate-300">-</span>
+					</template>
+
 					<!-- 金额列：等宽、红绿收支色彩区分 -->
 					<template v-else-if="column.key === 'amount'">
 						<span
@@ -266,25 +318,30 @@
 		<a-modal
 			v-model:open="budgetModalVisible"
 			:confirm-loading="budgetSaving"
-			width="620px"
+			width="640px"
 			:mask-closable="false"
 			:destroy-on-close="true"
 			@ok="handleSaveBudget"
 		>
 			<template #title>
-				<div class="flex items-center gap-2 text-slate-800 font-semibold text-base">
-					<WalletOutlined class="text-amber-500 text-lg" />
-					<span>设置 / 调整零花钱预算</span>
+				<div class="flex items-center gap-2.5 text-slate-800 font-semibold text-base py-0.5">
+					<div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-solid border-blue-100">
+						<WalletOutlined class="text-base" />
+					</div>
+					<div>
+						<div class="leading-snug">设置 / 调整零花钱预算</div>
+						<div class="text-xs font-normal text-slate-400">独立设定每月预算额度及纳入统计的收支方向与分类</div>
+					</div>
 				</div>
 			</template>
 
-			<div class="space-y-4 py-1">
+			<div class="space-y-4 py-2">
 				<!-- 1. 预算基础信息卡片 -->
-				<div class="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60 space-y-3.5">
+				<div class="bg-slate-50/80 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3.5">
 					<div class="flex items-center justify-between">
-						<span class="text-sm font-medium text-slate-600">预算月份</span>
+						<span class="text-sm font-medium text-slate-700">预算月份</span>
 						<div class="flex items-center gap-2">
-							<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+							<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100/80 text-blue-700 border border-solid border-blue-200/60">
 								{{ currentMonthStr }}
 							</span>
 							<span class="text-xs text-slate-400">每月独立保存，次月自动继承</span>
@@ -311,32 +368,31 @@
 					</div>
 				</div>
 
-				<!-- 2. 消费分类配置卡片 (Tailwind 胶囊交互) -->
-				<div class="bg-white rounded-xl p-4 border border-slate-200 space-y-3">
-					<div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+				<!-- 2. 统计范围与分类配置卡片 (双层卡片结构 + 胶囊交互) -->
+				<div class="bg-slate-50/40 rounded-xl p-4 border border-solid border-slate-200 space-y-4">
+					<div class="flex items-center justify-between border-b border-solid border-slate-200/70 pb-3">
 						<div>
 							<div class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-								<span>计入零花钱的消费分类</span>
+								<span>统计范围与账目分类</span>
 								<span class="text-xs font-normal text-slate-400">
-									(已选 {{ budgetEditForm.categoryCodes.length }} 项)
+									(已选 {{ budgetEditForm.categoryCodes.length }} 项分类)
 								</span>
 							</div>
-							<div class="text-xs text-slate-400 mt-0.5">
-								仅勾选的类别支出会计入预算，不勾选则默认统计全部支出（不含转账）
+							<div class="text-xs text-slate-500 mt-0.5">
+								{{ modalHintText }}
 							</div>
 						</div>
 						<div class="flex items-center gap-2 text-xs">
 							<button
 								type="button"
-								class="text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+								class="cursor-pointer text-blue-600 hover:text-blue-700 font-medium px-2.5 py-1 rounded-md bg-blue-50/80 hover:bg-blue-100/80 border border-solid border-blue-200 transition-colors"
 								@click="selectAllCategories"
 							>
-								全选
+								全选分类
 							</button>
-							<span class="text-slate-300">|</span>
 							<button
 								type="button"
-								class="text-slate-500 hover:text-slate-700 font-medium px-2 py-1 rounded hover:bg-slate-100 transition-colors"
+								class="cursor-pointer text-slate-500 hover:text-slate-700 font-medium px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200/80 border border-solid border-slate-200 transition-colors"
 								@click="clearAllCategories"
 							>
 								清空
@@ -344,52 +400,70 @@
 						</div>
 					</div>
 
-					<!-- 收支大类 (支出 / 收入) -->
-					<div class="space-y-1.5">
-						<div class="text-xs font-medium text-slate-500 flex items-center gap-1">
-							<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-							<span>收支类型</span>
+					<!-- 收支类型 (支出 / 收入: 支持多选与全选) -->
+					<div class="space-y-2">
+						<div class="text-xs font-medium text-slate-600 flex items-center justify-between">
+							<div class="flex items-center gap-1.5">
+								<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+								<span>收支类型 (支持单选或同时勾选)</span>
+							</div>
+							<span class="text-xs text-slate-400">
+								{{ budgetEditForm.selectedDirections.length === 2 ? '已选：支出 + 收入' : (budgetEditForm.selectedDirections.includes('income') ? '已选：仅收入' : '已选：仅支出') }}
+							</span>
 						</div>
-						<div class="flex flex-wrap gap-2">
+						<div class="flex items-center gap-2.5">
 							<div
-								v-for="item in incomeExpenseTypes"
-								:key="item.value"
 								:class="[
-									'cursor-pointer px-3 py-1.5 rounded-lg border text-xs font-medium transition-all select-none flex items-center gap-1.5',
-									isCategorySelected(item.value)
-										? 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-1 ring-blue-500/20'
+									'cursor-pointer px-3.5 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									isDirectionSelected('expense')
+										? 'bg-rose-50/90 border-rose-400 text-rose-600 shadow-xs ring-1 ring-rose-400/20'
 										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
 								]"
-								@click="toggleCategory(item.value)"
+								@click="toggleDirection('expense')"
 							>
 								<span
-									v-if="isCategorySelected(item.value)"
-									class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"
+									v-if="isDirectionSelected('expense')"
+									class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500"
 								></span>
-								<span>{{ item.label }}</span>
+								<span>支出 (消费)</span>
+							</div>
+							<div
+								:class="[
+									'cursor-pointer px-3.5 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									isDirectionSelected('income')
+										? 'bg-emerald-50/90 border-emerald-400 text-emerald-600 shadow-xs ring-1 ring-emerald-400/20'
+										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+								]"
+								@click="toggleDirection('income')"
+							>
+								<span
+									v-if="isDirectionSelected('income')"
+									class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"
+								></span>
+								<span>收入</span>
 							</div>
 						</div>
 					</div>
 
 					<!-- 近两月真实账目类别 (上月 + 本月动态提取) -->
-					<div class="space-y-1.5 pt-1">
-						<div class="text-xs font-medium text-slate-500 flex items-center justify-between">
-							<div class="flex items-center gap-1">
+					<div class="space-y-2 pt-1">
+						<div class="text-xs font-medium text-slate-600 flex items-center justify-between">
+							<div class="flex items-center gap-1.5">
 								<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-								<span>账目类别 (提取自上月及本月账本)</span>
+								<span>账目类别 (提取自上月及本月账本流水)</span>
 							</div>
 							<span v-if="categoriesLoading" class="text-xs text-slate-400">加载中...</span>
 						</div>
 
-						<div v-if="recentCategories.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+						<div v-if="recentCategories.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1 py-1">
 							<div
 								v-for="cat in recentCategories"
 								:key="cat"
 								:class="[
-									'cursor-pointer px-3 py-1.5 rounded-lg border text-xs font-medium transition-all select-none flex items-center gap-1.5',
+									'cursor-pointer px-3 py-1.5 rounded-lg border border-solid text-xs font-medium transition-all select-none flex items-center gap-1.5',
 									isCategorySelected(cat)
 										? 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-1 ring-blue-500/20'
-										: 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+										: 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
 								]"
 								@click="toggleCategory(cat)"
 							>
@@ -402,9 +476,9 @@
 						</div>
 						<div
 							v-else-if="!categoriesLoading"
-							class="text-xs text-slate-400 py-3 text-center bg-slate-50/60 rounded-lg border border-dashed border-slate-200"
+							class="text-xs text-slate-400 py-4 text-center bg-white rounded-lg border border-dashed border-slate-200"
 						>
-							近两个月暂无具体类别记账，默认统计全部支出
+							近两个月暂无具体类别记账，默认统计当前所选收支类型的全部记录
 						</div>
 					</div>
 				</div>
@@ -503,7 +577,58 @@ const budgetModalVisible = ref(false);
 const budgetSaving = ref(false);
 const budgetEditForm = reactive({
 	budgetAmount: 0,
+	incomeAndExpenses: 'expense',
+	selectedDirections: ['expense'] as string[],
 	categoryCodes: [] as string[],
+});
+
+const isDirectionSelected = (dir: string) => {
+	return budgetEditForm.selectedDirections.includes(dir);
+};
+
+const toggleDirection = (dir: string) => {
+	const current = [...budgetEditForm.selectedDirections];
+	const idx = current.indexOf(dir);
+	if (idx > -1) {
+		if (current.length === 1) {
+			message.info('收支类型至少需要保留一项');
+			return;
+		}
+		current.splice(idx, 1);
+	} else {
+		current.push(dir);
+	}
+	budgetEditForm.selectedDirections = current;
+	budgetEditForm.incomeAndExpenses = current.join(',');
+};
+
+const modalHintText = computed(() => {
+	const dirs = budgetEditForm.selectedDirections;
+	const isBoth = dirs.includes('expense') && dirs.includes('income');
+	const isInc = dirs.includes('income');
+	const dirName = isBoth ? '收支流水' : (isInc ? '收入' : '支出');
+	if (budgetEditForm.categoryCodes.length > 0) {
+		return `已选 ${budgetEditForm.categoryCodes.length} 项分类，仅这些类别的${dirName}会计入预算（不含转账）`;
+	}
+	return `未勾选具体分类，默认统计全部${dirName}（不含转账）`;
+});
+
+const budgetDirectionLabel = computed(() => {
+	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
+	const hasExp = dir.includes('expense');
+	const hasInc = dir.includes('income');
+	if (hasExp && hasInc) return '全部收支';
+	if (hasInc) return '全部收入';
+	return '全部支出';
+});
+
+const budgetSpentLabel = computed(() => {
+	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
+	const hasExp = dir.includes('expense');
+	const hasInc = dir.includes('income');
+	if (hasExp && hasInc) return '已计';
+	if (hasInc) return '已入';
+	return '已用';
 });
 
 const progressStrokeColor = computed(() => {
@@ -513,34 +638,24 @@ const progressStrokeColor = computed(() => {
 	return '#1677ff';
 });
 
-const incomeExpenseTypes = [
-	{ label: '支出', value: '支出' },
-	{ label: '收入', value: '收入' },
-];
 const recentCategories = ref<string[]>([]);
 const categoriesLoading = ref(false);
 
-const isCategorySelected = (val: string) => {
-	return budgetEditForm.categoryCodes.includes(val);
+const isCategorySelected = (cat: string) => {
+	return budgetEditForm.categoryCodes.includes(cat);
 };
 
-const toggleCategory = (val: string) => {
-	const idx = budgetEditForm.categoryCodes.indexOf(val);
+const toggleCategory = (cat: string) => {
+	const idx = budgetEditForm.categoryCodes.indexOf(cat);
 	if (idx > -1) {
 		budgetEditForm.categoryCodes.splice(idx, 1);
 	} else {
-		budgetEditForm.categoryCodes.push(val);
+		budgetEditForm.categoryCodes.push(cat);
 	}
 };
 
 const selectAllCategories = () => {
-	const all = Array.from(
-		new Set([
-			...incomeExpenseTypes.map((t) => t.value),
-			...recentCategories.value,
-		]),
-	);
-	budgetEditForm.categoryCodes = all;
+	budgetEditForm.categoryCodes = [...recentCategories.value];
 };
 
 const clearAllCategories = () => {
@@ -559,12 +674,14 @@ const fetchRecentCategories = async () => {
 			getEffectiveBudgetBelongTo(),
 		);
 		if (code === '200' && Array.isArray(data)) {
-			// 保留当前已选的其他类别以防历史配置不显示
+			const cleanData = data.filter(
+				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+			);
 			const existingSelected = budgetEditForm.categoryCodes.filter(
-				(c) => c !== '支出' && c !== '收入',
+				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
 			);
 			recentCategories.value = Array.from(
-				new Set([...data, ...existingSelected]),
+				new Set([...cleanData, ...existingSelected]),
 			).sort();
 		}
 	} catch (e) {
@@ -590,7 +707,16 @@ const loadBudgetStatus = async () => {
 
 const openBudgetModal = async () => {
 	budgetEditForm.budgetAmount = Number(budgetStatus.value?.budgetAmount || 0);
-	budgetEditForm.categoryCodes = [...(budgetStatus.value?.categoryCodes || [])];
+	const rawDir = budgetStatus.value?.incomeAndExpenses || 'expense';
+	const parsed = rawDir
+		.split(',')
+		.map((s) => s.trim().toLowerCase())
+		.filter((s) => s === 'expense' || s === 'income');
+	budgetEditForm.selectedDirections = parsed.length ? parsed : ['expense'];
+	budgetEditForm.incomeAndExpenses = budgetEditForm.selectedDirections.join(',');
+	budgetEditForm.categoryCodes = [...(budgetStatus.value?.categoryCodes || [])].filter(
+		(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+	);
 	budgetModalVisible.value = true;
 	await fetchRecentCategories();
 };
@@ -600,13 +726,21 @@ const handleSaveBudget = async () => {
 		message.warning('预算金额不能为负数！');
 		return;
 	}
+	if (!budgetEditForm.selectedDirections.length) {
+		message.warning('收支类型至少需要选择一项！');
+		return;
+	}
 	budgetSaving.value = true;
 	try {
 		const { code, message: msg } = await saveMonthlyBudget({
+			budgetMonth: currentMonthStr.value,
 			yearMonth: currentMonthStr.value,
 			belongTo: getEffectiveBudgetBelongTo(),
+			incomeAndExpenses: budgetEditForm.selectedDirections.join(','),
 			budgetAmount: budgetEditForm.budgetAmount,
-			categoryCodes: budgetEditForm.categoryCodes,
+			categoryCodes: budgetEditForm.categoryCodes.filter(
+				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+			),
 		});
 		if (code === '200') {
 			message.success('零花钱预算已更新');
@@ -698,7 +832,96 @@ const getFromSourceName = (source?: string) => {
 	return matched ? matched.name : source;
 };
 
+// 预算/分类穿透联动筛选状态
+const activeLinkageFilter = ref<{
+	type: string;
+	value: string;
+	label: string;
+} | null>(null);
+
+// 语义化标签配色调色板
+const pillColorPalette = [
+	{ bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
+	{ bg: '#ecfdf5', text: '#047857', border: '#a7f3d0' },
+	{ bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
+	{ bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe' },
+	{ bg: '#ecfeff', text: '#0e7490', border: '#a5f3fc' },
+	{ bg: '#fff1f2', text: '#be123c', border: '#fecdd3' },
+	{ bg: '#eef2ff', text: '#4338ca', border: '#c7d2fe' },
+	{ bg: '#fdf4ff', text: '#a21caf', border: '#f5d0fe' },
+];
+
+const getCategoryPillStyle = (name?: string) => {
+	if (!name) return {};
+	let hash = 0;
+	for (let i = 0; i < name.length; i++) {
+		hash = (hash << 5) - hash + name.charCodeAt(i);
+		hash |= 0;
+	}
+	const idx = Math.abs(hash) % pillColorPalette.length;
+	const color = pillColorPalette[idx];
+	return {
+		backgroundColor: color.bg,
+		color: color.text,
+		border: `1px solid ${color.border}`,
+		borderRadius: '12px',
+		padding: '2px 9px',
+		fontSize: '12px',
+		fontWeight: '500',
+		display: 'inline-block',
+		lineHeight: '1.4',
+		cursor: 'pointer',
+		transition: 'all 0.15s ease',
+	};
+};
+
+const filterByCategory = (cat?: string) => {
+	if (!cat) return;
+	searchInfo.value.typeCode = cat;
+	activeLinkageFilter.value = {
+		type: 'category',
+		value: cat,
+		label: `账目分类：${cat}`,
+	};
+	query(true);
+};
+
+const drillDownCategory = (cat: string) => {
+	if (!cat) return;
+	searchInfo.value.typeCode = cat;
+	searchInfo.value.infoDateStart = dayjs().startOf('month');
+	searchInfo.value.infoDateEnd = dayjs().endOf('month');
+	activeLinkageFilter.value = {
+		type: 'category',
+		value: cat,
+		label: `预算分类：${cat}`,
+	};
+	query(true);
+};
+
+const drillDownBudgetMonth = () => {
+	searchInfo.value.infoDateStart = dayjs().startOf('month');
+	searchInfo.value.infoDateEnd = dayjs().endOf('month');
+	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
+	if (dir === 'expense' || dir === 'income') {
+		searchInfo.value.incomeAndExpenses = dir;
+	}
+	activeLinkageFilter.value = {
+		type: 'budgetMonth',
+		value: currentMonthStr.value,
+		label: `${currentMonthStr.value} 月预算相关账目`,
+	};
+	query(true);
+};
+
+const clearLinkageFilter = () => {
+	activeLinkageFilter.value = null;
+	searchInfo.value.typeCode = undefined;
+	query(true);
+};
+
 const cancelQuery = () => {
+	activeLinkageFilter.value = null;
 	searchInfo.value = {};
 	query(true);
 };
@@ -1181,6 +1404,85 @@ init();
 	.from-source-icon {
 		width: 16px;
 		height: 16px;
+	}
+}
+
+.linkage-active-banner {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	padding: 5px 14px;
+	border-radius: 6px;
+	margin-bottom: 8px;
+	font-size: 12px;
+	color: #1e40af;
+
+	.banner-content {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.banner-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: #3b82f6;
+		display: inline-block;
+		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+	}
+
+	.banner-close-btn {
+		padding: 0;
+		height: auto;
+		font-size: 12px;
+		color: #2563eb;
+		&:hover {
+			color: #1d4ed8;
+		}
+	}
+}
+
+.clickable-sub-stat {
+	cursor: pointer;
+	transition: color 0.15s ease;
+	&:hover {
+		color: #1677ff !important;
+		text-decoration: underline;
+	}
+	.drill-icon {
+		font-size: 10px;
+		margin-left: 2px;
+		opacity: 0.7;
+	}
+}
+
+.clickable-cat-pill {
+	cursor: pointer;
+	transition: all 0.15s ease;
+	&:hover {
+		border-color: #1677ff;
+		color: #1677ff;
+		transform: translateY(-1px);
+	}
+}
+
+.clickable-cat-more {
+	cursor: pointer;
+	&:hover {
+		color: #1677ff;
+	}
+}
+
+.category-pill {
+	transition: all 0.15s ease;
+	&:hover {
+		opacity: 0.85;
+		transform: translateY(-1px);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 	}
 }
 </style>

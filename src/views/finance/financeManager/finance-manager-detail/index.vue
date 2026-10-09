@@ -2,8 +2,8 @@
 	<div>
 		<a-modal
 			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
+			:width="modelInfo?.width || '680px'"
+			:title="modelInfo?.title || '记账明细'"
 			okText="保存"
 			:confirmLoading="loading"
 			:maskClosable="false"
@@ -12,15 +12,29 @@
 			@cancel="handleCancel"
 		>
 			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-				>
-					保存
-				</a-button>
+				<div class="flex items-center justify-between">
+					<div class="text-xs text-slate-400">
+						<span v-if="!formState.id">💡 支持连续记录多笔账目</span>
+					</div>
+					<a-space>
+						<a-button key="back" @click="handleCancel">取消</a-button>
+						<a-button
+							v-if="!formState.id"
+							:loading="loading"
+							@click="handleSaveAndContinue"
+						>
+							保存并再记一笔
+						</a-button>
+						<a-button
+							key="submit"
+							type="primary"
+							:loading="loading"
+							@click="handleOk"
+						>
+							保存
+						</a-button>
+					</a-space>
+				</div>
 			</template>
 			<a-form
 				ref="formRef"
@@ -36,16 +50,35 @@
 						<a-form-item name="name" label="名称">
 							<a-input
 								v-model:value="formState.name"
-								placeholder="请填写名称"
+								placeholder="如：午餐、地铁打卡、电费"
+								allow-clear
 							></a-input>
 						</a-form-item>
 					</a-col>
 					<a-col :span="12">
 						<a-form-item name="typeCode" label="类别">
-							<a-input
-								v-model:value="formState.typeCode"
-								placeholder="请填写类别"
-							></a-input>
+							<div class="space-y-1.5">
+								<a-input
+									v-model:value="formState.typeCode"
+									placeholder="填写或点击下方常用类别"
+									allow-clear
+								></a-input>
+								<div v-if="presetCategories.length" class="flex flex-wrap gap-1.5 pt-0.5">
+									<span
+										v-for="cat in presetCategories"
+										:key="cat"
+										:class="[
+											'cursor-pointer px-2 py-0.5 rounded-md border border-solid text-xs transition-all select-none',
+											formState.typeCode === cat
+												? 'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
+												: 'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
+										]"
+										@click="formState.typeCode = cat"
+									>
+										{{ cat }}
+									</span>
+								</div>
+							</div>
 						</a-form-item>
 					</a-col>
 				</a-row>
@@ -141,6 +174,7 @@ import {
 	getFinanceMangerDetail,
 	addFinanceManger,
 	editFinanceManger,
+	getBudgetCategories,
 } from '@/views/finance/financeManager/api';
 import {
 	rulesRef,
@@ -181,8 +215,30 @@ const props = defineProps<Props>();
 
 const currentUser = useUserStore()?.getUserInfo;
 const formState = ref<FinanceManagerData>({});
+const presetCategories = ref<string[]>([]);
+
+const fetchPresetCategories = async () => {
+	try {
+		const { code, data } = await getBudgetCategories(dayjs().format('YYYY-MM'));
+		if (code === '200' && Array.isArray(data)) {
+			const clean = data.filter(
+				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+			);
+			presetCategories.value = clean.slice(0, 10);
+		}
+	} catch (e) {
+		console.warn('获取常用记账分类失败:', e);
+	}
+	if (!presetCategories.value.length) {
+		presetCategories.value = ['餐饮', '日常交通', '日用百货', '水费', '电费', '零食', '工资'];
+	}
+};
 
 const createDefaultFormState = (): FinanceManagerData => ({
+	name: '',
+	typeCode: '',
+	amount: undefined,
+	fromSource: 'wx',
 	isValid: '1',
 	incomeAndExpenses: 'expense',
 	infoDate: dayjs(),
@@ -196,6 +252,33 @@ const handleOk = () => {
 			.validateFields()
 			.then(() => saveFinanceManager())
 			.catch(() => (loading.value = false));
+	}
+};
+
+const handleSaveAndContinue = async () => {
+	if (!formRef.value) return;
+	try {
+		await formRef.value.validateFields();
+		loading.value = true;
+		const { code, message: messageInfo } = await addFinanceManger(formState.value);
+		if (code === '200') {
+			message.success('已保存当前账目！可继续录入下一笔');
+			emit('success');
+			// 保留环境配置（支付方式、归属人、收支类型），更新时间并清空具体字段
+			formState.value = {
+				...formState.value,
+				name: '',
+				amount: undefined,
+				typeCode: '',
+				infoDate: dayjs(),
+			};
+		} else {
+			message.error(messageInfo || '保存失败！');
+		}
+	} catch (err) {
+		console.warn('表单验证未通过:', err);
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -256,6 +339,7 @@ watch(
 	(newVal) => {
 		if (newVal) {
 			initDetail(modelInfo.value);
+			fetchPresetCategories();
 		}
 	},
 );

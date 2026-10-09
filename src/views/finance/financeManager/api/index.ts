@@ -86,30 +86,35 @@ export function getFinanceSummary(
 const baseBudgetManager = '/finance-budget';
 
 export function getBudgetStatus(
-	yearMonth: string,
+	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<FinanceBudgetStatusVo>> {
 	return getDataOne(
 		baseService.finance + baseBudgetManager + '/status',
-		{ yearMonth, belongTo },
+		{ budgetMonth, yearMonth: budgetMonth, belongTo },
 	);
 }
 
 export function saveMonthlyBudget(
 	params: FinanceBudgetSaveReq,
 ): Promise<ResponseBody<boolean>> {
+	const req = {
+		...params,
+		budgetMonth: params.budgetMonth || params.yearMonth,
+		yearMonth: params.budgetMonth || params.yearMonth,
+	};
 	return postData(
 		baseService.finance + baseBudgetManager + '/save',
-		params,
+		req,
 	);
 }
 
 export function getBudgetCategories(
-	yearMonth: string,
+	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<string[]>> {
 	return getDataOne(
 		baseService.finance + baseBudgetManager + '/categories',
-		{ yearMonth, belongTo },
+		{ budgetMonth, yearMonth: budgetMonth, belongTo },
 	);
 }
