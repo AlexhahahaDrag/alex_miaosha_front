@@ -658,26 +658,29 @@ import {
 	CheckOutlined,
 } from '@ant-design/icons-vue';
 
-// 使用分页组合式函数
+// 选中的 ID 列表（严格 string 类型）
+const {
+	selectedRowKeys: selectedRowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (paginationInfo) => {
+		const queryParam = buildQueryParams(searchInfo.value);
+		getFinancePage(queryParam, paginationInfo);
+	},
+});
 
 const route = useRoute();
 const userStore = useUserStore();
 
-// 选中的 ID 列表（严格 string 类型）
-const selectedRowIds = ref<string[]>([]);
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		selectedRowIds.value = selectedRowKeys.map(String);
-	},
-});
 
 const searchInfo = ref<FinanceManagerData>({});
 const loading = ref<boolean>(false);
@@ -1364,12 +1367,7 @@ const query = (resetPage = false) => {
 	loadBudgetStatus();
 };
 
-// 分页变化
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	const queryParam = buildQueryParams(searchInfo.value);
-	getFinancePage(queryParam, paginationInfo);
-};
+
 
 // 删除账单
 const delFinance = async (id?: string) => {

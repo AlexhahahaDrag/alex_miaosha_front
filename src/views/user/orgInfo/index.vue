@@ -346,13 +346,22 @@ type OrgTreeNode = OrgInfoData &
 		children?: OrgTreeNode[];
 	};
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected: clearSelection,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: () => getOrgDataPage(),
+});
 const { getDictByType } = useDictInfo('is_valid');
 const statusList = computed(() => getDictByType('is_valid'));
 
@@ -371,11 +380,6 @@ const hasSelectedNode = computed(() => selectedKeys.value.length > 0);
 const activeOrgCount = computed(
 	() => dataSource.value.filter((o) => String(o.status) === '1').length,
 );
-const rowIds = ref<(string | number)[]>([]);
-
-const clearSelection = () => {
-	rowIds.value = [];
-};
 
 const clearTreeFilter = () => {
 	selectedKeys.value = [];
@@ -383,14 +387,6 @@ const clearTreeFilter = () => {
 	searchInfo.value.parentId = undefined;
 	query(true);
 };
-
-// 表格行选择（批量删除）
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys;
-	},
-});
 
 // 查询
 const query = (resetPage: boolean = false) => {
@@ -406,11 +402,6 @@ function cancelQuery() {
 	searchInfo.value.parentId = currentParentId.value;
 	query(true);
 }
-
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getOrgDataPage();
-};
 
 const delOrgInfo = async (ids: string) => {
 	if (!ids) {

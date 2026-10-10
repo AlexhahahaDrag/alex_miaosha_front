@@ -180,25 +180,32 @@ import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import type { Dayjs } from 'dayjs';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: selectedRowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (paginationInfo) => {
+		const params = {
+			...searchInfo.value,
+			saleDateFrom: saleDateFrom.value ? formatDate(saleDateFrom.value) : null,
+			saleDateEnd: saleDateEnd.value ? formatDate(saleDateEnd.value) : null,
+		};
+		getShopFinanceListPage(params, paginationInfo);
+	},
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-const selectedRowIds = ref<(string | number)[]>([]);
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		selectedRowIds.value = selectedRowKeys;
-	},
-});
 
 const labelMap: Record<string, { name: string; label: string }> = {
 	shopName: { name: 'shopName', label: '商品名称' },
@@ -238,16 +245,11 @@ const query = (resetPage = false) => {
 	getShopFinanceListPage(params, pagination);
 };
 
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getShopFinanceListPage(searchInfo.value, paginationInfo);
-};
-
 const delShopFinance = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopFinance(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
-		selectedRowIds.value = [];
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);

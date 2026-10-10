@@ -115,39 +115,25 @@ import {
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getShopStockBatchListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: ShopStockBatchData,
-		selected: boolean,
-		selectedRows: ShopStockBatchData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: ShopStockBatchData[],
-		changeRows: ShopStockBatchData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 let searchInfo = ref<ShopStockBatchData>({});
 
@@ -163,15 +149,11 @@ const query = (resetPage = false): void => {
 	getShopStockBatchListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (pagination: PageInfo): void => {
-	paginationChange(pagination);
-	getShopStockBatchListPage(searchInfo.value, pagination);
-};
-
 const delShopStockBatch = async (ids: string): Promise<void> => {
 	const { code, message: msg } = await deleteShopStockBatch(ids);
 	if (code === '200') {
 		message.success(msg ? `删除${msg}` : '删除成功！', 3);
+		clearSelected();
 		query(true);
 	} else {
 		message.error(msg || '删除失败！', 3);
@@ -179,11 +161,11 @@ const delShopStockBatch = async (ids: string): Promise<void> => {
 };
 
 const batchDelShopStockBatch = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopStockBatch(rowIds.join(','));
+	delShopStockBatch(selectedRowKeys.value.join(','));
 };
 
 let loading = ref<boolean>(false);

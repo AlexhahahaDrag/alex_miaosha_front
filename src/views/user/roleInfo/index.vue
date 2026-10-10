@@ -196,21 +196,28 @@ import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import UserAssignmentDetail from './userAssignmentDetail/index.vue';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getRoleInfoListPage(searchInfo.value, p),
+});
 
 const router = useRouter();
 const { scopeHintText } = useDataScopeHint();
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-const rowIds = ref<(string | number)[]>([]);
 
 let searchInfo = ref<RoleInfoData>({});
 
@@ -222,42 +229,17 @@ const modelInfo = ref<ModelInfo>({});
 const authModelInfo = ref<ModelInfo>({});
 const userAssignModelInfo = ref<ModelInfo>({});
 
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys;
-	},
-	onSelect: (
-		record: RoleInfoData,
-		selected: boolean,
-		selectedRows: RoleInfoData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: RoleInfoData[],
-		changeRows: RoleInfoData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
-
 // 清空查询条件
 const cancelQuery = () => {
 	searchInfo.value = {};
 	query(true);
 };
 
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getRoleInfoListPage(searchInfo.value, pagination);
-};
-
 const delRoleInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteRoleInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		clearSelected();
 		// 刷新列表
 		query(true);
 	} else {

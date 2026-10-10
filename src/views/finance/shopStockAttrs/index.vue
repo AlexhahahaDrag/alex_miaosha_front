@@ -165,35 +165,25 @@ import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	resetPagination,
 	setTotal,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getShopStockAttrsListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
 	stockId: { name: 'stockId', label: '库存id' },
@@ -220,15 +210,11 @@ const query = (resetPage = false): void => {
 	getShopStockAttrsListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (pagination: PageInfo): void => {
-	paginationChange(pagination);
-	getShopStockAttrsListPage(searchInfo.value, pagination);
-};
-
 const delShopStockAttrs = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopStockAttrs(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -236,11 +222,11 @@ const delShopStockAttrs = async (ids: string): Promise<void> => {
 };
 
 const batchDelShopStockAttrs = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopStockAttrs(rowIds.join(','));
+	delShopStockAttrs(selectedRowKeys.value.join(','));
 };
 
 let loading = ref<boolean>(false);

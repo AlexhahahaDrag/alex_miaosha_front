@@ -179,35 +179,25 @@ import { getPmsAttrPage, deletePmsAttr } from '@/views/product/pmsAttr/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getPmsAttrListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
 	attrName: { name: 'attrName', label: '属性名' },
@@ -240,15 +230,11 @@ function query(resetPage = false) {
 	getPmsAttrListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getPmsAttrListPage(searchInfo.value, pagination);
-}
-
 function delPmsAttr(ids: string) {
 	deletePmsAttr(ids).then((res) => {
 		if (res.code === '200') {
 			message.success((res && '删除' + res.message) || '删除成功！', 3);
+			clearSelected();
 			query(true);
 		} else {
 			message.error((res && res.message) || '删除失败！', 3);
@@ -257,11 +243,11 @@ function delPmsAttr(ids: string) {
 }
 
 const batchDelPmsAttr = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delPmsAttr(rowIds.join(','));
+	delPmsAttr(selectedRowKeys.value.join(','));
 };
 
 let loading = ref<boolean>(false);

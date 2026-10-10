@@ -141,25 +141,25 @@ import { columns } from '@/views/finance/shopCart/config';
 import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
 import { message } from 'ant-design-vue';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	resetPagination,
 	setTotal,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getShopCartListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-const rowIds = ref<(string | number)[]>([]);
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys;
-	},
-});
 
 const labelMap: Record<string, { name: string; label: string }> = {
 	shopId: { name: 'shopId', label: '商品id' },
@@ -186,16 +186,11 @@ const query = (resetPage = false): void => {
 	getShopCartListPage(searchInfo.value, pagination);
 };
 
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getShopCartListPage(searchInfo.value, paginationInfo);
-};
-
 const delShopCart = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopCart(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
-		rowIds.value = [];
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);

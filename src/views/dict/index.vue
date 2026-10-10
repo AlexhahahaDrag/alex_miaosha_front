@@ -105,37 +105,23 @@ import {
 import DictDetail from './dict-detail/index.vue';
 import { message } from 'ant-design-vue';
 
-let rowIds: (string | number)[] = [];
-
 let loading = ref<boolean>(false);
 
 let dataSource = ref();
 
 const modelInfo = ref<ModelInfo>({});
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const { selectedRowKeys, rowSelection } = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	resetPagination,
 	setTotal,
-} = usePagination();
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DictInfo, selected: boolean, selectedRows: DictInfo[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DictInfo[],
-		changeRows: DictInfo[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
+} = usePagination({
+	onChange: (p) => getDictPage(searchInfo.value, p),
 });
 
 let searchInfo = ref<DictInfo>({});
@@ -151,11 +137,6 @@ function query(resetPage = false) {
 	getDictPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getDictPage(searchInfo.value, pagination);
-}
-
 const delDict = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteDictManager(ids);
 	if (code === '200') {
@@ -167,12 +148,13 @@ const delDict = async (ids: string) => {
 };
 
 function batchDelDictManager() {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delDict(rowIds.join(','));
+	delDict(selectedRowKeys.value.join(','));
 }
+
 
 const cancel = (e: MouseEvent) => {
 	console.log(e);

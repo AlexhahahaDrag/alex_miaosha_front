@@ -275,13 +275,22 @@ const { getDictByType } = useDictInfo('is_valid');
 // 字典数据已通过 useDictInfo 自动加载
 const sourceList = computed(() => getDictByType('is_valid'));
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getPmsShopProductListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -290,15 +299,7 @@ const searchFieldMap = {
 	shop: { name: 'shop', label: '商铺' },
 	source: { name: 'source', label: '来源' },
 } as const;
-const rowIds = ref<(string | number)[]>([]);
 let queryTimer: ReturnType<typeof setTimeout> | null = null;
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys;
-	},
-});
 
 const searchInfo = ref<PmsShopProductData>({});
 const loading = ref<boolean>(false);
@@ -316,17 +317,12 @@ function query(resetPage = false) {
 	getPmsShopProductListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getPmsShopProductListPage(searchInfo.value, pagination);
-}
-
 async function delPmsShopProduct(ids: string) {
 	try {
 		const { code, message: messageInfo } = await deletePmsShopProduct(ids);
 		if (code === '200') {
 			message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
-			rowIds.value = [];
+			clearSelected();
 			query(true);
 		} else {
 			message.error(messageInfo || '删除失败！', 3);

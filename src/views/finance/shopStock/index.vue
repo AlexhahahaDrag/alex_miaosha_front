@@ -142,35 +142,25 @@ import {
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
-	setTotal,
+	handleTableChange,
 	resetPagination,
-} = usePagination();
+	setTotal,
+} = usePagination({
+	onChange: (p) => getShopStockListPage(searchInfo.value, p),
+});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
-
-let rowIds: (string | number)[] = [];
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (record: DataItem, selected: boolean, selectedRows: DataItem[]) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: DataItem[],
-		changeRows: DataItem[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },
@@ -202,15 +192,11 @@ function query(resetPage = false) {
 	getShopStockListPage(searchInfo.value, pagination);
 }
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getShopStockListPage(searchInfo.value, pagination);
-}
-
 const delShopStock = async (ids: string): Promise<void> => {
 	const { code, message: messageInfo } = await deleteShopStock(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -218,11 +204,11 @@ const delShopStock = async (ids: string): Promise<void> => {
 };
 
 const batchDelShopStock = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delShopStock(rowIds.join(','));
+	delShopStock(selectedRowKeys.value.join(','));
 };
 
 let loading = ref<boolean>(false);

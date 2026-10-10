@@ -359,16 +359,23 @@ interface FilterOption {
 	value: string;
 }
 
-// 选中行状态
-const selectedRowKeys = ref<(string | number)[]>([]);
-
 // Hooks
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected: clearSelection,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getUserPage(searchInfo.value, p),
+});
 const { getDictByType } = useDictInfo('is_valid');
 
 // State
@@ -385,18 +392,6 @@ const statusOptions = computed(() => getDictByType('is_valid'));
 const activeUserCount = computed(() => {
 	return dataSource.value.filter((u) => String(u.status) === '1').length;
 });
-
-// 表格多选行配置
-const rowSelection = computed(() => ({
-	selectedRowKeys: selectedRowKeys.value,
-	onChange: (keys: (string | number)[]) => {
-		selectedRowKeys.value = keys;
-	},
-}));
-
-const clearSelection = () => {
-	selectedRowKeys.value = [];
-};
 
 // Actions
 const filterOption = (input: string, option?: FilterOption) => {
@@ -415,11 +410,6 @@ const query = (resetPage = false) => {
 	if (resetPage) {
 		resetPagination();
 	}
-	getUserPage(searchInfo.value, pagination);
-};
-
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
 	getUserPage(searchInfo.value, pagination);
 };
 

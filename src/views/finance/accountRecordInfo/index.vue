@@ -147,35 +147,21 @@ const { getDictByType } = useDictInfo('account_type');
 
 const accountList = computed(() => getDictByType('account_type'));
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
-
-let rowIds: (string | number)[] = [];
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: AccountRecordInfo,
-		selected: boolean,
-		selectedRows: AccountRecordInfo[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: AccountRecordInfo[],
-		changeRows: AccountRecordInfo[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
+} = usePagination({
+	onChange: (p) => getAccountRecordInfoListPage(searchInfo.value, p),
 });
 
 // 搜索条件
@@ -201,16 +187,12 @@ const cancelQuery = () => {
 	query(true);
 };
 
-function handleTableChange(pagination: PageInfo) {
-	paginationChange(pagination);
-	getAccountRecordInfoListPage(searchInfo.value, pagination);
-}
-
 //删除
 const delAccountRecordInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteAccountRecordInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -219,11 +201,11 @@ const delAccountRecordInfo = async (ids: string) => {
 
 //批量删除
 const batchDelAccountRecordInfo = () => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delAccountRecordInfo(rowIds.join(','));
+	delAccountRecordInfo(selectedRowKeys.value.join(','));
 };
 
 const cancel = (e: MouseEvent) => {

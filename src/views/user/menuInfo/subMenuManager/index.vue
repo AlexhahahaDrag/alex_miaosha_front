@@ -143,10 +143,12 @@ import { columns } from '@/views/user/menuInfo/config';
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: () => getSubMenuList(),
+});
 
 // 4. State
 const loading = ref<boolean>(false);
@@ -154,11 +156,6 @@ const dataSource = ref<MenuInfoData[]>([]);
 const subMenuModelInfo = ref<ModelInfo>({});
 const subMenuColumns = columns; // 复用主列表配置
 
-// 5. Actions (业务处理逻辑)
-const handleTableChange = (paginationInfo: any) => {
-	paginationChange(paginationInfo);
-	getSubMenuList();
-};
 
 const editSubMenu = (type: string, id?: string) => {
 	const isAdd = type === 'add';

@@ -488,12 +488,15 @@ const {
 	customOptions,
 } = useGiftEventTypeOptions();
 
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (page) => loadPage(page),
+});
 const loading = ref(false);
 const { hasPermission } = usePermission();
 const saving = ref(false);
@@ -580,10 +583,7 @@ const resetQuery = () => {
 	query(true);
 };
 
-const handleTableChange = (page: PageInfo) => {
-	paginationChange(page);
-	loadPage(page);
-};
+
 
 const loadSummary = async () => {
 	const { code, data, message: msg } = await getGiftEventSummary();

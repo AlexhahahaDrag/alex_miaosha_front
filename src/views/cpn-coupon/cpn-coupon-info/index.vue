@@ -160,13 +160,29 @@ import {
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 行选择（使用通用组合函数，严格保障 ID 为 string 且保留 remainingQuantity 禁用逻辑）
+const {
+	selectedRowKeys,
+	rowSelection,
+	clearSelected,
+} = useRowSelection({
+	config: {
+		checkStrictly: false,
+		getCheckboxProps: (record: CpnCouponInfoData) => ({
+			disabled: (record.remainingQuantity ?? 0) === 0,
+		}),
+	},
+});
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getCpnCouponInfoListPage(searchInfo.value, p),
+});
 
 // 加载中
 let loading = ref<boolean>(false);
@@ -181,41 +197,9 @@ let modelInfo = ref<ModelInfo>({});
 let redeemModelInfo = ref<ModelInfo>({});
 let redeemCouponInfo = ref<CpnCouponInfoData | null>(null);
 
-let rowIds: (string | number)[] = [];
-
 // 搜索信息（AI Agent：默认查询有效的数据）
 let searchInfo = ref<CpnCouponInfoData>({
 	onlyValidAndNotFullyRedeemed: true,
-});
-
-// 行选择
-const rowSelection = ref<TableRowSelection>({
-	checkStrictly: false,
-	// AI Agent：当 remainingQuantity 为 0 时禁用勾选（包含“全选”也会自动跳过禁用项）
-	getCheckboxProps: (record: CpnCouponInfoData) => ({
-		disabled: (record.remainingQuantity ?? 0) === 0,
-	}),
-	onChange: (
-		selectedRowKeys: (string | number)[],
-		_selectedRows: CpnCouponInfoData[],
-	) => {
-		console.log(_selectedRows);
-		rowIds = selectedRowKeys;
-	},
-	onSelect: (
-		record: CpnCouponInfoData,
-		selected: boolean,
-		selectedRows: CpnCouponInfoData[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: CpnCouponInfoData[],
-		changeRows: CpnCouponInfoData[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
 });
 
 // 清空搜索（AI Agent：清空后恢复默认查询有效数据）
@@ -239,16 +223,11 @@ const triggerDebouncedQuery = debounce((): void => {
 	query(true);
 }, 300);
 
-const handleTableChange = (paginationInfo: PageInfo): void => {
-	paginationChange(paginationInfo);
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
-};
-
 const delCpnCouponInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteCpnCouponInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo || '删除成功！', 3);
-		rowIds = [];
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
@@ -256,11 +235,11 @@ const delCpnCouponInfo = async (ids: string) => {
 };
 
 const batchDelCpnCouponInfo = (): void => {
-	if (!rowIds?.length) {
+	if (!selectedRowKeys.value?.length) {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delCpnCouponInfo(rowIds.join(','));
+	delCpnCouponInfo(selectedRowKeys.value.join(','));
 };
 
 const cancel = (e: MouseEvent): void => {

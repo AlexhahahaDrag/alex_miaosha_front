@@ -81,12 +81,14 @@ import type { CpnUserCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 
-// 使用分页组合式函数
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange: onTableChange,
 	setTotal,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getCpnUserCouponInfoListPage(searchInfo.value, p),
+});
 
 let loading = ref<boolean>(false);
 
@@ -100,11 +102,6 @@ const onCancelQuery = (): void => {
 
 const onQuery = (): void => {
 	// AI Agent：手动点击查询时，立即查询并回到第一页
-	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
-};
-
-const onTableChange = (paginationInfo: PageInfo): void => {
-	paginationChange(paginationInfo);
 	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 };
 

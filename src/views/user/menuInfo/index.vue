@@ -363,12 +363,23 @@ import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
 // 3. Hooks
 const { getDictByType } = useDictInfo('true_or_false,is_valid');
+
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected: clearSelection,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getMenuInfoListPage(searchInfo.value, p),
+});
 
 // 4. State
 const loading = ref<boolean>(false);
@@ -376,7 +387,6 @@ const dataSource = ref<MenuInfoData[]>([]);
 const searchInfo = ref<MenuInfoData>({});
 const modelInfo = ref<ModelInfo>({});
 const subMenuManagerInfo = ref<ModelInfo>({});
-const rowIds = ref<(string | number)[]>([]);
 
 const hideInMenuList = computed(() => getDictByType('true_or_false'));
 const statusList = computed(() => getDictByType('is_valid'));
@@ -393,23 +403,7 @@ const visibleMenuCount = computed(
 		).length,
 );
 
-const clearSelection = () => {
-	rowIds.value = [];
-};
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys;
-	},
-});
-
 // 5. Actions (业务处理逻辑)
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getMenuInfoListPage(searchInfo.value, pagination);
-};
-
 const query = (resetPage = false) => {
 	triggerDebouncedQuery.cancel();
 	if (resetPage) {
@@ -427,6 +421,7 @@ const delMenuInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deleteMenuInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！');
+		clearSelection();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！');

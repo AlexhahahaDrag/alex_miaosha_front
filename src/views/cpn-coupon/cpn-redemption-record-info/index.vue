@@ -82,12 +82,14 @@ import { columns, labelMap, labelCol, wrapperCol } from './config';
 import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getCpnRedemptionRecordInfoListPage(searchInfo.value, p),
+});
 
 let loading = ref<boolean>(false);
 
@@ -100,11 +102,6 @@ const cancelQuery = (): void => {
 };
 
 const query = (): void => {
-	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
-};
-
-const handleTableChange = (paginationInfo: PageInfo): void => {
-	paginationChange(paginationInfo);
 	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
 };
 

@@ -196,46 +196,32 @@ import PermissionInfoDetail from './permissionInfoDetail/index.vue';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用分页组合式函数
+// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const {
+	selectedRowKeys: rowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection();
+
+// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {
 	pagination,
-	handleTableChange: paginationChange,
+	handleTableChange,
 	setTotal,
 	resetPagination,
-} = usePagination();
+} = usePagination({
+	onChange: (p) => getPermissionInfoListPage(searchInfo.value, p),
+});
 
 const { getDictByType } = useDictInfo('is_valid');
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
 
-const rowIds = ref<string[]>([]);
-
 const searchInfo = ref<SearchInfo>({});
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
-
-const rowSelection = ref({
-	checkStrictly: false,
-	onChange: (selectedRowKeys: (string | number)[]) => {
-		rowIds.value = selectedRowKeys.map((key) => String(key));
-	},
-	onSelect: (
-		record: PermissionInfo,
-		selected: boolean,
-		selectedRows: PermissionInfo[],
-	) => {
-		console.log(record, selected, selectedRows);
-	},
-	onSelectAll: (
-		selected: boolean,
-		selectedRows: PermissionInfo[],
-		changeRows: PermissionInfo[],
-	) => {
-		console.log(selected, selectedRows, changeRows);
-	},
-});
 
 function cancelQuery() {
 	searchInfo.value = {};
@@ -249,15 +235,11 @@ function query(resetPage = false) {
 	getPermissionInfoListPage(searchInfo.value, pagination);
 }
 
-const handleTableChange = (paginationInfo: PageInfo) => {
-	paginationChange(paginationInfo);
-	getPermissionInfoListPage(searchInfo.value, pagination);
-};
-
 const delPermissionInfo = async (ids: string) => {
 	const { code, message: messageInfo } = await deletePermissionInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！', 3);
+		clearSelected();
 		query(true);
 	} else {
 		message.error(messageInfo || '删除失败！', 3);
