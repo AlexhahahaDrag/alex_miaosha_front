@@ -124,7 +124,7 @@
 							@click="drillDownBudgetMonth"
 							title="点击联动查看当月已计入明细"
 						>
-							{{ budgetSpentLabel }} ¥{{ formatAmount(budgetStatus?.actualExpense || 0) }}
+							{{ budgetSpentLabel }} {{ Number(budgetStatus?.actualExpense || 0) < 0 ? '-' : '' }}¥{{ formatAmount(Math.abs(Number(budgetStatus?.actualExpense || 0))) }}
 							<span class="drill-icon">↗</span>
 						</span>
 					</div>
@@ -361,7 +361,13 @@
 				</div>
 			</template>
 
-			<div class="space-y-4 py-2">
+			<a-form
+				ref="budgetFormRef"
+				:model="budgetEditForm"
+				:rules="budgetRules"
+				layout="vertical"
+				class="space-y-4 py-2"
+			>
 				<!-- 1. 预算额度与快捷填充卡片 -->
 				<div class="bg-slate-50/70 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3">
 					<div class="flex items-center justify-between">
@@ -374,24 +380,22 @@
 						</div>
 					</div>
 
-					<div class="flex items-center justify-between gap-4 pt-1">
-						<div class="flex flex-col">
-							<span class="text-sm font-medium text-slate-700 flex items-center gap-1">
-								月度预算额度 <span class="text-rose-500">*</span>
-							</span>
-							<span class="text-xs text-slate-400">设为 0 表示不设置限额</span>
-						</div>
-						<div class="w-56">
-							<a-input-number
-								v-model:value="budgetEditForm.budgetAmount"
-								:min="0"
-								:precision="2"
-								prefix="¥"
-								placeholder="0.00"
-								class="w-full !rounded-lg font-mono font-medium"
-							/>
-						</div>
-					</div>
+					<a-form-item name="budgetAmount" class="!mb-0">
+						<template #label>
+							<div class="flex flex-col text-left">
+								<span class="text-sm font-medium text-slate-700">月度预算额度</span>
+								<span class="text-xs text-slate-400 font-normal">设为 0 表示不设置限额</span>
+							</div>
+						</template>
+						<a-input-number
+							v-model:value="budgetEditForm.budgetAmount"
+							:min="0"
+							:precision="2"
+							prefix="¥"
+							placeholder="0.00"
+							class="w-full !rounded-lg font-mono font-medium"
+						/>
+					</a-form-item>
 
 					<!-- 快捷档位无边框胶囊，融入输入卡片 -->
 					<div class="flex items-center justify-between pt-1">
@@ -430,42 +434,44 @@
 				<!-- 2. 统计范围与收支方向卡片 (自然心智流 + 无分割线容器化) -->
 				<div class="bg-slate-50/70 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3.5">
 					<!-- 收支方向全局前置 -->
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-2">
-							<span class="text-xs font-medium text-slate-700">收支方向:</span>
-							<div class="flex items-center gap-2">
-								<button
-									type="button"
-									:class="[
-										'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
-										isDirectionSelected('expense')
-											? 'bg-rose-50/90 text-rose-600 border-rose-300 shadow-2xs ring-1 ring-rose-200'
-											: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-									]"
-									@click="toggleDirection('expense')"
-								>
-									<CheckOutlined v-if="isDirectionSelected('expense')" class="text-xs" />
-									<span>支出 (消费)</span>
-								</button>
-								<button
-									type="button"
-									:class="[
-										'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
-										isDirectionSelected('income')
-											? 'bg-emerald-50/90 text-emerald-600 border-emerald-300 shadow-2xs ring-1 ring-emerald-200'
-											: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-									]"
-									@click="toggleDirection('income')"
-								>
-									<CheckOutlined v-if="isDirectionSelected('income')" class="text-xs" />
-									<span>收入</span>
-								</button>
+					<a-form-item name="selectedDirections" class="!mb-0">
+						<template #label>
+							<div class="flex items-center justify-between w-full">
+								<span class="text-xs font-medium text-slate-700">收支方向:</span>
+								<span class="text-xs text-slate-400 font-normal">
+									{{ budgetEditForm.selectedDirections.length === 2 ? '双向统计' : (isDirectionSelected('income') ? '仅限收入' : '仅限支出') }}
+								</span>
 							</div>
+						</template>
+						<div class="flex items-center gap-2">
+							<button
+								type="button"
+								:class="[
+									'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
+									isDirectionSelected('expense')
+										? 'bg-rose-50/90 text-rose-600 border-rose-300 shadow-2xs ring-1 ring-rose-200'
+										: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+								]"
+								@click="toggleDirection('expense')"
+							>
+								<CheckOutlined v-if="isDirectionSelected('expense')" class="text-xs" />
+								<span>支出 (消费)</span>
+							</button>
+							<button
+								type="button"
+								:class="[
+									'cursor-pointer px-3 py-1 rounded-lg text-xs font-medium transition-all select-none border border-solid flex items-center gap-1.5',
+									isDirectionSelected('income')
+										? 'bg-emerald-50/90 text-emerald-600 border-emerald-300 shadow-2xs ring-1 ring-emerald-200'
+										: 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+								]"
+								@click="toggleDirection('income')"
+							>
+								<CheckOutlined v-if="isDirectionSelected('income')" class="text-xs" />
+								<span>收入</span>
+							</button>
 						</div>
-						<span class="text-xs text-slate-400">
-							{{ budgetEditForm.selectedDirections.length === 2 ? '双向统计' : (isDirectionSelected('income') ? '仅限收入' : '仅限支出') }}
-						</span>
-					</div>
+					</a-form-item>
 
 					<!-- 统计范畴控制器 (紧随其后) -->
 					<div class="flex items-center justify-between pt-0.5">
@@ -544,19 +550,25 @@
 						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
 							<div class="text-xs text-slate-400">设定预算</div>
 							<div class="text-sm font-semibold text-slate-800 mt-0.5 font-mono">
-								¥{{ previewStats.budget > 0 ? previewStats.budget.toFixed(2) : '无上限' }}
+								¥{{ previewStats.budget > 0 ? formatAmount(previewStats.budget) : '无上限' }}
 							</div>
 						</div>
 						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
 							<div class="text-xs text-slate-400">本月已计</div>
 							<div class="text-sm font-semibold text-slate-700 mt-0.5 font-mono">
-								¥{{ previewStats.actual.toFixed(2) }}
+								<span v-if="simulationLoading" class="text-xs text-slate-400 font-normal">计算中...</span>
+								<span v-else>
+									{{ previewStats.actual < 0 ? '-' : '' }}¥{{ formatAmount(Math.abs(previewStats.actual)) }}
+								</span>
 							</div>
 						</div>
 						<div class="bg-white p-2.5 rounded-lg border border-solid border-slate-200/60 shadow-2xs">
 							<div class="text-xs text-slate-400">试算结余</div>
 							<div :class="['text-sm font-semibold mt-0.5 font-mono', previewStats.isOver ? 'text-rose-600' : 'text-emerald-600']">
-								¥{{ previewStats.remaining.toFixed(2) }}
+								<span v-if="simulationLoading" class="text-xs text-slate-400 font-normal">计算中...</span>
+								<span v-else>
+									{{ previewStats.remaining < 0 ? '-' : '' }}¥{{ formatAmount(Math.abs(previewStats.remaining)) }}
+								</span>
 							</div>
 						</div>
 					</div>
@@ -571,7 +583,7 @@
 						/>
 					</div>
 				</div>
-			</div>
+			</a-form>
 
 			<template #footer>
 				<div class="flex items-center justify-end gap-2.5 pt-2">
@@ -591,6 +603,7 @@
 </template>
 
 <script setup lang="ts">
+import type { FormInstance, Rule } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
@@ -667,12 +680,44 @@ const currentMonthStr = computed(() => dayjs().format('YYYY-MM'));
 const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
 const budgetModalVisible = ref(false);
 const budgetSaving = ref(false);
+const budgetFormRef = ref<FormInstance>();
 const budgetEditForm = reactive({
 	budgetAmount: 0,
 	incomeAndExpenses: 'expense',
 	selectedDirections: ['expense'] as string[],
 	categoryCodes: [] as string[],
 });
+
+// 预算表单校验规则
+const budgetRules: Record<string, Rule[]> = {
+	budgetAmount: [
+		{
+			required: true,
+			validator: async (_rule, value) => {
+				if (value === null || value === undefined || value === '') {
+					return Promise.reject('预算金额不能为空');
+				}
+				if (Number(value) < 0) {
+					return Promise.reject('预算金额不能为负数');
+				}
+				return Promise.resolve();
+			},
+			trigger: ['change', 'blur'],
+		},
+	],
+	selectedDirections: [
+		{
+			required: true,
+			validator: async (_rule, value) => {
+				if (!value || !value.length) {
+					return Promise.reject('收支方向至少需要选择一项');
+				}
+				return Promise.resolve();
+			},
+			trigger: 'change',
+		},
+	],
+};
 
 // 快捷预算金额档位
 const QUICK_BUDGET_PRESETS = [1000, 2000, 3000, 5000];
@@ -716,10 +761,12 @@ const toggleDirection = (dir: string) => {
 	}
 	budgetEditForm.selectedDirections = current;
 	budgetEditForm.incomeAndExpenses = current.join(',');
+	budgetFormRef.value?.validateFields(['selectedDirections']).catch(() => {});
 };
 
 const applyQuickPreset = (amount: number) => {
 	budgetEditForm.budgetAmount = amount;
+	budgetFormRef.value?.validateFields(['budgetAmount']).catch(() => {});
 };
 
 const modalHintText = computed(() => {
@@ -776,12 +823,109 @@ const availableCategories = computed(() => {
 	return Array.from(set);
 });
 
+const simulatedActualExpense = ref<number>(0);
+const simulationLoading = ref<boolean>(false);
+
+// 预算实时试算：根据当前弹窗选择的收支方向、统计模式与自选分类动态调用汇总
+const fetchPreviewSimulation = async () => {
+	simulationLoading.value = true;
+	try {
+		const monthStart = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
+		const monthEnd = dayjs().endOf('month').format('YYYY-MM-DD 23:59:59');
+		const effectiveCategoryCodes =
+			scopeMode.value === 'all'
+				? []
+				: budgetEditForm.categoryCodes.filter(
+						(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+				  );
+
+		// 如果选择自选模式但未勾选任何具体分类，则当月已计直接为 0
+		if (scopeMode.value === 'custom' && effectiveCategoryCodes.length === 0) {
+			simulatedActualExpense.value = 0;
+			return;
+		}
+
+		const dirs = budgetEditForm.selectedDirections;
+		const hasExp = dirs.includes('expense');
+		const hasInc = dirs.includes('income');
+
+		const queryParams: FinanceManagerData = {
+			infoDateStart: monthStart,
+			infoDateEnd: monthEnd,
+			belongTo: getEffectiveBudgetBelongTo(),
+			isValid: '1',
+		};
+
+		if (effectiveCategoryCodes.length > 0) {
+			queryParams.typeCodes = effectiveCategoryCodes;
+		}
+
+		if (hasExp && hasInc) {
+			queryParams.incomeAndExpenses = undefined;
+		} else if (hasInc) {
+			queryParams.incomeAndExpenses = 'income';
+		} else {
+			queryParams.incomeAndExpenses = 'expense';
+		}
+
+		const { code, data } = await getFinanceSummary(queryParams);
+		if (code === '200' && data) {
+			const exp = Number(data.totalExpense || 0);
+			const inc = Number(data.totalIncome || 0);
+			if (hasExp && hasInc) {
+				// 双选净支出: 支出 - 收入
+				simulatedActualExpense.value = Number((exp - inc).toFixed(2));
+			} else if (hasInc) {
+				// 仅收入
+				simulatedActualExpense.value = Number(inc.toFixed(2));
+			} else {
+				// 仅支出
+				simulatedActualExpense.value = Number(exp.toFixed(2));
+			}
+		}
+	} catch (e) {
+		console.warn('预算动态试算失败:', e);
+	} finally {
+		simulationLoading.value = false;
+	}
+};
+
+let simulationTimer: ReturnType<typeof setTimeout> | null = null;
+const triggerSimulationDebounced = () => {
+	if (simulationTimer) {
+		clearTimeout(simulationTimer);
+	}
+	simulationTimer = setTimeout(() => {
+		fetchPreviewSimulation();
+	}, 150);
+};
+
+// 监听影响已计流水统计的维度：收支方向、统计模式、具体分类列表
+watch(
+	[
+		() => budgetEditForm.selectedDirections,
+		() => scopeMode.value,
+		() => budgetEditForm.categoryCodes,
+	],
+	() => {
+		if (budgetModalVisible.value) {
+			triggerSimulationDebounced();
+		}
+	},
+	{ deep: true },
+);
+
 // 弹窗内实时试算与健康度预警
 const previewStats = computed(() => {
 	const budget = Number(budgetEditForm.budgetAmount || 0);
-	const actual = Number(budgetStatus.value?.usedAmount || 0);
+	const actual = simulatedActualExpense.value;
 	const remaining = budget > 0 ? Number((budget - actual).toFixed(2)) : 0;
-	const percent = budget > 0 ? Math.min(Math.round((actual / budget) * 100), 100) : 0;
+	const percent =
+		budget > 0
+			? actual > 0
+				? Math.min(Math.round((actual / budget) * 100), 100)
+				: 0
+			: 0;
 	const isOver = budget > 0 && actual > budget;
 	return {
 		budget,
@@ -874,16 +1018,17 @@ const openBudgetModal = async () => {
 	budgetEditForm.categoryCodes = existingCats;
 	scopeMode.value = existingCats.length > 0 ? 'custom' : 'all';
 	budgetModalVisible.value = true;
+	nextTick(() => {
+		budgetFormRef.value?.clearValidate();
+	});
+	fetchPreviewSimulation();
 	await fetchRecentCategories();
 };
 
 const handleSaveBudget = async () => {
-	if (budgetEditForm.budgetAmount < 0) {
-		message.warning('预算金额不能为负数！');
-		return;
-	}
-	if (!budgetEditForm.selectedDirections.length) {
-		message.warning('收支类型至少需要选择一项！');
+	try {
+		await budgetFormRef.value?.validate();
+	} catch {
 		return;
 	}
 	budgetSaving.value = true;
