@@ -11,7 +11,13 @@
 		<div class="finance-overview-card">
 			<!-- 左侧：账单收支统计 -->
 			<div class="overview-section bill-stats-section">
-				<div class="section-header">
+				<a-skeleton
+					:loading="!isFirstSummaryLoaded"
+					active
+					:title="{ width: '38%' }"
+					:paragraph="{ rows: 2, width: ['80%', '60%'] }"
+				>
+					<div class="section-header">
 					<span class="summary-tag-title">
 						<CalendarOutlined class="summary-title-icon" />
 						<span>{{ summaryTitle }}</span>
@@ -84,6 +90,7 @@
 						</div>
 					</div>
 				</div>
+				</a-skeleton>
 			</div>
 
 			<!-- 中间细垂直分割线 -->
@@ -91,85 +98,96 @@
 
 			<!-- 右侧：零花钱月度预算 -->
 			<div class="overview-section budget-section">
-				<div class="section-header">
-					<div class="budget-title-line">
-						<WalletOutlined class="budget-icon" />
-						<span class="budget-title">{{ currentMonthStr }} 零花钱预算</span>
-						<a-tag v-if="budgetStatus?.isInherited" color="processing" class="budget-tag">
-							继承自上月
-						</a-tag>
-						<a-tag v-if="budgetStatus?.isOverBudget" color="error" class="budget-tag">
-							已超支
-						</a-tag>
-					</div>
-					<a-button type="link" size="small" class="budget-setting-btn" @click="openBudgetModal">
-						<template #icon><SettingOutlined /></template>
-						调整预算
-					</a-button>
-				</div>
-
-				<div class="budget-metrics-group">
-					<div class="budget-stat-item">
-						<span class="stat-label">{{ budgetStatus?.isOverBudget ? '超支金额:' : '剩余可用:' }}</span>
-						<span :class="['stat-val', budgetStatus?.isOverBudget ? 'text-expense' : 'text-income']">
-							{{ budgetStatus?.isOverBudget ? '-' : '' }}¥{{ formatAmount(Math.abs(budgetStatus?.remainingAmount || 0)) }}
-						</span>
-					</div>
-
-					<div class="budget-sub-stats">
-						<span class="sub-stat">上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
-						<span class="sub-sep">/</span>
-						<span
-							class="sub-stat clickable-sub-stat"
-							@click="drillDownBudgetMonth"
-							title="点击联动查看当月已计入明细"
-						>
-							{{ budgetSpentLabel }} {{ Number(budgetStatus?.actualExpense || 0) < 0 ? '-' : '' }}¥{{ formatAmount(Math.abs(Number(budgetStatus?.actualExpense || 0))) }}
-							<span class="drill-icon">↗</span>
-						</span>
-					</div>
-
-					<div class="budget-progress-wrap">
-						<a-progress
-							:percent="Math.min(budgetStatus?.usagePercent || 0, 100)"
-							:stroke-color="progressStrokeColor"
-							:format="() => `${budgetStatus?.usagePercent || 0}%`"
-							size="small"
-							class="budget-progress"
-						/>
-					</div>
-
-					<div class="budget-category-hints" :title="budgetStatus?.categoryNames?.length ? budgetStatus.categoryNames.join('、') : budgetDirectionLabel">
-						<span class="hint-label">计入:</span>
-						<template v-if="budgetStatus?.categoryNames?.length">
-							<a-tag
-								v-for="cat in budgetStatus.categoryNames.slice(0, 2)"
-								:key="cat"
-								class="cat-pill clickable-cat-pill"
-								@click="drillDownCategory(cat)"
-								:title="`点击仅查看本月【${cat}】账目`"
-							>
-								{{ cat }}
+				<a-skeleton
+					:loading="!isFirstBudgetLoaded"
+					active
+					:title="{ width: '42%' }"
+					:paragraph="{ rows: 2, width: ['80%', '60%'] }"
+				>
+					<div class="section-header">
+						<div class="budget-title-line">
+							<WalletOutlined class="budget-icon" />
+							<span class="budget-title">{{ currentMonthStr }} 零花钱预算</span>
+							<a-tag v-if="budgetStatus?.isInherited" color="processing" class="budget-tag">
+								继承自上月
 							</a-tag>
-							<span
-								v-if="budgetStatus.categoryNames.length > 2"
-								class="cat-pill-more clickable-cat-more"
-								@click="drillDownCategory(budgetStatus.categoryNames[2])"
-								:title="`点击仅查看本月【${budgetStatus.categoryNames[2]}】账目`"
-							>
-								+{{ budgetStatus.categoryNames.length - 2 }}
-							</span>
-						</template>
-						<span
-							v-else
-							class="cat-pill-all clickable-cat-pill"
-							@click="drillDownBudgetMonth"
-							title="点击查看当月全部预算收支明细"
-						>
-							{{ budgetDirectionLabel }}
-						</span>
+							<a-tag v-if="budgetStatus?.isOverBudget" color="error" class="budget-tag">
+								已超支
+							</a-tag>
+						</div>
+						<a-button type="link" size="small" class="budget-setting-btn" @click="openBudgetModal">
+							<template #icon><SettingOutlined /></template>
+							调整预算
+						</a-button>
 					</div>
-				</div>
+
+					<!-- 主金额行：剩余可用 + 上限/已用 -->
+					<div class="budget-metrics-group">
+						<div class="budget-stat-item">
+							<span class="stat-label">{{ budgetStatus?.isOverBudget ? '超支金额:' : '剩余可用:' }}</span>
+							<span :class="['stat-val', budgetStatus?.isOverBudget ? 'text-expense' : 'text-income']">
+								{{ budgetStatus?.isOverBudget ? '-' : '' }}¥{{ formatAmount(Math.abs(budgetStatus?.remainingAmount || 0)) }}
+							</span>
+						</div>
+
+						<div class="budget-sub-stats">
+							<span class="sub-stat">上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
+							<span class="sub-sep">/</span>
+							<span
+								class="sub-stat clickable-sub-stat"
+								@click="drillDownBudgetMonth"
+								title="点击联动查看当月已计入明细"
+							>
+								{{ budgetSpentLabel }} {{ Number(budgetStatus?.actualExpense || 0) < 0 ? '-' : '' }}¥{{ formatAmount(Math.abs(Number(budgetStatus?.actualExpense || 0))) }}
+								<span class="drill-icon">↗</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- 微洞察行：进度条 + 计入分类微标签 (与左侧 stats-insights-row 结构对齐) -->
+					<div class="budget-insights-row">
+						<div class="budget-progress-wrap" :title="`预算使用率: ${budgetStatus?.usagePercent || 0}%`">
+							<a-progress
+								:percent="Math.max(0, Math.min(budgetStatus?.usagePercent || 0, 100))"
+								:stroke-color="progressStrokeColor"
+								:format="() => `${budgetStatus?.usagePercent || 0}%`"
+								size="small"
+								class="budget-progress"
+							/>
+						</div>
+
+						<div class="budget-category-hints" :title="budgetStatus?.categoryNames?.length ? budgetStatus.categoryNames.join('、') : budgetDirectionLabel">
+							<span class="hint-label">计入:</span>
+							<template v-if="budgetStatus?.categoryNames?.length">
+								<a-tag
+									v-for="cat in budgetStatus.categoryNames.slice(0, 3)"
+									:key="cat"
+									class="cat-pill clickable-cat-pill"
+									@click="drillDownCategory(cat)"
+									:title="`点击仅查看本月【${cat}】账目`"
+								>
+									{{ cat }}
+								</a-tag>
+								<span
+									v-if="budgetStatus.categoryNames.length > 3"
+									class="cat-pill-more clickable-cat-more"
+									@click="drillDownCategory(budgetStatus.categoryNames[3])"
+									:title="`点击仅查看本月【${budgetStatus.categoryNames[3]}】账目`"
+								>
+									+{{ budgetStatus.categoryNames.length - 3 }}
+								</span>
+							</template>
+							<span
+								v-else
+								class="cat-pill-all clickable-cat-pill"
+								@click="drillDownBudgetMonth"
+								title="点击查看当月全部预算收支明细"
+							>
+								{{ budgetDirectionLabel }}
+							</span>
+						</div>
+					</div>
+				</a-skeleton>
 			</div>
 		</div>
 
@@ -344,7 +362,7 @@
 		<a-modal
 			v-model:open="budgetModalVisible"
 			:confirm-loading="budgetSaving"
-			width="640px"
+			width="800px"
 			:mask-closable="false"
 			:destroy-on-close="true"
 			@ok="handleSaveBudget"
@@ -514,7 +532,7 @@
 						</div>
 
 						<!-- 现代全圆角灵动微胶囊 Pills -->
-						<div v-if="availableCategories.length" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1 py-0.5">
+						<div v-if="availableCategories.length" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1 py-0.5">
 							<div
 								v-for="cat in availableCategories"
 								:key="cat"
@@ -575,9 +593,9 @@
 
 					<div v-if="previewStats.budget > 0" class="pt-0.5">
 						<a-progress
-							:percent="previewStats.percent"
+							:percent="Math.max(0, Math.min(previewStats.percent, 100))"
 							:status="previewStats.isOver ? 'exception' : 'active'"
-							:stroke-color="previewStats.isOver ? '#ff4d4f' : (previewStats.percent >= 80 ? '#faad14' : '#1677ff')"
+							:stroke-color="getBudgetProgressColor(previewStats.percent)"
 							:show-info="false"
 							size="small"
 						/>
@@ -603,7 +621,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FormInstance, Rule } from 'ant-design-vue';
+import type { FormInstance } from 'ant-design-vue';
+import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
@@ -635,7 +654,6 @@ import {
 	WalletOutlined,
 	SettingOutlined,
 	BarChartOutlined,
-	InfoCircleOutlined,
 	QuestionCircleOutlined,
 	CheckOutlined,
 } from '@ant-design/icons-vue';
@@ -674,10 +692,13 @@ const summaryData = ref<FinanceSummaryData>({
 	totalCount: 0,
 });
 const summaryLoading = ref<boolean>(false);
+const isFirstSummaryLoaded = ref<boolean>(false);
 
 // 零花钱月度预算状态
 const currentMonthStr = computed(() => dayjs().format('YYYY-MM'));
 const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
+const budgetLoading = ref<boolean>(false);
+const isFirstBudgetLoaded = ref<boolean>(false);
 const budgetModalVisible = ref(false);
 const budgetSaving = ref(false);
 const budgetFormRef = ref<FormInstance>();
@@ -769,20 +790,6 @@ const applyQuickPreset = (amount: number) => {
 	budgetFormRef.value?.validateFields(['budgetAmount']).catch(() => {});
 };
 
-const modalHintText = computed(() => {
-	const dirs = budgetEditForm.selectedDirections;
-	const isBoth = dirs.includes('expense') && dirs.includes('income');
-	const isInc = dirs.includes('income');
-	const dirName = isBoth ? '收支流水' : (isInc ? '收入' : '支出');
-	if (scopeMode.value === 'all') {
-		return `统计模式：全部日常${dirName}（不限分类，不含内部转账）`;
-	}
-	if (budgetEditForm.categoryCodes.length > 0) {
-		return `统计模式：仅计入已选的 ${budgetEditForm.categoryCodes.length} 项分类${dirName}`;
-	}
-	return `未勾选具体分类，建议切换为“全部流水”或勾选上方分类`;
-});
-
 const budgetDirectionLabel = computed(() => {
 	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
 	const hasExp = dir.includes('expense');
@@ -801,11 +808,27 @@ const budgetSpentLabel = computed(() => {
 	return '已用';
 });
 
+/**
+ * 根据预算使用率返回语义色阶 (Taste-Skill 财务风控色板)
+ * - < 0%: 净结余充裕 (翡翠绿 #52c41a)
+ * - [0%, 75%): 常规安全 (品牌蓝 #1677ff)
+ * - [75%, 90%): 适度关注 (琥珀黄 #faad14)
+ * - [90%, 100%): 临界高压 (火山橙 #fa541c)
+ * - [100%, 150%): 超支破线 (警示红 #ff4d4f)
+ * - >= 150%: 严重爆表 (深绛红 #cf1322)
+ */
+const getBudgetProgressColor = (percent: number): string => {
+	if (percent < 0) return '#52c41a';
+	if (percent >= 150) return '#cf1322';
+	if (percent >= 100) return '#ff4d4f';
+	if (percent >= 90) return '#fa541c';
+	if (percent >= 75) return '#faad14';
+	return '#1677ff';
+};
+
 const progressStrokeColor = computed(() => {
 	const pct = budgetStatus.value?.usagePercent || 0;
-	if (pct >= 100) return '#ff4d4f';
-	if (pct >= 80) return '#faad14';
-	return '#1677ff';
+	return getBudgetProgressColor(pct);
 });
 
 const recentCategories = ref<string[]>([]);
@@ -857,7 +880,7 @@ const fetchPreviewSimulation = async () => {
 		};
 
 		if (effectiveCategoryCodes.length > 0) {
-			queryParams.typeCodes = effectiveCategoryCodes;
+			queryParams.typeCode = effectiveCategoryCodes.join(',');
 		}
 
 		if (hasExp && hasInc) {
@@ -990,6 +1013,7 @@ const fetchRecentCategories = async () => {
 };
 
 const loadBudgetStatus = async () => {
+	budgetLoading.value = true;
 	try {
 		const { code, data } = await getBudgetStatus(
 			currentMonthStr.value,
@@ -1000,6 +1024,9 @@ const loadBudgetStatus = async () => {
 		}
 	} catch (e) {
 		console.warn('获取零花钱预算失败:', e);
+	} finally {
+		budgetLoading.value = false;
+		isFirstBudgetLoaded.value = true;
 	}
 };
 
@@ -1214,6 +1241,7 @@ const fetchSummary = async (queryParam: FinanceManagerData) => {
 		console.warn('获取多维统计失败:', e);
 	} finally {
 		summaryLoading.value = false;
+		isFirstSummaryLoaded.value = true;
 	}
 };
 
@@ -1482,6 +1510,7 @@ init();
 	display: flex;
 	align-items: center;
 	gap: 16px;
+	min-height: 72px;
 
 	.overview-divider {
 		width: 1px;
@@ -1496,6 +1525,24 @@ init();
 		flex-direction: column;
 		justify-content: center;
 		min-width: 0;
+
+		:deep(.ant-skeleton) {
+			.ant-skeleton-title {
+				margin: 2px 0 8px;
+				height: 14px;
+				border-radius: 4px;
+			}
+
+			.ant-skeleton-paragraph {
+				margin: 0;
+				padding: 0;
+
+				> li {
+					height: 14px;
+					border-radius: 4px;
+				}
+			}
+		}
 
 		&.bill-stats-section {
 			flex: 1.1;
@@ -1681,8 +1728,8 @@ init();
 
 	.budget-metrics-group {
 		display: flex;
-		align-items: center;
-		gap: 12px;
+		align-items: baseline;
+		gap: 16px;
 		flex-wrap: wrap;
 
 		.budget-stat-item {
@@ -1719,44 +1766,97 @@ init();
 				font-variant-numeric: tabular-nums;
 			}
 		}
+	}
+
+	.budget-insights-row {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		margin-top: 6px;
+		padding-top: 5px;
+		border-top: 1px dashed #f0f0f0;
+		font-size: 12px;
+		min-width: 0;
 
 		.budget-progress-wrap {
-			width: 110px;
+			width: 160px;
 			flex-shrink: 0;
 
-			.budget-progress {
+			:deep(.ant-progress) {
+				display: flex;
+				align-items: center;
 				margin: 0;
+
+				.ant-progress-outer {
+					flex: 1;
+					margin-inline-end: 0 !important;
+					padding-inline-end: 0 !important;
+				}
+
+				.ant-progress-text {
+					width: auto !important;
+					margin-inline-start: 8px !important;
+					flex-shrink: 0;
+					text-align: right;
+					font-variant-numeric: tabular-nums;
+				}
 			}
 		}
 
 		.budget-category-hints {
 			display: inline-flex;
 			align-items: center;
-			gap: 3px;
+			gap: 4px;
 			font-size: 12px;
-			max-width: 140px;
+			min-width: 0;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 
 			.hint-label {
 				color: #8c8c8c;
+				font-size: 11px;
+				flex-shrink: 0;
 			}
 
 			.cat-pill {
 				font-size: 11px;
 				line-height: 16px;
-				padding: 0 4px;
+				padding: 0 5px;
 				margin: 0;
+				border-radius: 10px;
+				background: #fafafa;
+				border: 1px solid #e8e8e8;
+				color: #595959;
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background: #e6f4ff;
+					border-color: #91caff;
+					color: #1677ff;
+				}
 			}
 
 			.cat-pill-more {
 				font-size: 11px;
 				color: #8c8c8c;
+				cursor: pointer;
+				flex-shrink: 0;
+
+				&:hover {
+					color: #1677ff;
+				}
 			}
 
 			.cat-pill-all {
 				color: #8c8c8c;
+				font-size: 11px;
+				cursor: pointer;
+
+				&:hover {
+					color: #1677ff;
+				}
 			}
 		}
 	}
