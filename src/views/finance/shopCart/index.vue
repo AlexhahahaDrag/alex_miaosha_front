@@ -134,7 +134,7 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { ShopCartData } from '@/views/finance/shopCart/config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns } from '@/views/finance/shopCart/config';
@@ -149,14 +149,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	resetPagination,
-	setTotal,
-} = usePagination({
-	onChange: (p) => getShopCartListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, resetPagination, setTotal } =
+	usePagination({
+		onChange: (p) => getShopCartListPage(searchInfo.value, p),
+	});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

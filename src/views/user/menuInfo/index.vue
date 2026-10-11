@@ -1,43 +1,91 @@
 <template>
-	<div class="menu-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors">
+	<div
+		class="menu-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors"
+	>
 		<!-- 1. 页面头部与现代 KPI 指标概览 -->
-		<div class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+		<div
+			class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+		>
 			<div>
 				<div class="flex items-center gap-2.5">
-					<span class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"></span>
-					<h1 class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0">菜单管理</h1>
+					<span
+						class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"
+					></span>
+					<h1
+						class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0"
+					>
+						菜单管理
+					</h1>
 				</div>
-				<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal">
+				<p
+					class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal"
+				>
 					维护系统路由、多级菜单树、按钮权限标识与组件挂载路径
 				</p>
 			</div>
 			<!-- 顶部三环现代统计指标卡 -->
 			<div class="flex items-center gap-3 flex-wrap">
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<AppstoreOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">根菜单数</div>
-						<div class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5">{{ pagination.total || dataSource.length }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							根菜单数
+						</div>
+						<div
+							class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5"
+						>
+							{{ pagination.total || dataSource.length }}
+						</div>
 					</div>
 				</div>
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<CheckCircleOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">已启用</div>
-						<div class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5">{{ activeMenuCount }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							已启用
+						</div>
+						<div
+							class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5"
+						>
+							{{ activeMenuCount }}
+						</div>
 					</div>
 				</div>
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<EyeOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">导航显示</div>
-						<div class="text-base font-extrabold text-indigo-600 dark:text-indigo-400 leading-tight mt-0.5">{{ visibleMenuCount }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							导航显示
+						</div>
+						<div
+							class="text-base font-extrabold text-indigo-600 dark:text-indigo-400 leading-tight mt-0.5"
+						>
+							{{ visibleMenuCount }}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -46,8 +94,14 @@
 		<!-- 2. 主工作区（紧凑筛选栏 + 一体化表格面板） -->
 		<div class="flex flex-col gap-5">
 			<!-- 紧凑单行高效搜索栏 -->
-			<div class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs transition-colors">
-				<a-form :model="searchInfo" layout="inline" class="flex flex-wrap items-center gap-y-3 gap-x-4">
+			<div
+				class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs transition-colors"
+			>
+				<a-form
+					:model="searchInfo"
+					layout="inline"
+					class="flex flex-wrap items-center gap-y-3 gap-x-4"
+				>
 					<a-form-item label="菜单名称" class="!mr-0 mb-0">
 						<a-input
 							v-model:value="searchInfo.name"
@@ -124,12 +178,20 @@
 			</div>
 
 			<!-- 一体化表格面板 -->
-			<div class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+			<div
+				class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden"
+			>
 				<!-- 工具栏 -->
-				<div class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+				<div
+					class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+				>
 					<div class="flex items-center gap-3">
-						<span class="text-base font-bold text-slate-800 dark:text-slate-100">根菜单列表</span>
-						<span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">
+						<span class="text-base font-bold text-slate-800 dark:text-slate-100"
+							>根菜单列表</span
+						>
+						<span
+							class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium"
+						>
 							共 {{ pagination.total || dataSource.length }} 个
 						</span>
 						<span
@@ -208,8 +270,15 @@
 							<!-- 菜单标题 -->
 							<template v-if="column.key === 'title'">
 								<div class="flex items-center gap-1.5">
-									<span v-if="record.icon" class="text-xs text-slate-400 font-mono">[{{ record.icon }}]</span>
-									<span class="font-semibold text-slate-800 dark:text-slate-100">{{ record.title }}</span>
+									<span
+										v-if="record.icon"
+										class="text-xs text-slate-400 font-mono"
+										>[{{ record.icon }}]</span
+									>
+									<span
+										class="font-semibold text-slate-800 dark:text-slate-100"
+										>{{ record.title }}</span
+									>
 								</div>
 							</template>
 
@@ -227,7 +296,10 @@
 							<!-- 隐藏菜单 -->
 							<template v-else-if="column.key === 'hideInMenu'">
 								<span
-									v-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
+									v-if="
+										String(record.hideInMenu) === '1' ||
+										String(record.hideInMenu) === 'true'
+									"
 									class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
 								>
 									隐藏
@@ -243,7 +315,10 @@
 							<!-- 首页展示 -->
 							<template v-else-if="column.key === 'showInHome'">
 								<span
-									v-if="String(record.showInHome) === '1' || String(record.showInHome) === 'true'"
+									v-if="
+										String(record.showInHome) === '1' ||
+										String(record.showInHome) === 'true'
+									"
 									class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-200/70 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900"
 								>
 									是
@@ -357,7 +432,11 @@ import SubMenuManager from './subMenuManager/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { columns } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { usePagination, type PageInfo } from '@/composables/usePagination';
+import {
+	usePagination,
+	useRowSelection,
+	type PageInfo,
+} from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
@@ -372,14 +451,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getMenuInfoListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getMenuInfoListPage(searchInfo.value, p),
+	});
 
 // 4. State
 const loading = ref<boolean>(false);
@@ -398,8 +473,7 @@ const activeMenuCount = computed(
 const visibleMenuCount = computed(
 	() =>
 		dataSource.value.filter(
-			(m) =>
-				String(m.hideInMenu) !== '1' && String(m.hideInMenu) !== 'true',
+			(m) => String(m.hideInMenu) !== '1' && String(m.hideInMenu) !== 'true',
 		).length,
 );
 

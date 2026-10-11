@@ -1,42 +1,84 @@
 <template>
-	<div class="user-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors">
+	<div
+		class="user-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors"
+	>
 		<!-- 1. 页面头部与现代 KPI 指标概览 -->
-		<div class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+		<div
+			class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+		>
 			<div>
 				<div class="flex items-center gap-2.5">
-					<span class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"></span>
-					<h1 class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0">用户管理</h1>
+					<span
+						class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"
+					></span>
+					<h1
+						class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0"
+					>
+						用户管理
+					</h1>
 				</div>
-				<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal">
+				<p
+					class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal"
+				>
 					集中维护组织内用户账号、归属机构与角色权限分配
 				</p>
 			</div>
 			<!-- 顶部双环现代统计指标卡 -->
 			<div class="flex items-center gap-3">
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<TeamOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">总用户数</div>
-						<div class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5">{{ pagination.total || dataSource.length }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							总用户数
+						</div>
+						<div
+							class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5"
+						>
+							{{ pagination.total || dataSource.length }}
+						</div>
 					</div>
 				</div>
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<CheckCircleOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">已启用</div>
-						<div class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5">{{ activeUserCount }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							已启用
+						</div>
+						<div
+							class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5"
+						>
+							{{ activeUserCount }}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- 2. Tailwind 紧凑单行高效搜索栏 -->
-		<div class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 mb-5 shadow-xs transition-colors">
-			<a-form :model="searchInfo" layout="inline" class="flex flex-wrap items-center gap-y-3 gap-x-4">
+		<div
+			class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 mb-5 shadow-xs transition-colors"
+		>
+			<a-form
+				:model="searchInfo"
+				layout="inline"
+				class="flex flex-wrap items-center gap-y-3 gap-x-4"
+			>
 				<a-form-item label="用户名" class="!mr-0 mb-0">
 					<a-input
 						v-model:value="searchInfo.username"
@@ -100,12 +142,20 @@
 		</div>
 
 		<!-- 3. 一体化表格面板 -->
-		<div class="table-card bg-[var(--card-bg)] border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+		<div
+			class="table-card bg-[var(--card-bg)] border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden"
+		>
 			<!-- 工具栏 -->
-			<div class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+			<div
+				class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+			>
 				<div class="flex items-center gap-3">
-					<span class="text-base font-bold text-slate-800 dark:text-slate-100">用户列表</span>
-					<span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">
+					<span class="text-base font-bold text-slate-800 dark:text-slate-100"
+						>用户列表</span
+					>
+					<span
+						class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium"
+					>
 						共 {{ pagination.total || dataSource.length }} 人
 					</span>
 					<span
@@ -236,7 +286,9 @@
 								checked-children="启用"
 								un-checked-children="禁用"
 								data-testid="rbac-user-status-switch"
-								@change="(checked) => handleStatusChange(record, Boolean(checked))"
+								@change="
+									(checked) => handleStatusChange(record, Boolean(checked))
+								"
 							/>
 						</template>
 
@@ -275,7 +327,11 @@
 								v-else
 								class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-2xs flex-shrink-0"
 							>
-								{{ (record.nickName || record.username || 'U').charAt(0).toUpperCase() }}
+								{{
+									(record.nickName || record.username || 'U')
+										.charAt(0)
+										.toUpperCase()
+								}}
 							</div>
 						</template>
 
@@ -292,7 +348,10 @@
 
 						<!-- 角色名称 -->
 						<template v-else-if="column.key === 'roleName'">
-							<div v-if="record.roleInfoVoList && record.roleInfoVoList.length > 0" class="flex flex-wrap gap-1">
+							<div
+								v-if="record.roleInfoVoList && record.roleInfoVoList.length > 0"
+								class="flex flex-wrap gap-1"
+							>
 								<span
 									v-for="role in record.roleInfoVoList"
 									:key="role.id || role.roleCode || role.roleName"
@@ -329,7 +388,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { columns } from '@/views/user/userManager/config';
@@ -368,14 +427,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getUserPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getUserPage(searchInfo.value, p),
+	});
 const { getDictByType } = useDictInfo('is_valid');
 
 // State
@@ -425,7 +480,10 @@ const delUser = async (ids: string) => {
 };
 
 // 启停状态切换（loading 防止连点重复提交）
-const handleStatusChange = async (record: UserManagerInfo, checked: boolean) => {
+const handleStatusChange = async (
+	record: UserManagerInfo,
+	checked: boolean,
+) => {
 	if (!record.id) return;
 	const newStatus = checked ? '1' : '0';
 	statusLoadingMap.value[record.id] = true;

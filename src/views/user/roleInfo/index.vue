@@ -184,7 +184,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import {
 	columns,
 	type RoleInfoData,
@@ -204,14 +204,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getRoleInfoListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getRoleInfoListPage(searchInfo.value, p),
+	});
 
 const router = useRouter();
 const { scopeHintText } = useDataScopeHint();
@@ -270,7 +266,7 @@ const cancel = (e: MouseEvent) => {
 const editRoleInfo = (type: string, id?: string) => {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : id ?? undefined;
+	modelInfo.value.id = isAdd ? undefined : (id ?? undefined);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

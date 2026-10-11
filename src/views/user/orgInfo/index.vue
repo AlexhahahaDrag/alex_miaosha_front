@@ -1,34 +1,70 @@
 <template>
-	<div class="org-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors">
+	<div
+		class="org-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors"
+	>
 		<!-- 1. 页面头部与现代 KPI 指标概览 -->
-		<div class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+		<div
+			class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+		>
 			<div>
 				<div class="flex items-center gap-2.5">
-					<span class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"></span>
-					<h1 class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0">机构管理</h1>
+					<span
+						class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"
+					></span>
+					<h1
+						class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0"
+					>
+						机构管理
+					</h1>
 				</div>
-				<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal">
+				<p
+					class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal"
+				>
 					维护集团多级组织拓扑架构、机构编码与层级归属关系
 				</p>
 			</div>
 			<!-- 顶部双环现代统计指标卡 -->
 			<div class="flex items-center gap-3">
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<ApartmentOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">机构总数</div>
-						<div class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5">{{ pagination.total || dataSource.length }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							机构总数
+						</div>
+						<div
+							class="text-base font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-0.5"
+						>
+							{{ pagination.total || dataSource.length }}
+						</div>
 					</div>
 				</div>
-				<div class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3">
-					<div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0">
+				<div
+					class="bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-xl px-4 py-2 shadow-xs hover:shadow-sm transition-all flex items-center gap-3"
+				>
+					<div
+						class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-sm flex-shrink-0"
+					>
 						<CheckCircleOutlined />
 					</div>
 					<div>
-						<div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">已启用</div>
-						<div class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5">{{ activeOrgCount }}</div>
+						<div
+							class="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight"
+						>
+							已启用
+						</div>
+						<div
+							class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight mt-0.5"
+						>
+							{{ activeOrgCount }}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -37,11 +73,21 @@
 		<!-- 2. 左右双栏现代工作区 -->
 		<div class="flex flex-col lg:flex-row gap-5 items-start">
 			<!-- 左侧：独立组织架构树卡片 -->
-			<div class="w-full lg:w-72 flex-shrink-0 bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs p-4 overflow-hidden">
-				<div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+			<div
+				class="w-full lg:w-72 flex-shrink-0 bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs p-4 overflow-hidden"
+			>
+				<div
+					class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800"
+				>
 					<div class="flex items-center gap-2">
-						<span class="text-sm font-bold text-slate-800 dark:text-slate-100">组织架构</span>
-						<span v-if="currentParentId" class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 font-medium">已过滤</span>
+						<span class="text-sm font-bold text-slate-800 dark:text-slate-100"
+							>组织架构</span
+						>
+						<span
+							v-if="currentParentId"
+							class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 font-medium"
+							>已过滤</span
+						>
 					</div>
 					<a
 						v-if="currentParentId"
@@ -64,9 +110,14 @@
 					>
 						<template #title="{ orgName, children }">
 							<div class="flex items-center gap-2 py-0.5">
-								<folder-outlined v-if="children && children.length > 0" class="text-blue-500 text-xs" />
+								<folder-outlined
+									v-if="children && children.length > 0"
+									class="text-blue-500 text-xs"
+								/>
 								<apartment-outlined v-else class="text-slate-400 text-xs" />
-								<span class="text-xs text-slate-700 dark:text-slate-200">{{ orgName }}</span>
+								<span class="text-xs text-slate-700 dark:text-slate-200">{{
+									orgName
+								}}</span>
 							</div>
 						</template>
 					</a-tree>
@@ -76,8 +127,14 @@
 			<!-- 右侧：主工作区（紧凑筛选栏 + 一体化表格面板） -->
 			<div class="flex-1 w-full min-w-0 flex flex-col gap-5">
 				<!-- 紧凑单行高效搜索栏 -->
-				<div class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs transition-colors">
-					<a-form :model="searchInfo" layout="inline" class="flex flex-wrap items-center gap-y-3 gap-x-4">
+				<div
+					class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs transition-colors"
+				>
+					<a-form
+						:model="searchInfo"
+						layout="inline"
+						class="flex flex-wrap items-center gap-y-3 gap-x-4"
+					>
 						<a-form-item label="机构名称" class="!mr-0 mb-0">
 							<a-input
 								v-model:value="searchInfo.orgName"
@@ -144,12 +201,21 @@
 				</div>
 
 				<!-- 一体化表格面板 -->
-				<div class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+				<div
+					class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden"
+				>
 					<!-- 工具栏 -->
-					<div class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+					<div
+						class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+					>
 						<div class="flex items-center gap-3">
-							<span class="text-base font-bold text-slate-800 dark:text-slate-100">机构列表</span>
-							<span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">
+							<span
+								class="text-base font-bold text-slate-800 dark:text-slate-100"
+								>机构列表</span
+							>
+							<span
+								class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium"
+							>
 								共 {{ pagination.total || dataSource.length }} 个
 							</span>
 							<span
@@ -322,7 +388,7 @@ import {
 
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { columns } from '@/views/user/orgInfo/config';
 import {
@@ -354,14 +420,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: () => getOrgDataPage(),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: () => getOrgDataPage(),
+	});
 const { getDictByType } = useDictInfo('is_valid');
 const statusList = computed(() => getDictByType('is_valid'));
 
@@ -444,7 +506,9 @@ const batchDelOrgInfo = (): void => {
 
 const onTreeSelect: TreeProps['onSelect'] = (keys, info) => {
 	if (keys.length > 0) {
-		currentParentId.value = String((info.node as unknown as OrgTreeNode).id || '');
+		currentParentId.value = String(
+			(info.node as unknown as OrgTreeNode).id || '',
+		);
 	} else {
 		currentParentId.value = undefined;
 	}
@@ -480,9 +544,10 @@ const withTreeKey = (nodes: OrgInfoData[]): OrgTreeNode[] =>
 	nodes.map((item) => ({
 		...item,
 		key: item.id,
-		children: item.children?.length
-			? withTreeKey(item.children as OrgInfoData[])
-			: undefined,
+		children:
+			item.children?.length ?
+				withTreeKey(item.children as OrgInfoData[])
+			:	undefined,
 	})) as OrgTreeNode[];
 
 const getOrgTreeData = async () => {
@@ -502,7 +567,10 @@ const getOrgTreeData = async () => {
 function editOrgInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : (id !== undefined && id !== null ? String(id) : null);
+	modelInfo.value.id =
+		isAdd ? null
+		: id !== undefined && id !== null ? String(id)
+		: null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

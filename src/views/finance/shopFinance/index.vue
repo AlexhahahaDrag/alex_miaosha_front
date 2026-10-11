@@ -165,7 +165,7 @@ import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import { iconComponentMap } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import {
 	columns,
@@ -188,21 +188,18 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (paginationInfo) => {
-		const params = {
-			...searchInfo.value,
-			saleDateFrom: saleDateFrom.value ? formatDate(saleDateFrom.value) : null,
-			saleDateEnd: saleDateEnd.value ? formatDate(saleDateEnd.value) : null,
-		};
-		getShopFinanceListPage(params, paginationInfo);
-	},
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (paginationInfo) => {
+			const params = {
+				...searchInfo.value,
+				saleDateFrom:
+					saleDateFrom.value ? formatDate(saleDateFrom.value) : null,
+				saleDateEnd: saleDateEnd.value ? formatDate(saleDateEnd.value) : null,
+			};
+			getShopFinanceListPage(params, paginationInfo);
+		},
+	});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

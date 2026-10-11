@@ -81,6 +81,7 @@ export interface FinanceManagerData {
 	belongTo?: string;
 	infoDateStart?: Dayjs | string;
 	infoDateEnd?: Dayjs | string;
+	typeCodes?: string[];
 }
 
 export interface FinanceBudgetStatusVo {

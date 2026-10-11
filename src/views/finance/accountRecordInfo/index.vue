@@ -139,7 +139,7 @@ import {
 	deleteAccountRecordInfo,
 } from '@/views/finance/accountRecordInfo/api';
 import { message } from 'ant-design-vue';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { formatDate } from '@/utils/dayjs';
 
@@ -148,21 +148,13 @@ const { getDictByType } = useDictInfo('account_type');
 const accountList = computed(() => getDictByType('account_type'));
 
 // 使用表格行选择组合式函数（保障 ID 为纯 string）
-const {
-	selectedRowKeys,
-	rowSelection,
-	clearSelected,
-} = useRowSelection();
+const { selectedRowKeys, rowSelection, clearSelected } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getAccountRecordInfoListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getAccountRecordInfoListPage(searchInfo.value, p),
+	});
 
 // 搜索条件
 let searchInfo = ref<AccountRecordInfo>({});
@@ -243,7 +235,10 @@ const initPage = () => {
 const editAccountRecordInfo = (type: string, id?: number) => {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : (id !== undefined ? String(id) : undefined);
+	modelInfo.value.id =
+		isAdd ? undefined
+		: id !== undefined ? String(id)
+		: undefined;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

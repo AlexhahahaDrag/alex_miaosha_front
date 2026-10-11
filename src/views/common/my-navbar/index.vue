@@ -6,20 +6,64 @@
 			theme="dark"
 			v-model:selectedKeys="curSelectedKeys"
 			v-model:openKeys="openKeys"
-			:items="menuItems"
 			@click="onMenuClick"
 		>
+			<template v-for="item in menuItems" :key="item.key">
+				<!-- 一级带子级的菜单项 -->
+				<a-sub-menu
+					v-if="item.children && item.children.length"
+					:key="item.key"
+				>
+					<template #title>
+						<span>{{ item.label }}</span>
+					</template>
+
+					<template v-for="sub in item.children" :key="sub.key">
+						<!-- 支持嵌套二级子菜单 -->
+						<a-sub-menu
+							v-if="sub.children && sub.children.length"
+							:key="sub.key"
+						>
+							<template #title>
+								<span>{{ sub.label }}</span>
+							</template>
+							<a-menu-item
+								v-for="leaf in sub.children"
+								:key="leaf.key"
+							>
+								{{ leaf.label }}
+							</a-menu-item>
+						</a-sub-menu>
+
+						<!-- 二级叶子菜单项 -->
+						<a-menu-item v-else :key="sub.key">
+							{{ sub.label }}
+						</a-menu-item>
+					</template>
+				</a-sub-menu>
+
+				<!-- 一级单菜单项（如首页） -->
+				<a-menu-item v-else :key="item.key">
+					{{ item.label }}
+				</a-menu-item>
+			</template>
 		</a-menu>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { ItemType } from 'ant-design-vue';
 import type { MenuDataItem } from '@/router/config';
 
 interface Props {
 	routes: MenuDataItem[];
 	selectedKeys: string[];
+}
+
+export interface CustomNavbarMenuItem {
+	key: string;
+	label: string;
+	path?: string;
+	children?: CustomNavbarMenuItem[];
 }
 
 let curSelectedKeys = ref<string[]>(['home']);
@@ -30,18 +74,16 @@ const props = withDefaults(defineProps<Props>(), {
 	routes: () => [],
 });
 
-// AI Agent：这里 routes.meta.icon 的类型是 string（见 router/config），但 a-menu items 的 icon 类型是 VNode/渲染函数。
-// 为了在不改动路由配置的前提下保持类型正确：此处不把 string 直接塞给 icon。
-// 若后续要显示图标：建议新增映射，把 meta.icon(string) -> 真实图标组件/VNode，再赋值给 icon。
 type MenuMetaWithHide = { hideInMenu?: boolean };
-const isItemType = (i: ItemType | null): i is ItemType => i !== null;
 
 const shouldHideInMenu = (meta?: MenuMetaWithHide) => {
-	// 注意：你们项目路由 meta 字段是 hideInMenu（历史拼写），这里做兼容。
 	return meta?.hideInMenu === true;
 };
 
-const buildMenuItem = (item: MenuDataItem): ItemType | null => {
+const buildMenuItem = (
+	item: MenuDataItem,
+	usedKeys: Set<string>,
+): CustomNavbarMenuItem | null => {
 	const meta = item.meta as unknown as MenuMetaWithHide | undefined;
 	if (shouldHideInMenu(meta)) {
 		return null;
@@ -49,39 +91,53 @@ const buildMenuItem = (item: MenuDataItem): ItemType | null => {
 
 	const children =
 		item.children?.length ?
-			item.children.map(buildMenuItem).filter(isItemType)
+			item.children
+				.map((child) => buildMenuItem(child, usedKeys))
+				.filter((i): i is CustomNavbarMenuItem => i !== null)
 		:	undefined;
 
+	// 生成稳定、全局唯一的 key：
+	// 1) 优先非 "sub" 的 route.name
+	// 2) 其次使用 route.path
+	// 3) 若仍产生重复，附带唯一索引后缀，彻底避免 Vue Virtual DOM 节点复用与 Context 丢失
+	const nameStr = item.name ? String(item.name).trim() : '';
+	const pathStr = item.path ? String(item.path).trim() : '';
+	let preferredKey =
+		nameStr && nameStr !== 'sub' ? nameStr : pathStr || nameStr || 'menu-item';
+
+	if (usedKeys.has(preferredKey)) {
+		preferredKey = `${preferredKey}_${usedKeys.size + 1}`;
+	}
+	usedKeys.add(preferredKey);
+
 	return {
-		// key 必须稳定且非空：优先用 name，其次用 path（path 必填）
-		key: item.name || item.path,
-		label: item.meta?.title,
-		title: item.meta?.title,
-		// icon 暂不透传（string 不符合 ItemType.icon 类型）
-		// icon: undefined,
+		key: preferredKey,
+		label: item.meta?.title || preferredKey,
+		path: pathStr,
 		...(children && children.length ? { children } : {}),
-	} as ItemType;
+	};
 };
 
-const menuItems = computed<ItemType[]>(() => {
-	// AI Agent：过滤掉 meta.hideInMenu/meta.hideInMenu 为 true 的菜单项
-	return props.routes?.map(buildMenuItem).filter(isItemType) || [];
+const menuItems = computed<CustomNavbarMenuItem[]>(() => {
+	const usedKeys = new Set<string>();
+	return (
+		props.routes
+			?.map((r) => buildMenuItem(r, usedKeys))
+			.filter((i): i is CustomNavbarMenuItem => i !== null) || []
+	);
 });
 
 /** 收集当前菜单树里「带子级」的节点 key，用于与 route.matched 对齐设置 openKeys */
-const collectSubmenuKeysFromItems = (items: ItemType[]): Set<string> => {
+const collectSubmenuKeysFromItems = (
+	items: CustomNavbarMenuItem[],
+): Set<string> => {
 	const keys = new Set<string>();
-	const walk = (list: ItemType[]) => {
+	const walk = (list: CustomNavbarMenuItem[]) => {
 		for (const node of list) {
-			const item = node as {
-				key?: string | number;
-				children?: ItemType[];
-			};
-			const keyStr =
-				item.key !== undefined && item.key !== null ? String(item.key) : '';
-			if (item.children?.length) {
+			const keyStr = node.key ? String(node.key) : '';
+			if (node.children?.length) {
 				if (keyStr) keys.add(keyStr);
-				walk(item.children);
+				walk(node.children);
 			}
 		}
 	};
@@ -90,19 +146,14 @@ const collectSubmenuKeysFromItems = (items: ItemType[]): Set<string> => {
 };
 
 /** 收集菜单树里所有有效节点 key */
-const collectAllMenuKeys = (items: ItemType[]): Set<string> => {
+const collectAllMenuKeys = (items: CustomNavbarMenuItem[]): Set<string> => {
 	const keys = new Set<string>();
-	const walk = (list: ItemType[]) => {
+	const walk = (list: CustomNavbarMenuItem[]) => {
 		for (const node of list) {
-			const item = node as {
-				key?: string | number;
-				children?: ItemType[];
-			};
-			const keyStr =
-				item.key !== undefined && item.key !== null ? String(item.key) : '';
+			const keyStr = node.key ? String(node.key) : '';
 			if (keyStr) keys.add(keyStr);
-			if (item.children?.length) {
-				walk(item.children);
+			if (node.children?.length) {
+				walk(node.children);
 			}
 		}
 	};
@@ -110,27 +161,35 @@ const collectAllMenuKeys = (items: ItemType[]): Set<string> => {
 	return keys;
 };
 
-// AI Agent：菜单点击跳转
-// 说明：buildMenuItem.key = name || path，所以这里优先按 name 跳转，失败再按 path 兜底。
 const router = useRouter();
 const route = useRoute();
+
 const onMenuClick = async (info: { key: string | number }) => {
-	// ant-design-vue 的 key 类型是 Key（string | number），这里统一转 string 处理
 	const key = info?.key;
 	if (key === undefined || key === null || key === '') {
 		return;
 	}
 	const targetKey = String(key);
+	// 1) 若 key 本身是路径格式（以 / 开头），直接按 path 跳转
+	if (targetKey.startsWith('/')) {
+		try {
+			await router.push(targetKey);
+			return;
+		} catch {
+			// fallback
+		}
+	}
+
+	// 2) 优先按 route.name 跳转
 	try {
-		// 1) 优先认为 key 是 route.name
 		await router.push({ name: targetKey });
 	} catch {
-		// 2) 兜底认为 key 是 path（如：/finance/xxx）
+		// 3) 兜底按 path 跳转
 		await router.push(targetKey);
 	}
 };
 
-// AI Agent：根据当前路由同步菜单高亮/展开（openKeys 只包含菜单树中真实存在的「子菜单」key）
+// 根据当前路由同步菜单高亮/展开（openKeys 只包含菜单树中真实存在的「子菜单」key）
 const onSyncMenuByRoute = () => {
 	const matched = route.matched || [];
 	const name: string = (route?.name as string) || '';
@@ -147,14 +206,23 @@ const onSyncMenuByRoute = () => {
 		selectedKey = 'home';
 	} else {
 		const allKeys = collectAllMenuKeys(menuItems.value);
-		if (!allKeys.has(name)) {
-			// 如果当前路由 name 不直接在菜单里（如隐藏的详情页），从 matched 中倒序寻找最近的一个在菜单里的祖先
-			const hit = [...matched]
-				.reverse()
-				.find((m) => m.name && allKeys.has(String(m.name)));
-			if (hit && hit.name) {
-				selectedKey = String(hit.name);
+		if (!allKeys.has(name) && !allKeys.has(path)) {
+			// 如果当前路由 name/path 不直接在菜单里（如隐藏的详情页），从 matched 中倒序寻找最近的一个在菜单里的祖先
+			const hit = [...matched].reverse().find((m) => {
+				const hitName = m.name ? String(m.name) : '';
+				const hitPath = m.path ? String(m.path) : '';
+				return (
+					(hitName && allKeys.has(hitName)) || (hitPath && allKeys.has(hitPath))
+				);
+			});
+			if (hit) {
+				const hitName = hit.name ? String(hit.name) : '';
+				const hitPath = hit.path ? String(hit.path) : '';
+				selectedKey =
+					hitName && allKeys.has(hitName) ? hitName : hitPath || hitName;
 			}
+		} else if (!allKeys.has(name) && allKeys.has(path)) {
+			selectedKey = path;
 		}
 	}
 
@@ -163,13 +231,18 @@ const onSyncMenuByRoute = () => {
 	const submenuKeys = collectSubmenuKeysFromItems(menuItems.value);
 	const nextOpenKeys: string[] = [];
 	for (const rec of matched) {
-		if (rec.name === undefined || rec.name === null) continue;
-		const keyStr = String(rec.name);
-		if (submenuKeys.has(keyStr)) {
-			nextOpenKeys.push(keyStr);
+		const recName = rec.name ? String(rec.name) : '';
+		const recPath = rec.path ? String(rec.path) : '';
+		if (recName && submenuKeys.has(recName)) {
+			nextOpenKeys.push(recName);
+		} else if (recPath && submenuKeys.has(recPath)) {
+			nextOpenKeys.push(recPath);
 		}
 	}
-	openKeys.value = nextOpenKeys;
+
+	nextTick(() => {
+		openKeys.value = nextOpenKeys;
+	});
 };
 
 watch(

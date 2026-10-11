@@ -61,7 +61,11 @@
 		</div>
 		<div class="button" style="margin-left: 10px">
 			<a-space>
-				<a-button type="primary" data-testid="btn-add-coupon" @click="editCpnCouponInfo('add')">
+				<a-button
+					type="primary"
+					data-testid="btn-add-coupon"
+					@click="editCpnCouponInfo('add')"
+				>
 					新增
 				</a-button>
 				<a-button type="primary" danger @click="batchDelCpnCouponInfo">
@@ -143,7 +147,6 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import type { TableRowSelection } from 'ant-design-vue/es/table/interface';
 import {
 	getCpnCouponInfoPage,
 	deleteCpnCouponInfo,
@@ -157,15 +160,15 @@ import {
 	wrapperCol,
 	getExpireStatusColor,
 } from '@/views/cpn-coupon/cpn-coupon-info/config';
-import { usePagination, type PageInfo } from '@/composables/usePagination';
+import {
+	usePagination,
+	useRowSelection,
+	type PageInfo,
+} from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
 // 行选择（使用通用组合函数，严格保障 ID 为 string 且保留 remainingQuantity 禁用逻辑）
-const {
-	selectedRowKeys,
-	rowSelection,
-	clearSelected,
-} = useRowSelection({
+const { selectedRowKeys, rowSelection, clearSelected } = useRowSelection({
 	config: {
 		checkStrictly: false,
 		getCheckboxProps: (record: CpnCouponInfoData) => ({
@@ -175,14 +178,10 @@ const {
 });
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getCpnCouponInfoListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getCpnCouponInfoListPage(searchInfo.value, p),
+	});
 
 // 加载中
 let loading = ref<boolean>(false);

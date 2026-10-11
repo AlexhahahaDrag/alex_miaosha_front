@@ -65,7 +65,11 @@
 				<a-button type="primary" danger @click="batchDelPmsShopProduct">
 					删除
 				</a-button>
-				<a-button type="dashed" data-testid="btn-open-ai-copy" @click="openAiCopyModal">
+				<a-button
+					type="dashed"
+					data-testid="btn-open-ai-copy"
+					@click="openAiCopyModal"
+				>
 					✨ AI 秒杀营销文案生成
 				</a-button>
 			</a-space>
@@ -125,10 +129,7 @@
 						<span v-else>{{ record.price }}</span>
 					</template>
 					<template v-else-if="column.key === 'source'">
-						<template
-							v-for="source in sourceTransferList"
-							:key="source.value"
-						>
+						<template v-for="source in sourceTransferList" :key="source.value">
 							<component
 								v-if="
 									record.source &&
@@ -179,32 +180,58 @@
 				<a-row :gutter="16">
 					<a-col :span="12">
 						<a-form-item label="商品名称" required>
-							<a-input v-model:value="aiCopyReq.productName" data-testid="ai-copy-input-name" placeholder="如：降噪无线蓝牙耳机" />
+							<a-input
+								v-model:value="aiCopyReq.productName"
+								data-testid="ai-copy-input-name"
+								placeholder="如：降噪无线蓝牙耳机"
+							/>
 						</a-form-item>
 					</a-col>
 					<a-col :span="12">
 						<a-form-item label="商品品类">
-							<a-input v-model:value="aiCopyReq.categoryName" placeholder="如：数码影音" />
+							<a-input
+								v-model:value="aiCopyReq.categoryName"
+								placeholder="如：数码影音"
+							/>
 						</a-form-item>
 					</a-col>
 				</a-row>
 				<a-row :gutter="16">
 					<a-col :span="12">
 						<a-form-item label="商品原价(元)">
-							<a-input-number v-model:value="aiCopyReq.originalPrice" :min="0" style="width: 100%" placeholder="如：399" />
+							<a-input-number
+								v-model:value="aiCopyReq.originalPrice"
+								:min="0"
+								style="width: 100%"
+								placeholder="如：399"
+							/>
 						</a-form-item>
 					</a-col>
 					<a-col :span="12">
 						<a-form-item label="秒杀促销价(元)">
-							<a-input-number v-model:value="aiCopyReq.seckillPrice" :min="0" style="width: 100%" placeholder="如：199" />
+							<a-input-number
+								v-model:value="aiCopyReq.seckillPrice"
+								:min="0"
+								style="width: 100%"
+								placeholder="如：199"
+							/>
 						</a-form-item>
 					</a-col>
 				</a-row>
 				<a-form-item label="商品核心亮点/规格">
-					<a-input v-model:value="aiCopyReq.features" placeholder="如：主动混合降噪40dB，长续航30小时" />
+					<a-input
+						v-model:value="aiCopyReq.features"
+						placeholder="如：主动混合降噪40dB，长续航30小时"
+					/>
 				</a-form-item>
 				<a-form-item>
-					<a-button type="primary" block :loading="aiCopyLoading" data-testid="btn-generate-ai-copy" @click="handleGenerateAiCopy">
+					<a-button
+						type="primary"
+						block
+						:loading="aiCopyLoading"
+						data-testid="btn-generate-ai-copy"
+						@click="handleGenerateAiCopy"
+					>
 						🚀 一键生成爆款营销文案
 					</a-button>
 				</a-form-item>
@@ -214,34 +241,63 @@
 				<div class="result-item">
 					<div class="result-header">
 						<span class="result-label">🔥 爆款标题</span>
-						<a-button type="link" size="small" @click="copyText(aiCopyResult.title)">复制</a-button>
+						<a-button
+							type="link"
+							size="small"
+							@click="copyText(aiCopyResult.title)"
+							>复制</a-button
+						>
 					</div>
 					<div class="result-content title-text">{{ aiCopyResult.title }}</div>
 				</div>
 				<div class="result-item">
 					<div class="result-header">
 						<span class="result-label">💬 一句话口号</span>
-						<a-button type="link" size="small" @click="copyText(aiCopyResult.slogan)">复制</a-button>
+						<a-button
+							type="link"
+							size="small"
+							@click="copyText(aiCopyResult.slogan)"
+							>复制</a-button
+						>
 					</div>
-					<div class="result-content slogan-text">{{ aiCopyResult.slogan }}</div>
+					<div class="result-content slogan-text">
+						{{ aiCopyResult.slogan }}
+					</div>
 				</div>
 				<div class="result-item">
 					<div class="result-header">
 						<span class="result-label">🎯 核心卖点清单</span>
 					</div>
 					<div class="result-tags">
-						<a-tag v-for="(point, idx) in aiCopyResult.sellingPoints" :key="idx" color="blue">{{ point }}</a-tag>
+						<a-tag
+							v-for="(point, idx) in aiCopyResult.sellingPoints"
+							:key="idx"
+							color="blue"
+							>{{ point }}</a-tag
+						>
 					</div>
 				</div>
 				<div class="result-item">
 					<div class="result-header">
 						<span class="result-label">📝 营销种草详情</span>
-						<a-button type="link" size="small" @click="copyText(aiCopyResult.marketingDescription)">复制</a-button>
+						<a-button
+							type="link"
+							size="small"
+							@click="copyText(aiCopyResult.marketingDescription)"
+							>复制</a-button
+						>
 					</div>
-					<div class="result-content desc-text">{{ aiCopyResult.marketingDescription }}</div>
+					<div class="result-content desc-text">
+						{{ aiCopyResult.marketingDescription }}
+					</div>
 				</div>
-				<div class="result-apply-bar" style="margin-top: 16px;">
-					<a-button type="primary" block data-testid="btn-apply-ai-copy" @click="handleApplyToProduct">
+				<div class="result-apply-bar" style="margin-top: 16px">
+					<a-button
+						type="primary"
+						block
+						data-testid="btn-apply-ai-copy"
+						@click="handleApplyToProduct"
+					>
 						⚡ 一键应用至选中商品 / 复制全套文案
 					</a-button>
 				</div>
@@ -267,7 +323,7 @@ import {
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
@@ -283,14 +339,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getPmsShopProductListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getPmsShopProductListPage(searchInfo.value, p),
+	});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -372,7 +424,7 @@ const init = () => {
 function editPmsShopProduct(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : id ?? undefined;
+	modelInfo.value.id = isAdd ? undefined : (id ?? undefined);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
@@ -394,11 +446,15 @@ const aiCopyResult = ref<ProductAiCopyVo | null>(null);
 
 const openAiCopyModal = () => {
 	if (rowIds.value.length > 0) {
-		const selected = dataSource.value.find((item) => String(item.id) === String(rowIds.value[0]));
+		const selected = dataSource.value.find(
+			(item) => String(item.id) === String(rowIds.value[0]),
+		);
 		if (selected) {
 			aiCopyReq.value.productName = selected.name || '';
-			aiCopyReq.value.originalPrice = selected.comparePrice ? Number(selected.comparePrice) : undefined;
-			aiCopyReq.value.seckillPrice = selected.price ? Number(selected.price) : undefined;
+			aiCopyReq.value.originalPrice =
+				selected.comparePrice ? Number(selected.comparePrice) : undefined;
+			aiCopyReq.value.seckillPrice =
+				selected.price ? Number(selected.price) : undefined;
 		}
 	}
 	aiCopyModalVisible.value = true;
@@ -411,7 +467,11 @@ const handleGenerateAiCopy = async () => {
 	}
 	aiCopyLoading.value = true;
 	try {
-		const { code, data, message: msg } = await generateProductAiCopy(aiCopyReq.value);
+		const {
+			code,
+			data,
+			message: msg,
+		} = await generateProductAiCopy(aiCopyReq.value);
 		if (code === '200' && data) {
 			aiCopyResult.value = data;
 			message.success('营销文案生成成功');
@@ -441,13 +501,19 @@ const handleApplyToProduct = () => {
 
 	if (rowIds.value.length > 0) {
 		const targetId = String(rowIds.value[0]);
-		const targetItem = dataSource.value.find((item) => String(item.id) === targetId);
+		const targetItem = dataSource.value.find(
+			(item) => String(item.id) === targetId,
+		);
 		if (targetItem && aiCopyResult.value.title) {
 			targetItem.name = aiCopyResult.value.title;
-			message.success(`已同时将爆款标题同步至当前商品行【${targetItem.name}】！`);
+			message.success(
+				`已同时将爆款标题同步至当前商品行【${targetItem.name}】！`,
+			);
 		}
 	} else {
-		message.info('当前未勾选特定商品行，已将全套营销方案复制至剪贴板供粘贴使用');
+		message.info(
+			'当前未勾选特定商品行，已将全套营销方案复制至剪贴板供粘贴使用',
+		);
 	}
 };
 

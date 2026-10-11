@@ -178,7 +178,7 @@
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { ShopOrderData } from '@/views/finance/shopOrder/config';
 import { columns } from '@/views/finance/shopOrder/config';
 import {
@@ -200,14 +200,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	resetPagination,
-	setTotal,
-} = usePagination({
-	onChange: (p) => getShopOrderListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, resetPagination, setTotal } =
+	usePagination({
+		onChange: (p) => getShopOrderListPage(searchInfo.value, p),
+	});
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });
@@ -266,11 +262,11 @@ const getShopOrderListPage = async (
 ): Promise<void> => {
 	loading.value = true;
 	try {
-		const { code, data, message: messageInfo } = await getShopOrderPage(
-			param,
-			cur.current,
-			cur.pageSize,
-		);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopOrderPage(param, cur.current, cur.pageSize);
 		if (code === '200') {
 			dataSource.value = data?.records || [];
 			setTotal(data?.total || 0);

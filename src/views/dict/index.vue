@@ -94,14 +94,11 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns, labelCol, wrapperCol } from './config';
-import {
-	getDictManagerPage,
-	deleteDictManager,
-} from './api';
+import { getDictManagerPage, deleteDictManager } from './api';
 import DictDetail from './dict-detail/index.vue';
 import { message } from 'ant-design-vue';
 
@@ -115,14 +112,10 @@ const modelInfo = ref<ModelInfo>({});
 const { selectedRowKeys, rowSelection } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	resetPagination,
-	setTotal,
-} = usePagination({
-	onChange: (p) => getDictPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, resetPagination, setTotal } =
+	usePagination({
+		onChange: (p) => getDictPage(searchInfo.value, p),
+	});
 
 let searchInfo = ref<DictInfo>({});
 
@@ -155,7 +148,6 @@ function batchDelDictManager() {
 	delDict(selectedRowKeys.value.join(','));
 }
 
-
 const cancel = (e: MouseEvent) => {
 	console.log(e);
 };
@@ -183,7 +175,10 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 function editDict(type: string, id?: number) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : (id !== undefined && id !== null ? String(id) : null);
+	modelInfo.value.id =
+		isAdd ? undefined
+		: id !== undefined && id !== null ? String(id)
+		: null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

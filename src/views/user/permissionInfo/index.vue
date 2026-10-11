@@ -180,7 +180,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
+import { usePagination, useRowSelection } from '@/composables/usePagination';
 import { useDictInfo } from '@/composables/useDictInfo';
 import {
 	type SearchInfo,
@@ -204,14 +204,10 @@ const {
 } = useRowSelection();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (p) => getPermissionInfoListPage(searchInfo.value, p),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (p) => getPermissionInfoListPage(searchInfo.value, p),
+	});
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -303,7 +299,10 @@ const modelInfo = ref<ModelInfo>({});
 function editPermissionInfo(type: string, id?: string) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : (id !== undefined && id !== null ? String(id) : null);
+	modelInfo.value.id =
+		isAdd ? null
+		: id !== undefined && id !== null ? String(id)
+		: null;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }
