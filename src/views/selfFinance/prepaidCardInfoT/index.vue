@@ -63,11 +63,7 @@
 						</a-tag>
 					</template>
 					<template v-if="column.key === 'operateTime'">
-						{{
-							record.operateTime ?
-								dayjs(record.operateTime).format('YYYY-MM-DD HH:mm')
-							:	''
-						}}
+						{{ formatTime(record.operateTime, 'YYYY-MM-DD HH:mm') }}
 					</template>
 				</template>
 			</a-table>
@@ -88,7 +84,7 @@ import { getPrepaidCardInfoList } from './api';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api';
 import { message } from 'ant-design-vue';
 import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';
-import dayjs from 'dayjs';
+import { formatTime } from '@/utils/dayjs';
 import type { IRechargeForm } from '@/views/selfFinance/prepaidCardInfoT/config';
 
 // 消费卡数据

@@ -33,7 +33,9 @@
 
 		<!-- 动态挂载对应角色看板 -->
 		<transition name="fade-dashboard" mode="out-in">
-			<component :is="activeDashboardComponent" :key="currentActiveRole" />
+			<div :key="currentActiveRole" class="dashboard-content-container">
+				<component :is="activeDashboardComponent" />
+			</div>
 		</transition>
 	</div>
 </template>
@@ -78,16 +80,17 @@ const isRealSuperAdmin = computed(
 	() => actualRoleType.value === 'super_admin',
 );
 
-// 当前正在渲染的看板角色（支持超管预览切角）
-const currentActiveRole = ref<DashboardRoleType>('user');
+// 当前正在渲染的看板角色（支持超管预览切角，初始值直连用户身份避免挂载抖动）
+const currentActiveRole = ref<DashboardRoleType>(actualRoleType.value);
 
-// 初始化并保持响应
+// 当真实身份变化时（如重新登录、切账号）同步保持更新
 watch(
 	actualRoleType,
 	(val) => {
-		currentActiveRole.value = val;
+		if (val && val !== currentActiveRole.value) {
+			currentActiveRole.value = val;
+		}
 	},
-	{ immediate: true },
 );
 
 // 根据当前选中角色计算激活组件
@@ -135,6 +138,10 @@ const activeDashboardComponent = computed(() => {
 				font-size: 15px;
 			}
 		}
+	}
+
+	.dashboard-content-container {
+		width: 100%;
 	}
 }
 

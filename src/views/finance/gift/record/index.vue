@@ -116,9 +116,16 @@
 					<a-space>
 						<a-button type="primary" @click="query(true)">查询结果</a-button>
 						<a-button @click="resetQuery">重置</a-button>
-						<a-button type="link" class="expand-btn" @click="searchExpanded = !searchExpanded">
+						<a-button
+							type="link"
+							class="expand-btn"
+							@click="searchExpanded = !searchExpanded"
+						>
 							<span>{{ searchExpanded ? '收起' : '展开' }}</span>
-							<down-outlined class="expand-icon" :class="{ 'is-expanded': searchExpanded }" />
+							<down-outlined
+								class="expand-icon"
+								:class="{ 'is-expanded': searchExpanded }"
+							/>
 						</a-button>
 					</a-space>
 				</a-form-item>
@@ -281,7 +288,6 @@ import { message, Modal } from 'ant-design-vue';
 import { DownOutlined } from '@ant-design/icons-vue';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import { formatDate, formatTime } from '@/utils/dayjs';
 import {
 	deleteGiftRecord,
@@ -306,23 +312,19 @@ import {
 import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (page) => loadPage(page),
-});
-const loading = ref(false);
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (page) => loadPage(page),
+	});
+const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
 const { warmup, invalidate } = useGiftRecordOptionsCache();
-const drawerOpen = ref(false);
+const drawerOpen = ref<boolean>(false);
 const editingRecord = ref<GiftRecordInfo>();
-const searchExpanded = ref(false);
+const searchExpanded = ref<boolean>(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftRecordQuery>({});
-const exporting = ref(false);
+const exporting = ref<boolean>(false);
 const dataSource = ref<GiftRecordInfo[]>([]);
 const summary = ref<GiftRecordSummary>({});
 const payRange = ref<[string, string] | undefined>();
@@ -421,8 +423,6 @@ const exportRecords = async () => {
 		exporting.value = false;
 	}
 };
-
-
 
 const loadSummary = async () => {
 	const {
@@ -617,7 +617,9 @@ onUnmounted(() => {
 
 	&:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.06),
+			0 4px 6px -4px rgba(0, 0, 0, 0.04);
 		border-color: #cbd5e1;
 	}
 

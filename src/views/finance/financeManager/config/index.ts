@@ -1,6 +1,6 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form/interface';
-import type { Dayjs } from 'dayjs';
+import type { Dayjs } from '@/utils/dayjs';
 
 export const columns: TableColumnsType = [
 	{
@@ -110,6 +110,39 @@ export interface FinanceBudgetSaveReq {
 	belongTo?: string;
 	budgetAmount: number;
 	categoryCodes: string[];
+}
+
+export interface FinanceBudgetAiRecommendReq {
+	budgetMonth?: string;
+	belongTo?: string;
+	targetMode?: string;
+}
+
+export interface FinanceBudgetAiRecommendVo {
+	budgetMonth?: string;
+	avgMonthlyExpense?: number;
+	recommendAmount?: number;
+	savingAmount?: number;
+	moderateAmount?: number;
+	relaxedAmount?: number;
+	recommendedCategories?: string[];
+	healthAdvice?: string;
+	dailyLimitSuggest?: number;
+	isFallback?: boolean;
+}
+
+export interface FinanceBudgetAiParseReq {
+	command: string;
+	budgetMonth?: string;
+}
+
+export interface FinanceBudgetAiParseVo {
+	hasBudget?: boolean;
+	amount?: number;
+	hasCategories?: boolean;
+	categories?: string[];
+	isFallback?: boolean;
+	reasoning?: string;
 }
 
 export const fromSourceTransferList = [

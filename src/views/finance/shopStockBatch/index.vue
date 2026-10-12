@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import type { ShopStockBatchData } from '@/views/finance/shopStockBatch/config';
 import { columns, labelMap } from '@/views/finance/shopStockBatch/config';
 import {

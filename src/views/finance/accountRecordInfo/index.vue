@@ -130,7 +130,6 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
-import type { PageInfo } from '@/composables/usePagination';
 import type { AccountRecordInfo } from './config';
 import { formatAmount } from '@/utils/amountInfo';
 import { columns, labelCol, wrapperCol } from './config';
@@ -139,7 +138,7 @@ import {
 	deleteAccountRecordInfo,
 } from '@/views/finance/accountRecordInfo/api';
 import { message } from 'ant-design-vue';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import { useDictInfo } from '@/composables/useDictInfo';
 import { formatDate } from '@/utils/dayjs';
 

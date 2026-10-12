@@ -160,7 +160,7 @@ import {
 	deleteShopStockAttrs,
 } from '@/views/finance/shopStockAttrs/api';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');

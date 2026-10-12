@@ -134,7 +134,6 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
 import type { ShopCartData } from '@/views/finance/shopCart/config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns } from '@/views/finance/shopCart/config';

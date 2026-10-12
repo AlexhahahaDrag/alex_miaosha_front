@@ -1,4 +1,4 @@
-import type { Dayjs } from 'dayjs';
+﻿import type { Dayjs } from '@/utils/dayjs';
 import type { TableColumnsType } from 'ant-design-vue';
 
 export const columns = ref<TableColumnsType>([

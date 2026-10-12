@@ -111,8 +111,8 @@ const assignedKeyword = ref('');
 const selectedAvailableKeys = ref<string[]>([]);
 const selectedAssignedKeys = ref<string[]>([]);
 
-const pageLoading = ref(false);
-const saving = ref(false);
+const pageLoading = ref<boolean>(false);
+const saving = ref<boolean>(false);
 
 const filterOption = (input: string, option?: OrgOption) =>
 	(option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -283,11 +283,11 @@ const onOrgChange = (orgId: string) => {
 };
 
 const loadOrgOptions = async () => {
-	const { code, data, message: messageInfo } = await getOrgInfoPage(
-		{ status: '1' },
-		1,
-		1000,
-	);
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getOrgInfoPage({ status: '1' }, 1, 1000);
 	if (code === '200') {
 		orgOptions.value = (data?.records || []).map((org: OrgInfoData) => ({
 			label: org.orgName || '',
@@ -299,7 +299,11 @@ const loadOrgOptions = async () => {
 };
 
 const loadUsers = async () => {
-	const { code, data, message: messageInfo } = await getUserManagerList({
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getUserManagerList({
 		status: '1',
 	});
 	if (code === '200') {

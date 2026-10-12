@@ -18,7 +18,11 @@
 				停止
 			</a-button>
 		</div>
-		<p v-if="error" class="gift-ai-insight__error" data-testid="gift-ai-insight-error">
+		<p
+			v-if="error"
+			class="gift-ai-insight__error"
+			data-testid="gift-ai-insight-error"
+		>
 			{{ error }}
 		</p>
 		<div
@@ -64,7 +68,7 @@ const props = withDefaults(
 	},
 );
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const error = ref('');
 const summary = ref('');
 const streamText = ref('');
@@ -110,9 +114,8 @@ const runInsight = async () => {
 				},
 				onDone: (resp) => {
 					summary.value = resp.summary || streamText.value;
-					keyPoints.value = Array.isArray(resp.keyPoints)
-						? resp.keyPoints.filter(Boolean)
-						: [];
+					keyPoints.value =
+						Array.isArray(resp.keyPoints) ? resp.keyPoints.filter(Boolean) : [];
 					streamText.value = '';
 					loading.value = false;
 					abortController = null;
@@ -168,7 +171,9 @@ onUnmounted(() => {
 	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.05),
+		0 1px 2px -1px rgba(0, 0, 0, 0.05);
 	transition: all 0.2s ease;
 }
 

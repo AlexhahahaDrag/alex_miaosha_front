@@ -94,7 +94,7 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import type { DictInfo } from './config';
 import type { ModelInfo } from '@/views/common/config';
 import { columns, labelCol, wrapperCol } from './config';

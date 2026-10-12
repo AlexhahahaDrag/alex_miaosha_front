@@ -118,3 +118,21 @@ export function getBudgetCategories(
 		{ budgetMonth, yearMonth: budgetMonth, belongTo },
 	);
 }
+
+export function recommendBudget(
+	params: import('@/views/finance/financeManager/config').FinanceBudgetAiRecommendReq,
+): Promise<ResponseBody<import('@/views/finance/financeManager/config').FinanceBudgetAiRecommendVo>> {
+	return postData(
+		baseService.finance + baseBudgetManager + '/ai/recommend',
+		params,
+	);
+}
+
+export function parseBudgetCommand(
+	params: import('@/views/finance/financeManager/config').FinanceBudgetAiParseReq,
+): Promise<ResponseBody<import('@/views/finance/financeManager/config').FinanceBudgetAiParseVo>> {
+	return postData(
+		baseService.finance + baseBudgetManager + '/ai/parse',
+		params,
+	);
+}

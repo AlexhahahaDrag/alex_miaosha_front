@@ -463,6 +463,211 @@
 				layout="vertical"
 				class="space-y-4 py-2"
 			>
+				<!-- AI 智能助手面板 (Taste-Skill 灵动交互、大模型推荐+口语化指令) -->
+				<div
+					class="rounded-xl border border-solid border-indigo-100/90 bg-gradient-to-br from-indigo-50/60 via-sky-50/40 to-slate-50/60 p-3.5 space-y-3 shadow-2xs"
+				>
+					<!-- 顶部标题与测算按钮 -->
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<div
+								class="w-6 h-6 rounded-md bg-indigo-600 text-white flex items-center justify-center shadow-xs text-xs font-semibold"
+							>
+								AI
+							</div>
+							<div class="flex items-center gap-1.5">
+								<span class="text-xs font-semibold text-slate-800"
+									>AI 智能预算测算与口语配置</span
+								>
+								<span
+									v-if="aiRecommendData?.isFallback"
+									class="text-2xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium"
+									>智能规则模式</span
+								>
+								<span
+									v-else-if="aiRecommendData"
+									class="text-2xs px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 font-medium"
+									>深度大模型洞察</span
+								>
+							</div>
+						</div>
+						<a-button
+							type="link"
+							size="small"
+							class="!text-xs !p-0 !text-indigo-600 hover:!text-indigo-800 font-medium flex items-center gap-1"
+							:loading="aiRecommending"
+							@click="fetchAiRecommend"
+						>
+							<ThunderboltOutlined v-if="!aiRecommending" />
+							<span>{{ aiRecommendData ? '重新测算' : '智能测算推荐' }}</span>
+						</a-button>
+					</div>
+
+					<!-- 一句话指令快捷配置输入 -->
+					<div class="flex items-center gap-2">
+						<a-input
+							v-model:value="aiCommandInput"
+							placeholder="口语化输入，如：“帮我设2500预算，重点管餐饮和交通” 或 “不设上限”"
+							class="!rounded-lg text-xs"
+							allow-clear
+							@press-enter="handleAiParseCommand"
+						/>
+						<a-button
+							type="primary"
+							size="small"
+							class="!rounded-lg !text-xs !h-8 !px-3 !bg-indigo-600 hover:!bg-indigo-500 !border-indigo-600 flex items-center gap-1"
+							:loading="aiParsing"
+							@click="handleAiParseCommand"
+						>
+							<span>AI 解析回填</span>
+						</a-button>
+					</div>
+
+					<!-- 口语化示例 Chips -->
+					<div class="flex items-center gap-1.5 flex-wrap text-2xs text-slate-500">
+						<span class="text-slate-400">试试指令:</span>
+						<button
+							v-for="sample in aiCommandSamples"
+							:key="sample"
+							type="button"
+							class="cursor-pointer px-2 py-0.5 rounded-full bg-white/80 hover:bg-white text-slate-600 border border-solid border-indigo-100/80 hover:border-indigo-300 hover:text-indigo-600 transition-all select-none"
+							@click="applyAiCommandSample(sample)"
+						>
+							{{ sample }}
+						</button>
+					</div>
+
+					<!-- AI 测算结果展示区 -->
+					<div
+						v-if="aiRecommendData"
+						class="bg-white/95 rounded-lg p-3 border border-solid border-indigo-100/80 space-y-2.5 transition-all"
+					>
+						<div class="flex items-start justify-between gap-3">
+							<div class="flex-1">
+								<div
+									class="flex items-center gap-1.5 text-xs text-indigo-900 font-medium"
+								>
+									<BulbOutlined class="text-amber-500" />
+									<span>AI 消费洞察与建议</span>
+								</div>
+								<div class="text-xs text-slate-600 mt-1 leading-relaxed">
+									{{ aiRecommendData.healthAdvice }}
+								</div>
+								<div
+									v-if="aiRecommendData.dailyLimitSuggest"
+									class="text-2xs text-slate-400 mt-1"
+								>
+									建议每日均摊控制在
+									<span class="font-mono font-semibold text-indigo-600"
+										>¥{{ formatAmount(aiRecommendData.dailyLimitSuggest) }}</span
+									>
+									以内
+								</div>
+							</div>
+						</div>
+
+						<!-- 三档推荐胶囊快捷采纳 -->
+						<div class="pt-1.5 border-t border-solid border-slate-100">
+							<div
+								class="flex items-center justify-between text-2xs text-slate-400 mb-1.5"
+							>
+								<span>推荐档位 (点击一键采纳额度):</span>
+								<span v-if="aiRecommendData.avgMonthlyExpense"
+									>近3月均支出: ¥{{
+										formatAmount(aiRecommendData.avgMonthlyExpense)
+									}}</span
+								>
+							</div>
+							<div class="grid grid-cols-3 gap-2">
+								<div
+									class="cursor-pointer p-2 rounded-lg border border-solid transition-all text-center"
+									:class="
+										budgetEditForm.budgetAmount ===
+										aiRecommendData.savingAmount
+											? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs'
+											: 'bg-slate-50/60 border-slate-200/60 hover:border-indigo-300 text-slate-700'
+									"
+									@click="applyRecommendTier(aiRecommendData.savingAmount)"
+								>
+									<div class="text-2xs text-slate-500">节约档 (85%)</div>
+									<div class="text-xs font-bold font-mono mt-0.5">
+										¥{{ formatAmount(aiRecommendData.savingAmount) }}
+									</div>
+								</div>
+								<div
+									class="cursor-pointer p-2 rounded-lg border border-solid transition-all text-center relative"
+									:class="
+										budgetEditForm.budgetAmount ===
+										aiRecommendData.moderateAmount
+											? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs'
+											: 'bg-slate-50/60 border-slate-200/60 hover:border-indigo-300 text-slate-700'
+									"
+									@click="applyRecommendTier(aiRecommendData.moderateAmount)"
+								>
+									<span
+										class="absolute -top-1.5 right-1 px-1 rounded text-3xs bg-indigo-600 text-white leading-tight"
+										>推荐</span
+									>
+									<div class="text-2xs text-indigo-600 font-medium">
+										适度档 (100%)
+									</div>
+									<div
+										class="text-xs font-bold font-mono mt-0.5 text-indigo-700"
+									>
+										¥{{ formatAmount(aiRecommendData.moderateAmount) }}
+									</div>
+								</div>
+								<div
+									class="cursor-pointer p-2 rounded-lg border border-solid transition-all text-center"
+									:class="
+										budgetEditForm.budgetAmount ===
+										aiRecommendData.relaxedAmount
+											? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs'
+											: 'bg-slate-50/60 border-slate-200/60 hover:border-indigo-300 text-slate-700'
+									"
+									@click="applyRecommendTier(aiRecommendData.relaxedAmount)"
+								>
+									<div class="text-2xs text-slate-500">宽松档 (115%)</div>
+									<div class="text-xs font-bold font-mono mt-0.5">
+										¥{{ formatAmount(aiRecommendData.relaxedAmount) }}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- AI 建议重点分类一键采纳 -->
+						<div
+							v-if="aiRecommendData.recommendedCategories?.length"
+							class="flex items-center justify-between pt-1.5 border-t border-solid border-slate-100 text-2xs"
+						>
+							<div class="flex items-center gap-1.5 text-slate-600">
+								<span>AI 建议重点管控:</span>
+								<div class="flex items-center gap-1 flex-wrap">
+									<span
+										v-for="cat in aiRecommendData.recommendedCategories"
+										:key="cat"
+										class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-solid border-indigo-100 font-medium"
+									>
+										{{ cat }}
+									</span>
+								</div>
+							</div>
+							<a-button
+								type="link"
+								size="small"
+								class="!text-2xs !p-0 !text-indigo-600 hover:!text-indigo-800 font-medium"
+								@click="
+									applyRecommendedCategories(
+										aiRecommendData.recommendedCategories,
+									)
+								"
+							>
+								一键采用推荐分类
+							</a-button>
+						</div>
+					</div>
+				</div>
+
 				<!-- 1. 预算额度与快捷填充卡片 -->
 				<div
 					class="bg-slate-50/70 rounded-xl p-4 border border-solid border-slate-200/80 space-y-3"
@@ -796,11 +1001,21 @@
 import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
-import { formatTime, formatDate } from '@/utils/dayjs';
+import {
+	formatTime,
+	formatDate,
+	formatMonth,
+	formatDayjs,
+	nowDayjs,
+	getMonthRange,
+	getMonthRangeDayjs,
+} from '@/utils/dayjs';
 import type { ModelInfo } from '@/views/common/config';
 import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
+	FinanceBudgetAiRecommendVo,
+	FinanceBudgetAiParseVo,
 } from '@/views/finance/financeManager/config';
 import {
 	columns,
@@ -815,15 +1030,11 @@ import {
 	getBudgetStatus,
 	saveMonthlyBudget,
 	getBudgetCategories,
+	recommendBudget,
+	parseBudgetCommand,
 	type FinanceSummaryData,
 } from '@/views/finance/financeManager/api';
-import {
-	usePagination,
-	useRowSelection,
-	type PageInfo,
-} from '@/composables/usePagination';
 import { useUserStore } from '@/store/modules/user/user';
-import dayjs from 'dayjs';
 import {
 	CalendarOutlined,
 	PlusOutlined,
@@ -833,6 +1044,8 @@ import {
 	BarChartOutlined,
 	QuestionCircleOutlined,
 	CheckOutlined,
+	ThunderboltOutlined,
+	BulbOutlined,
 } from '@ant-design/icons-vue';
 
 // 选中的 ID 列表（严格 string 类型）
@@ -870,12 +1083,12 @@ const summaryLoading = ref<boolean>(false);
 const isFirstSummaryLoaded = ref<boolean>(false);
 
 // 零花钱月度预算状态
-const currentMonthStr = computed(() => dayjs().format('YYYY-MM'));
+const currentMonthStr = computed(() => formatMonth());
 const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
 const budgetLoading = ref<boolean>(false);
 const isFirstBudgetLoaded = ref<boolean>(false);
-const budgetModalVisible = ref(false);
-const budgetSaving = ref(false);
+const budgetModalVisible = ref<boolean>(false);
+const budgetSaving = ref<boolean>(false);
 const budgetFormRef = ref<FormInstance>();
 const budgetEditForm = reactive({
 	budgetAmount: 0,
@@ -1007,7 +1220,7 @@ const progressStrokeColor = computed(() => {
 });
 
 const recentCategories = ref<string[]>([]);
-const categoriesLoading = ref(false);
+const categoriesLoading = ref<boolean>(false);
 
 // 可用分类集合：合并系统默认分类与近两月流水分类并去重
 const availableCategories = computed(() => {
@@ -1034,8 +1247,7 @@ const simulationLoading = ref<boolean>(false);
 const fetchPreviewSimulation = async () => {
 	simulationLoading.value = true;
 	try {
-		const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');
-		const monthEnd = dayjs().endOf('month').format('YYYY-MM-DD');
+		const [monthStart, monthEnd] = getMonthRange();
 		const effectiveCategoryCodes =
 			scopeMode.value === 'all' ?
 				[]
@@ -1229,12 +1441,117 @@ const openBudgetModal = async () => {
 	);
 	budgetEditForm.categoryCodes = existingCats;
 	scopeMode.value = existingCats.length > 0 ? 'custom' : 'all';
+	aiCommandInput.value = '';
+	if (!aiRecommendData.value) {
+		fetchAiRecommend();
+	}
 	budgetModalVisible.value = true;
 	nextTick(() => {
 		budgetFormRef.value?.clearValidate();
 	});
 	fetchPreviewSimulation();
 	await fetchRecentCategories();
+};
+
+// AI 智能预算测算与解析状态
+const aiRecommending = ref<boolean>(false);
+const aiParsing = ref<boolean>(false);
+const aiCommandInput = ref<string>('');
+const aiRecommendData = ref<FinanceBudgetAiRecommendVo | null>(null);
+
+const aiCommandSamples = [
+	'帮我设2500预算，重点管餐饮和交通',
+	'每月2000管餐饮',
+	'不设上限',
+	'设3000预算双向统计',
+];
+
+const applyAiCommandSample = (sample: string) => {
+	aiCommandInput.value = sample;
+	handleAiParseCommand();
+};
+
+const fetchAiRecommend = async () => {
+	aiRecommending.value = true;
+	try {
+		const targetBelongTo =
+			getEffectiveBudgetBelongTo() ||
+			((
+				userStore.getUserInfo?.id !== undefined &&
+				userStore.getUserInfo?.id !== null
+			) ?
+				String(userStore.getUserInfo.id)
+			:	undefined);
+		const { code, data, message: msg } = await recommendBudget({
+			budgetMonth: currentMonthStr.value,
+			belongTo: targetBelongTo,
+		});
+		if (code === '200' && data) {
+			aiRecommendData.value = data;
+			message.success('AI 智能测算完成');
+		} else {
+			message.warning(msg || 'AI 测算服务暂不可用');
+		}
+	} catch (e: any) {
+		message.error(e?.message || '获取 AI 推荐失败');
+	} finally {
+		aiRecommending.value = false;
+	}
+};
+
+const handleAiParseCommand = async () => {
+	if (!aiCommandInput.value || !aiCommandInput.value.trim()) {
+		message.warning('请输入指令内容');
+		return;
+	}
+	aiParsing.value = true;
+	try {
+		const { code, data, message: msg } = await parseBudgetCommand({
+			command: aiCommandInput.value.trim(),
+			budgetMonth: currentMonthStr.value,
+		});
+		if (code === '200' && data) {
+			if (
+				data.hasBudget &&
+				data.amount !== undefined &&
+				data.amount !== null
+			) {
+				budgetEditForm.budgetAmount = Number(data.amount);
+			}
+			if (data.hasCategories && data.categories && data.categories.length > 0) {
+				scopeMode.value = 'custom';
+				const matched = data.categories.filter((c) =>
+					availableCategories.value.includes(c),
+				);
+				budgetEditForm.categoryCodes =
+					matched.length > 0 ? matched : data.categories;
+			}
+			message.success(data.reasoning || '已根据 AI 指令更新预算设定');
+		} else {
+			message.warning(msg || '未能解析该指令');
+		}
+	} catch (e: any) {
+		message.error(e?.message || 'AI 指令解析失败');
+	} finally {
+		aiParsing.value = false;
+	}
+};
+
+const applyRecommendTier = (amount?: number) => {
+	if (amount !== undefined && amount !== null) {
+		budgetEditForm.budgetAmount = Number(amount);
+	}
+};
+
+const applyRecommendedCategories = (categories?: string[]) => {
+	if (!categories || !categories.length) return;
+	scopeMode.value = 'custom';
+	const matched = categories.filter((c) =>
+		availableCategories.value.includes(c),
+	);
+	budgetEditForm.categoryCodes =
+		matched.length > 0 ? matched : [...categories];
+	message.success('已切换为自选模式并应用推荐分类');
 };
 
 const handleSaveBudget = async () => {
@@ -1294,21 +1611,21 @@ const summaryTitle = computed(() => {
 	const start = searchInfo.value.infoDateStart;
 	const end = searchInfo.value.infoDateEnd;
 	if (start && end) {
-		const startStr = dayjs(start).format('YYYY-MM-DD');
-		const endStr = dayjs(end).format('YYYY-MM-DD');
+		const startStr = formatDate(start);
+		const endStr = formatDate(end);
 		if (startStr === endStr) {
 			return `${startStr} 账单`;
 		}
-		if (dayjs(start).isSame(dayjs(end), 'month')) {
-			return `${dayjs(start).format('YYYY年M月')} 账单`;
+		if (formatMonth(start) === formatMonth(end)) {
+			return `${formatDate(start, 'YYYY年M月')} 账单`;
 		}
-		return `${dayjs(start).format('M/D')} ~ ${dayjs(end).format('M/D')} 统计`;
+		return `${formatDate(start, 'M/D')} ~ ${formatDate(end, 'M/D')} 统计`;
 	}
 	if (start) {
-		return `自 ${dayjs(start).format('YYYY-MM-DD')} 起`;
+		return `自 ${formatDate(start)} 起`;
 	}
 	if (end) {
-		return `至 ${dayjs(end).format('YYYY-MM-DD')} 止`;
+		return `至 ${formatDate(end)} 止`;
 	}
 	return '全量账单统计';
 });
@@ -1317,11 +1634,11 @@ const summaryTitle = computed(() => {
 const effectiveDaysInfo = computed(() => {
 	const start = searchInfo.value.infoDateStart;
 	const end = searchInfo.value.infoDateEnd;
-	const today = dayjs().startOf('day');
+	const today = nowDayjs().startOf('day');
 
 	if (start && end) {
-		const startDate = dayjs(start).startOf('day');
-		const endDate = dayjs(end).endOf('day');
+		const startDate = formatDayjs(start).startOf('day');
+		const endDate = formatDayjs(end).endOf('day');
 		// 若为当月（起始为当月1号），按当月已过天数统计更贴合真实花销节奏
 		const isCurrentMonth =
 			startDate.isSame(today, 'month') && startDate.date() === 1;
@@ -1332,12 +1649,12 @@ const effectiveDaysInfo = computed(() => {
 				label: `本月已过 ${passedDays} 天`,
 			};
 		}
-		const diffDays = Math.max(1, dayjs(end).diff(dayjs(start), 'day') + 1);
+		const diffDays = Math.max(1, formatDayjs(end).diff(formatDayjs(start), 'day') + 1);
 		return { days: diffDays, label: `区间共 ${diffDays} 天` };
 	}
 
 	if (start) {
-		const startDate = dayjs(start).startOf('day');
+		const startDate = formatDayjs(start).startOf('day');
 		const diffDays = Math.max(1, today.diff(startDate, 'day') + 1);
 		return { days: diffDays, label: `已过 ${diffDays} 天` };
 	}
@@ -1505,8 +1822,9 @@ const filterByCategory = (cat?: string) => {
 const drillDownCategory = (cat: string) => {
 	if (!cat) return;
 	searchInfo.value.typeCode = cat;
-	searchInfo.value.infoDateStart = dayjs().startOf('month');
-	searchInfo.value.infoDateEnd = dayjs().endOf('month');
+	const [monthStartDayjs, monthEndDayjs] = getMonthRangeDayjs();
+	searchInfo.value.infoDateStart = monthStartDayjs;
+	searchInfo.value.infoDateEnd = monthEndDayjs;
 	activeLinkageFilter.value = {
 		type: 'category',
 		value: cat,
@@ -1516,8 +1834,9 @@ const drillDownCategory = (cat: string) => {
 };
 
 const drillDownBudgetMonth = () => {
-	searchInfo.value.infoDateStart = dayjs().startOf('month');
-	searchInfo.value.infoDateEnd = dayjs().endOf('month');
+	const [monthStartDayjs, monthEndDayjs] = getMonthRangeDayjs();
+	searchInfo.value.infoDateStart = monthStartDayjs;
+	searchInfo.value.infoDateEnd = monthEndDayjs;
 	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
 	if (dir === 'expense' || dir === 'income') {
 		searchInfo.value.incomeAndExpenses = dir;

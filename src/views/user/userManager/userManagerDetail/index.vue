@@ -22,191 +22,149 @@
 		>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="username"
-							label="用户名"
-						>
-							<a-input
-								v-model:value="formState.username"
-								placeholder="请填写用户名"
-							/>
-						</a-form-item>
+					<a-form-item name="username" label="用户名">
+						<a-input
+							v-model:value="formState.username"
+							placeholder="请填写用户名"
+						/>
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="gender"
-							label="性别"
-						>
-							<a-select
-								v-model:value="formState.gender"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="genderList"
-								allow-clear
-								placeholder="请选择性别"
-							/>
-						</a-form-item>
+					<a-form-item name="gender" label="性别">
+						<a-select
+							v-model:value="formState.gender"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="genderList"
+							allow-clear
+							placeholder="请选择性别"
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="nickName"
-							label="昵称"
-						>
-							<a-input
-								v-model:value="formState.nickName"
-								placeholder="请填写昵称"
-							/>
-						</a-form-item>
+					<a-form-item name="nickName" label="昵称">
+						<a-input
+							v-model:value="formState.nickName"
+							placeholder="请填写昵称"
+						/>
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="weChat"
-							label="微信号"
-						>
-							<a-input
-								v-model:value="formState.weChat"
-								placeholder="请填写微信号"
-							/>
-						</a-form-item>
+					<a-form-item name="weChat" label="微信号">
+						<a-input
+							v-model:value="formState.weChat"
+							placeholder="请填写微信号"
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="qqNumber"
-							label="QQ号"
-						>
-							<a-input
-								v-model:value="formState.qqNumber"
-								placeholder="请填写QQ号"
-							/>
-						</a-form-item>
+					<a-form-item name="qqNumber" label="QQ号">
+						<a-input
+							v-model:value="formState.qqNumber"
+							placeholder="请填写QQ号"
+						/>
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="occupation"
-							label="职业"
-						>
-							<a-input
-								v-model:value="formState.occupation"
-								placeholder="请填写职业"
-							/>
-						</a-form-item>
+					<a-form-item name="occupation" label="职业">
+						<a-input
+							v-model:value="formState.occupation"
+							placeholder="请填写职业"
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="email"
-							label="邮箱"
-						>
-							<a-input
-								v-model:value="formState.email"
-								placeholder="请填写邮箱"
-							/>
-						</a-form-item>
+					<a-form-item name="email" label="邮箱">
+						<a-input v-model:value="formState.email" placeholder="请填写邮箱" />
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="birthday"
-							label="生日"
-						>
-							<a-date-picker
-								v-model:value="formState.birthday"
-								:format="defaultDateFormat"
-								:get-popup-container="(triggerNode: HTMLElement) => triggerNode.parentNode as HTMLElement"
-								style="width: 100%"
-							/>
-						</a-form-item>
+					<a-form-item name="birthday" label="生日">
+						<a-date-picker
+							v-model:value="formState.birthday"
+							:format="defaultDateFormat"
+							:get-popup-container="
+								(triggerNode: HTMLElement) =>
+									triggerNode.parentNode as HTMLElement
+							"
+							style="width: 100%"
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="mobile"
-							label="电话号码"
-						>
-							<a-input
-								v-model:value="formState.mobile"
-								placeholder="请填写电话号码"
-							/>
-						</a-form-item>
+					<a-form-item name="mobile" label="电话号码">
+						<a-input
+							v-model:value="formState.mobile"
+							placeholder="请填写电话号码"
+						/>
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="status"
-							label="状态"
-						>
-							<a-select
-								v-model:value="formState.status"
-								placeholder="请选择有效状态"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="validList"
-								allow-clear
-							/>
-						</a-form-item>
+					<a-form-item name="status" label="状态">
+						<a-select
+							v-model:value="formState.status"
+							placeholder="请选择有效状态"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="validList"
+							allow-clear
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="orgId"
-							label="所属机构"
-						>
-							<a-select
-								v-model:value="formState.orgId"
-								:options="orgOptions"
-								:field-names="{ label: 'orgName', value: 'id' }"
-								placeholder="请选择所属机构"
-								allow-clear
-							/>
-						</a-form-item>
+					<a-form-item name="orgId" label="所属机构">
+						<a-select
+							v-model:value="formState.orgId"
+							:options="orgOptions"
+							:field-names="{ label: 'orgName', value: 'id' }"
+							placeholder="请选择所属机构"
+							allow-clear
+						/>
+					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-						<a-form-item
-							name="roleIds"
-							label="角色"
-						>
-							<a-select
-								v-model:value="formState.roleIds"
-								:options="roleOptions"
-								:field-names="{ label: 'roleName', value: 'id' }"
-								mode="multiple"
-								placeholder="请选择角色"
-								allow-clear
-							/>
-						</a-form-item>
+					<a-form-item name="roleIds" label="角色">
+						<a-select
+							v-model:value="formState.roleIds"
+							:options="roleOptions"
+							:field-names="{ label: 'roleName', value: 'id' }"
+							mode="multiple"
+							placeholder="请选择角色"
+							allow-clear
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-						<a-form-item
-							name="avatar"
-							label="头像"
-						>
-							<my-upload
-								:fromSystem="fromSystem"
-								:fileInfo="fileInfo"
-								@customImageRequest="customImageRequest"
-							/>
-						</a-form-item>
+					<a-form-item name="avatar" label="头像">
+						<my-upload
+							:fromSystem="fromSystem"
+							:fileInfo="fileInfo"
+							@customImageRequest="customImageRequest"
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="24">
-						<a-form-item
-							name="summary"
-							label="个人简介"
-						>
-							<a-textarea
-								v-model:value="formState.summary"
-								placeholder="请添加个人简介"
-								:auto-size="{ minRows: 2, maxRows: 5 }"
-								:maxlength="500"
-								show-count
-							/>
-						</a-form-item>
+					<a-form-item name="summary" label="个人简介">
+						<a-textarea
+							v-model:value="formState.summary"
+							placeholder="请添加个人简介"
+							:auto-size="{ minRows: 2, maxRows: 5 }"
+							:maxlength="500"
+							show-count
+						/>
+					</a-form-item>
 				</a-col>
 			</a-row>
 		</a-form>
@@ -216,11 +174,10 @@
 <script setup lang="ts">
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
 import type { RbacSummaryItem } from '@/components/rbac/types';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { defaultDateFormat } from '@/utils/dayjs';
+import { defaultDateFormat, formatDayjs } from '@/utils/dayjs';
 import type { FileInfo } from '@/views/common/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
@@ -241,8 +198,8 @@ const modelInfo = defineModel<ModelInfo>('modelInfo', {
 
 const { getDictByType } = useDictInfo('gender,is_valid');
 
-const loading = ref(false);
-const pageLoading = ref(false);
+const loading = ref<boolean>(false);
+const pageLoading = ref<boolean>(false);
 const errorText = ref('');
 const formState = ref<UserManagerInfo>({});
 const formRef = ref<FormInstance>();
@@ -302,9 +259,11 @@ const handleOpenChange = (open: boolean) => {
 
 const saveUserManager = async () => {
 	const api = formState.value.id ? editUserManager : addUserManager;
-	const { code, message: messageInfo } = await api(formState.value).finally(() => {
-		loading.value = false;
-	});
+	const { code, message: messageInfo } = await api(formState.value).finally(
+		() => {
+			loading.value = false;
+		},
+	);
 	if (code === '200') {
 		message.success(messageInfo || '保存成功');
 		modelInfo.value.open = false;
@@ -346,7 +305,8 @@ const normalizeDetail = (data: UserManagerInfo | undefined) => {
 		  })
 		| undefined;
 	formState.value.orgId =
-		formState.value.orgId || (detail?.orgInfoVo?.id ? String(detail.orgInfoVo.id) : undefined);
+		formState.value.orgId ||
+		(detail?.orgInfoVo?.id ? String(detail.orgInfoVo.id) : undefined);
 	formState.value.roleIds =
 		formState.value.roleIds ||
 		detail?.roleInfoVoList?.map((role) => String(role.id)) ||
@@ -358,7 +318,7 @@ const normalizeDetail = (data: UserManagerInfo | undefined) => {
 		formState.value.status = String(formState.value.status);
 	}
 	if (formState.value.birthday) {
-		formState.value.birthday = dayjs(formState.value.birthday);
+		formState.value.birthday = formatDayjs(formState.value.birthday);
 	}
 	if (formState.value.avatar) {
 		fileInfo.value.id = formState.value.avatar;

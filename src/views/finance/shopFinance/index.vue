@@ -165,20 +165,19 @@ import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import { iconComponentMap } from '@/views/common/config';
 import { formatAmount } from '@/utils/amountInfo';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import {
 	columns,
 	fromSourceTransferList,
 } from '@/views/finance/shopFinance/config';
-import { formatTime, formatDate } from '@/utils/dayjs';
+import { formatTime, formatDate, type Dayjs } from '@/utils/dayjs';
 import {
 	getShopFinancePage,
 	deleteShopFinance,
 } from '@/views/finance/shopFinance/api';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import type { Dayjs } from 'dayjs';
 
 // 使用表格行选择组合式函数（保障 ID 为纯 string）
 const {

@@ -31,7 +31,7 @@ const emit = defineEmits<{
 	select: [record: GiftRecordInfo | undefined];
 }>();
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const options = ref<PickerOption[]>([]);
 const recordMap = ref<Map<string, GiftRecordInfo>>(new Map());
 

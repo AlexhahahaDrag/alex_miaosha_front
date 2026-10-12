@@ -432,11 +432,7 @@ import SubMenuManager from './subMenuManager/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { columns } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import {
-	usePagination,
-	useRowSelection,
-	type PageInfo,
-} from '@/composables/usePagination';
+import { type PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/views/common/config';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 

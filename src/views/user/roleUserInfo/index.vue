@@ -76,7 +76,11 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { RbacDiffItem, RbacSelectableItem } from '@/components/rbac';
-import { getRoleInfoPage, getRoleInfoDetail, assignRoleUsers } from '@/views/user/roleInfo/api';
+import {
+	getRoleInfoPage,
+	getRoleInfoDetail,
+	assignRoleUsers,
+} from '@/views/user/roleInfo/api';
 import type { RoleInfoData } from '@/views/user/roleInfo/config';
 import { getUserManagerList } from '@/views/user/userManager/api';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
@@ -105,8 +109,8 @@ const assignedKeyword = ref('');
 const selectedAvailableKeys = ref<string[]>([]);
 const selectedAssignedKeys = ref<string[]>([]);
 
-const pageLoading = ref(false);
-const saving = ref(false);
+const pageLoading = ref<boolean>(false);
+const saving = ref<boolean>(false);
 
 const filterOption = (input: string, option?: RoleOption) =>
 	(option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -227,11 +231,18 @@ const handleSave = async () => {
 const loadRoleUsers = async (roleId: string) => {
 	pageLoading.value = true;
 	try {
-		const { code, data, message: messageInfo } = await getRoleInfoDetail(roleId);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getRoleInfoDetail(roleId);
 		if (code === '200') {
 			const list =
-				(data as unknown as { roleUserInfoVoList?: { userId?: string; id?: string }[] })
-					?.roleUserInfoVoList || [];
+				(
+					data as unknown as {
+						roleUserInfoVoList?: { userId?: string; id?: string }[];
+					}
+				)?.roleUserInfoVoList || [];
 			const ids = list.map((item) => String(item.userId || item.id));
 			initialAssignedUserIds.value = ids;
 			draftAssignedUserIds.value = [...ids];
@@ -250,11 +261,11 @@ const onRoleChange = (roleId: string) => {
 };
 
 const loadRoleOptions = async () => {
-	const { code, data, message: messageInfo } = await getRoleInfoPage(
-		{ status: '1' },
-		1,
-		1000,
-	);
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getRoleInfoPage({ status: '1' }, 1, 1000);
 	if (code === '200') {
 		roleOptions.value = (data?.records || []).map((role: RoleInfoData) => ({
 			label: role.roleName || '',
@@ -266,7 +277,11 @@ const loadRoleOptions = async () => {
 };
 
 const loadUsers = async () => {
-	const { code, data, message: messageInfo } = await getUserManagerList({
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getUserManagerList({
 		status: '1',
 	});
 	if (code === '200') {

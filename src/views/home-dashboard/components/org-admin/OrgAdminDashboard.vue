@@ -13,18 +13,29 @@
 						class="kpi-card"
 						:class="{ 'clickable-card': isFamilyContext }"
 						data-testid="dash-org-kpi-expense"
-						@click="isFamilyContext && navigateTo('/finance/financeManager', { type: 'expense' })"
+						@click="
+							isFamilyContext &&
+							navigateTo('/finance/financeManager', { type: 'expense' })
+						"
 					>
 						<div class="kpi-top-row">
-							<div class="kpi-title">{{ isFamilyContext ? '本月综合总支出' : '本机构在册员工' }}</div>
-							<div :class="['kpi-icon-badge', isFamilyContext ? 'orange' : 'blue']">
+							<div class="kpi-title">
+								{{ isFamilyContext ? '本月综合总支出' : '本机构在册员工' }}
+							</div>
+							<div
+								:class="['kpi-icon-badge', isFamilyContext ? 'orange' : 'blue']"
+							>
 								<fall-outlined v-if="isFamilyContext" />
 								<team-outlined v-else />
 							</div>
 						</div>
 						<div class="kpi-value-row">
 							<span class="kpi-currency" v-if="isFamilyContext">¥</span>
-							<span class="kpi-number">{{ isFamilyContext ? formatMoney(familyStats.totalExpense) : orgStats.memberCount }}</span>
+							<span class="kpi-number">{{
+								isFamilyContext ?
+									formatMoney(familyStats.totalExpense)
+								:	orgStats.memberCount
+							}}</span>
 							<span class="kpi-unit" v-if="!isFamilyContext">人</span>
 						</div>
 						<div class="kpi-bottom-row" v-if="isFamilyContext">
@@ -37,8 +48,16 @@
 								v-if="familyStats.expenseMomTrend"
 								:title="`较上月环比: ${familyStats.expenseMomTrend} · 较去年同期同比: ${familyStats.expenseYoyTrend || '持平'}`"
 							>
-								<div :class="['kpi-trend-badge', isTrendGood('expense', familyStats.expenseMomTrend) ? 'good' : 'warn']">
-									<fall-outlined v-if="isNegativeTrend(familyStats.expenseMomTrend)" />
+								<div
+									:class="[
+										'kpi-trend-badge',
+										isTrendGood('expense', familyStats.expenseMomTrend) ? 'good'
+										:	'warn',
+									]"
+								>
+									<fall-outlined
+										v-if="isNegativeTrend(familyStats.expenseMomTrend)"
+									/>
 									<rise-outlined v-else />
 									<span>环比 {{ familyStats.expenseMomTrend }}</span>
 								</div>
@@ -60,18 +79,29 @@
 						class="kpi-card"
 						:class="{ 'clickable-card': isFamilyContext }"
 						data-testid="dash-org-kpi-income"
-						@click="isFamilyContext && navigateTo('/finance/financeManager', { type: 'income' })"
+						@click="
+							isFamilyContext &&
+							navigateTo('/finance/financeManager', { type: 'income' })
+						"
 					>
 						<div class="kpi-top-row">
-							<div class="kpi-title">{{ isFamilyContext ? '本月综合总收入' : '管辖商品/秒杀在售' }}</div>
-							<div :class="['kpi-icon-badge', isFamilyContext ? 'cyan' : 'cyan']">
+							<div class="kpi-title">
+								{{ isFamilyContext ? '本月综合总收入' : '管辖商品/秒杀在售' }}
+							</div>
+							<div
+								:class="['kpi-icon-badge', isFamilyContext ? 'cyan' : 'cyan']"
+							>
 								<rise-outlined v-if="isFamilyContext" />
 								<appstore-outlined v-else />
 							</div>
 						</div>
 						<div class="kpi-value-row">
 							<span class="kpi-currency" v-if="isFamilyContext">¥</span>
-							<span class="kpi-number">{{ isFamilyContext ? formatMoney(familyStats.totalIncome) : orgStats.productCount }}</span>
+							<span class="kpi-number">{{
+								isFamilyContext ?
+									formatMoney(familyStats.totalIncome)
+								:	orgStats.productCount
+							}}</span>
 							<span class="kpi-unit" v-if="!isFamilyContext">件</span>
 						</div>
 						<div class="kpi-bottom-row" v-if="isFamilyContext">
@@ -84,8 +114,16 @@
 								v-if="familyStats.incomeMomTrend"
 								:title="`较上月环比: ${familyStats.incomeMomTrend} · 较去年同期同比: ${familyStats.incomeYoyTrend || '持平'}`"
 							>
-								<div :class="['kpi-trend-badge', isTrendGood('income', familyStats.incomeMomTrend) ? 'good' : 'warn']">
-									<rise-outlined v-if="!isNegativeTrend(familyStats.incomeMomTrend)" />
+								<div
+									:class="[
+										'kpi-trend-badge',
+										isTrendGood('income', familyStats.incomeMomTrend) ? 'good'
+										:	'warn',
+									]"
+								>
+									<rise-outlined
+										v-if="!isNegativeTrend(familyStats.incomeMomTrend)"
+									/>
 									<fall-outlined v-else />
 									<span>环比 {{ familyStats.incomeMomTrend }}</span>
 								</div>
@@ -110,29 +148,70 @@
 						@click="isFamilyContext && navigateTo('/finance/financeAnalysis')"
 					>
 						<div class="kpi-top-row">
-							<div class="kpi-title">{{ isFamilyContext ? '本月家庭净结余' : '本月成交额' }}</div>
-							<div :class="['kpi-icon-badge', isFamilyContext ? (familyStats.netBalance >= 0 ? 'pink' : 'danger-badge') : 'orange']">
+							<div class="kpi-title">
+								{{ isFamilyContext ? '本月家庭净结余' : '本月成交额' }}
+							</div>
+							<div
+								:class="[
+									'kpi-icon-badge',
+									isFamilyContext ?
+										familyStats.netBalance >= 0 ?
+											'pink'
+										:	'danger-badge'
+									:	'orange',
+								]"
+							>
 								<wallet-outlined v-if="isFamilyContext" />
 								<dollar-outlined v-else />
 							</div>
 						</div>
 						<div class="kpi-value-row">
 							<span class="kpi-currency">¥</span>
-							<span :class="['kpi-number', isFamilyContext && familyStats.netBalance < 0 ? 'text-rose-600' : '']">
-								{{ isFamilyContext ? formatMoney(familyStats.netBalance) : orgStats.monthlySales.toLocaleString() }}
+							<span
+								:class="[
+									'kpi-number',
+									isFamilyContext && familyStats.netBalance < 0 ?
+										'text-rose-600'
+									:	'',
+								]"
+							>
+								{{
+									isFamilyContext ?
+										formatMoney(familyStats.netBalance)
+									:	orgStats.monthlySales.toLocaleString()
+								}}
 							</span>
 						</div>
 						<div class="kpi-bottom-row" v-if="isFamilyContext">
-							<div :class="['kpi-breakdown-capsule', familyStats.netBalance < 0 ? 'danger' : '']">
-								<span v-if="familyStats.netBalance >= 0">储蓄率 {{ familyStats.savingsRate }}% · 结余充裕</span>
-								<span v-else>当月超支 ¥{{ formatMoney(Math.abs(familyStats.netBalance)) }}</span>
+							<div
+								:class="[
+									'kpi-breakdown-capsule',
+									familyStats.netBalance < 0 ? 'danger' : '',
+								]"
+							>
+								<span v-if="familyStats.netBalance >= 0"
+									>储蓄率 {{ familyStats.savingsRate }}% · 结余充裕</span
+								>
+								<span v-else
+									>当月超支 ¥{{
+										formatMoney(Math.abs(familyStats.netBalance))
+									}}</span
+								>
 							</div>
 							<a-tooltip
 								v-if="familyStats.balanceMomTrend"
 								:title="`结余较上月环比: ${familyStats.balanceMomTrend} · 较去年同期同比: ${familyStats.balanceYoyTrend || '持平'}`"
 							>
-								<div :class="['kpi-trend-badge', isTrendGood('income', familyStats.balanceMomTrend) ? 'good' : 'warn']">
-									<rise-outlined v-if="!isNegativeTrend(familyStats.balanceMomTrend)" />
+								<div
+									:class="[
+										'kpi-trend-badge',
+										isTrendGood('income', familyStats.balanceMomTrend) ? 'good'
+										:	'warn',
+									]"
+								>
+									<rise-outlined
+										v-if="!isNegativeTrend(familyStats.balanceMomTrend)"
+									/>
 									<fall-outlined v-else />
 									<span>环比 {{ familyStats.balanceMomTrend }}</span>
 								</div>
@@ -157,15 +236,23 @@
 						@click="isFamilyContext && navigateTo('/finance/gift/person')"
 					>
 						<div class="kpi-top-row">
-							<div class="kpi-title">{{ isFamilyContext ? '家庭在册亲友' : '机构礼金往来总额' }}</div>
-							<div :class="['kpi-icon-badge', isFamilyContext ? 'blue' : 'pink']">
+							<div class="kpi-title">
+								{{ isFamilyContext ? '家庭在册亲友' : '机构礼金往来总额' }}
+							</div>
+							<div
+								:class="['kpi-icon-badge', isFamilyContext ? 'blue' : 'pink']"
+							>
 								<team-outlined v-if="isFamilyContext" />
 								<account-book-outlined v-else />
 							</div>
 						</div>
 						<div class="kpi-value-row">
 							<span class="kpi-currency" v-if="!isFamilyContext">¥</span>
-							<span class="kpi-number">{{ isFamilyContext ? familyStats.memberCount : orgStats.giftTurnover.toLocaleString() }}</span>
+							<span class="kpi-number">{{
+								isFamilyContext ?
+									familyStats.memberCount
+								:	orgStats.giftTurnover.toLocaleString()
+							}}</span>
 							<span class="kpi-unit" v-if="isFamilyContext">人</span>
 						</div>
 						<div class="kpi-bottom-row" v-if="isFamilyContext">
@@ -225,7 +312,9 @@
 				<a-col :xs="24" :lg="8">
 					<QuickActionGrid
 						:title="isFamilyContext ? '家庭常用管理通道' : '机构常用管理通道'"
-						:actions="isFamilyContext ? FAMILY_ADMIN_ACTIONS : ORG_ADMIN_ACTIONS"
+						:actions="
+							isFamilyContext ? FAMILY_ADMIN_ACTIONS : ORG_ADMIN_ACTIONS
+						"
 					/>
 				</a-col>
 			</a-row>
@@ -247,8 +336,12 @@ import {
 	getGiftAnalysisTrend,
 } from '@/views/finance/gift/api';
 import { getFinanceSummary } from '@/views/finance/financeManager/api';
-import { getIncomeAndExpense, getMonthExpense, getBalance } from '@/views/finance/financeAnalysis/api';
-import dayjs from 'dayjs';
+import {
+	getIncomeAndExpense,
+	getMonthExpense,
+	getBalance,
+} from '@/views/finance/financeAnalysis/api';
+import { formatMonth, getMonthRange } from '@/utils/dayjs';
 import {
 	TeamOutlined,
 	AppstoreOutlined,
@@ -259,7 +352,6 @@ import {
 	FallOutlined,
 	RiseOutlined,
 	WalletOutlined,
-	WarningOutlined,
 } from '@ant-design/icons-vue';
 
 const router = useRouter();
@@ -333,7 +425,10 @@ const isTrendGood = (type: 'expense' | 'income', trend?: string) => {
 	return !isNeg; // 收入/结余增加为好 (绿)
 };
 
-const formatMoney = (val: number | string | undefined, decimals = 2): string => {
+const formatMoney = (
+	val: number | string | undefined,
+	decimals = 2,
+): string => {
 	const num = Number(val);
 	if (isNaN(num)) return '0.00';
 	return num.toLocaleString('zh-CN', {
@@ -367,7 +462,7 @@ const renderComprehensiveTrend = () => {
 	const expenseMap = new Map<string, number>();
 	cachedMonthExpenseList.forEach((e) => {
 		if (e.infoDate) {
-			const mKey = dayjs(e.infoDate).format('YYYY-MM');
+			const mKey = formatMonth(e.infoDate);
 			expenseMap.set(mKey, (expenseMap.get(mKey) || 0) + Number(e.amount || 0));
 		}
 	});
@@ -396,7 +491,8 @@ const renderComprehensiveTrend = () => {
 			},
 			xAxis: {
 				type: 'category',
-				data: months.length ? months : ['4月', '5月', '6月', '7月', '8月', '9月'],
+				data:
+					months.length ? months : ['4月', '5月', '6月', '7月', '8月', '9月'],
 			},
 			yAxis: {
 				type: 'value',
@@ -407,7 +503,10 @@ const renderComprehensiveTrend = () => {
 					name: '综合总支出 (元)',
 					type: 'bar',
 					barWidth: 18,
-					data: totalExpenseSeries.length ? totalExpenseSeries : [8200, 10500, 11800, 13400, 15200, 16800],
+					data:
+						totalExpenseSeries.length ? totalExpenseSeries : (
+							[8200, 10500, 11800, 13400, 15200, 16800]
+						),
 					itemStyle: {
 						color: '#13c2c2',
 						borderRadius: [4, 4, 0, 0],
@@ -417,7 +516,10 @@ const renderComprehensiveTrend = () => {
 					name: '综合总收入 (元)',
 					type: 'line',
 					smooth: true,
-					data: giftReceives.length ? giftReceives : [18000, 22000, 31000, 29000, 38000, 46200],
+					data:
+						giftReceives.length ? giftReceives : (
+							[18000, 22000, 31000, 29000, 38000, 46200]
+						),
 					itemStyle: { color: '#eb2f96' },
 				},
 			],
@@ -470,15 +572,16 @@ const renderCategoryPie = () => {
 							fontWeight: 'bold',
 						},
 					},
-					data: hasData
-						? pieData
-						: [
+					data:
+						hasData ? pieData : (
+							[
 								{ value: 1200, name: '餐饮美食' },
 								{ value: 800, name: '居家生活' },
 								{ value: 650, name: '生活缴费' },
 								{ value: 450, name: '交通出行' },
 								{ value: 900, name: '休闲娱乐' },
-						  ],
+							]
+						),
 				},
 			],
 		},
@@ -511,7 +614,8 @@ const renderGiftTrend = () => {
 			},
 			xAxis: {
 				type: 'category',
-				data: months.length ? months : ['4月', '5月', '6月', '7月', '8月', '9月'],
+				data:
+					months.length ? months : ['4月', '5月', '6月', '7月', '8月', '9月'],
 			},
 			yAxis: {
 				type: 'value',
@@ -522,7 +626,10 @@ const renderGiftTrend = () => {
 					name: '随礼支出 (元)',
 					type: 'bar',
 					barWidth: 18,
-					data: months.length ? giveData : [8200, 10500, 11800, 13400, 15200, 16890],
+					data:
+						months.length ? giveData : (
+							[8200, 10500, 11800, 13400, 15200, 16890]
+						),
 					itemStyle: {
 						color: '#fa541c',
 						borderRadius: [4, 4, 0, 0],
@@ -532,7 +639,10 @@ const renderGiftTrend = () => {
 					name: '收礼收入 (元)',
 					type: 'line',
 					smooth: true,
-					data: months.length ? receiveData : [18000, 22000, 31000, 29000, 38000, 46200],
+					data:
+						months.length ? receiveData : (
+							[18000, 22000, 31000, 29000, 38000, 46200]
+						),
 					itemStyle: { color: '#eb2f96' },
 				},
 			],
@@ -560,14 +670,17 @@ const loadDashboardMetrics = async () => {
 	if (isFamilyContext.value) {
 		try {
 			// 1. 获取人员统计
-			const { code: personCode, data: personData } = await getGiftPersonSummary();
+			const { code: personCode, data: personData } =
+				await getGiftPersonSummary();
 			if (personCode === '200' && personData) {
 				familyStats.value.memberCount = personData.personCount ?? 0;
 			}
 
 			// 2. 本月起止时间范围 (发生日期口径: 当月1日 00:00:00 至 当月末日 23:59:59)
-			const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD 00:00:00');
-			const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD 23:59:59');
+			const [monthStartDay, monthEndDay] = getMonthRange();
+			const startOfMonth = `${monthStartDay} 00:00:00`;
+			const endOfMonth = `${monthEndDay} 23:59:59`;
+			const currentMonth = formatMonth();
 
 			// 按发生日期 (event_time) 统计本月人情事由场数
 			const { code: eventCode, data: eventData } = await getGiftEventPage(
@@ -595,8 +708,8 @@ const loadDashboardMetrics = async () => {
 
 			// 4. 获取本月个人/家庭日常财务汇总
 			const { code: finCode, data: finData } = await getFinanceSummary({
-				infoDateStart: dayjs().startOf('month').format('YYYY-MM-DD'),
-				infoDateEnd: dayjs().endOf('month').format('YYYY-MM-DD'),
+				infoDateStart: monthStartDay,
+				infoDateEnd: monthEndDay,
 			});
 			if (finCode === '200' && finData) {
 				familyStats.value.dailyExpense = Number(finData.totalExpense) || 0;
@@ -605,24 +718,31 @@ const loadDashboardMetrics = async () => {
 			}
 
 			// 5. 核算综合总账
-			const totalExp = familyStats.value.dailyExpense + familyStats.value.giftExpense;
-			const totalInc = familyStats.value.dailyIncome + familyStats.value.giftIncome;
+			const totalExp =
+				familyStats.value.dailyExpense + familyStats.value.giftExpense;
+			const totalInc =
+				familyStats.value.dailyIncome + familyStats.value.giftIncome;
 			const net = totalInc - totalExp;
 			familyStats.value.totalExpense = totalExp;
 			familyStats.value.totalIncome = totalInc;
 			familyStats.value.netBalance = net;
-			familyStats.value.savingsRate = totalInc > 0 && net > 0 ? Math.round((net / totalInc) * 100) : 0;
+			familyStats.value.savingsRate =
+				totalInc > 0 && net > 0 ? Math.round((net / totalInc) * 100) : 0;
 
 			// 6. 获取人情趋势数据
-			const { code: trendCode, data: trendData } = await getGiftAnalysisTrend({ period: 'month' });
+			const { code: trendCode, data: trendData } = await getGiftAnalysisTrend({
+				period: 'month',
+			});
 			if (trendCode === '200' && Array.isArray(trendData)) {
 				cachedTrendData = trendData;
 			}
 
 			// 7. 获取日常消费月度走势明细
 			try {
-				const currentMonth = dayjs().format('YYYY-MM');
-				const { code: mExpCode, data: mExpData } = await getMonthExpense(null, currentMonth);
+				const { code: mExpCode, data: mExpData } = await getMonthExpense(
+					null,
+					currentMonth,
+				);
 				if (mExpCode === '200' && Array.isArray(mExpData)) {
 					cachedMonthExpenseList = mExpData;
 				}
@@ -632,8 +752,11 @@ const loadDashboardMetrics = async () => {
 
 			// 8. 获取本月日常消费分类结构
 			try {
-				const currentMonth = dayjs().format('YYYY-MM');
-				const { code: catCode, data: catData } = await getIncomeAndExpense(null, currentMonth, 'expense');
+				const { code: catCode, data: catData } = await getIncomeAndExpense(
+					null,
+					currentMonth,
+					'expense',
+				);
 				if (catCode === '200' && Array.isArray(catData)) {
 					cachedCategoryData = catData;
 				}
@@ -643,8 +766,10 @@ const loadDashboardMetrics = async () => {
 
 			// 9. 获取个人/家庭财务余额与同比环比走势
 			try {
-				const currentMonth = dayjs().format('YYYY-MM');
-				const { code: balCode, data: balData } = await getBalance(null, currentMonth);
+				const { code: balCode, data: balData } = await getBalance(
+					null,
+					currentMonth,
+				);
 				if (balCode === '200' && balData) {
 					familyStats.value.expenseMomTrend = balData.expenseMomTrend || '';
 					familyStats.value.expenseYoyTrend = balData.expenseYoyTrend || '';
@@ -733,7 +858,9 @@ onUnmounted(() => {
 			transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
 			&:hover {
-				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+				box-shadow:
+					0 10px 15px -3px rgba(0, 0, 0, 0.06),
+					0 4px 6px -4px rgba(0, 0, 0, 0.04);
 				border-color: #cbd5e1;
 			}
 
@@ -742,7 +869,9 @@ onUnmounted(() => {
 
 				&:hover {
 					transform: translateY(-3px);
-					box-shadow: 0 12px 20px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+					box-shadow:
+						0 12px 20px -4px rgba(0, 0, 0, 0.08),
+						0 4px 6px -2px rgba(0, 0, 0, 0.03);
 					border-color: #94a3b8;
 
 					.kpi-icon-badge {

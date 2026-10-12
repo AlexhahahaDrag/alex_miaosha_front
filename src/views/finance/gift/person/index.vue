@@ -109,8 +109,16 @@
 						>
 						<strong v-else>{{ money(summary.netAmount) }}</strong>
 						<div class="balance-tag-group">
-							<span class="tag-pos" title="人情余额正值和（收大于送的亲友差额总和）">正: +{{ money(summary.positiveBalanceSum) }}</span>
-							<span class="tag-neg" title="人情余额负值和（送大于收的亲友差额总和）">负: -{{ money(summary.negativeBalanceSum) }}</span>
+							<span
+								class="tag-pos"
+								title="人情余额正值和（收大于送的亲友差额总和）"
+								>正: +{{ money(summary.positiveBalanceSum) }}</span
+							>
+							<span
+								class="tag-neg"
+								title="人情余额负值和（送大于收的亲友差额总和）"
+								>负: -{{ money(summary.negativeBalanceSum) }}</span
+							>
 						</div>
 					</div>
 					<p>累计收礼与送礼差值</p>
@@ -179,7 +187,9 @@
 						</div>
 					</template>
 					<template v-else-if="column.key === 'relationType'">
-						<span class="relation-type-text">{{ relationLabel(record.relationType) }}</span>
+						<span class="relation-type-text">{{
+							relationLabel(record.relationType)
+						}}</span>
 					</template>
 					<template v-else-if="column.key === 'relationGrade'">
 						<a-tag
@@ -211,7 +221,9 @@
 					</template>
 					<template v-else-if="column.key === 'latestRecordTime'">
 						<div v-if="record.latestRecordTime">
-							<div class="time-text">{{ formatDate(record.latestRecordTime) }}</div>
+							<div class="time-text">
+								{{ formatDate(record.latestRecordTime) }}
+							</div>
 							<a-tag
 								size="small"
 								:color="
@@ -296,7 +308,6 @@ import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import {
 	deleteGiftPerson,
 	getGiftPersonBusinessPage,
@@ -324,16 +335,12 @@ const {
 } = useGiftRelationOptions();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (page) => loadPage(page),
-});
-const loading = ref(false);
-const summaryLoading = ref(false);
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (page) => loadPage(page),
+	});
+const loading = ref<boolean>(false);
+const summaryLoading = ref<boolean>(false);
 const { hasPermission } = usePermission();
 const modelInfo = ref<{
 	id?: string;
@@ -348,7 +355,7 @@ const summary = ref<GiftPersonSummary>({});
 const dataSource = ref<GiftPersonBusinessInfo[]>([]);
 
 // 快速记录往来相关 Refs
-const recordDrawerOpen = ref(false);
+const recordDrawerOpen = ref<boolean>(false);
 const editingRecord = ref<GiftRecordInfo | undefined>(undefined);
 
 const handleRecordSuccess = () => {
@@ -447,8 +454,6 @@ const resetQuery = () => {
 	searchInfo.value = {};
 };
 
-
-
 const loadSummary = async () => {
 	summaryLoading.value = true;
 	try {
@@ -464,7 +469,9 @@ const loadPage = async (page: PageInfo) => {
 	try {
 		const queryParams = { ...searchInfo.value };
 		if (queryParams.relationType) {
-			queryParams.relationType = resolveFilterRelationType(queryParams.relationType);
+			queryParams.relationType = resolveFilterRelationType(
+				queryParams.relationType,
+			);
 		}
 		const {
 			code,
@@ -667,7 +674,9 @@ onMounted(async () => {
 	background: #fff;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.05),
+		0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 .filter-panel {

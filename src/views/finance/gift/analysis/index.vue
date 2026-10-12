@@ -237,7 +237,7 @@ const RankingList = defineComponent({
 	},
 });
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
 const period = ref<'month' | 'year'>('month');
 const analysisType = ref<'all' | 'receive' | 'give'>('all');
@@ -413,7 +413,9 @@ watch([period, analysisType], () => {
 	background: #fff;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.05),
+		0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 .filter-panel {

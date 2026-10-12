@@ -50,7 +50,7 @@ import { SyncOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 
 const serviceList = ref<MicroServiceNode[]>([...MICRO_SERVICES]);
-const refreshing = ref(false);
+const refreshing = ref<boolean>(false);
 
 const handleRefresh = () => {
 	refreshing.value = true;

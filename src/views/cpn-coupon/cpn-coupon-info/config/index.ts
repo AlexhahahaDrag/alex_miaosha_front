@@ -1,6 +1,6 @@
-import type { TableColumnsType } from 'ant-design-vue';
+﻿import type { TableColumnsType } from 'ant-design-vue';
 
-import type { Dayjs } from 'dayjs';
+import type { Dayjs } from '@/utils/dayjs';
 import { formatTime } from '@/utils/dayjs';
 import { rulesRef } from '../cpn-coupon-info-detail/config';
 

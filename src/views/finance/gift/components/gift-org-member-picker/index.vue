@@ -49,9 +49,9 @@ const { orgMemberHint } = useGiftOrgScope();
 const { getOrgMembers, isWarmed, warmup, findSelfPersonId } =
 	useGiftRecordOptionsCache();
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const options = ref<PickerOption[]>([]);
-const listLoaded = ref(false);
+const listLoaded = ref<boolean>(false);
 
 const formatMemberOption = (person: GiftPersonInfo): PickerOption => ({
 	value: String(person.id),
@@ -67,7 +67,9 @@ const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	const map = new Map<string, PickerOption>();
 	if (isSearch) {
 		if (modelValue.value) {
-			const selected = options.value.find((item) => item.value === modelValue.value);
+			const selected = options.value.find(
+				(item) => item.value === modelValue.value,
+			);
 			if (selected) {
 				map.set(selected.value, selected);
 			}

@@ -79,7 +79,6 @@ import { debounce } from 'lodash-es';
 import { getCpnUserCouponInfoPage, cancelRedeemCpnUserCouponInfo } from './api';
 import type { CpnUserCouponInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
-import { usePagination, type PageInfo } from '@/composables/usePagination';
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {

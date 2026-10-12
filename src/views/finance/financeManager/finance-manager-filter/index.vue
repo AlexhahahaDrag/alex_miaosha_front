@@ -22,7 +22,10 @@
 							v-for="p in periodPresets"
 							:key="p.key"
 							type="button"
-							:class="['period-pill-btn', { active: currentPeriodKey === p.key }]"
+							:class="[
+								'period-pill-btn',
+								{ active: currentPeriodKey === p.key },
+							]"
 							@click="selectPeriod(p.key)"
 						>
 							{{ p.label }}
@@ -58,7 +61,11 @@
 					<a-space>
 						<a-button type="primary" @click="handleQuery">查询</a-button>
 						<a-button @click="handleCancelQuery">重置</a-button>
-						<a-button type="link" class="expand-btn" @click="isExpanded = !isExpanded">
+						<a-button
+							type="link"
+							class="expand-btn"
+							@click="isExpanded = !isExpanded"
+						>
 							<span>{{ isExpanded ? '收起筛选' : '更多筛选' }}</span>
 							<component :is="isExpanded ? UpOutlined : DownOutlined" />
 						</a-button>
@@ -121,8 +128,17 @@ import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { debounce } from 'lodash-es';
-import dayjs, { type Dayjs } from 'dayjs';
-import { SearchOutlined, DownOutlined, UpOutlined } from '@ant-design/icons-vue';
+import {
+	formatDayjs,
+	nowDayjs,
+	getMonthRangeDayjs,
+	type Dayjs,
+} from '@/utils/dayjs';
+import {
+	SearchOutlined,
+	DownOutlined,
+	UpOutlined,
+} from '@ant-design/icons-vue';
 
 // 组合式函数
 const { userList } = useUserInfo();
@@ -161,7 +177,7 @@ const selectedType = computed({
 });
 
 // 是否展开高级筛选
-const isExpanded = ref(false);
+const isExpanded = ref<boolean>(false);
 
 // 日期范围绑定
 const dateRange = ref<[Dayjs, Dayjs] | undefined>(undefined);
@@ -181,24 +197,24 @@ const currentPeriodKey = computed(() => {
 	if (
 		start &&
 		end &&
-		dayjs(start).isSame(dayjs().startOf('month'), 'day') &&
-		dayjs(end).isSame(dayjs().endOf('month'), 'day')
+		formatDayjs(start).isSame(nowDayjs().startOf('month'), 'day') &&
+		formatDayjs(end).isSame(nowDayjs().endOf('month'), 'day')
 	) {
 		return 'thisMonth';
 	}
 	if (
 		start &&
 		end &&
-		dayjs(start).isSame(dayjs().subtract(1, 'month').startOf('month'), 'day') &&
-		dayjs(end).isSame(dayjs().subtract(1, 'month').endOf('month'), 'day')
+		formatDayjs(start).isSame(nowDayjs().subtract(1, 'month').startOf('month'), 'day') &&
+		formatDayjs(end).isSame(nowDayjs().subtract(1, 'month').endOf('month'), 'day')
 	) {
 		return 'lastMonth';
 	}
 	if (
 		start &&
 		end &&
-		dayjs(start).isSame(dayjs().subtract(29, 'day').startOf('day'), 'day') &&
-		dayjs(end).isSame(dayjs().endOf('day'), 'day')
+		formatDayjs(start).isSame(nowDayjs().subtract(29, 'day').startOf('day'), 'day') &&
+		formatDayjs(end).isSame(nowDayjs().endOf('day'), 'day')
 	) {
 		return 'last30Days';
 	}
@@ -208,20 +224,18 @@ const currentPeriodKey = computed(() => {
 const selectPeriod = (key: string) => {
 	debouncedQuery.cancel();
 	if (key === 'thisMonth') {
-		const s = dayjs().startOf('month');
-		const e = dayjs().endOf('month');
+		const [s, e] = getMonthRangeDayjs();
 		searchInfo.value.infoDateStart = s;
 		searchInfo.value.infoDateEnd = e;
 		dateRange.value = [s, e];
 	} else if (key === 'lastMonth') {
-		const s = dayjs().subtract(1, 'month').startOf('month');
-		const e = dayjs().subtract(1, 'month').endOf('month');
+		const [s, e] = getMonthRangeDayjs(-1);
 		searchInfo.value.infoDateStart = s;
 		searchInfo.value.infoDateEnd = e;
 		dateRange.value = [s, e];
 	} else if (key === 'last30Days') {
-		const s = dayjs().subtract(29, 'day').startOf('day');
-		const e = dayjs().endOf('day');
+		const s = nowDayjs().subtract(29, 'day').startOf('day');
+		const e = nowDayjs().endOf('day');
 		searchInfo.value.infoDateStart = s;
 		searchInfo.value.infoDateEnd = e;
 		dateRange.value = [s, e];
@@ -237,25 +251,22 @@ const selectPeriod = (key: string) => {
 const rangePresets = ref([
 	{
 		label: '本月',
-		value: [dayjs().startOf('month'), dayjs().endOf('month')] as [Dayjs, Dayjs],
+		value: getMonthRangeDayjs(),
 	},
 	{
 		label: '上月',
-		value: [
-			dayjs().subtract(1, 'month').startOf('month'),
-			dayjs().subtract(1, 'month').endOf('month'),
-		] as [Dayjs, Dayjs],
+		value: getMonthRangeDayjs(-1),
 	},
 	{
 		label: '近30天',
-		value: [dayjs().subtract(29, 'day').startOf('day'), dayjs().endOf('day')] as [
-			Dayjs,
-			Dayjs,
-		],
+		value: [
+			nowDayjs().subtract(29, 'day').startOf('day'),
+			nowDayjs().endOf('day'),
+		] as [Dayjs, Dayjs],
 	},
 	{
 		label: '今年',
-		value: [dayjs().startOf('year'), dayjs().endOf('year')] as [Dayjs, Dayjs],
+		value: [nowDayjs().startOf('year'), nowDayjs().endOf('year')] as [Dayjs, Dayjs],
 	},
 ]);
 
@@ -264,7 +275,7 @@ watch(
 	() => [props.searchInfo.infoDateStart, props.searchInfo.infoDateEnd],
 	([start, end]) => {
 		if (start && end) {
-			dateRange.value = [dayjs(start), dayjs(end)];
+			dateRange.value = [formatDayjs(start), formatDayjs(end)];
 		} else if (!start && !end) {
 			dateRange.value = undefined;
 		}
@@ -275,8 +286,8 @@ watch(
 // 日期选择事件
 const handleDateRangeChange = (dates: any) => {
 	if (dates && dates[0] && dates[1]) {
-		searchInfo.value.infoDateStart = dayjs(dates[0]);
-		searchInfo.value.infoDateEnd = dayjs(dates[1]);
+		searchInfo.value.infoDateStart = formatDayjs(dates[0]);
+		searchInfo.value.infoDateEnd = formatDayjs(dates[1]);
 	} else {
 		searchInfo.value.infoDateStart = undefined;
 		searchInfo.value.infoDateEnd = undefined;

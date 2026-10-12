@@ -232,7 +232,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { message } from 'ant-design-vue';
 import { formatDate } from '@/utils/dayjs';
 import {
@@ -252,7 +251,6 @@ import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
 import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import {
 	averageOf,
-	buildSparklinePoints,
 	calcMomTrend,
 } from '@/views/finance/gift/gift-dashboard/utils/metrics';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
@@ -299,7 +297,7 @@ const personPath = '/finance/gift/person';
 const analysisPath = '/finance/gift/analysis';
 
 const router = useRouter();
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
 const trendScope = ref<'recent' | 'year'>('recent');
 const records = ref<GiftRecordInfo[]>([]);
@@ -514,7 +512,8 @@ const renderTrendChart = async () => {
 			axisLabel: {
 				color: '#94a3b8',
 				fontSize: 11,
-				formatter: (val: number) => (val >= 10000 ? `${(val / 10000).toFixed(1)}w` : `¥${val}`),
+				formatter: (val: number) =>
+					val >= 10000 ? `${(val / 10000).toFixed(1)}w` : `¥${val}`,
 			},
 		},
 		series: [
@@ -596,7 +595,7 @@ const rankingRows = computed(() => {
 const displayRecords = computed(() => records.value.slice(0, 4));
 
 const todayRecordCount = computed(() => {
-	const today = dayjs().format('YYYY-MM-DD');
+	const today = formatDate();
 	return records.value.filter((item) => item.payTime?.startsWith(today)).length;
 });
 

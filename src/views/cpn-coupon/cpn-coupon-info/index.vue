@@ -160,11 +160,7 @@ import {
 	wrapperCol,
 	getExpireStatusColor,
 } from '@/views/cpn-coupon/cpn-coupon-info/config';
-import {
-	usePagination,
-	useRowSelection,
-	type PageInfo,
-} from '@/composables/usePagination';
+import { type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
 // 行选择（使用通用组合函数，严格保障 ID 为 string 且保留 remainingQuantity 禁用逻辑）

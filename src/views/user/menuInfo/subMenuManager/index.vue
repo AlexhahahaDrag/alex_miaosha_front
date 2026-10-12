@@ -9,7 +9,9 @@
 	>
 		<div class="mb-4 flex items-center justify-between">
 			<div class="flex items-center gap-2">
-				<span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">
+				<span
+					class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium"
+				>
 					共 {{ pagination.total || dataSource.length }} 个子项
 				</span>
 			</div>
@@ -24,7 +26,9 @@
 			</a-button>
 		</div>
 
-		<div class="border border-slate-200/90 dark:border-slate-800 rounded-xl overflow-hidden p-1">
+		<div
+			class="border border-slate-200/90 dark:border-slate-800 rounded-xl overflow-hidden p-1"
+		>
 			<a-table
 				:data-source="dataSource"
 				:columns="subMenuColumns"
@@ -39,8 +43,12 @@
 					<!-- 菜单标题 -->
 					<template v-if="column.key === 'title'">
 						<div class="flex items-center gap-1.5">
-							<span v-if="record.icon" class="text-xs text-slate-400 font-mono">[{{ record.icon }}]</span>
-							<span class="font-semibold text-slate-800 dark:text-slate-100">{{ record.title }}</span>
+							<span v-if="record.icon" class="text-xs text-slate-400 font-mono"
+								>[{{ record.icon }}]</span
+							>
+							<span class="font-semibold text-slate-800 dark:text-slate-100">{{
+								record.title
+							}}</span>
 						</div>
 					</template>
 
@@ -58,7 +66,10 @@
 					<!-- 隐藏菜单 -->
 					<template v-else-if="column.key === 'hideInMenu'">
 						<span
-							v-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
+							v-if="
+								String(record.hideInMenu) === '1' ||
+								String(record.hideInMenu) === 'true'
+							"
 							class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
 						>
 							隐藏
@@ -130,32 +141,31 @@
 </template>
 
 <script setup lang="ts">
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+import {
+	PlusOutlined,
+	EditOutlined,
+	DeleteOutlined,
+} from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import MenuInfoDetail from '../menuInfoDetail/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
-import { usePagination } from '@/composables/usePagination';
+
 import type { ModelInfo } from '@/views/common/config';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 import { columns } from '@/views/user/menuInfo/config';
 
 // 3. Hooks
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: () => getSubMenuList(),
-});
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: () => getSubMenuList(),
+	});
 
 // 4. State
 const loading = ref<boolean>(false);
 const dataSource = ref<MenuInfoData[]>([]);
 const subMenuModelInfo = ref<ModelInfo>({});
 const subMenuColumns = columns; // 复用主列表配置
-
 
 const editSubMenu = (type: string, id?: string) => {
 	const isAdd = type === 'add';

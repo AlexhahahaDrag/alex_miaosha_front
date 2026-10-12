@@ -388,7 +388,7 @@ import {
 
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { columns } from '@/views/user/orgInfo/config';
 import {

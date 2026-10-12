@@ -1,4 +1,3 @@
-import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { getUserManagerList } from '@/views/user/userManager/api';
 import type { UserManagerInfo } from '@/views/user/userManager/config';

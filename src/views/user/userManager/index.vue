@@ -388,7 +388,7 @@
 <script setup lang="ts">
 import type { ModelInfo } from '@/views/common/config';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { columns } from '@/views/user/userManager/config';

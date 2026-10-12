@@ -225,15 +225,15 @@ const loginForm: UnwrapRef<LoginParams> = reactive({
 
 // 登录按钮加载状态
 const loading = ref<boolean>(false);
-const particlesReady = ref(false);
-const pageEntered = ref(false);
+const particlesReady = ref<boolean>(false);
+const pageEntered = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 const blinkTimerIds = ref<number[]>([]);
 
 // Mouse tracking for eyes
 const mousePos = reactive({ x: 0, y: 0 });
-const isEmailFocused = ref(false);
-const isPasswordFocused = ref(false);
+const isEmailFocused = ref<boolean>(false);
+const isPasswordFocused = ref<boolean>(false);
 
 const characters = reactive<CharacterItem[]>(
 	ALEX_FRIENDS.map((friend) => ({

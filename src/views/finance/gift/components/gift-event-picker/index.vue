@@ -58,9 +58,9 @@ const router = useRouter();
 const { eventLabel, loadEventTypeOptions } = useGiftEventTypeOptions();
 const { getEvents, isWarmed, warmup } = useGiftRecordOptionsCache();
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const options = ref<PickerOption[]>([]);
-const listLoaded = ref(false);
+const listLoaded = ref<boolean>(false);
 
 const formatEventOption = (event: GiftEventInfo): PickerOption => {
 	const typeLabel = eventLabel(event.eventType);

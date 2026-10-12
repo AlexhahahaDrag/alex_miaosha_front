@@ -61,9 +61,16 @@
 					<a-space>
 						<a-button type="primary" @click="query(true)">查询结果</a-button>
 						<a-button @click="resetQuery">重置</a-button>
-						<a-button type="link" class="expand-btn" @click="searchExpanded = !searchExpanded">
+						<a-button
+							type="link"
+							class="expand-btn"
+							@click="searchExpanded = !searchExpanded"
+						>
 							<span>{{ searchExpanded ? '收起' : '展开' }}</span>
-							<down-outlined class="expand-icon" :class="{ 'is-expanded': searchExpanded }" />
+							<down-outlined
+								class="expand-icon"
+								:class="{ 'is-expanded': searchExpanded }"
+							/>
 						</a-button>
 					</a-space>
 				</a-form-item>
@@ -182,9 +189,15 @@
 									<span class="event-icon">📅</span>
 									<div class="event-main">
 										<div style="display: flex; align-items: center; gap: 6px">
-											<strong :title="record.eventName">{{ record.eventName || '-' }}</strong>
+											<strong :title="record.eventName">{{
+												record.eventName || '-'
+											}}</strong>
 										</div>
-										<a-tooltip v-if="record.remark" :title="record.remark" placement="topLeft">
+										<a-tooltip
+											v-if="record.remark"
+											:title="record.remark"
+											placement="topLeft"
+										>
 											<p class="event-remark">{{ record.remark }}</p>
 										</a-tooltip>
 										<p v-else class="event-remark" style="color: #cbd5e1">-</p>
@@ -193,11 +206,19 @@
 							</template>
 							<template v-else-if="column.key === 'hostPersonName'">
 								<a-tag
-									v-if="record.hostPersonName || (record.hostPersonId && personMap[String(record.hostPersonId)])"
+									v-if="
+										record.hostPersonName ||
+										(record.hostPersonId &&
+											personMap[String(record.hostPersonId)])
+									"
 									color="cyan"
 									style="margin-right: 0; font-weight: 500"
 								>
-									👤 {{ record.hostPersonName || personMap[String(record.hostPersonId)] }}
+									👤
+									{{
+										record.hostPersonName ||
+										personMap[String(record.hostPersonId)]
+									}}
 								</a-tag>
 								<span v-else style="color: #94a3b8">-</span>
 							</template>
@@ -450,7 +471,6 @@ import {
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination } from '@/composables/usePagination';
 import { formatDate, formatTime } from '@/utils/dayjs';
 import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 import {
@@ -489,19 +509,15 @@ const {
 } = useGiftEventTypeOptions();
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-	resetPagination,
-} = usePagination({
-	onChange: (page) => loadPage(page),
-});
-const loading = ref(false);
+const { pagination, handleTableChange, setTotal, resetPagination } =
+	usePagination({
+		onChange: (page) => loadPage(page),
+	});
+const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
-const saving = ref(false);
-const drawerOpen = ref(false);
-const searchExpanded = ref(false);
+const saving = ref<boolean>(false);
+const drawerOpen = ref<boolean>(false);
+const searchExpanded = ref<boolean>(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftEventQuery>({});
 const formInfo = ref<GiftEventFormState>({});
@@ -583,8 +599,6 @@ const resetQuery = () => {
 	query(true);
 };
 
-
-
 const loadSummary = async () => {
 	const { code, data, message: msg } = await getGiftEventSummary();
 	if (code === '200') {
@@ -633,8 +647,7 @@ const loadPage = async (page: PageInfo) => {
 					item.hostPersonId &&
 					personMap.value[String(item.hostPersonId)]
 				) {
-					item.hostPersonName =
-						personMap.value[String(item.hostPersonId)];
+					item.hostPersonName = personMap.value[String(item.hostPersonId)];
 				}
 			});
 			dataSource.value = list;
@@ -718,7 +731,7 @@ const remove = async (id: string) => {
 const route = useRoute();
 
 const activeTab = ref('instances');
-const optionEditing = ref(false);
+const optionEditing = ref<boolean>(false);
 const editingOption = ref<Partial<GiftEventTypeOptionItem>>({});
 
 const displayTopEvents = computed(() => {
@@ -759,7 +772,7 @@ const categorizedEventTypes = computed(() => {
 	return groups;
 });
 
-const optionSaving = ref(false);
+const optionSaving = ref<boolean>(false);
 const loadingOptionId = ref<string | null>(null);
 
 const startEditOption = (opt: GiftEventTypeOptionItem) => {
@@ -884,7 +897,9 @@ onMounted(async () => {
 	background: #fff;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.05),
+		0 1px 2px -1px rgba(0, 0, 0, 0.05);
 }
 
 .filter-panel {

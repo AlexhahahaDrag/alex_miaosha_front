@@ -237,7 +237,11 @@ const displayName = computed(
 );
 
 const roleName = computed(() => {
-	if (roleInfo.value && Array.isArray(roleInfo.value) && roleInfo.value.length) {
+	if (
+		roleInfo.value &&
+		Array.isArray(roleInfo.value) &&
+		roleInfo.value.length
+	) {
 		return (
 			roleInfo.value[0].roleName ||
 			roleInfo.value[0].name ||
@@ -373,8 +377,8 @@ const openGithub = () => {
 };
 
 // 修改密码弹窗逻辑
-const pwdModalVisible = ref(false);
-const pwdLoading = ref(false);
+const pwdModalVisible = ref<boolean>(false);
+const pwdLoading = ref<boolean>(false);
 const pwdFormRef = ref();
 const pwdForm = ref({
 	oldPassword: '',

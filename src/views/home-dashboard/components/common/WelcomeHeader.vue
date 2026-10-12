@@ -73,8 +73,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
 import type { DashboardRoleType } from '../../config';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
+import { formatDate } from '@/utils/dayjs';
 import {
 	UserOutlined,
 	CrownOutlined,
@@ -113,7 +112,7 @@ const isFamilyOrg = computed(() => {
 
 // 根据时间生成友好问候语
 const greetingText = computed(() => {
-	const hour = dayjs().hour();
+	const hour = new Date().getHours();
 	if (hour >= 5 && hour < 9) return '早上好';
 	if (hour >= 9 && hour < 12) return '上午好';
 	if (hour >= 12 && hour < 14) return '中午好';
@@ -224,8 +223,8 @@ const bannerClass = computed(() => {
 	return 'banner-user';
 });
 
-const currentDateStr = computed(() => dayjs().locale('zh-cn').format('YYYY年MM月DD日'));
-const currentWeekStr = computed(() => dayjs().locale('zh-cn').format('dddd'));
+const currentDateStr = computed(() => formatDate(undefined, 'YYYY年MM月DD日'));
+const currentWeekStr = computed(() => formatDate(undefined, 'dddd'));
 </script>
 
 <style scoped lang="scss">

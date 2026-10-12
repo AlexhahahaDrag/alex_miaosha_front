@@ -166,7 +166,6 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/views/common/config';
 import type { FinanceManagerData } from '../config';
@@ -183,7 +182,7 @@ import {
 } from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { formatDayjs } from '@/utils/dayjs';
+import { formatDayjs, nowDayjs, formatMonth } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
@@ -219,7 +218,7 @@ const presetCategories = ref<string[]>([]);
 
 const fetchPresetCategories = async () => {
 	try {
-		const { code, data } = await getBudgetCategories(dayjs().format('YYYY-MM'));
+		const { code, data } = await getBudgetCategories(formatMonth());
 		if (code === '200' && Array.isArray(data)) {
 			const clean = data.filter(
 				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
@@ -241,7 +240,7 @@ const createDefaultFormState = (): FinanceManagerData => ({
 	fromSource: 'wx',
 	isValid: '1',
 	incomeAndExpenses: 'expense',
-	infoDate: dayjs(),
+	infoDate: nowDayjs(),
 	belongTo: String(currentUser?.id ?? 2),
 });
 
@@ -270,7 +269,7 @@ const handleSaveAndContinue = async () => {
 				name: '',
 				amount: undefined,
 				typeCode: '',
-				infoDate: dayjs(),
+				infoDate: nowDayjs(),
 			};
 		} else {
 			message.error(messageInfo || '保存失败！');
@@ -330,7 +329,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 	const detailData = data || {};
 	formState.value = {
 		...detailData,
-		infoDate: detailData.infoDate ? formatDayjs(detailData.infoDate) : dayjs(),
+		infoDate: formatDayjs(detailData.infoDate),
 	};
 };
 

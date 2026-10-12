@@ -23,7 +23,10 @@
 						<span class="home-tab-title">首页</span>
 					</div>
 					<template #overlay>
-						<a-menu @click="(info) => handleActionClick(info, 'home')" class="tabs-action-dropdown-menu">
+						<a-menu
+							@click="(info) => handleActionClick(info, 'home')"
+							class="tabs-action-dropdown-menu"
+						>
 							<a-menu-item key="refresh" data-testid="tabs-action-refresh">
 								<template #icon><ReloadOutlined /></template>
 								刷新当前
@@ -53,7 +56,10 @@
 								关闭所有
 							</a-menu-item>
 							<a-menu-divider />
-							<a-menu-item key="fullscreen" data-testid="tabs-action-fullscreen">
+							<a-menu-item
+								key="fullscreen"
+								data-testid="tabs-action-fullscreen"
+							>
 								<template #icon>
 									<FullscreenExitOutlined v-if="isFullscreen" />
 									<FullscreenOutlined v-else />
@@ -82,7 +88,10 @@
 					</a-tooltip>
 
 					<!-- 快捷内容区全屏切换按钮 -->
-					<a-tooltip :title="isFullscreen ? '退出全屏 (Esc)' : '内容区全屏'" placement="bottom">
+					<a-tooltip
+						:title="isFullscreen ? '退出全屏 (Esc)' : '内容区全屏'"
+						placement="bottom"
+					>
 						<a-button
 							type="text"
 							size="small"
@@ -115,7 +124,16 @@
 							</a-button>
 						</a-tooltip>
 						<template #overlay>
-							<a-menu @click="(info) => handleActionClick(info, isHomeActive ? 'home' : activeTabKey)" class="tabs-action-dropdown-menu">
+							<a-menu
+								@click="
+									(info) =>
+										handleActionClick(
+											info,
+											isHomeActive ? 'home' : activeTabKey,
+										)
+								"
+								class="tabs-action-dropdown-menu"
+							>
 								<a-menu-item key="refresh" data-testid="tabs-action-refresh">
 									<template #icon><ReloadOutlined /></template>
 									刷新当前
@@ -130,7 +148,9 @@
 								</a-menu-item>
 								<a-menu-item
 									key="closeLeft"
-									:disabled="isCloseLeftDisabled(isHomeActive ? 'home' : activeTabKey)"
+									:disabled="
+										isCloseLeftDisabled(isHomeActive ? 'home' : activeTabKey)
+									"
 									data-testid="tabs-action-close-left"
 								>
 									<template #icon><ArrowLeftOutlined /></template>
@@ -138,7 +158,9 @@
 								</a-menu-item>
 								<a-menu-item
 									key="closeRight"
-									:disabled="isCloseRightDisabled(isHomeActive ? 'home' : activeTabKey)"
+									:disabled="
+										isCloseRightDisabled(isHomeActive ? 'home' : activeTabKey)
+									"
 									data-testid="tabs-action-close-right"
 								>
 									<template #icon><ArrowRightOutlined /></template>
@@ -146,7 +168,9 @@
 								</a-menu-item>
 								<a-menu-item
 									key="closeOthers"
-									:disabled="isCloseOthersDisabled(isHomeActive ? 'home' : activeTabKey)"
+									:disabled="
+										isCloseOthersDisabled(isHomeActive ? 'home' : activeTabKey)
+									"
 									data-testid="tabs-action-close-others"
 								>
 									<template #icon><CloseCircleOutlined /></template>
@@ -161,7 +185,10 @@
 									关闭所有标签
 								</a-menu-item>
 								<a-menu-divider />
-								<a-menu-item key="fullscreen" data-testid="tabs-action-fullscreen">
+								<a-menu-item
+									key="fullscreen"
+									data-testid="tabs-action-fullscreen"
+								>
 									<template #icon>
 										<FullscreenExitOutlined v-if="isFullscreen" />
 										<FullscreenOutlined v-else />
@@ -181,10 +208,18 @@
 				:closable="tab.closable"
 			>
 				<template #tab>
-					<a-dropdown :trigger="['contextmenu']" :overlayStyle="{ zIndex: 1060 }">
-						<span class="tab-title-text" :data-testid="`tab-item-${tab.key}`">{{ tab.title }}</span>
+					<a-dropdown
+						:trigger="['contextmenu']"
+						:overlayStyle="{ zIndex: 1060 }"
+					>
+						<span class="tab-title-text" :data-testid="`tab-item-${tab.key}`">{{
+							tab.title
+						}}</span>
 						<template #overlay>
-							<a-menu @click="(info) => handleActionClick(info, tab.key)" class="tabs-action-dropdown-menu">
+							<a-menu
+								@click="(info) => handleActionClick(info, tab.key)"
+								class="tabs-action-dropdown-menu"
+							>
 								<a-menu-item key="refresh">
 									<template #icon><ReloadOutlined /></template>
 									刷新当前
@@ -193,19 +228,31 @@
 									<template #icon><CloseOutlined /></template>
 									关闭标签
 								</a-menu-item>
-								<a-menu-item key="closeLeft" :disabled="isCloseLeftDisabled(tab.key)">
+								<a-menu-item
+									key="closeLeft"
+									:disabled="isCloseLeftDisabled(tab.key)"
+								>
 									<template #icon><ArrowLeftOutlined /></template>
 									关闭左侧
 								</a-menu-item>
-								<a-menu-item key="closeRight" :disabled="isCloseRightDisabled(tab.key)">
+								<a-menu-item
+									key="closeRight"
+									:disabled="isCloseRightDisabled(tab.key)"
+								>
 									<template #icon><ArrowRightOutlined /></template>
 									关闭右侧
 								</a-menu-item>
-								<a-menu-item key="closeOthers" :disabled="isCloseOthersDisabled(tab.key)">
+								<a-menu-item
+									key="closeOthers"
+									:disabled="isCloseOthersDisabled(tab.key)"
+								>
 									<template #icon><CloseCircleOutlined /></template>
 									关闭其他
 								</a-menu-item>
-								<a-menu-item key="closeAll" :disabled="dynamicTabs.length === 0">
+								<a-menu-item
+									key="closeAll"
+									:disabled="dynamicTabs.length === 0"
+								>
 									<template #icon><MinusCircleOutlined /></template>
 									关闭所有
 								</a-menu-item>
@@ -303,7 +350,7 @@ const isCloseOthersDisabled = (key: string) => {
 };
 
 // 局部无感微刷新状态与触发
-const isRefreshing = ref(false);
+const isRefreshing = ref<boolean>(false);
 const triggerRefresh = () => {
 	if (isRefreshing.value) return;
 	isRefreshing.value = true;
@@ -458,7 +505,9 @@ watch(
 
 		:deep(.anticon) {
 			font-size: 14px;
-			transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+			transition:
+				transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+				color 0.2s ease;
 		}
 
 		/* Tailwind Hover 风格：彻底告别灰色，改用轻透天空蓝微光 (Tailwind bg-blue-50 + text-blue-600) */

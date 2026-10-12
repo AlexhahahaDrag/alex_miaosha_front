@@ -117,7 +117,7 @@ const getBase6412 = (file: File) => {
 	});
 };
 
-const previewVisible = ref(false);
+const previewVisible = ref<boolean>(false);
 const previewImage = ref('');
 const previewTitle = ref('');
 const props = defineProps<Props>();

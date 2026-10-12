@@ -178,7 +178,7 @@
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import type { ShopOrderData } from '@/views/finance/shopOrder/config';
 import { columns } from '@/views/finance/shopOrder/config';
 import {

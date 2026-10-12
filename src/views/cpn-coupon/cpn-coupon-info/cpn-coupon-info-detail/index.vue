@@ -35,7 +35,9 @@
 			<div v-if="!formState.id" class="ai-plan-bar" data-testid="ai-plan-bar">
 				<div class="ai-plan-bar-header">
 					<span class="ai-tag">✨ AI 营销策划助手</span>
-					<span class="ai-tip">输入预算与目标，一键生成最优满减/折扣券方案</span>
+					<span class="ai-tip"
+						>输入预算与目标，一键生成最优满减/折扣券方案</span
+					>
 				</div>
 				<a-space :size="8" class="ai-plan-inputs" wrap>
 					<a-input-number
@@ -75,9 +77,14 @@
 						智能生成方案
 					</a-button>
 				</a-space>
-				<div v-if="aiPlanResult" class="ai-plan-result-card" data-testid="ai-plan-result">
+				<div
+					v-if="aiPlanResult"
+					class="ai-plan-result-card"
+					data-testid="ai-plan-result"
+				>
 					<div class="ai-plan-reason">
-						<strong>💡 策略考量：</strong>{{ aiPlanResult.strategyReasoning }} <span class="discount-badge">{{ aiPlanResult.discountRate }}</span>
+						<strong>💡 策略考量：</strong>{{ aiPlanResult.strategyReasoning }}
+						<span class="discount-badge">{{ aiPlanResult.discountRate }}</span>
 					</div>
 					<div class="ai-plan-copy">
 						<strong>📢 推荐文案：</strong>{{ aiPlanResult.marketingCopy }}
@@ -193,8 +200,7 @@ import {
 	labelCol,
 	wrapperCol,
 } from '@/views/cpn-coupon/cpn-coupon-info/config';
-import dayjs from 'dayjs';
-import { formatDayjs } from '@/utils/dayjs';
+import { formatDayjs, addDays, nowDayjs } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
 
 let loading = ref<boolean>(false);
@@ -211,7 +217,7 @@ const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 let formState = ref<CpnCouponInfoData>({});
 
 // ── AI 营销策划助手
-const aiPlanning = ref(false);
+const aiPlanning = ref<boolean>(false);
 const aiPlanParams = ref<CpnCouponAiPlanReq>({
 	budget: 5000,
 	targetGoal: '拉新获客',
@@ -222,16 +228,21 @@ const aiPlanResult = ref<CpnCouponAiPlanVo | null>(null);
 const handleAiPlan = async () => {
 	aiPlanning.value = true;
 	try {
-		const { code, data, message: msg } = await aiPlanCpnCoupon(aiPlanParams.value);
+		const {
+			code,
+			data,
+			message: msg,
+		} = await aiPlanCpnCoupon(aiPlanParams.value);
 		if (code === '200' && data) {
 			aiPlanResult.value = data;
 			if (data.couponName) formState.value.couponName = data.couponName;
-			if (data.totalQuantity) formState.value.totalQuantity = data.totalQuantity;
+			if (data.totalQuantity)
+				formState.value.totalQuantity = data.totalQuantity;
 			if (data.unitValue) formState.value.unitValue = data.unitValue;
 			if (data.minSpend) formState.value.minSpend = data.minSpend;
 			if (data.validDays) {
-				formState.value.startDate = dayjs();
-				formState.value.endDate = dayjs().add(data.validDays, 'day');
+				formState.value.startDate = nowDayjs();
+				formState.value.endDate = addDays(data.validDays);
 			}
 			if (data.marketingCopy) formState.value.description = data.marketingCopy;
 			message.success('已智能应用 AI 营销方案');
@@ -270,9 +281,9 @@ const saveCpnCouponInfo = async () => {
 	const submitData = {
 		...formState.value,
 		startDate:
-			formState.value.startDate ? dayjs(formState.value.startDate) : undefined,
+			formState.value.startDate ? formatDayjs(formState.value.startDate) : undefined,
 		endDate:
-			formState.value.endDate ? dayjs(formState.value.endDate) : undefined,
+			formState.value.endDate ? formatDayjs(formState.value.endDate) : undefined,
 	};
 	const { code, message: messageInfo } = await api(submitData)
 		.catch((error: ResponseBody) => {
@@ -322,7 +333,7 @@ const initDetail = async (modalData: ModelInfo | undefined) => {
 		modelConfig.confirmLoading = false;
 		aiPlanResult.value = null;
 		// AI Agent：新增时默认支付状态为未支付（0）
-		formState.value = { startDate: dayjs(), paymentStatus: 0 };
+		formState.value = { startDate: nowDayjs(), paymentStatus: 0 };
 	}
 };
 

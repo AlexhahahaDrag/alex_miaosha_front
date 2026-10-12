@@ -1,4 +1,3 @@
-import { ref, computed } from 'vue';
 import { getGiftPersonRelationOptions } from '@/views/finance/gift/api';
 import {
 	FALLBACK_GIFT_RELATION_OPTIONS,
@@ -18,8 +17,8 @@ const presetOptions = ref<GiftRelationOptionItem[]>([
 	...FALLBACK_GIFT_RELATION_OPTIONS,
 ]);
 const customOptions = ref<GiftRelationOptionItem[]>([]);
-const loading = ref(false);
-const loaded = ref(false);
+const loading = ref<boolean>(false);
+const loaded = ref<boolean>(false);
 
 export function useGiftRelationOptions() {
 	const giftRelationOptions = computed(() =>

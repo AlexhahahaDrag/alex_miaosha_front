@@ -80,8 +80,7 @@ import { message } from 'ant-design-vue';
 import { labelCol, wrapperCol, rulesRef } from './config';
 import type { ModelInfo } from '@/views/common/config';
 import type { AccountRecordInfo } from '../config';
-import dayjs from 'dayjs';
-import { defaultTimeFormat } from '@/utils/dayjs';
+import { defaultTimeFormat, formatDayjs } from '@/utils/dayjs';
 import {
 	getAccountRecordInfoDetail,
 	addAccountRecordInfo,
@@ -156,7 +155,7 @@ const init = async () => {
 		} = await getAccountRecordInfoDetail(modelInfo.value.id);
 		if (code === '200') {
 			formState.value = data || {};
-			formState.value.avliDate = dayjs(formState.value.avliDate);
+			formState.value.avliDate = formatDayjs(formState.value.avliDate);
 			modelConfig.confirmLoading = false;
 		} else {
 			message.error(messageInfo || '查询失败！');

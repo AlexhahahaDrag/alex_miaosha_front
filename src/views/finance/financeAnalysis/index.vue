@@ -13,7 +13,13 @@
 						@change="changeMonth"
 					/>
 					<a-button size="small" @click="selectPrevMonth">上月</a-button>
-					<a-button size="small" type="primary" ghost @click="selectCurrentMonth">本月</a-button>
+					<a-button
+						size="small"
+						type="primary"
+						ghost
+						@click="selectCurrentMonth"
+						>本月</a-button
+					>
 
 					<a-divider type="vertical" style="margin: 0 16px" />
 
@@ -68,7 +74,8 @@
 						<span class="kpi-badge badge-green">资金流入</span>
 					</div>
 					<div class="kpi-amount text-green">
-						<span class="currency-symbol">¥</span>{{ formatAmount(monthIncomeSum) }}
+						<span class="currency-symbol">¥</span
+						>{{ formatAmount(monthIncomeSum) }}
 					</div>
 					<div class="kpi-footer">
 						<span :class="['trend-pill', getTrendClass(incomeYoyTrend)]">
@@ -89,7 +96,8 @@
 						<span class="kpi-badge badge-orange">资金流出</span>
 					</div>
 					<div class="kpi-amount text-orange">
-						<span class="currency-symbol">¥</span>{{ formatAmount(monthExpenseSum) }}
+						<span class="currency-symbol">¥</span
+						>{{ formatAmount(monthExpenseSum) }}
 					</div>
 					<div class="kpi-footer">
 						<span :class="['trend-pill', getTrendClass(expenseYoyTrend)]">
@@ -109,8 +117,12 @@
 						<span class="kpi-title">当月净结余</span>
 						<span class="kpi-badge badge-purple">财务结余</span>
 					</div>
-					<div class="kpi-amount" :class="monthBalanceNumber >= 0 ? 'text-purple' : 'text-danger'">
-						<span class="currency-symbol">¥</span>{{ formatAmount(monthBalance) }}
+					<div
+						class="kpi-amount"
+						:class="monthBalanceNumber >= 0 ? 'text-purple' : 'text-danger'"
+					>
+						<span class="currency-symbol">¥</span
+						>{{ formatAmount(monthBalance) }}
 					</div>
 					<div class="kpi-footer">
 						<span class="sub-label">当月储蓄率:</span>
@@ -124,7 +136,11 @@
 
 		<!-- 3. 资产与账户明细看板 (4 列) -->
 		<div class="account-grid">
-			<div v-for="(config, index) in listConfigs" :key="index" class="account-card">
+			<div
+				v-for="(config, index) in listConfigs"
+				:key="index"
+				class="account-card"
+			>
 				<div class="account-card-header">
 					<div class="header-left">
 						<span class="account-icon">{{ config.icon }}</span>
@@ -132,7 +148,9 @@
 					</div>
 					<div class="header-right">
 						<span class="subtotal-label">小计:</span>
-						<span class="subtotal-value">¥{{ formatAmount(config.subtotal) }}</span>
+						<span class="subtotal-value"
+							>¥{{ formatAmount(config.subtotal) }}</span
+						>
 					</div>
 				</div>
 				<div class="account-list">
@@ -144,12 +162,17 @@
 						<span class="item-name">{{ item.typeName }}</span>
 						<span
 							class="item-value"
-							:class="Number(item.amount || 0) < 0 ? 'text-danger' : config.valueClass"
+							:class="
+								Number(item.amount || 0) < 0 ? 'text-danger' : config.valueClass
+							"
 						>
 							¥{{ formatAmount(item.amount || 0) }}
 						</span>
 					</div>
-					<div v-if="!config.list || config.list.length === 0" class="empty-items">
+					<div
+						v-if="!config.list || config.list.length === 0"
+						class="empty-items"
+					>
 						暂无账户数据
 					</div>
 				</div>
@@ -217,17 +240,14 @@ import { ReloadOutlined } from '@ant-design/icons-vue';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import type {
 	AnalysisData,
-	TooltipParam,
+	dateFormatter,
+	ItemInfo,
 } from '@/views/finance/financeAnalysis/analysis';
 import * as math from 'mathjs';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
+import type { Dayjs } from '@/utils/dayjs';
+import { nowDayjs } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/bar';
-import {
-	dateFormatter,
-	type ItemInfo,
-} from '@/views/finance/financeAnalysis/analysis';
 import {
 	getBalance,
 	getIncomeAndExpense,
@@ -239,7 +259,7 @@ import { useUserInfo } from '@/composables/useUserInfo';
 import PieChart from './chart/pieChart.vue';
 import BarChart from './chart/barChart.vue';
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 
 // 用户信息
 const userInfo = useUserStore()?.getUserInfo;
@@ -277,11 +297,16 @@ const formatTrend = (trend: string | undefined, defaultPrefix: string) => {
 	}
 	const isUp = trend.startsWith('+');
 	const isDown = trend.startsWith('-');
-	const arrow = isUp ? '↑' : isDown ? '↓' : '';
+	const arrow =
+		isUp ? '↑'
+		: isDown ? '↓'
+		: '';
 	return `${defaultPrefix} ${trend} ${arrow}`.trim();
 };
 
-const formatAmount = (val: math.BigNumber | number | string | undefined | null) => {
+const formatAmount = (
+	val: math.BigNumber | number | string | undefined | null,
+) => {
 	if (val === undefined || val === null) return '0.00';
 	let num: number;
 	if (typeof val === 'number') {
@@ -365,7 +390,7 @@ const savingsRateClass = computed(() => {
 });
 
 const searchUser = ref<number>(userInfo?.id || 0);
-const searchDateTime = ref<Dayjs>(dayjs());
+const searchDateTime = ref<Dayjs>(nowDayjs());
 
 const selectPrevMonth = () => {
 	searchDateTime.value = searchDateTime.value.subtract(1, 'month');
@@ -373,7 +398,7 @@ const selectPrevMonth = () => {
 };
 
 const selectCurrentMonth = () => {
-	searchDateTime.value = dayjs();
+	searchDateTime.value = nowDayjs();
 	getInfo();
 };
 
@@ -404,13 +429,13 @@ const calculateSubtotal = (list: FinanceManagerData[]): number => {
 // 资产卡片配置
 const listConfigs = computed(() => {
 	const liquidList =
-		getBalanceDetailData(balanceList.value, ['yhk', 'wx', 'zfb', 'xj', 'jd']) || [];
+		getBalanceDetailData(balanceList.value, ['yhk', 'wx', 'zfb', 'xj', 'jd']) ||
+		[];
 	const creditList =
 		getBalanceDetailData(balanceList.value, ['hb', 'bt']) || [];
 	const utilityList =
 		getBalanceDetailData(balanceList.value, ['sf', 'rqf', 'dfw', 'dfm']) || [];
-	const phoneList =
-		getBalanceDetailData(balanceList.value, ['hf']) || [];
+	const phoneList = getBalanceDetailData(balanceList.value, ['hf']) || [];
 
 	return [
 		{
@@ -449,14 +474,11 @@ const pieExpenseData = ref<ItemInfo[]>([]);
 const pieIncomeData = ref<ItemInfo[]>([]);
 
 // 获取余额信息
-const getBalanceInfo = async (
-	userid: number | string | null,
-	dateStr: string,
-) => {
+const getBalanceInfo = async (userid: string | null, dateStr: string) => {
 	const belongTo =
-		userid === '0' || userid === 0 || userid === null || userid === undefined
-			? null
-			: Number(userid);
+		userid === '0' || userid === null || userid === undefined ?
+			null
+		:	Number(userid);
 	const {
 		code,
 		data,
@@ -485,13 +507,13 @@ const getBalanceInfo = async (
 
 // 获取收入和支出信息
 const getIncomeAndExpenseInfo = async (
-	userid: number | string | null,
+	userid: string | null,
 	dateStr: string,
 ) => {
 	const belongTo =
-		userid === '0' || userid === 0 || userid === null || userid === undefined
-			? null
-			: Number(userid);
+		userid === '0' || userid === null || userid === undefined ?
+			null
+		:	Number(userid);
 	const {
 		code,
 		data,
@@ -547,18 +569,19 @@ const monthConfig = ref<barItem>({
 });
 
 const getExpenseSeries = async (
-	requestFn: (
-		belongTo?: number | null,
-		dateStr?: string,
-	) => Promise<any>,
-	userid: number | string | null,
+	requestFn: (belongTo?: number | null, dateStr?: string) => Promise<any>,
+	userid: string | null,
 	dateStr: string,
 ): Promise<AnalysisData[]> => {
 	const belongTo =
-		userid === '0' || userid === 0 || userid === null || userid === undefined
-			? null
-			: Number(userid);
-	const { code, data, message: messageInfo } = await requestFn(belongTo, dateStr);
+		userid === '0' || userid === null || userid === undefined ?
+			null
+		:	Number(userid);
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await requestFn(belongTo, dateStr);
 	if (code === '200') {
 		return (data as AnalysisData[]) || [];
 	} else {
@@ -568,15 +591,8 @@ const getExpenseSeries = async (
 };
 
 // 获取日收支对比信息
-const getDayExpenseInfo = async (
-	userid: number | string | null,
-	dateStr: string,
-) => {
-	const rawList = await getExpenseSeries(
-		getDayExpense,
-		userid,
-		dateStr,
-	);
+const getDayExpenseInfo = async (userid: string | null, dateStr: string) => {
+	const rawList = await getExpenseSeries(getDayExpense, userid, dateStr);
 	const xAxis: string[] = [];
 	const incomeList: number[] = [];
 	const expenseList: number[] = [];
@@ -608,15 +624,8 @@ const getDayExpenseInfo = async (
 };
 
 // 获取月收支对比信息
-const getMonthExpenseInfo = async (
-	userid: number | string | null,
-	dateStr: string,
-) => {
-	const rawList = await getExpenseSeries(
-		getMonthExpense,
-		userid,
-		dateStr,
-	);
+const getMonthExpenseInfo = async (userid: string | null, dateStr: string) => {
+	const rawList = await getExpenseSeries(getMonthExpense, userid, dateStr);
 	const xAxis: string[] = [];
 	const incomeList: number[] = [];
 	const expenseList: number[] = [];
@@ -808,7 +817,8 @@ onMounted(() => {
 		font-weight: 700;
 		line-height: 1.2;
 		margin-bottom: 12px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		font-family:
+			-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
 		.currency-symbol {
 			font-size: 18px;

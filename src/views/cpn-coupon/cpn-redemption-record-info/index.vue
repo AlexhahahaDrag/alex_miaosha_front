@@ -79,15 +79,10 @@ import { message } from 'ant-design-vue';
 import { getCpnRedemptionRecordInfoPage } from './api';
 import type { CpnRedemptionRecordInfoData } from './config';
 import { columns, labelMap, labelCol, wrapperCol } from './config';
-import { usePagination, type PageInfo } from '@/composables/usePagination';
 import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
-const {
-	pagination,
-	handleTableChange,
-	setTotal,
-} = usePagination({
+const { pagination, handleTableChange, setTotal } = usePagination({
 	onChange: (p) => getCpnRedemptionRecordInfoListPage(searchInfo.value, p),
 });
 

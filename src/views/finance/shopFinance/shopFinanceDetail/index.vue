@@ -158,10 +158,9 @@ import {
 } from '@/views/finance/shopFinance/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 import type { ModelInfo } from '@/views/common/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { defaultDateFormat } from '@/utils/dayjs';
+import { defaultDateFormat, formatDayjs, nowDayjs } from '@/utils/dayjs';
 
 const { getDictByType } = useDictInfo('is_valid');
 
@@ -299,17 +298,17 @@ const init = async () => {
 		} = await getShopFinanceDetail(modelInfo.value.id);
 		if (code === '200') {
 			formState.value = data || {};
-			formState.value.saleDate = dayjs(formState.value.saleDate);
+			formState.value.saleDate = formatDayjs(formState.value.saleDate);
 			modelConfig.confirmLoading = false;
 		} else {
-			formState.value = { isValid: '1', saleDate: dayjs() };
+			formState.value = { isValid: '1', saleDate: nowDayjs() };
 			message.error(messageInfo || '查询失败！');
 		}
 	} else {
 		modelConfig.confirmLoading = false;
 		formState.value = {
 			isValid: '1',
-			saleDate: dayjs(),
+			saleDate: nowDayjs(),
 		};
 	}
 };

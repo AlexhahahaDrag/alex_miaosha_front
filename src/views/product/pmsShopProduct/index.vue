@@ -153,11 +153,7 @@
 						v-else-if="column.key === 'operateTime' && record.operateTime"
 					>
 						<span>
-							{{
-								record.operateTime ?
-									dayjs(record.operateTime).format('YYYY-MM-DD HH:mm:ss')
-								:	''
-							}}
+							{{ formatTime(record.operateTime) }}
 						</span>
 					</template>
 				</template>
@@ -321,9 +317,9 @@ import {
 	type ProductAiCopyVo,
 } from '@/views/product/pmsShopProduct/api';
 import { message } from 'ant-design-vue';
-import dayjs from 'dayjs';
+import { formatTime } from '@/utils/dayjs';
 import type { PageInfo } from '@/composables/usePagination';
-import { usePagination, useRowSelection } from '@/composables/usePagination';
+
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');
@@ -432,8 +428,8 @@ function editPmsShopProduct(type: string, id?: string) {
 // 移除冗余的 handleSuccess 函数
 
 // ── AI 营销文案助手
-const aiCopyModalVisible = ref(false);
-const aiCopyLoading = ref(false);
+const aiCopyModalVisible = ref<boolean>(false);
+const aiCopyLoading = ref<boolean>(false);
 const aiCopyReq = ref<ProductAiCopyReq>({
 	productName: '',
 	categoryName: '',

@@ -8,7 +8,9 @@
 	>
 		<template #footer>
 			<a-button style="margin-right: 8px" @click="handleCancel">取消</a-button>
-			<a-button type="primary" :loading="loading" @click="handleOk">保存</a-button>
+			<a-button type="primary" :loading="loading" @click="handleOk"
+				>保存</a-button
+			>
 		</template>
 		<a-spin :spinning="pageLoading">
 			<a-alert
@@ -21,7 +23,9 @@
 				v-model:target-keys="selectedUserIds"
 				:data-source="userOptions"
 				:field-names="{ title: 'nickName', key: 'id', description: 'username' }"
-				:render="(item: any) => `${item.nickName || item.username}（${item.username}）`"
+				:render="
+					(item: any) => `${item.nickName || item.username}（${item.username}）`
+				"
 				:titles="['未分配用户', '已分配用户']"
 				show-search
 			/>
@@ -41,8 +45,8 @@ const modelInfo = defineModel<ModelInfo>('modelInfo', {
 });
 const emit = defineEmits(['success']);
 
-const loading = ref(false);
-const pageLoading = ref(false);
+const loading = ref<boolean>(false);
+const pageLoading = ref<boolean>(false);
 const userOptions = ref<UserManagerInfo[]>([]);
 const selectedUserIds = ref<string[]>([]);
 

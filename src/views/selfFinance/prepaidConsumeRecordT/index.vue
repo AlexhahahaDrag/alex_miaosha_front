@@ -169,7 +169,7 @@ const transactions = ref([
 ]);
 
 // 充值相关
-const rechargeDialogVisible = ref(false);
+const rechargeDialogVisible = ref<boolean>(false);
 const currentCard = ref(null);
 const rechargeForm = reactive({
 	amount: 100,
@@ -177,7 +177,7 @@ const rechargeForm = reactive({
 });
 
 // 消费相关
-const consumeDialogVisible = ref(false);
+const consumeDialogVisible = ref<boolean>(false);
 const consumeForm = reactive({
 	amount: 0,
 	description: '',

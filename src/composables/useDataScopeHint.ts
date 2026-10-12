@@ -1,13 +1,9 @@
-import { computed } from 'vue';
 import { usePermission } from '@/composables/usePermission';
 import {
 	DATA_SCOPE_HINT_TEXT,
 	resolveDataScopeLevel,
 	type DataScopeLevel,
 } from '@/composables/dataScopeHint';
-
-export type { DataScopeLevel };
-export { DATA_SCOPE_HINT_TEXT };
 
 /**
  * RBAC-PC-SCOPE-001：列表页数据范围提示。

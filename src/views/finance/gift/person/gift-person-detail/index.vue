@@ -188,7 +188,7 @@
 		</a-spin>
 		<template #footer>
 			<template v-if="isProfileMode">
-				<div style="display: flex; gap: 8px; justify-content: flex-end;">
+				<div style="display: flex; gap: 8px; justify-content: flex-end">
 					<a-button
 						v-if="hasPermission('gift:edit')"
 						type="primary"
@@ -199,7 +199,7 @@
 					<a-button @click="handleCancel">返回列表</a-button>
 				</div>
 			</template>
-			<div v-else style="display: flex; gap: 8px; justify-content: flex-end;">
+			<div v-else style="display: flex; gap: 8px; justify-content: flex-end">
 				<a-button @click="handleCancel">取消</a-button>
 				<a-button
 					type="primary"
@@ -302,9 +302,9 @@ const emit = defineEmits<{
 const { hasPermission } = usePermission();
 
 const formRef = ref<FormInstance>();
-const loading = ref(false);
-const pageLoading = ref(false);
-const uploadingAvatar = ref(false);
+const loading = ref<boolean>(false);
+const pageLoading = ref<boolean>(false);
+const uploadingAvatar = ref<boolean>(false);
 const avatarPreviewUrl = ref('');
 const formState = ref<GiftPersonFormState>({});
 const profile = ref<GiftPersonProfile>({});
@@ -455,9 +455,20 @@ const saveGiftPerson = async () => {
 		formState.value = {};
 		avatarPreviewUrl.value = '';
 		const resultPerson: GiftPersonInfo | undefined =
-			!isEdit && data && typeof data === 'object' && (data as GiftPersonInfo).id
-				? (data as GiftPersonInfo)
-				: { ...payload, id: !isEdit && data && typeof data === 'object' ? (data as any).id : payload.id };
+			(
+				!isEdit &&
+				data &&
+				typeof data === 'object' &&
+				(data as GiftPersonInfo).id
+			) ?
+				(data as GiftPersonInfo)
+			:	{
+					...payload,
+					id:
+						!isEdit && data && typeof data === 'object' ?
+							(data as any).id
+						:	payload.id,
+				};
 		emit('success', resultPerson);
 	} else {
 		message.error(msg || '保存失败');
@@ -572,25 +583,33 @@ watch(
 
 const getGradeLabel = (grade?: string) => {
 	switch (grade) {
-		case 'CORE': return '⭐ 核心关系';
-		case 'IMPORTANT': return '🟢 重要关系';
-		case 'NORMAL': return '🔵 普通关系';
-		case 'WEAK': return '弱关系';
-		default: return '普通关系';
+		case 'CORE':
+			return '⭐ 核心关系';
+		case 'IMPORTANT':
+			return '🟢 重要关系';
+		case 'NORMAL':
+			return '🔵 普通关系';
+		case 'WEAK':
+			return '弱关系';
+		default:
+			return '普通关系';
 	}
 };
 
 const getGradeColor = (grade?: string) => {
 	switch (grade) {
-		case 'CORE': return 'gold';
-		case 'IMPORTANT': return 'green';
-		case 'NORMAL': return 'blue';
-		case 'WEAK': return 'default';
-		default: return 'blue';
+		case 'CORE':
+			return 'gold';
+		case 'IMPORTANT':
+			return 'green';
+		case 'NORMAL':
+			return 'blue';
+		case 'WEAK':
+			return 'default';
+		default:
+			return 'blue';
 	}
 };
-
-
 </script>
 
 <style scoped lang="less">

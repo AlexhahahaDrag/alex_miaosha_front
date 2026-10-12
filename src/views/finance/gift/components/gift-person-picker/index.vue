@@ -73,7 +73,7 @@ const router = useRouter();
 const { orgScopeHint } = useGiftOrgScope();
 const { relationLabel, loadRelationOptions } = useGiftRelationOptions();
 
-const loading = ref(false);
+const loading = ref<boolean>(false);
 const options = ref<PickerOption[]>([]);
 
 const formatPersonOption = (person: GiftPersonInfo): PickerOption => {
@@ -95,7 +95,9 @@ const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	const map = new Map<string, PickerOption>();
 	if (isSearch) {
 		if (modelValue.value) {
-			const selected = options.value.find((item) => item.value === modelValue.value);
+			const selected = options.value.find(
+				(item) => item.value === modelValue.value,
+			);
 			if (selected) {
 				map.set(selected.value, selected);
 			}

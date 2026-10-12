@@ -1,16 +1,6 @@
 import { message } from 'ant-design-vue';
 
-export interface PageInfo {
-	current?: number;
-	pageSize?: number;
-	total?: number;
-	showTotal: (total: number) => string;
-	showSizeChanger: boolean;
-	pageSizeOptions: string[];
-	size: 'default' | 'small';
-	showQuickJumper: boolean;
-	defaultPageSize: number;
-}
+import type { PageInfo } from './usePagination';
 
 export interface TableConfig<T = unknown, P = unknown> {
 	// 数据加载函数
@@ -65,7 +55,7 @@ export const useTable = <T = unknown, P = unknown>(
 
 	// 表格数据
 	const dataSource = ref<T[]>([]);
-	const loading = ref(false);
+	const loading = ref<boolean>(false);
 	const searchParams = ref<P>(initialSearchParams as P);
 
 	// 行选择

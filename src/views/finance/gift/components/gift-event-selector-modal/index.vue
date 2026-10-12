@@ -35,9 +35,14 @@
 							<a-form-item
 								label="事件名称"
 								name="eventName"
-								:rules="[{ required: true, message: '请输入事件名称，如：徐福乐结婚' }]"
+								:rules="[
+									{ required: true, message: '请输入事件名称，如：徐福乐结婚' },
+								]"
 							>
-								<a-input v-model:value="createForm.eventName" placeholder="例如：徐福乐结婚" />
+								<a-input
+									v-model:value="createForm.eventName"
+									placeholder="例如：徐福乐结婚"
+								/>
 							</a-form-item>
 						</a-col>
 						<a-col :span="10">
@@ -82,7 +87,9 @@
 				</a-form>
 				<div class="panel-buttons">
 					<a-button @click="showCreateForm = false">返回列表</a-button>
-					<a-button type="primary" :loading="creating" @click="handleCreate">确定并选中</a-button>
+					<a-button type="primary" :loading="creating" @click="handleCreate"
+						>确定并选中</a-button
+					>
 				</div>
 			</div>
 
@@ -142,18 +149,29 @@
 									</div>
 									<div class="card-main">
 										<div class="card-title-row">
-											<strong class="event-title" :title="item.eventName">{{ item.eventName }}</strong>
-											<span class="status-pill" :class="getStatusInfo(item).type">
+											<strong class="event-title" :title="item.eventName">{{
+												item.eventName
+											}}</strong>
+											<span
+												class="status-pill"
+												:class="getStatusInfo(item).type"
+											>
 												{{ getStatusInfo(item).label }}
 											</span>
 										</div>
 										<div class="card-meta-row">
-											<span class="category-badge">{{ getEventTypeLabel(item.eventType) }}</span>
+											<span class="category-badge">{{
+												getEventTypeLabel(item.eventType)
+											}}</span>
 											<span class="dot">·</span>
-											<span class="time-badge">📅 {{ formatDate(item.eventTime) }}</span>
+											<span class="time-badge"
+												>📅 {{ formatDate(item.eventTime) }}</span
+											>
 											<template v-if="item.hostPersonName">
 												<span class="dot">·</span>
-												<span class="host-badge">👤 {{ item.hostPersonName }}</span>
+												<span class="host-badge"
+													>👤 {{ item.hostPersonName }}</span
+												>
 											</template>
 										</div>
 									</div>
@@ -162,7 +180,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="group-title" style="margin-top: 12px;">
+							<div class="group-title" style="margin-top: 12px">
 								<span>📋 全部事件</span>
 							</div>
 						</template>
@@ -182,18 +200,26 @@
 								</div>
 								<div class="card-main">
 									<div class="card-title-row">
-										<strong class="event-title" :title="item.eventName">{{ item.eventName }}</strong>
+										<strong class="event-title" :title="item.eventName">{{
+											item.eventName
+										}}</strong>
 										<span class="status-pill" :class="getStatusInfo(item).type">
 											{{ getStatusInfo(item).label }}
 										</span>
 									</div>
 									<div class="card-meta-row">
-										<span class="category-badge">{{ getEventTypeLabel(item.eventType) }}</span>
+										<span class="category-badge">{{
+											getEventTypeLabel(item.eventType)
+										}}</span>
 										<span class="dot">·</span>
-										<span class="time-badge">📅 {{ formatDate(item.eventTime) }}</span>
+										<span class="time-badge"
+											>📅 {{ formatDate(item.eventTime) }}</span
+										>
 										<template v-if="item.hostPersonName">
 											<span class="dot">·</span>
-											<span class="host-badge">👤 {{ item.hostPersonName }}</span>
+											<span class="host-badge"
+												>👤 {{ item.hostPersonName }}</span
+											>
 										</template>
 									</div>
 								</div>
@@ -279,7 +305,8 @@ const emit = defineEmits<{
 	(e: 'cancel'): void;
 }>();
 
-const { presetOptions, customOptions, loadEventTypeOptions } = useGiftEventTypeOptions();
+const { presetOptions, customOptions, loadEventTypeOptions } =
+	useGiftEventTypeOptions();
 
 const PRESET_ICONS: Record<string, string> = {
 	WEDDING: '💍',
@@ -327,9 +354,9 @@ const PRESET_NAMES: Record<string, string> = {
 	OTHER: '其他',
 };
 
-const loading = ref(false);
-const creating = ref(false);
-const showCreateForm = ref(false);
+const loading = ref<boolean>(false);
+const creating = ref<boolean>(false);
+const showCreateForm = ref<boolean>(false);
 const searchKey = ref('');
 const statusFilter = ref<'ALL' | 'UPCOMING' | 'FINISHED'>('ALL');
 const categoryFilter = ref<string | undefined>(undefined);
@@ -493,8 +520,7 @@ const loadEvents = async () => {
 					item.hostPersonId &&
 					personMap.value[String(item.hostPersonId)]
 				) {
-					item.hostPersonName =
-						personMap.value[String(item.hostPersonId)];
+					item.hostPersonName = personMap.value[String(item.hostPersonId)];
 				}
 			});
 			eventsList.value = list;
@@ -573,9 +599,11 @@ const handleCreate = async () => {
 			params.eventTime = formatTime(createForm.value.eventTime);
 		}
 
-		const { code, data, message: msg } = await addGiftEvent(
-			params as GiftEventInfo,
-		);
+		const {
+			code,
+			data,
+			message: msg,
+		} = await addGiftEvent(params as GiftEventInfo);
 		if (code === '200' && data) {
 			message.success('创建成功并已选中该事件');
 			showCreateForm.value = false;

@@ -106,9 +106,8 @@ import {
 } from '@/views/finance/shopFinanceAnalysis/api';
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import type { ItemInfo } from './shopAnalysis';
-import type { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
-import { formatTime } from '@/utils/dayjs';
+import type { Dayjs } from '@/utils/dayjs';
+import { formatTime, nowDayjs } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/shopBar';
 
@@ -138,7 +137,7 @@ interface TooltipItem {
 
 const dateFormatter = 'YYYY-MM';
 
-const searchDateTime = ref<Dayjs>(dayjs());
+const searchDateTime = ref<Dayjs>(nowDayjs());
 const pieShopData = ref<ItemInfo[]>([]);
 const piePayWayData = ref<ItemInfo[]>([]);
 const dayData = ref<number[][]>([]);
