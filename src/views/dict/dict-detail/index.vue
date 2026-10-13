@@ -1,107 +1,105 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@ok="handleOk"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@ok="handleOk"
+		@cancel="handleCancel"
+	>
+		<a-form
+			ref="formRef"
+			name="dictForm"
+			class="ant-advanced-search-form"
+			:model="formState"
 		>
-			<a-form
-				ref="formRef"
-				name="dictForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							name="typeCode"
-							label="类别编码"
-							:rules="[{ required: true, message: '类别编码必填！' }]"
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						name="typeCode"
+						label="类别编码"
+						:rules="[{ required: true, message: '类别编码必填！' }]"
+					>
+						<a-input
+							v-model:value="formState.typeCode"
+							placeholder="请填写类别编码"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						name="typeName"
+						label="类别"
+						:rules="[{ required: true, message: '类别必填' }]"
+					>
+						<a-input
+							v-model:value="formState.typeName"
+							placeholder="请填写类别"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						name="belongTo"
+						label="分类编码"
+						:rules="[{ required: true, message: '分类编码必填！' }]"
+					>
+						<a-input
+							v-model:value="formState.belongTo"
+							placeholder="请填写分类编码"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						name="belongToName"
+						label="分类"
+						:rules="[{ required: true, message: '分类必填' }]"
+					>
+						<a-input
+							v-model:value="formState.belongToName"
+							placeholder="请填写分类"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						name="isValid"
+						label="状态"
+						:rules="[{ required: true, message: 'input something' }]"
+					>
+						<a-select
+							ref="select"
+							v-model:value="formState.isValid"
+							placeholder="请选择有效状态"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="validList"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.typeCode"
-								placeholder="请填写类别编码"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							name="typeName"
-							label="类别"
-							:rules="[{ required: true, message: '类别必填' }]"
-						>
-							<a-input
-								v-model:value="formState.typeName"
-								placeholder="请填写类别"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							name="belongTo"
-							label="分类编码"
-							:rules="[{ required: true, message: '分类编码必填！' }]"
-						>
-							<a-input
-								v-model:value="formState.belongTo"
-								placeholder="请填写分类编码"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							name="belongToName"
-							label="分类"
-							:rules="[{ required: true, message: '分类必填' }]"
-						>
-							<a-input
-								v-model:value="formState.belongToName"
-								placeholder="请填写分类"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							name="isValid"
-							label="状态"
-							:rules="[{ required: true, message: 'input something' }]"
-						>
-							<a-select
-								ref="select"
-								v-model:value="formState.isValid"
-								placeholder="请选择有效状态"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="validList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							name="orderBy"
-							label="排序"
-							:rules="[{ required: true, message: '排序必填' }]"
-						>
-							<a-input
-								v-model:value="formState.orderBy"
-								placeholder="请填写排序"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						name="orderBy"
+						label="排序"
+						:rules="[{ required: true, message: '排序必填' }]"
+					>
+						<a-input
+							v-model:value="formState.orderBy"
+							placeholder="请填写排序"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { DictInfo } from '@/views/dict/config';

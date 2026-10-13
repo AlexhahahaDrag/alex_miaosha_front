@@ -1,186 +1,182 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || 'min(800px, 60%)'"
-			okText="保存"
-			:confirmLoading="loading"
-			:destroyOnClose="true"
-			@ok="handleOk"
-			@cancel="handleCancel"
-		>
-			<!-- AI Agent: 参照 cpn-coupon-redeem-quantity-detail 升级标题样式（局部生效，不影响全局 Modal） -->
-			<template #title>
-				<div class="ai-agent-modal-title-wrap">
-					<span class="ai-agent-modal-title">
-						{{ modelInfo?.title || 'Basic Modal' }}
-					</span>
-					<!-- AI Agent: 标题下方横线（顶到两端） -->
-					<div class="ai-agent-modal-title-divider"></div>
-				</div>
-			</template>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-				>
-					保存
-				</a-button>
-			</template>
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || 'min(800px, 60%)'"
+		okText="保存"
+		:confirmLoading="loading"
+		:destroyOnClose="true"
+		@ok="handleOk"
+		@cancel="handleCancel"
+	>
+		<!-- AI Agent: 参照 cpn-coupon-redeem-quantity-detail 升级标题样式（局部生效，不影响全局 Modal） -->
+		<template #title>
+			<div class="ai-agent-modal-title-wrap">
+				<span class="ai-agent-modal-title">
+					{{ modelInfo?.title || 'Basic Modal' }}
+				</span>
+				<!-- AI Agent: 标题下方横线（顶到两端） -->
+				<div class="ai-agent-modal-title-divider"></div>
+			</div>
+		</template>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button
+				key="submit"
+				type="primary"
+				:loading="loading"
+				@click="handleOk"
+			>
+				保存
+			</a-button>
+		</template>
 
-			<!-- AI 营销策划助手面板（仅在新增时展示） -->
-			<div v-if="!formState.id" class="ai-plan-bar" data-testid="ai-plan-bar">
-				<div class="ai-plan-bar-header">
-					<span class="ai-tag">✨ AI 营销策划助手</span>
-					<span class="ai-tip"
-						>输入预算与目标，一键生成最优满减/折扣券方案</span
-					>
-				</div>
-				<a-space :size="8" class="ai-plan-inputs" wrap>
-					<a-input-number
-						v-model:value="aiPlanParams.budget"
-						:min="100"
-						:step="500"
-						placeholder="预算(元)"
-						style="width: 110px"
-						data-testid="ai-plan-input-budget"
-					/>
-					<a-select
-						v-model:value="aiPlanParams.targetGoal"
-						placeholder="营销目标"
-						style="width: 120px"
-						data-testid="ai-plan-select-goal"
-						:options="[
-							{ label: '拉新获客', value: '拉新获客' },
-							{ label: '老客促活', value: '老客促活' },
-							{ label: '清仓冲量', value: '清仓冲量' },
-							{ label: '节日特惠', value: '节日特惠' },
-						]"
-					/>
-					<a-input
-						v-model:value="aiPlanParams.industryCategory"
-						placeholder="适用品类(如美食)"
-						style="width: 130px"
-						data-testid="ai-plan-input-category"
-					/>
-					<a-button
-						type="primary"
-						ghost
-						size="middle"
-						:loading="aiPlanning"
-						data-testid="btn-generate-ai-plan"
-						@click="handleAiPlan"
-					>
-						智能生成方案
-					</a-button>
-				</a-space>
-				<div
-					v-if="aiPlanResult"
-					class="ai-plan-result-card"
-					data-testid="ai-plan-result"
+		<!-- AI 营销策划助手面板（仅在新增时展示） -->
+		<div v-if="!formState.id" class="ai-plan-bar" data-testid="ai-plan-bar">
+			<div class="ai-plan-bar-header">
+				<span class="ai-tag">✨ AI 营销策划助手</span>
+				<span class="ai-tip">输入预算与目标，一键生成最优满减/折扣券方案</span>
+			</div>
+			<a-space :size="8" class="ai-plan-inputs" wrap>
+				<a-input-number
+					v-model:value="aiPlanParams.budget"
+					:min="100"
+					:step="500"
+					placeholder="预算(元)"
+					style="width: 110px"
+					data-testid="ai-plan-input-budget"
+				/>
+				<a-select
+					v-model:value="aiPlanParams.targetGoal"
+					placeholder="营销目标"
+					style="width: 120px"
+					data-testid="ai-plan-select-goal"
+					:options="[
+						{ label: '拉新获客', value: '拉新获客' },
+						{ label: '老客促活', value: '老客促活' },
+						{ label: '清仓冲量', value: '清仓冲量' },
+						{ label: '节日特惠', value: '节日特惠' },
+					]"
+				/>
+				<a-input
+					v-model:value="aiPlanParams.industryCategory"
+					placeholder="适用品类(如美食)"
+					style="width: 130px"
+					data-testid="ai-plan-input-category"
+				/>
+				<a-button
+					type="primary"
+					ghost
+					size="middle"
+					:loading="aiPlanning"
+					data-testid="btn-generate-ai-plan"
+					@click="handleAiPlan"
 				>
-					<div class="ai-plan-reason">
-						<strong>💡 策略考量：</strong>{{ aiPlanResult.strategyReasoning }}
-						<span class="discount-badge">{{ aiPlanResult.discountRate }}</span>
-					</div>
-					<div class="ai-plan-copy">
-						<strong>📢 推荐文案：</strong>{{ aiPlanResult.marketingCopy }}
-					</div>
+					智能生成方案
+				</a-button>
+			</a-space>
+			<div
+				v-if="aiPlanResult"
+				class="ai-plan-result-card"
+				data-testid="ai-plan-result"
+			>
+				<div class="ai-plan-reason">
+					<strong>💡 策略考量：</strong>{{ aiPlanResult.strategyReasoning }}
+					<span class="discount-badge">{{ aiPlanResult.discountRate }}</span>
+				</div>
+				<div class="ai-plan-copy">
+					<strong>📢 推荐文案：</strong>{{ aiPlanResult.marketingCopy }}
 				</div>
 			</div>
+		</div>
 
-			<a-form
-				ref="formRef"
-				name="CouponInfoForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-				:disabled="loading"
-				style="margin-top: 16px"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['couponName'].name"
-							:label="labelMap['couponName'].label"
+		<a-form
+			ref="formRef"
+			name="CouponInfoForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
+			:disabled="loading"
+			style="margin-top: 16px"
+		>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['couponName'].name"
+						:label="labelMap['couponName'].label"
+					>
+						<a-input
+							v-model:value="formState.couponName"
+							:placeholder="'请填写' + labelMap['couponName'].label"
 						>
-							<a-input
-								v-model:value="formState.couponName"
-								:placeholder="'请填写' + labelMap['couponName'].label"
-							>
-							</a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['totalQuantity'].name"
-							:label="labelMap['totalQuantity'].label"
+						</a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['totalQuantity'].name"
+						:label="labelMap['totalQuantity'].label"
+					>
+						<a-input
+							v-model:value="formState.totalQuantity"
+							:placeholder="'请填写' + labelMap['totalQuantity'].label"
 						>
-							<a-input
-								v-model:value="formState.totalQuantity"
-								:placeholder="'请填写' + labelMap['totalQuantity'].label"
-							>
-							</a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['endDate'].name"
-							:label="labelMap['endDate'].label"
+						</a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['endDate'].name"
+						:label="labelMap['endDate'].label"
+					>
+						<a-date-picker
+							v-model:value="formState.endDate"
+							:show-time="{ format: 'HH:mm' }"
+							format="YYYY-MM-DD HH:mm"
+							:getPopupContainer="
+								(triggerNode: HTMLElement) => {
+									return triggerNode.parentNode as HTMLElement;
+								}
+							"
+						/>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['unitValue'].name"
+						:label="labelMap['unitValue'].label"
+					>
+						<a-input
+							v-model:value="formState.unitValue"
+							:placeholder="'请填写' + labelMap['unitValue'].label"
 						>
-							<a-date-picker
-								v-model:value="formState.endDate"
-								:show-time="{ format: 'HH:mm' }"
-								format="YYYY-MM-DD HH:mm"
-								:getPopupContainer="
-									(triggerNode: HTMLElement) => {
-										return triggerNode.parentNode as HTMLElement;
-									}
-								"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['unitValue'].name"
-							:label="labelMap['unitValue'].label"
+						</a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['paymentStatus'].name"
+						:label="labelMap['paymentStatus'].label"
+					>
+						<!-- AI Agent：支付状态选择（1：已支付，0：未支付） -->
+						<a-select
+							v-model:value="formState.paymentStatus"
+							:placeholder="'请选择' + labelMap['paymentStatus'].label"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.unitValue"
-								:placeholder="'请填写' + labelMap['unitValue'].label"
-							>
-							</a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['paymentStatus'].name"
-							:label="labelMap['paymentStatus'].label"
-						>
-							<!-- AI Agent：支付状态选择（1：已支付，0：未支付） -->
-							<a-select
-								v-model:value="formState.paymentStatus"
-								:placeholder="'请选择' + labelMap['paymentStatus'].label"
-								:allowClear="true"
-							>
-								<a-select-option :value="1">已支付</a-select-option>
-								<a-select-option :value="0">未支付</a-select-option>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+							<a-select-option :value="1">已支付</a-select-option>
+							<a-select-option :value="0">未支付</a-select-option>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import { message, type FormInstance } from 'ant-design-vue';

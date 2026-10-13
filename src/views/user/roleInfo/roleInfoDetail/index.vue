@@ -1,116 +1,114 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
-		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-				>
-					保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="RoleInfoForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button
+				key="submit"
+				type="primary"
+				:loading="loading"
+				@click="handleOk"
 			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['roleCode'].name"
-							:label="labelMap['roleCode'].label"
+				保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="RoleInfoForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
+		>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['roleCode'].name"
+						:label="labelMap['roleCode'].label"
+					>
+						<a-input
+							v-model:value="formState.roleCode"
+							:placeholder="'请填写' + labelMap['roleCode'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['roleName'].name"
+						:label="labelMap['roleName'].label"
+					>
+						<a-input
+							v-model:value="formState.roleName"
+							:placeholder="'请填写' + labelMap['roleName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['summary'].name"
+						:label="labelMap['summary'].label"
+					>
+						<a-input
+							v-model:value="formState.summary"
+							:placeholder="'请填写' + labelMap['summary'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['status'].name"
+						:label="labelMap['status'].label"
+					>
+						<a-select
+							ref="select"
+							v-model:value="formState.status"
+							:placeholder="'请选择' + labelMap['status'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="statusList"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.roleCode"
-								:placeholder="'请填写' + labelMap['roleCode'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['roleName'].name"
-							:label="labelMap['roleName'].label"
-						>
-							<a-input
-								v-model:value="formState.roleName"
-								:placeholder="'请填写' + labelMap['roleName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['summary'].name"
-							:label="labelMap['summary'].label"
-						>
-							<a-input
-								v-model:value="formState.summary"
-								:placeholder="'请填写' + labelMap['summary'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['status'].name"
-							:label="labelMap['status'].label"
-						>
-							<a-select
-								ref="select"
-								v-model:value="formState.status"
-								:placeholder="'请选择' + labelMap['status'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="statusList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="24">
-						<a-form-item
-							:name="labelMap['orgIds'].name"
-							:label="labelMap['orgIds'].label"
-						>
-							<a-select
-								v-model:value="formState.orgIds"
-								mode="multiple"
-								:options="orgOptions"
-								:field-names="{ label: 'orgName', value: 'id' }"
-								:placeholder="'请选择' + labelMap['orgIds'].label"
-								allow-clear
-								data-testid="rbac-role-org-select"
-							/>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-			<div>菜单权限</div>
-			<div>
-				<menu-tree
-					:treeData="permissionTree"
-					v-model:selectedKeys="selectPermission"
-				></menu-tree>
-			</div>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="24">
+					<a-form-item
+						:name="labelMap['orgIds'].name"
+						:label="labelMap['orgIds'].label"
+					>
+						<a-select
+							v-model:value="formState.orgIds"
+							mode="multiple"
+							:options="orgOptions"
+							:field-names="{ label: 'orgName', value: 'id' }"
+							:placeholder="'请选择' + labelMap['orgIds'].label"
+							allow-clear
+							data-testid="rbac-role-org-select"
+						/>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+		<div>菜单权限</div>
+		<div>
+			<menu-tree
+				:treeData="permissionTree"
+				v-model:selectedKeys="selectPermission"
+			></menu-tree>
+		</div>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
@@ -225,10 +223,10 @@ const saveRoleInfoManager = async () => {
 	}
 
 	if (isEdit && orgIdsChanged(payload.orgIds || [], initialOrgIds.value)) {
-		const {
-			code: orgCode,
-			message: orgMessage,
-		} = await assignRoleOrgs(roleId, payload.orgIds || []);
+		const { code: orgCode, message: orgMessage } = await assignRoleOrgs(
+			roleId,
+			payload.orgIds || [],
+		);
 		if (orgCode !== '200') {
 			loading.value = false;
 			message.error(orgMessage || '角色已保存，机构绑定失败');
@@ -237,12 +235,10 @@ const saveRoleInfoManager = async () => {
 	}
 
 	const permissionIds = selectPermission.value.map((id) => String(id));
-	const {
-		code: assignCode,
-		message: assignMessage,
-	} = await assignRolePermissions(roleId, permissionIds).finally(() => {
-		loading.value = false;
-	});
+	const { code: assignCode, message: assignMessage } =
+		await assignRolePermissions(roleId, permissionIds).finally(() => {
+			loading.value = false;
+		});
 	if (assignCode === '200') {
 		message.success(assignMessage || '保存成功！');
 		modelInfo.value.open = false;
@@ -253,11 +249,11 @@ const saveRoleInfoManager = async () => {
 };
 
 const loadOrgOptions = async () => {
-	const { code, data, message: messageInfo } = await getOrgInfoPage(
-		{ status: '1' },
-		1,
-		1000,
-	);
+	const {
+		code,
+		data,
+		message: messageInfo,
+	} = await getOrgInfoPage({ status: '1' }, 1, 1000);
 	if (code === '200') {
 		orgOptions.value = (data?.records || []).map((item) => ({
 			...item,
@@ -300,11 +296,7 @@ const init = async () => {
 		}
 	} else {
 		// 新增：拉全量权限树（与角色详情 permissionList 同源结构）
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getPermissionInfoList();
+		const { code, data, message: messageInfo } = await getPermissionInfoList();
 		if (code === '200') {
 			permissionTree.value = (data as unknown[]) || [];
 		} else {

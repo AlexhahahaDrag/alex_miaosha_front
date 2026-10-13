@@ -1,216 +1,212 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			ok-text="保存"
-			:confirm-loading="modelConfig.confirmLoading"
-			:destroy-on-close="modelConfig.destroyOnClose"
-			@ok="handleOk"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		ok-text="保存"
+		:confirm-loading="modelConfig.confirmLoading"
+		:destroy-on-close="modelConfig.destroyOnClose"
+		@ok="handleOk"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="MenuInfoForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="MenuInfoForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['name'].name"
-							:label="labelMap['name'].label"
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['name'].name"
+						:label="labelMap['name'].label"
+					>
+						<a-input
+							v-model:value="formState.name"
+							:placeholder="'请填写' + labelMap['name'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['path'].name"
+						:label="labelMap['path'].label"
+					>
+						<a-input
+							v-model:value="formState.path"
+							:placeholder="'请填写' + labelMap['path'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['title'].name"
+						:label="labelMap['title'].label"
+					>
+						<a-input
+							v-model:value="formState.title"
+							:placeholder="'请填写' + labelMap['title'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['component'].name"
+						:label="labelMap['component'].label"
+					>
+						<a-input
+							v-model:value="formState.component"
+							:placeholder="'请填写' + labelMap['component'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['redirect'].name"
+						:label="labelMap['redirect'].label"
+					>
+						<a-input
+							v-model:value="formState.redirect"
+							:placeholder="'请填写' + labelMap['redirect'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['icon'].name"
+						:label="labelMap['icon'].label"
+					>
+						<a-input
+							v-model:value="formState.icon"
+							:placeholder="'请填写' + labelMap['icon'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['permissionCode'].name"
+						:label="labelMap['permissionCode'].label"
+					>
+						<a-input
+							v-model:value="formState.permissionCode"
+							:placeholder="
+								'请填写' + labelMap['permissionCode'].label + '，如 user:list'
+							"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['hideInMenu'].name"
+						:label="labelMap['hideInMenu'].label"
+					>
+						<a-select
+							v-model:value="formState.hideInMenu"
+							:placeholder="'请选择' + labelMap['hideInMenu'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="hideInMenuList"
+							allow-clear
 						>
-							<a-input
-								v-model:value="formState.name"
-								:placeholder="'请填写' + labelMap['name'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['path'].name"
-							:label="labelMap['path'].label"
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['showInHome'].name"
+						:label="labelMap['showInHome'].label"
+					>
+						<a-select
+							v-model:value="formState.showInHome"
+							:placeholder="'请选择' + labelMap['showInHome'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="hideInMenuList"
+							allow-clear
 						>
-							<a-input
-								v-model:value="formState.path"
-								:placeholder="'请填写' + labelMap['path'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['title'].name"
-							:label="labelMap['title'].label"
+						</a-select>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['parentId'].name"
+						:label="labelMap['parentId'].label"
+					>
+						<a-input
+							v-model:value="formState.parentId"
+							:placeholder="'请填写' + labelMap['parentId'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['summary'].name"
+						:label="labelMap['summary'].label"
+					>
+						<a-input
+							v-model:value="formState.summary"
+							:placeholder="'请填写' + labelMap['summary'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['status'].name"
+						:label="labelMap['status'].label"
+					>
+						<a-select
+							v-model:value="formState.status"
+							:placeholder="'请选择' + labelMap['status'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="statusList"
+							allow-clear
 						>
-							<a-input
-								v-model:value="formState.title"
-								:placeholder="'请填写' + labelMap['title'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['component'].name"
-							:label="labelMap['component'].label"
-						>
-							<a-input
-								v-model:value="formState.component"
-								:placeholder="'请填写' + labelMap['component'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['redirect'].name"
-							:label="labelMap['redirect'].label"
-						>
-							<a-input
-								v-model:value="formState.redirect"
-								:placeholder="'请填写' + labelMap['redirect'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['icon'].name"
-							:label="labelMap['icon'].label"
-						>
-							<a-input
-								v-model:value="formState.icon"
-								:placeholder="'请填写' + labelMap['icon'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['permissionCode'].name"
-							:label="labelMap['permissionCode'].label"
-						>
-							<a-input
-								v-model:value="formState.permissionCode"
-								:placeholder="'请填写' + labelMap['permissionCode'].label + '，如 user:list'"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['hideInMenu'].name"
-							:label="labelMap['hideInMenu'].label"
-						>
-							<a-select
-								v-model:value="formState.hideInMenu"
-								:placeholder="'请选择' + labelMap['hideInMenu'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="hideInMenuList"
-								allow-clear
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['showInHome'].name"
-							:label="labelMap['showInHome'].label"
-						>
-							<a-select
-								v-model:value="formState.showInHome"
-								:placeholder="'请选择' + labelMap['showInHome'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="hideInMenuList"
-								allow-clear
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['parentId'].name"
-							:label="labelMap['parentId'].label"
-						>
-							<a-input
-								v-model:value="formState.parentId"
-								:placeholder="'请填写' + labelMap['parentId'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['summary'].name"
-							:label="labelMap['summary'].label"
-						>
-							<a-input
-								v-model:value="formState.summary"
-								:placeholder="'请填写' + labelMap['summary'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['status'].name"
-							:label="labelMap['status'].label"
-						>
-							<a-select
-								v-model:value="formState.status"
-								:placeholder="'请选择' + labelMap['status'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="statusList"
-								allow-clear
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['orderBy'].name"
-							:label="labelMap['orderBy'].label"
-						>
-							<a-input
-								v-model:value="formState.orderBy"
-								:placeholder="'请填写' + labelMap['orderBy'].label"
-								allow-clear
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['orderBy'].name"
+						:label="labelMap['orderBy'].label"
+					>
+						<a-input
+							v-model:value="formState.orderBy"
+							:placeholder="'请填写' + labelMap['orderBy'].label"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 
 <script lang="ts" setup>

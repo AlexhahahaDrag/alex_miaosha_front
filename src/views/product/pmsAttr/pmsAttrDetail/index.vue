@@ -1,133 +1,127 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="PmsAttrForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="PmsAttrForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['attrName'].name"
-							:label="labelMap['attrName'].label"
-						>
-							<a-input
-								v-model:value="formState.attrName"
-								:placeholder="'请填写' + labelMap['attrName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['searchType'].name"
-							:label="labelMap['searchType'].label"
-						>
-							<a-input
-								v-model:value="formState.searchType"
-								:placeholder="'请填写' + labelMap['searchType'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['icon'].name"
-							:label="labelMap['icon'].label"
-						>
-							<a-input
-								v-model:value="formState.icon"
-								:placeholder="'请填写' + labelMap['icon'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['valueSelect'].name"
-							:label="labelMap['valueSelect'].label"
-						>
-							<a-input
-								v-model:value="formState.valueSelect"
-								:placeholder="'请填写' + labelMap['valueSelect'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['attrType'].name"
-							:label="labelMap['attrType'].label"
-						>
-							<a-input
-								v-model:value="formState.attrType"
-								:placeholder="'请填写' + labelMap['attrType'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['enable'].name"
-							:label="labelMap['enable'].label"
-						>
-							<a-input
-								v-model:value="formState.enable"
-								:placeholder="'请填写' + labelMap['enable'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['catelogId'].name"
-							:label="labelMap['catelogId'].label"
-						>
-							<a-input
-								v-model:value="formState.catelogId"
-								:placeholder="'请填写' + labelMap['catelogId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['showDesc'].name"
-							:label="labelMap['showDesc'].label"
-						>
-							<a-input
-								v-model:value="formState.showDesc"
-								:placeholder="'请填写' + labelMap['showDesc'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['attrName'].name"
+						:label="labelMap['attrName'].label"
+					>
+						<a-input
+							v-model:value="formState.attrName"
+							:placeholder="'请填写' + labelMap['attrName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['searchType'].name"
+						:label="labelMap['searchType'].label"
+					>
+						<a-input
+							v-model:value="formState.searchType"
+							:placeholder="'请填写' + labelMap['searchType'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['icon'].name"
+						:label="labelMap['icon'].label"
+					>
+						<a-input
+							v-model:value="formState.icon"
+							:placeholder="'请填写' + labelMap['icon'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['valueSelect'].name"
+						:label="labelMap['valueSelect'].label"
+					>
+						<a-input
+							v-model:value="formState.valueSelect"
+							:placeholder="'请填写' + labelMap['valueSelect'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['attrType'].name"
+						:label="labelMap['attrType'].label"
+					>
+						<a-input
+							v-model:value="formState.attrType"
+							:placeholder="'请填写' + labelMap['attrType'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['enable'].name"
+						:label="labelMap['enable'].label"
+					>
+						<a-input
+							v-model:value="formState.enable"
+							:placeholder="'请填写' + labelMap['enable'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['catelogId'].name"
+						:label="labelMap['catelogId'].label"
+					>
+						<a-input
+							v-model:value="formState.catelogId"
+							:placeholder="'请填写' + labelMap['catelogId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['showDesc'].name"
+						:label="labelMap['showDesc'].label"
+					>
+						<a-input
+							v-model:value="formState.showDesc"
+							:placeholder="'请填写' + labelMap['showDesc'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { PmsAttrDetail } from './pmsAttrDetailTs';

@@ -1,173 +1,175 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '680px'"
-			:title="modelInfo?.title || '记账明细'"
-			okText="保存"
-			:confirmLoading="loading"
-			:maskClosable="false"
-			:destroyOnClose="true"
-			@ok="handleOk"
-			@cancel="handleCancel"
-		>
-			<template #footer>
-				<div class="flex items-center justify-between">
-					<div class="text-xs text-slate-400">
-						<span v-if="!formState.id">💡 支持连续记录多笔账目</span>
-					</div>
-					<a-space>
-						<a-button key="back" @click="handleCancel">{{ modelInfo?.readonly ? '关闭' : '取消' }}</a-button>
-						<a-button
-							v-if="!formState.id && !modelInfo?.readonly"
-							:loading="loading"
-							@click="handleSaveAndContinue"
-						>
-							保存并再记一笔
-						</a-button>
-						<a-button
-							v-if="!modelInfo?.readonly"
-							key="submit"
-							type="primary"
-							:loading="loading"
-							@click="handleOk"
-						>
-							保存
-						</a-button>
-					</a-space>
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '680px'"
+		:title="modelInfo?.title || '记账明细'"
+		okText="保存"
+		:confirmLoading="loading"
+		:maskClosable="false"
+		:destroyOnClose="true"
+		@ok="handleOk"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<div class="flex items-center justify-between">
+				<div class="text-xs text-slate-400">
+					<span v-if="!formState.id">💡 支持连续记录多笔账目</span>
 				</div>
-			</template>
-			<a-form
-				ref="formRef"
-				name="financeForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-				:disabled="modelInfo?.readonly"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="name" label="名称">
+				<a-space>
+					<a-button key="back" @click="handleCancel">{{
+						modelInfo?.readonly ? '关闭' : '取消'
+					}}</a-button>
+					<a-button
+						v-if="!formState.id && !modelInfo?.readonly"
+						:loading="loading"
+						@click="handleSaveAndContinue"
+					>
+						保存并再记一笔
+					</a-button>
+					<a-button
+						v-if="!modelInfo?.readonly"
+						key="submit"
+						type="primary"
+						:loading="loading"
+						@click="handleOk"
+					>
+						保存
+					</a-button>
+				</a-space>
+			</div>
+		</template>
+		<a-form
+			ref="formRef"
+			name="financeForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
+			:disabled="modelInfo?.readonly"
+		>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="name" label="名称">
+						<a-input
+							v-model:value="formState.name"
+							placeholder="如：午餐、地铁打卡、电费"
+							allow-clear
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="typeCode" label="类别">
+						<div class="space-y-1.5">
 							<a-input
-								v-model:value="formState.name"
-								placeholder="如：午餐、地铁打卡、电费"
+								v-model:value="formState.typeCode"
+								placeholder="填写或点击下方常用类别"
 								allow-clear
 							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="typeCode" label="类别">
-							<div class="space-y-1.5">
-								<a-input
-									v-model:value="formState.typeCode"
-									placeholder="填写或点击下方常用类别"
-									allow-clear
-								></a-input>
-								<div
-									v-if="presetCategories.length"
-									class="flex flex-wrap gap-1.5 pt-0.5"
-									:class="{ 'opacity-60 pointer-events-none': modelInfo?.readonly }"
+							<div
+								v-if="presetCategories.length"
+								class="flex flex-wrap gap-1.5 pt-0.5"
+								:class="{
+									'opacity-60 pointer-events-none': modelInfo?.readonly,
+								}"
+							>
+								<span
+									v-for="cat in presetCategories"
+									:key="cat"
+									:class="[
+										'cursor-pointer px-2 py-0.5 rounded-md border border-solid text-xs transition-all select-none',
+										formState.typeCode === cat ?
+											'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
+										:	'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30',
+									]"
+									@click="!modelInfo?.readonly && (formState.typeCode = cat)"
 								>
-									<span
-										v-for="cat in presetCategories"
-										:key="cat"
-										:class="[
-											'cursor-pointer px-2 py-0.5 rounded-md border border-solid text-xs transition-all select-none',
-											formState.typeCode === cat ?
-												'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
-											:	'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30',
-										]"
-										@click="!modelInfo?.readonly && (formState.typeCode = cat)"
-									>
-										{{ cat }}
-									</span>
-								</div>
+									{{ cat }}
+								</span>
 							</div>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="amount" label="金额">
-							<a-input
-								v-model:value="formState.amount"
-								type="number"
-								placeholder="请填写金额"
-								prefix="￥"
-								suffix="RMB"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="fromSource" label="支付方式">
-							<a-select
-								v-model:value="formState.fromSource"
-								placeholder="请选择来源"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="fromSourceList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="incomeAndExpenses" label="收支类型">
-							<a-select
-								v-model:value="formState.incomeAndExpenses"
-								placeholder="请选择收支类型"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="incomeAndExpensesList"
-								:allowClear="true"
-							></a-select>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="isValid" label="状态">
-							<a-select
-								v-model:value="formState.isValid"
-								placeholder="请选择有效状态"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="validList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="infoDate" label="业务时间">
-							<a-date-picker
-								v-model:value="formState.infoDate"
-								show-time
-								:format="dataTimeFormat"
-								:getPopupContainer="
-									(triggerNode: HTMLElement) => {
-										return triggerNode.parentNode as HTMLElement;
-									}
-								"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="belongTo" label="属于">
-							<a-select
-								v-model:value="formState.belongTo"
-								:field-names="{ label: 'nickName', value: 'id' }"
-								:options="userList"
-								placeholder="请选择归属人"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</div>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="amount" label="金额">
+						<a-input
+							v-model:value="formState.amount"
+							type="number"
+							placeholder="请填写金额"
+							prefix="￥"
+							suffix="RMB"
+						/>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="fromSource" label="支付方式">
+						<a-select
+							v-model:value="formState.fromSource"
+							placeholder="请选择来源"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="fromSourceList"
+							:allowClear="true"
+						>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="incomeAndExpenses" label="收支类型">
+						<a-select
+							v-model:value="formState.incomeAndExpenses"
+							placeholder="请选择收支类型"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="incomeAndExpensesList"
+							:allowClear="true"
+						></a-select>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="isValid" label="状态">
+						<a-select
+							v-model:value="formState.isValid"
+							placeholder="请选择有效状态"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="validList"
+							:allowClear="true"
+						>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="infoDate" label="业务时间">
+						<a-date-picker
+							v-model:value="formState.infoDate"
+							show-time
+							:format="dataTimeFormat"
+							:getPopupContainer="
+								(triggerNode: HTMLElement) => {
+									return triggerNode.parentNode as HTMLElement;
+								}
+							"
+						/>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="belongTo" label="属于">
+						<a-select
+							v-model:value="formState.belongTo"
+							:field-names="{ label: 'nickName', value: 'id' }"
+							:options="userList"
+							placeholder="请选择归属人"
+						>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
@@ -188,7 +190,12 @@ import {
 } from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { formatDayjs, nowDayjs, formatMonth, dataTimeFormat } from '@/utils/dayjs';
+import {
+	formatDayjs,
+	nowDayjs,
+	formatMonth,
+	dataTimeFormat,
+} from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });

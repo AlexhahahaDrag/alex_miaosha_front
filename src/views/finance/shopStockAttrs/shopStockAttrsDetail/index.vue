@@ -1,114 +1,108 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="ShopStockAttrsForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="ShopStockAttrsForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['stockId'].name"
-							:label="labelMap['stockId'].label"
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['stockId'].name"
+						:label="labelMap['stockId'].label"
+					>
+						<a-input
+							v-model:value="formState.stockId"
+							:placeholder="'请填写' + labelMap['stockId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['attrCode'].name"
+						:label="labelMap['attrCode'].label"
+					>
+						<a-input
+							v-model:value="formState.attrCode"
+							:placeholder="'请填写' + labelMap['attrCode'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['attrName'].name"
+						:label="labelMap['attrName'].label"
+					>
+						<a-input
+							v-model:value="formState.attrName"
+							:placeholder="'请填写' + labelMap['attrName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['attrValue'].name"
+						:label="labelMap['attrValue'].label"
+					>
+						<a-input
+							v-model:value="formState.attrValue"
+							:placeholder="'请填写' + labelMap['attrValue'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['isValid'].name"
+						:label="labelMap['isValid'].label"
+					>
+						<a-select
+							ref="select"
+							v-model:value="formState.isValid"
+							:placeholder="'请选择' + labelMap['isValid'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="isValidList"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.stockId"
-								:placeholder="'请填写' + labelMap['stockId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['attrCode'].name"
-							:label="labelMap['attrCode'].label"
-						>
-							<a-input
-								v-model:value="formState.attrCode"
-								:placeholder="'请填写' + labelMap['attrCode'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['attrName'].name"
-							:label="labelMap['attrName'].label"
-						>
-							<a-input
-								v-model:value="formState.attrName"
-								:placeholder="'请填写' + labelMap['attrName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['attrValue'].name"
-							:label="labelMap['attrValue'].label"
-						>
-							<a-input
-								v-model:value="formState.attrValue"
-								:placeholder="'请填写' + labelMap['attrValue'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['isValid'].name"
-							:label="labelMap['isValid'].label"
-						>
-							<a-select
-								ref="select"
-								v-model:value="formState.isValid"
-								:placeholder="'请选择' + labelMap['isValid'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="isValidList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['description'].name"
-							:label="labelMap['description'].label"
-						>
-							<a-input
-								v-model:value="formState.description"
-								:placeholder="'请填写' + labelMap['description'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['description'].name"
+						:label="labelMap['description'].label"
+					>
+						<a-input
+							v-model:value="formState.description"
+							:placeholder="'请填写' + labelMap['description'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { ShopStockAttrsDetail } from './shopStockAttrsDetailTs';

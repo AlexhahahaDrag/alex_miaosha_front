@@ -1,103 +1,97 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="PermissionInfoForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="PermissionInfoForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['permissionCode'].name"
-							:label="labelMap['permissionCode'].label"
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['permissionCode'].name"
+						:label="labelMap['permissionCode'].label"
+					>
+						<a-input
+							v-model:value="formState.permissionCode"
+							:placeholder="'请填写' + labelMap['permissionCode'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['permissionName'].name"
+						:label="labelMap['permissionName'].label"
+					>
+						<a-input
+							v-model:value="formState.permissionName"
+							:placeholder="'请填写' + labelMap['permissionName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['summary'].name"
+						:label="labelMap['summary'].label"
+					>
+						<a-input
+							v-model:value="formState.summary"
+							:placeholder="'请填写' + labelMap['summary'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['status'].name"
+						:label="labelMap['status'].label"
+					>
+						<a-select
+							ref="select"
+							v-model:value="formState.status"
+							:placeholder="'请选择' + labelMap['status'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="statusList"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.permissionCode"
-								:placeholder="'请填写' + labelMap['permissionCode'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['permissionName'].name"
-							:label="labelMap['permissionName'].label"
-						>
-							<a-input
-								v-model:value="formState.permissionName"
-								:placeholder="'请填写' + labelMap['permissionName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['summary'].name"
-							:label="labelMap['summary'].label"
-						>
-							<a-input
-								v-model:value="formState.summary"
-								:placeholder="'请填写' + labelMap['summary'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['status'].name"
-							:label="labelMap['status'].label"
-						>
-							<a-select
-								ref="select"
-								v-model:value="formState.status"
-								:placeholder="'请选择' + labelMap['status'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="statusList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['options'].name"
-							:label="labelMap['options'].label"
-						>
-							<a-input
-								v-model:value="formState.options"
-								:placeholder="'请填写' + labelMap['options'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['options'].name"
+						:label="labelMap['options'].label"
+					>
+						<a-input
+							v-model:value="formState.options"
+							:placeholder="'请填写' + labelMap['options'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';

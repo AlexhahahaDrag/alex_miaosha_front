@@ -1,98 +1,92 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="ShopCartForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="ShopCartForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['shopId'].name"
-							:label="labelMap['shopId'].label"
-						>
-							<a-input
-								v-model:value="formState.shopId"
-								:placeholder="'请填写' + labelMap['shopId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['userId'].name"
-							:label="labelMap['userId'].label"
-						>
-							<a-input
-								v-model:value="formState.userId"
-								:placeholder="'请填写' + labelMap['userId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['customerId'].name"
-							:label="labelMap['customerId'].label"
-						>
-							<a-input
-								v-model:value="formState.customerId"
-								:placeholder="'请填写' + labelMap['customerId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['isValid'].name"
-							:label="labelMap['isValid'].label"
-						>
-							<a-input
-								v-model:value="formState.isValid"
-								:placeholder="'请填写' + labelMap['isValid'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['saleNum'].name"
-							:label="labelMap['saleNum'].label"
-						>
-							<a-input
-								v-model:value="formState.saleNum"
-								:placeholder="'请填写' + labelMap['saleNum'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['shopId'].name"
+						:label="labelMap['shopId'].label"
+					>
+						<a-input
+							v-model:value="formState.shopId"
+							:placeholder="'请填写' + labelMap['shopId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['userId'].name"
+						:label="labelMap['userId'].label"
+					>
+						<a-input
+							v-model:value="formState.userId"
+							:placeholder="'请填写' + labelMap['userId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['customerId'].name"
+						:label="labelMap['customerId'].label"
+					>
+						<a-input
+							v-model:value="formState.customerId"
+							:placeholder="'请填写' + labelMap['customerId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['isValid'].name"
+						:label="labelMap['isValid'].label"
+					>
+						<a-input
+							v-model:value="formState.isValid"
+							:placeholder="'请填写' + labelMap['isValid'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['saleNum'].name"
+						:label="labelMap['saleNum'].label"
+					>
+						<a-input
+							v-model:value="formState.saleNum"
+							:placeholder="'请填写' + labelMap['saleNum'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { ShopCartData } from '@/views/finance/shopCart/config';

@@ -1,122 +1,116 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '3000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '3000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="PmsShopProductForm"
+			class="ant-advanced-search-form"
+			disabled
+			:model="formState"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="PmsShopProductForm"
-				class="ant-advanced-search-form"
-				disabled
-				:model="formState"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="name" label="name">
-							<span>{{ formState.name }}</span>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="image" label="图片url">
-							<a-image :width="120" :src="formState.image" />
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="price" label="价格">
-							<span
-								v-if="
-									formState.comparePrice &&
-									formState.price &&
-									formState.price < formState.comparePrice
-								"
-								style="font-weight: 900; font-style: oblique; color: red"
-							>
-								{{ formState.price }}</span
-							>
-							<span v-else>{{ formState.price }}</span>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="comparePrice" label="对比价格">
-							<span>{{ formState.comparePrice }}</span>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="lowestPrice" label="历史最低价格">
-							<span>{{ formState.lowestPrice }}</span>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="hignestPrice" label="历史最高价格">
-							<span>{{ formState.highestPrice }}</span>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="icons" label="标签">
-							<span>{{ formState.icons }}</span>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="productUrl" label="产品连接">
-							<a :href="formState.productUrl">查看商城商品信息</a>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item name="shop" label="商铺">
-							<span>{{ formState.shop }}</span>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item name="source" label="来源">
-							<span> {{ sourceName }}</span>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-			<!-- <div>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="name" label="name">
+						<span>{{ formState.name }}</span>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="image" label="图片url">
+						<a-image :width="120" :src="formState.image" />
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="price" label="价格">
+						<span
+							v-if="
+								formState.comparePrice &&
+								formState.price &&
+								formState.price < formState.comparePrice
+							"
+							style="font-weight: 900; font-style: oblique; color: red"
+						>
+							{{ formState.price }}</span
+						>
+						<span v-else>{{ formState.price }}</span>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="comparePrice" label="对比价格">
+						<span>{{ formState.comparePrice }}</span>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="lowestPrice" label="历史最低价格">
+						<span>{{ formState.lowestPrice }}</span>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="hignestPrice" label="历史最高价格">
+						<span>{{ formState.highestPrice }}</span>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="icons" label="标签">
+						<span>{{ formState.icons }}</span>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="productUrl" label="产品连接">
+						<a :href="formState.productUrl">查看商城商品信息</a>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item name="shop" label="商铺">
+						<span>{{ formState.shop }}</span>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item name="source" label="来源">
+						<span> {{ sourceName }}</span>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+		<!-- <div>
       <chart :options="options" width="50%" height="400px" />
     </div> -->
-			<div class="mainGrid">
-				<div class="div1">
-					<line-chart
-						height="100%"
-						width="100%"
-						title="近三十日数据变化"
-						:data="dayData"
-						:config="dayConfig"
-					>
-					</line-chart>
-				</div>
+		<div class="mainGrid">
+			<div class="div1">
+				<line-chart
+					height="100%"
+					width="100%"
+					title="近三十日数据变化"
+					:data="dayData"
+					:config="dayConfig"
+				>
+				</line-chart>
 			</div>
-		</a-modal>
-	</div>
+		</div>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import {

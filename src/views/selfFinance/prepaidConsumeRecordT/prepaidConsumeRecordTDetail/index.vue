@@ -1,123 +1,117 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="open"
-			:width="props.modelInfo?.width || '1000px'"
-			:title="props.modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="open"
+		:width="props.modelInfo?.width || '1000px'"
+		:title="props.modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="PrepaidConsumeRecordTForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="PrepaidConsumeRecordTForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['cardId'].name"
-							:label="labelMap['cardId'].label"
-						>
-							<a-input
-								v-model:value="formState.cardId"
-								:placeholder="'请填写' + labelMap['cardId'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['orderNo'].name"
-							:label="labelMap['orderNo'].label"
-						>
-							<a-input
-								v-model:value="formState.orderNo"
-								:placeholder="'请填写' + labelMap['orderNo'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['amount'].name"
-							:label="labelMap['amount'].label"
-						>
-							<a-input
-								v-model:value="formState.amount"
-								:placeholder="'请填写' + labelMap['amount'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['balanceAfter'].name"
-							:label="labelMap['balanceAfter'].label"
-						>
-							<a-input
-								v-model:value="formState.balanceAfter"
-								:placeholder="'请填写' + labelMap['balanceAfter'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['merchantName'].name"
-							:label="labelMap['merchantName'].label"
-						>
-							<a-input
-								v-model:value="formState.merchantName"
-								:placeholder="'请填写' + labelMap['merchantName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['consumeTime'].name"
-							:label="labelMap['consumeTime'].label"
-						>
-							<a-date-picker
-								v-model:value="formState.consumeTime"
-								:format="'YYYY-MM-DD'"
-								:getPopupContainer="getContainer"
-							/>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['description'].name"
-							:label="labelMap['description'].label"
-						>
-							<a-input
-								v-model:value="formState.description"
-								:placeholder="'请填写' + labelMap['description'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['cardId'].name"
+						:label="labelMap['cardId'].label"
+					>
+						<a-input
+							v-model:value="formState.cardId"
+							:placeholder="'请填写' + labelMap['cardId'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['orderNo'].name"
+						:label="labelMap['orderNo'].label"
+					>
+						<a-input
+							v-model:value="formState.orderNo"
+							:placeholder="'请填写' + labelMap['orderNo'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['amount'].name"
+						:label="labelMap['amount'].label"
+					>
+						<a-input
+							v-model:value="formState.amount"
+							:placeholder="'请填写' + labelMap['amount'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['balanceAfter'].name"
+						:label="labelMap['balanceAfter'].label"
+					>
+						<a-input
+							v-model:value="formState.balanceAfter"
+							:placeholder="'请填写' + labelMap['balanceAfter'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['merchantName'].name"
+						:label="labelMap['merchantName'].label"
+					>
+						<a-input
+							v-model:value="formState.merchantName"
+							:placeholder="'请填写' + labelMap['merchantName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['consumeTime'].name"
+						:label="labelMap['consumeTime'].label"
+					>
+						<a-date-picker
+							v-model:value="formState.consumeTime"
+							:format="'YYYY-MM-DD'"
+							:getPopupContainer="getContainer"
+						/>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['description'].name"
+						:label="labelMap['description'].label"
+					>
+						<a-input
+							v-model:value="formState.description"
+							:placeholder="'请填写' + labelMap['description'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { PrepaidConsumeRecordTDetail } from './prepaidConsumeRecordTDetailTs';

@@ -1,135 +1,129 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="modelInfo.open"
-			:width="modelInfo?.width || '1000px'"
-			:title="modelInfo?.title || 'Basic Modal'"
-			@ok="handleOk"
-			okText="保存"
-			:confirmLoading="modelConfig.confirmLoading"
-			:destroyOnClose="modelConfig.destroyOnClose"
-			@cancel="handleCancel"
+	<a-modal
+		v-model:open="modelInfo.open"
+		:width="modelInfo?.width || '1000px'"
+		:title="modelInfo?.title || 'Basic Modal'"
+		@ok="handleOk"
+		okText="保存"
+		:confirmLoading="modelConfig.confirmLoading"
+		:destroyOnClose="modelConfig.destroyOnClose"
+		@cancel="handleCancel"
+	>
+		<template #footer>
+			<a-button key="back" @click="handleCancel">取消</a-button>
+			<a-button key="submit" type="primary" :loading="loading" @click="handleOk"
+				>保存
+			</a-button>
+		</template>
+		<a-form
+			ref="formRef"
+			name="ShopStockBatchForm"
+			class="ant-advanced-search-form"
+			:model="formState"
+			:rules="rulesRef"
+			:label-col="labelCol"
+			:wrapper-col="wrapperCol"
 		>
-			<template #footer>
-				<a-button key="back" @click="handleCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					@click="handleOk"
-					>保存
-				</a-button>
-			</template>
-			<a-form
-				ref="formRef"
-				name="ShopStockBatchForm"
-				class="ant-advanced-search-form"
-				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
-			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['batchCode'].name"
-							:label="labelMap['batchCode'].label"
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['batchCode'].name"
+						:label="labelMap['batchCode'].label"
+					>
+						<a-input
+							v-model:value="formState.batchCode"
+							:placeholder="'请填写' + labelMap['batchCode'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['batchName'].name"
+						:label="labelMap['batchName'].label"
+					>
+						<a-input
+							v-model:value="formState.batchName"
+							:placeholder="'请填写' + labelMap['batchName'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['isValid'].name"
+						:label="labelMap['isValid'].label"
+					>
+						<a-select
+							ref="select"
+							v-model:value="formState.isValid"
+							:placeholder="'请选择' + labelMap['isValid'].label"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="isValidList"
+							:allowClear="true"
 						>
-							<a-input
-								v-model:value="formState.batchCode"
-								:placeholder="'请填写' + labelMap['batchCode'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['batchName'].name"
-							:label="labelMap['batchName'].label"
-						>
-							<a-input
-								v-model:value="formState.batchName"
-								:placeholder="'请填写' + labelMap['batchName'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['isValid'].name"
-							:label="labelMap['isValid'].label"
-						>
-							<a-select
-								ref="select"
-								v-model:value="formState.isValid"
-								:placeholder="'请选择' + labelMap['isValid'].label"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="isValidList"
-								:allowClear="true"
-							>
-							</a-select>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['description'].name"
-							:label="labelMap['description'].label"
-						>
-							<a-input
-								v-model:value="formState.description"
-								:placeholder="'请填写' + labelMap['description'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['cost'].name"
-							:label="labelMap['cost'].label"
-						>
-							<a-input-number
-								v-model:value="formState.cost"
-								:placeholder="'请填写' + labelMap['cost'].label"
-								:min="0"
-								:precision="2"
-								style="width: 100%"
-							></a-input-number>
-						</a-form-item>
-					</a-col>
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['travelExpense'].name"
-							:label="labelMap['travelExpense'].label"
-						>
-							<a-input-number
-								v-model:value="formState.travelExpense"
-								:placeholder="'请填写' + labelMap['travelExpense'].label"
-								:min="0"
-								:precision="2"
-								style="width: 100%"
-							></a-input-number>
-						</a-form-item>
-					</a-col>
-				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['purchaseDate'].name"
-							:label="labelMap['purchaseDate'].label"
-						>
-							<a-date-picker
-								v-model:value="formState.purchaseDate"
-								:placeholder="'请选择' + labelMap['purchaseDate'].label"
-								style="width: 100%"
-								format="YYYY-MM-DD"
-							></a-date-picker>
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
-	</div>
+						</a-select>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['description'].name"
+						:label="labelMap['description'].label"
+					>
+						<a-input
+							v-model:value="formState.description"
+							:placeholder="'请填写' + labelMap['description'].label"
+						></a-input>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['cost'].name"
+						:label="labelMap['cost'].label"
+					>
+						<a-input-number
+							v-model:value="formState.cost"
+							:placeholder="'请填写' + labelMap['cost'].label"
+							:min="0"
+							:precision="2"
+							style="width: 100%"
+						></a-input-number>
+					</a-form-item>
+				</a-col>
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['travelExpense'].name"
+						:label="labelMap['travelExpense'].label"
+					>
+						<a-input-number
+							v-model:value="formState.travelExpense"
+							:placeholder="'请填写' + labelMap['travelExpense'].label"
+							:min="0"
+							:precision="2"
+							style="width: 100%"
+						></a-input-number>
+					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row :gutter="24">
+				<a-col :span="12">
+					<a-form-item
+						:name="labelMap['purchaseDate'].name"
+						:label="labelMap['purchaseDate'].label"
+					>
+						<a-date-picker
+							v-model:value="formState.purchaseDate"
+							:placeholder="'请选择' + labelMap['purchaseDate'].label"
+							style="width: 100%"
+							format="YYYY-MM-DD"
+						></a-date-picker>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-form>
+	</a-modal>
 </template>
 <script lang="ts" setup>
 import type { ShopStockBatchData } from '@/views/finance/shopStockBatch/config';

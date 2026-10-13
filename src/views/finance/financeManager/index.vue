@@ -493,10 +493,61 @@ import {
 	WalletOutlined,
 	SettingOutlined,
 } from '@ant-design/icons-vue';
+import { useUserStore } from '@/store/modules/user/user';
+import { usePermission } from '@/composables/usePermission';
 import FinanceBudgetModal from './finance-budget-modal/index.vue';
 
-// 选中的 ID 列表（严格 string 类型）
-const { selectedRowKeys: selectedRowIds, rowSelection } = useRowSelection();
+const userStore = useUserStore();
+const { hasPermission, isSuperAdmin } = usePermission();
+
+const isFamilyAdminOrSuper = computed(() => {
+	if (isSuperAdmin.value) return true;
+	const roleCode = userStore.getRoleInfo?.roleCode || '';
+	if (roleCode === 'admin' || roleCode === 'family_admin') return true;
+	const roleList = userStore.getPermissionContext?.roleList || [];
+	return roleList.some(
+		(r) => r.roleCode === 'admin' || r.roleCode === 'family_admin',
+	);
+});
+
+const canEditRecord = (record: FinanceManagerData) => {
+	if (!hasPermission('finance:financeManager:edit')) {
+		return false;
+	}
+	if (isFamilyAdminOrSuper.value) {
+		return true;
+	}
+	const myId = userStore.getUserInfo?.id;
+	return (
+		myId !== undefined &&
+		record.belongTo !== undefined &&
+		String(record.belongTo) === String(myId)
+	);
+};
+
+const canDeleteRecord = (record: FinanceManagerData) => {
+	if (!hasPermission('finance:financeManager:delete')) {
+		return false;
+	}
+	if (isFamilyAdminOrSuper.value) {
+		return true;
+	}
+	const myId = userStore.getUserInfo?.id;
+	return (
+		myId !== undefined &&
+		record.belongTo !== undefined &&
+		String(record.belongTo) === String(myId)
+	);
+};
+
+// 选中的 ID 列表（严格 string 类型，普通成员禁用勾选他人账目）
+const { selectedRowKeys: selectedRowIds, rowSelection } = useRowSelection({
+	config: {
+		getCheckboxProps: (record: FinanceManagerData) => ({
+			disabled: !canDeleteRecord(record),
+		}),
+	},
+});
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, setTotal, resetPagination } =
