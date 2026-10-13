@@ -131,7 +131,7 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/views/dict/api';
 import type { DictInfo } from '@/views/dict/config';
 import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 
 type ProductHistoryItem = {
 	price?: number;

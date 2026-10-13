@@ -103,7 +103,7 @@ import {
 } from '@/views/finance/shopCart/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 
 const labelCol = ref({ span: 5 });
 const wrapperCol = ref({ span: 19 });

@@ -1,4 +1,4 @@
-import Layout from '@/views/layout/index.vue';
+import Layout from '@/layout/index.vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory, RouterView } from 'vue-router';
 import { h, defineComponent, reactive, markRaw } from 'vue';
@@ -23,11 +23,7 @@ const ParentLayout = markRaw(
 	}),
 );
 
-const modules = import.meta.glob([
-	'/src/views/**/**.vue',
-	'!/src/views/common/**/**.vue',
-	'!/src/views/layout/index.vue',
-]);
+const modules = import.meta.glob('/src/views/**/**.vue');
 
 export const routes: MenuDataItem[] = reactive([
 	{

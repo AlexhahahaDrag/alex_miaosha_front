@@ -113,7 +113,7 @@ const modelConfig = {
 	destroyOnClose: true,
 };
 
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', {
 	default: () => ({}),

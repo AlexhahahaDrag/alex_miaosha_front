@@ -111,7 +111,7 @@ import {
 	editDictManager,
 } from '@/views/dict/api';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { FormInstance } from 'ant-design-vue';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { ResponseBody } from '@/types/api';

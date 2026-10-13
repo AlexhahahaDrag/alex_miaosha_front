@@ -175,7 +175,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
 

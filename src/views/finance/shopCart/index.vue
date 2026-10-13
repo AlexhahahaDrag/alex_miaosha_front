@@ -135,7 +135,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import type { ShopCartData } from '@/views/finance/shopCart/config';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { columns } from '@/views/finance/shopCart/config';
 import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
 import { message } from 'ant-design-vue';

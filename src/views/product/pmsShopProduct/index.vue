@@ -302,8 +302,8 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo } from '@/views/common/config';
-import { iconComponentMap } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
+import { iconComponentMap } from '@/config/icons';
 import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 import {
 	columns,

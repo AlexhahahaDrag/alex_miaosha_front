@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,

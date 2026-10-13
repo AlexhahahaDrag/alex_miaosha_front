@@ -170,7 +170,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { PageInfo } from '@/composables/usePagination';
 
 import type { SearchInfo, DataItem } from './pmsAttrListTs';

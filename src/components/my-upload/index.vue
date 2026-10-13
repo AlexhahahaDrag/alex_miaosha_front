@@ -30,7 +30,7 @@
 import { message } from 'ant-design-vue';
 import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
-import { addFileManager, editFileManager } from '@/views/common/api/file';
+import { addFileManager, editFileManager } from '@/api/file';
 import type { FileInfo } from './config';
 
 interface Props {

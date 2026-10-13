@@ -230,7 +230,7 @@ import {
 	rulesRef,
 } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
 // 3. Hooks

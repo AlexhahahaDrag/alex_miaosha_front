@@ -128,7 +128,7 @@ import {
 } from '../api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { ResponseBody } from '@/types/api';
 
 const labelCol = ref({ span: 5 });

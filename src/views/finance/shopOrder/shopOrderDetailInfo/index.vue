@@ -145,7 +145,7 @@ import {
 } from '@/views/finance/shopOrder/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 
 const { getDictByType } = useDictInfo('is_valid');
 

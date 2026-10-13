@@ -386,7 +386,7 @@ import {
 } from '@ant-design/icons-vue';
 // 字典数据已通过 useDictInfo 自动加载
 
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { PageInfo } from '@/composables/usePagination';
 
 import type { OrgInfoData } from '@/views/user/orgInfo/config';

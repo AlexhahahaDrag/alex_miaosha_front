@@ -150,7 +150,7 @@ import { message } from 'ant-design-vue';
 import MenuInfoDetail from '../menuInfoDetail/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 import { columns } from '@/views/user/menuInfo/config';
 

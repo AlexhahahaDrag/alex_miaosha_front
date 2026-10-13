@@ -108,7 +108,7 @@ import {
 	labelCol,
 	wrapperCol,
 } from './permissionInfoDetailTs';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { PermissionInfo } from '../permissionInfoListTs';
 import {
 	getPermissionInfoDetail,

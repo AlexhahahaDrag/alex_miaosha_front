@@ -76,13 +76,3 @@ export const iconComponentMap: Record<string, any> = {
 	'finance-df': IconDf,
 	'finance-jd': IconJingdong,
 };
-
-// 弹窗信息
-export interface ModelInfo {
-	id?: string | null | undefined;
-	open?: boolean;
-	title?: string;
-	width?: string;
-	parentId?: string | null;
-	confirmLoading?: boolean;
-}

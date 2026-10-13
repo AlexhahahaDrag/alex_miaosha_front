@@ -450,7 +450,7 @@ import {
 	nowDayjs,
 	getMonthRangeDayjs,
 } from '@/utils/dayjs';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
@@ -459,7 +459,7 @@ import {
 	columns,
 	fromSourceTransferList,
 } from '@/views/finance/financeManager/config';
-import { iconComponentMap } from '@/views/common/config';
+import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 import {
 	getFinanceMangerPage,

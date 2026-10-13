@@ -179,7 +179,7 @@ import type { RbacSummaryItem } from '@/components/rbac/types';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { defaultDateFormat, formatDayjs } from '@/utils/dayjs';
 import type { FileInfo } from '@/components/my-upload/config';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { getRoleInfoPage } from '@/views/user/roleInfo/api';

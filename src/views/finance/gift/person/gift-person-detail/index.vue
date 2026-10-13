@@ -222,9 +222,9 @@ import { CameraOutlined } from '@ant-design/icons-vue';
 import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
-import { addFileManager, getFileDetail } from '@/views/common/api/file';
+import { addFileManager, getFileDetail } from '@/api/file';
 import type { FileInfo } from '@/components/my-upload/config';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import {
 	addGiftPerson,
 	getGiftPersonDetail,

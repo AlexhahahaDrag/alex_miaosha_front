@@ -129,7 +129,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { AccountRecordInfo } from './config';
 import { formatAmount } from '@/utils/amountInfo';
 import { columns, labelCol, wrapperCol } from './config';

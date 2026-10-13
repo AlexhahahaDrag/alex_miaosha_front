@@ -151,7 +151,7 @@ import {
 	getCpnCouponInfoPage,
 	deleteCpnCouponInfo,
 } from '@/views/cpn-coupon/cpn-coupon-info/api';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import {
 	columns,

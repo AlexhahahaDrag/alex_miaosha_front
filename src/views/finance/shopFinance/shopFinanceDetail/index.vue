@@ -158,7 +158,7 @@ import {
 } from '@/views/finance/shopFinance/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { defaultDateFormat, formatDayjs, nowDayjs } from '@/utils/dayjs';
 

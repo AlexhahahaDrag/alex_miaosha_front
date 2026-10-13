@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { getUserManagerList } from '@/views/user/userManager/api';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { assignRoleUsers, getRoleInfoDetail } from '@/views/user/roleInfo/api';

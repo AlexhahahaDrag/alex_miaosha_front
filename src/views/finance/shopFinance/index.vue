@@ -162,8 +162,8 @@
 </template>
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import type { ModelInfo } from '@/views/common/config';
-import { iconComponentMap } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
+import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';

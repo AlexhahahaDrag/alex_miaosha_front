@@ -47,6 +47,9 @@
 import { routes as globalRoutes } from '@/router';
 import { algorithm } from '@/utils/algorithm';
 import { useTabsStore } from '@/store/modules/tabs';
+import MyNavbar from './components/my-navbar/index.vue';
+import MyRightInfo from './components/my-right-info/index.vue';
+import MyTabs from './components/my-tabs/index.vue';
 
 const router = useRouter();
 const tabsStore = useTabsStore();

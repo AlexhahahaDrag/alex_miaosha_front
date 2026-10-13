@@ -96,7 +96,7 @@
 import type { PageInfo } from '@/composables/usePagination';
 
 import type { DictInfo } from './config';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { columns, labelCol, wrapperCol } from './config';
 import { getDictManagerPage, deleteDictManager } from './api';
 import DictDetail from './dict-detail/index.vue';

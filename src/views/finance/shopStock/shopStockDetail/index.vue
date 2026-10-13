@@ -166,7 +166,7 @@ import {
 } from '@/views/finance/shopStock/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('is_valid');

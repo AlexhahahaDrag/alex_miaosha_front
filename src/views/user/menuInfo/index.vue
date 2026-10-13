@@ -433,7 +433,7 @@ import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { columns } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { type PageInfo } from '@/composables/usePagination';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
 // 3. Hooks

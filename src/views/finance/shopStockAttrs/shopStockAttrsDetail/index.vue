@@ -119,7 +119,7 @@ import {
 } from '@/views/finance/shopStockAttrs/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { ResponseBody } from '@/types/api';
 

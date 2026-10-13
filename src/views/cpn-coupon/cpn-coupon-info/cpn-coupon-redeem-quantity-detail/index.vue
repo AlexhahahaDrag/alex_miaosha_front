@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import { message, type FormInstance } from 'ant-design-vue';
 import { computed } from 'vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { CpnCouponInfoData } from '../config';
 import { labelMap, createRulesRef, type RedeemFormState } from './config';
 import { redeemCpnUserCouponInfo } from '@/views/cpn-coupon/cpn-user-coupon-info/api';

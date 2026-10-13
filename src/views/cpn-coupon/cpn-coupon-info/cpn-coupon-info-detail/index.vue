@@ -192,7 +192,7 @@ import {
 	type CpnCouponAiPlanReq,
 	type CpnCouponAiPlanVo,
 } from '@/views/cpn-coupon/cpn-coupon-info/api';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { CpnCouponInfoData } from '../config';
 import { labelMap } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import {

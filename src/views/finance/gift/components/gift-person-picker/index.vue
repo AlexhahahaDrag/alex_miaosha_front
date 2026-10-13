@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import { useGiftOrgScope } from '@/composables/useGiftOrgScope';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import {

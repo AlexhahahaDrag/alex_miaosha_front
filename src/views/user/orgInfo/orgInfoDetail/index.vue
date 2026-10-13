@@ -116,7 +116,7 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import {
 	labelMap,
 	labelCol,

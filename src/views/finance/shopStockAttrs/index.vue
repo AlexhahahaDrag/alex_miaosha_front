@@ -152,7 +152,7 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import type { ModelInfo } from '@/views/common/config';
+import type { ModelInfo } from '@/types/modal';
 import type { SearchInfo } from './shopStockAttrsListTs';
 import { columns } from './shopStockAttrsListTs';
 import {
