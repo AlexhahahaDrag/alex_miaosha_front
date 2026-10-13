@@ -1,5 +1,5 @@
 export interface FileInfo {
-	id?: number;
+	id?: string | number;
 	fileName?: string;
 	fileSize?: number;
 	fileType?: string;

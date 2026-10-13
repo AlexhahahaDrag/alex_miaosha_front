@@ -1,6 +1,6 @@
 import { message } from 'ant-design-vue';
-import { getDictList } from '@/views/finance/dict/api';
-import type { DictInfo } from '@/views/finance/dict/config';
+import { getDictList } from '@/views/dict/api';
+import type { DictInfo } from '@/views/dict/config';
 
 export function useDictInfo(initialDictTypes?: string) {
 	const loading = ref<boolean>(false);

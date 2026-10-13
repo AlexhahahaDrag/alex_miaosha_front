@@ -223,7 +223,7 @@ import { formatDate } from '@/utils/dayjs';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
 import { addFileManager, getFileDetail } from '@/views/common/api/file';
-import type { FileInfo } from '@/views/common/my-upload/config';
+import type { FileInfo } from '@/components/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import {
 	addGiftPerson,

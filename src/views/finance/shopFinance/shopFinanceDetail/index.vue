@@ -135,7 +135,7 @@
 						>
 							<a-date-picker
 								v-model:value="formState.saleDate"
-								:format="dateFormatter"
+								:format="defaultDateFormat"
 								:getPopupContainer="
 									(triggerNode: any) => {
 										return triggerNode.parentNode;
@@ -179,8 +179,6 @@ const wrapperCol = ref({ span: 19 });
 let loading = ref<boolean>(false);
 
 const formRef = ref<FormInstance>();
-
-const dateFormatter = defaultDateFormat;
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
 	shopName: { name: 'shopName', label: '商品名称' },

@@ -238,14 +238,13 @@ import { ref, computed, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { ReloadOutlined } from '@ant-design/icons-vue';
 import type { FinanceManagerData } from '@/views/finance/financeManager/config';
-import type {
-	AnalysisData,
-	dateFormatter,
-	ItemInfo,
+import {
+	type AnalysisData,
+	type ItemInfo,
 } from '@/views/finance/financeAnalysis/analysis';
 import * as math from 'mathjs';
 import type { Dayjs } from '@/utils/dayjs';
-import { nowDayjs } from '@/utils/dayjs';
+import { nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/bar';
 import {
@@ -598,8 +597,8 @@ const getDayExpenseInfo = async (userid: string | null, dateStr: string) => {
 	const expenseList: number[] = [];
 
 	rawList.forEach((item) => {
-		const num = parseInt(item.infoDate, 10);
-		xAxis.push(isNaN(num) ? item.infoDate : `${num}日`);
+		const num = Number.parseInt(item.infoDate, 10);
+		xAxis.push(Number.isNaN(num) ? item.infoDate : `${num}日`);
 		if (item.incomeAmount !== undefined && item.expenseAmount !== undefined) {
 			incomeList.push(Number(item.incomeAmount) || 0);
 			expenseList.push(Number(item.expenseAmount) || 0);
@@ -631,7 +630,7 @@ const getMonthExpenseInfo = async (userid: string | null, dateStr: string) => {
 	const expenseList: number[] = [];
 
 	rawList.forEach((item) => {
-		const num = parseInt(item.infoDate, 10);
+		const num = Number.parseInt(item.infoDate, 10);
 		if (num >= 1 && num <= 12) {
 			xAxis.push(`${num}月`);
 			if (item.incomeAmount !== undefined && item.expenseAmount !== undefined) {
@@ -665,7 +664,7 @@ const changeMonth = () => {
 async function getInfo() {
 	loading.value = true;
 	try {
-		const dateStr = searchDateTime.value.format(dateFormatter);
+		const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
 		await Promise.all([
 			getBalanceInfo(searchUser.value, dateStr),
 			getIncomeAndExpenseInfo(searchUser.value, dateStr),
@@ -795,19 +794,19 @@ onMounted(() => {
 
 			&.badge-blue {
 				background: #eff6ff;
-				color: #2563eb;
+				color: #1d4ed8;
 			}
 			&.badge-green {
 				background: #ecfdf5;
-				color: #059669;
+				color: #047857;
 			}
 			&.badge-orange {
 				background: #fff7ed;
-				color: #ea580c;
+				color: #c2410c;
 			}
 			&.badge-purple {
 				background: #f5f3ff;
-				color: #7c3aed;
+				color: #6d28d9;
 			}
 		}
 	}

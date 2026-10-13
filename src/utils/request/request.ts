@@ -137,4 +137,5 @@ requestFile.interceptors.response.use(
 	errorHandler('file'),
 );
 
-export { request as default, requestFile };
+export default request;
+export { requestFile };

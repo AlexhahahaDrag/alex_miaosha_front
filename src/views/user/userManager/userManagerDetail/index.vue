@@ -178,7 +178,7 @@ import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
 import type { RbacSummaryItem } from '@/components/rbac/types';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { defaultDateFormat, formatDayjs } from '@/utils/dayjs';
-import type { FileInfo } from '@/views/common/my-upload/config';
+import type { FileInfo } from '@/components/my-upload/config';
 import type { ModelInfo } from '@/views/common/config';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';

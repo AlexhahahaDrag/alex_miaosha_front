@@ -13,6 +13,7 @@ dayjs.tz.setDefault('Asia/Shanghai');
 
 const defaultDateFormat = 'YYYY-MM-DD';
 const defaultTimeFormat = 'YYYY-MM-DD HH:mm:ss';
+const dataTimeFormat = 'YYYY-MM-DD HH:mm';
 const dateFormatYYYYMM = 'YYYY-MM';
 
 dayjs.prototype.toISOString = function () {
@@ -117,6 +118,7 @@ export type { Dayjs, DateInput };
 export {
 	defaultDateFormat,
 	defaultTimeFormat,
+	dataTimeFormat,
 	dateFormatYYYYMM,
 	formatDate,
 	formatDayjs,

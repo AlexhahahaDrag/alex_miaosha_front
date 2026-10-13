@@ -186,7 +186,7 @@ import {
 	RobotOutlined,
 } from '@ant-design/icons-vue';
 import { decryptSimple, encrypt } from '@/utils/crypto';
-import { useLoginStore } from '@/store/modules/login-store';
+import { useLoginStore } from '@/store/modules/login';
 
 interface CharacterItem {
 	id: number;

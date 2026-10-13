@@ -3,7 +3,7 @@ import {
 	DATA_SCOPE_HINT_TEXT,
 	resolveDataScopeHintText,
 	resolveDataScopeLevel,
-} from '@/composables/dataScopeHint';
+} from '@/utils/permission/dataScopeHint';
 
 // RBAC-PC-SCOPE-001/002：数据范围提示文案锁定
 // 口径参考 docs/superpowers/specs/2026-08-11-rbac-batch3-product-design.md §2

@@ -50,12 +50,9 @@ export interface TooltipParam {
 	seriesName: string;
 }
 
-// 日期格式化
-const dateFormatter = 'YYYY-MM';
-
 const tooltip = ref({
 	trigger: 'item',
 	formatter: '{b} : {c}元({d}%)',
 });
 
-export { dateFormatter, tooltip, type ItemInfo };
+export { tooltip, type ItemInfo };

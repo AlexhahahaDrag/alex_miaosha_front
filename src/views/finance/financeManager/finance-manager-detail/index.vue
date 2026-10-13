@@ -63,15 +63,18 @@
 									placeholder="填写或点击下方常用类别"
 									allow-clear
 								></a-input>
-								<div v-if="presetCategories.length" class="flex flex-wrap gap-1.5 pt-0.5">
+								<div
+									v-if="presetCategories.length"
+									class="flex flex-wrap gap-1.5 pt-0.5"
+								>
 									<span
 										v-for="cat in presetCategories"
 										:key="cat"
 										:class="[
 											'cursor-pointer px-2 py-0.5 rounded-md border border-solid text-xs transition-all select-none',
-											formState.typeCode === cat
-												? 'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
-												: 'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
+											formState.typeCode === cat ?
+												'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
+											:	'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30',
 										]"
 										@click="formState.typeCode = cat"
 									>
@@ -138,7 +141,7 @@
 							<a-date-picker
 								v-model:value="formState.infoDate"
 								show-time
-								:format="dateFormatter"
+								:format="dataTimeFormat"
 								:getPopupContainer="
 									(triggerNode: HTMLElement) => {
 										return triggerNode.parentNode as HTMLElement;
@@ -182,7 +185,7 @@ import {
 } from '@/views/finance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
-import { formatDayjs, nowDayjs, formatMonth } from '@/utils/dayjs';
+import { formatDayjs, nowDayjs, formatMonth, dataTimeFormat } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
@@ -199,8 +202,6 @@ const validList = computed(() => getDictByType('is_valid'));
 
 // 使用 useUserInfo 组合式函数
 const { userList } = useUserInfo();
-
-const dateFormatter = 'YYYY-MM-DD HH:mm';
 
 const loading = ref<boolean>(false);
 
@@ -221,7 +222,8 @@ const fetchPresetCategories = async () => {
 		const { code, data } = await getBudgetCategories(formatMonth());
 		if (code === '200' && Array.isArray(data)) {
 			const clean = data.filter(
-				(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+				(c) =>
+					c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
 			);
 			presetCategories.value = clean.slice(0, 10);
 		}
@@ -229,7 +231,15 @@ const fetchPresetCategories = async () => {
 		console.warn('获取常用记账分类失败:', e);
 	}
 	if (!presetCategories.value.length) {
-		presetCategories.value = ['餐饮', '日常交通', '日用百货', '水费', '电费', '零食', '工资'];
+		presetCategories.value = [
+			'餐饮',
+			'日常交通',
+			'日用百货',
+			'水费',
+			'电费',
+			'零食',
+			'工资',
+		];
 	}
 };
 
@@ -259,7 +269,9 @@ const handleSaveAndContinue = async () => {
 	try {
 		await formRef.value.validateFields();
 		loading.value = true;
-		const { code, message: messageInfo } = await addFinanceManger(formState.value);
+		const { code, message: messageInfo } = await addFinanceManger(
+			formState.value,
+		);
 		if (code === '200') {
 			message.success('已保存当前账目！可继续录入下一笔');
 			emit('success');

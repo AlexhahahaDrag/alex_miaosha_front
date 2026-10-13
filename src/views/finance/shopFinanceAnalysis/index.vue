@@ -107,7 +107,7 @@ import {
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import type { ItemInfo } from './shopAnalysis';
 import type { Dayjs } from '@/utils/dayjs';
-import { formatTime, nowDayjs } from '@/utils/dayjs';
+import { formatTime, nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import type { barItem } from './chart/shopBar';
 
@@ -134,8 +134,6 @@ interface TooltipItem {
 	value?: number;
 	seriesName: string;
 }
-
-const dateFormatter = 'YYYY-MM';
 
 const searchDateTime = ref<Dayjs>(nowDayjs());
 const pieShopData = ref<ItemInfo[]>([]);
@@ -287,7 +285,7 @@ const getMonthShopFinanceInfoInfo = async (dateStr: string) => {
 };
 
 const getInfo = async () => {
-	const dateStr = searchDateTime.value.format(dateFormatter);
+	const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
 	await Promise.all([
 		getShopNameInfoInfo(dateStr),
 		getPayWayInfoInfo(dateStr),

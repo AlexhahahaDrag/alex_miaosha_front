@@ -1,4 +1,4 @@
-import type { FileInfo } from '@/views/common/my-upload/config';
+import type { FileInfo } from '@/components/my-upload/config';
 
 export type GiftDirection = 'GIVE' | 'RECEIVE' | 'RETURN';
 export type GiftPersonScope = 'CONTACT' | 'ORG_MEMBER' | 'ALL';

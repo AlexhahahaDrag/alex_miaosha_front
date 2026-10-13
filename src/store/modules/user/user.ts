@@ -146,7 +146,7 @@ export const useUserStore = defineStore(
 					'系统错误，请联系管理员！' + (error as Error).message || '未知错误',
 					3,
 				);
-				return Promise.reject(error);
+				throw error;
 			}
 		}
 
