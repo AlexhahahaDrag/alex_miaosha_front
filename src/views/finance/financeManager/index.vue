@@ -283,27 +283,33 @@
 		<!-- 3. 操作按钮区 -->
 		<div class="button">
 			<a-space>
-				<a-button type="primary" @click="editFinance('add')">
+				<a-button
+					v-if="hasPermission('finance:financeManager:add')"
+					type="primary"
+					@click="editFinance('add')"
+				>
 					<template #icon><PlusOutlined /></template>
 					记一笔
 				</a-button>
 
-				<a-popconfirm
-					v-if="selectedRowIds.length"
-					:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
-					ok-text="确认"
-					cancel-text="取消"
-					@confirm="batchDelFinanceManager"
-				>
-					<a-button type="primary" danger>
+				<template v-if="hasPermission('finance:financeManager:delete')">
+					<a-popconfirm
+						v-if="selectedRowIds.length"
+						:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
+						ok-text="确认"
+						cancel-text="取消"
+						@confirm="batchDelFinanceManager"
+					>
+						<a-button type="primary" danger>
+							<template #icon><DeleteOutlined /></template>
+							批量删除 ({{ selectedRowIds.length }})
+						</a-button>
+					</a-popconfirm>
+					<a-button v-else type="primary" danger disabled>
 						<template #icon><DeleteOutlined /></template>
-						批量删除 ({{ selectedRowIds.length }})
+						删除
 					</a-button>
-				</a-popconfirm>
-				<a-button v-else type="primary" danger disabled>
-					<template #icon><DeleteOutlined /></template>
-					删除
-				</a-button>
+				</template>
 			</a-space>
 		</div>
 
@@ -324,6 +330,7 @@
 					<template v-if="column.key === 'operation'">
 						<a-space :size="4">
 							<a-button
+								v-if="canEditRecord(record)"
 								type="link"
 								size="small"
 								class="action-link-btn"
@@ -331,23 +338,34 @@
 							>
 								编辑
 							</a-button>
-							<a-divider type="vertical" />
-							<a-popconfirm
-								title="确认删除该笔账目?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delFinance(record.id)"
-								@cancel="cancel"
+							<a-button
+								v-else
+								type="link"
+								size="small"
+								class="action-link-btn"
+								@click="editFinance('view', record.id)"
 							>
-								<a-button
-									type="link"
-									size="small"
-									danger
-									class="action-link-btn"
+								查看
+							</a-button>
+							<template v-if="canDeleteRecord(record)">
+								<a-divider type="vertical" />
+								<a-popconfirm
+									title="确认删除该笔账目?"
+									ok-text="确认"
+									cancel-text="取消"
+									@confirm="delFinance(record.id)"
+									@cancel="cancel"
 								>
-									删除
-								</a-button>
-							</a-popconfirm>
+									<a-button
+										type="link"
+										size="small"
+										danger
+										class="action-link-btn"
+									>
+										删除
+									</a-button>
+								</a-popconfirm>
+							</template>
 						</a-space>
 					</template>
 
@@ -913,11 +931,13 @@ const getFinancePage = async (
 	}
 };
 
-// 记一笔与修改弹窗
+// 记一笔与修改/查看弹窗
 const editFinance = (type: string, id?: string) => {
 	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '记一笔账' : '修改账单明细';
+	const isView = type === 'view';
+	modelInfo.value.title = isAdd ? '记一笔账' : isView ? '账单明细' : '修改账单明细';
 	modelInfo.value.id = isAdd ? null : (id ?? null);
+	modelInfo.value.readonly = isView;
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 };

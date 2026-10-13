@@ -1,112 +1,110 @@
 <template>
-	<div>
-		<a-modal
-			v-model:open="open"
-			:width="'min(600px, 60%)'"
-			:confirmLoading="loading"
-			:destroyOnClose="true"
-			@ok="onOk"
-			@cancel="onCancel"
-		>
-			<!-- AI Agent: 使用 title 插槽定制标题样式，避免影响全局 Modal 标题 -->
-			<template #title>
-				<div class="ai-agent-modal-title-wrap">
-					<span class="ai-agent-modal-title">
-						{{ props.modelInfo?.title || '消费券核销' }}
-					</span>
-					<!-- AI Agent: 标题下方横线（如截图红框） -->
-					<div class="ai-agent-modal-title-divider"></div>
-				</div>
-			</template>
-			<template #footer>
-				<a-button key="back" @click="onCancel">取消</a-button>
-				<a-button
-					key="submit"
-					type="primary"
-					:loading="loading"
-					class="btn-confirm"
-					@click="onOk"
-				>
-					确认核销
-				</a-button>
-			</template>
-
-			<a-form
-				ref="formRef"
-				name="CpnCouponRedeemQuantityForm"
-				class="cpn-coupon-redeem-form"
-				:model="formState"
-				:rules="rulesRef"
-				:disabled="loading"
-				layout="vertical"
+	<a-modal
+		v-model:open="open"
+		:width="'min(600px, 60%)'"
+		:confirmLoading="loading"
+		:destroyOnClose="true"
+		@ok="onOk"
+		@cancel="onCancel"
+	>
+		<!-- AI Agent: 使用 title 插槽定制标题样式，避免影响全局 Modal 标题 -->
+		<template #title>
+			<div class="ai-agent-modal-title-wrap">
+				<span class="ai-agent-modal-title">
+					{{ props.modelInfo?.title || '消费券核销' }}
+				</span>
+				<!-- AI Agent: 标题下方横线（如截图红框） -->
+				<div class="ai-agent-modal-title-divider"></div>
+			</div>
+		</template>
+		<template #footer>
+			<a-button key="back" @click="onCancel">取消</a-button>
+			<a-button
+				key="submit"
+				type="primary"
+				:loading="loading"
+				class="btn-confirm"
+				@click="onOk"
 			>
-				<!-- 消费券信息 -->
-				<div class="section-title">
-					<span class="section-bar"></span>
-					<span class="section-text">消费券信息</span>
-				</div>
-				<div class="info-box">
-					<div class="info-row">
-						<div class="info-item">
-							<span class="info-label">消费券名称：</span>
-							<span class="info-value">{{ formState.couponName || '-' }}</span>
-						</div>
-						<div class="info-item info-item-right">
-							<span class="info-label">剩余数量：</span>
-							<span class="info-value info-value-warn">
-								<!-- 与核销数量联动展示：剩余数量 = 原剩余 - 核销数量（不小于0） -->
-								{{ linkedRemainingQuantity }}
-							</span>
-						</div>
+				确认核销
+			</a-button>
+		</template>
+
+		<a-form
+			ref="formRef"
+			name="CpnCouponRedeemQuantityForm"
+			class="cpn-coupon-redeem-form"
+			:model="formState"
+			:rules="rulesRef"
+			:disabled="loading"
+			layout="vertical"
+		>
+			<!-- 消费券信息 -->
+			<div class="section-title">
+				<span class="section-bar"></span>
+				<span class="section-text">消费券信息</span>
+			</div>
+			<div class="info-box">
+				<div class="info-row">
+					<div class="info-item">
+						<span class="info-label">消费券名称：</span>
+						<span class="info-value">{{ formState.couponName || '-' }}</span>
+					</div>
+					<div class="info-item info-item-right">
+						<span class="info-label">剩余数量：</span>
+						<span class="info-value info-value-warn">
+							<!-- 与核销数量联动展示：剩余数量 = 原剩余 - 核销数量（不小于0） -->
+							{{ linkedRemainingQuantity }}
+						</span>
 					</div>
 				</div>
+			</div>
 
-				<!-- 核销设置 -->
-				<div class="section-title section-title-gap">
-					<span class="section-bar"></span>
-					<span class="section-text">
-						核销设置 <span class="required-star">*</span>
-					</span>
-				</div>
-				<a-form-item
-					:name="labelMap.redemptionQuantity.name"
-					class="form-item-no-label"
-				>
-					<a-space-compact style="width: 280px">
-						<a-button :disabled="isMinusDisabled" @click="onMinusQuantity">
-							-
-						</a-button>
-						<a-input-number
-							v-model:value="formState.redemptionQuantity"
-							:min="1"
-							:max="maxRedeemQuantity"
-							:precision="0"
-							:controls="false"
-							style="width: 120px; text-align: center"
-						/>
-						<a-button :disabled="isPlusDisabled" @click="onPlusQuantity">
-							+
-						</a-button>
-					</a-space-compact>
-					<div class="hint-text">核销后将不可撤回，请确认数量</div>
-				</a-form-item>
-
-				<!-- 备注 -->
-				<div class="section-title section-title-gap">
-					<span class="section-bar"></span>
-					<span class="section-text">备注</span>
-				</div>
-				<a-form-item :name="labelMap.remarks.name" class="form-item-no-label">
-					<a-textarea
-						v-model:value="formState.remarks"
-						placeholder="请输入备注（如：人工核销、异常补录）"
-						allow-clear
-						:auto-size="{ minRows: 2, maxRows: 4 }"
+			<!-- 核销设置 -->
+			<div class="section-title section-title-gap">
+				<span class="section-bar"></span>
+				<span class="section-text">
+					核销设置 <span class="required-star">*</span>
+				</span>
+			</div>
+			<a-form-item
+				:name="labelMap.redemptionQuantity.name"
+				class="form-item-no-label"
+			>
+				<a-space-compact style="width: 280px">
+					<a-button :disabled="isMinusDisabled" @click="onMinusQuantity">
+						-
+					</a-button>
+					<a-input-number
+						v-model:value="formState.redemptionQuantity"
+						:min="1"
+						:max="maxRedeemQuantity"
+						:precision="0"
+						:controls="false"
+						style="width: 120px; text-align: center"
 					/>
-				</a-form-item>
-			</a-form>
-		</a-modal>
-	</div>
+					<a-button :disabled="isPlusDisabled" @click="onPlusQuantity">
+						+
+					</a-button>
+				</a-space-compact>
+				<div class="hint-text">核销后将不可撤回，请确认数量</div>
+			</a-form-item>
+
+			<!-- 备注 -->
+			<div class="section-title section-title-gap">
+				<span class="section-bar"></span>
+				<span class="section-text">备注</span>
+			</div>
+			<a-form-item :name="labelMap.remarks.name" class="form-item-no-label">
+				<a-textarea
+					v-model:value="formState.remarks"
+					placeholder="请输入备注（如：人工核销、异常补录）"
+					allow-clear
+					:auto-size="{ minRows: 2, maxRows: 4 }"
+				/>
+			</a-form-item>
+		</a-form>
+	</a-modal>
 </template>
 
 <script setup lang="ts">

@@ -194,11 +194,11 @@ import {
 } from '@/views/cpn-coupon/cpn-coupon-info/api';
 import type { ModelInfo } from '@/types/modal';
 import type { CpnCouponInfoData } from '../config';
-import { labelMap } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import {
 	rulesRef,
 	labelCol,
 	wrapperCol,
+	labelMap,
 } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import { formatDayjs, addDays, nowDayjs } from '@/utils/dayjs';
 import type { ResponseBody } from '@/types/api';
@@ -281,9 +281,13 @@ const saveCpnCouponInfo = async () => {
 	const submitData = {
 		...formState.value,
 		startDate:
-			formState.value.startDate ? formatDayjs(formState.value.startDate) : undefined,
+			formState.value.startDate ?
+				formatDayjs(formState.value.startDate)
+			:	undefined,
 		endDate:
-			formState.value.endDate ? formatDayjs(formState.value.endDate) : undefined,
+			formState.value.endDate ?
+				formatDayjs(formState.value.endDate)
+			:	undefined,
 	};
 	const { code, message: messageInfo } = await api(submitData)
 		.catch((error: ResponseBody) => {

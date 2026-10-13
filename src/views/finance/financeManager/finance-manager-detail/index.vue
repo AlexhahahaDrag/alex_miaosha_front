@@ -17,15 +17,16 @@
 						<span v-if="!formState.id">💡 支持连续记录多笔账目</span>
 					</div>
 					<a-space>
-						<a-button key="back" @click="handleCancel">取消</a-button>
+						<a-button key="back" @click="handleCancel">{{ modelInfo?.readonly ? '关闭' : '取消' }}</a-button>
 						<a-button
-							v-if="!formState.id"
+							v-if="!formState.id && !modelInfo?.readonly"
 							:loading="loading"
 							@click="handleSaveAndContinue"
 						>
 							保存并再记一笔
 						</a-button>
 						<a-button
+							v-if="!modelInfo?.readonly"
 							key="submit"
 							type="primary"
 							:loading="loading"
@@ -44,6 +45,7 @@
 				:rules="rulesRef"
 				:label-col="labelCol"
 				:wrapper-col="wrapperCol"
+				:disabled="modelInfo?.readonly"
 			>
 				<a-row :gutter="24">
 					<a-col :span="12">
@@ -66,6 +68,7 @@
 								<div
 									v-if="presetCategories.length"
 									class="flex flex-wrap gap-1.5 pt-0.5"
+									:class="{ 'opacity-60 pointer-events-none': modelInfo?.readonly }"
 								>
 									<span
 										v-for="cat in presetCategories"
@@ -76,7 +79,7 @@
 												'bg-blue-50 border-blue-500 text-blue-600 font-medium shadow-xs'
 											:	'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30',
 										]"
-										@click="formState.typeCode = cat"
+										@click="!modelInfo?.readonly && (formState.typeCode = cat)"
 									>
 										{{ cat }}
 									</span>
@@ -255,6 +258,7 @@ const createDefaultFormState = (): FinanceManagerData => ({
 });
 
 const handleOk = () => {
+	if (modelInfo.value?.readonly) return;
 	if (formRef.value) {
 		loading.value = true;
 		formRef.value

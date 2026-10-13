@@ -8,4 +8,5 @@ export interface ModelInfo {
 	width?: string;
 	parentId?: string | null;
 	confirmLoading?: boolean;
+	readonly?: boolean;
 }

@@ -339,122 +339,19 @@
 			</a-tab-pane>
 		</a-tabs>
 
-		<!-- 事件分类编辑 Modal -->
-		<a-modal
+		<!-- 事件分类编辑 Modal (Vue 3.4 defineModel 规范组件) -->
+		<gift-event-option-modal
 			v-model:open="optionEditing"
-			title="编辑事件分类配置"
-			:confirm-loading="optionSaving"
-			@ok="saveOption"
-			destroy-on-close
-		>
-			<a-form
-				:model="editingOption"
-				:label-col="{ span: 6 }"
-				:wrapper-col="{ span: 16 }"
-				style="padding-top: 12px"
-			>
-				<a-form-item label="分类名称">
-					<a-input v-model:value="editingOption.name" disabled />
-				</a-form-item>
-				<a-form-item label="分类分组">
-					<a-select v-model:value="editingOption.category">
-						<a-select-option value="婚庆类">婚庆类</a-select-option>
-						<a-select-option value="家庭类">家庭类</a-select-option>
-						<a-select-option value="节日类">节日类</a-select-option>
-						<a-select-option value="其他">其他</a-select-option>
-					</a-select>
-				</a-form-item>
-				<a-form-item label="图标/Emoji">
-					<a-input
-						v-model:value="editingOption.icon"
-						placeholder="输入单个 Emoji 图标"
-					/>
-				</a-form-item>
-				<a-form-item label="默认推荐金额">
-					<a-input-number
-						v-model:value="editingOption.defaultAmount"
-						:min="0"
-						:precision="2"
-						style="width: 100%"
-						placeholder="随礼时的默认候选金额"
-					/>
-				</a-form-item>
-				<a-form-item label="启用状态">
-					<a-radio-group v-model:value="editingOption.status">
-						<a-radio :value="1">启用</a-radio>
-						<a-radio :value="0">停用</a-radio>
-					</a-radio-group>
-				</a-form-item>
-			</a-form>
-		</a-modal>
+			:option-data="editingOption"
+			@success="loadEventTypeOptions"
+		/>
 
-		<a-drawer
+		<!-- 人情事件表单 Drawer (Vue 3.4 defineModel 规范组件) -->
+		<gift-event-form-drawer
 			v-model:open="drawerOpen"
-			:title="formInfo.id ? '编辑人情事件' : '新增人情事件'"
-			width="480"
-		>
-			<a-form :model="formInfo" layout="vertical">
-				<a-form-item label="事件名称" required>
-					<a-input
-						v-model:value="formInfo.eventName"
-						placeholder="例如：张三婚礼"
-					/>
-				</a-form-item>
-				<a-form-item label="事件分类" required>
-					<a-select
-						v-model:value="formInfo.eventTypeMode"
-						:options="eventTypeSelectOptions"
-						allow-clear
-						placeholder="请选择事件分类"
-					/>
-				</a-form-item>
-				<a-form-item
-					v-if="formInfo.eventTypeMode === EVENT_TYPE_CUSTOM"
-					label="自定义事件分类"
-					required
-				>
-					<a-input
-						v-model:value="formInfo.customEventType"
-						placeholder="请输入自定义事件分类"
-						allow-clear
-						:maxlength="20"
-					/>
-				</a-form-item>
-				<a-form-item label="事件日期">
-					<a-date-picker
-						v-model:value="formInfo.eventTime"
-						value-format="YYYY-MM-DD"
-						style="width: 100%"
-						placeholder="请选择举办日期"
-					/>
-				</a-form-item>
-				<a-form-item
-					label="关联亲友"
-					extra="该事件的主办人、主角或主要关联亲友（如新人、寿星等）"
-				>
-					<gift-person-picker
-						v-model="formInfo.hostPersonId"
-						placeholder="请选择或搜索关联亲友/主办人"
-						data-testid="gift-event-host-person-picker"
-					/>
-				</a-form-item>
-				<a-form-item label="备注">
-					<a-textarea
-						v-model:value="formInfo.remark"
-						:rows="3"
-						placeholder="例如：地址/参与成员说明"
-					/>
-				</a-form-item>
-			</a-form>
-			<template #footer>
-				<a-space>
-					<a-button @click="drawerOpen = false">取消</a-button>
-					<a-button type="primary" :loading="saving" @click="save"
-						>保存</a-button
-					>
-				</a-space>
-			</template>
-		</a-drawer>
+			:record="currentEditingRecord"
+			@success="handleEventSuccess"
+		/>
 	</div>
 </template>
 
@@ -472,29 +369,21 @@ import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
 import { formatDate, formatTime } from '@/utils/dayjs';
-import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
 import {
-	addGiftEvent,
 	deleteGiftEvent,
 	getGiftEventBusinessPage,
 	getGiftEventSummary,
 	getGiftPersonList,
-	updateGiftEvent,
 	updateGiftEventTypeOption,
 } from '@/views/finance/gift/api';
 import type {
 	GiftEventBusinessInfo,
-	GiftEventFormState,
 	GiftEventInfo,
 	GiftEventQuery,
 	GiftEventSummary,
 	GiftEventTypeOptionItem,
 } from '@/views/finance/gift/config';
-import {
-	EVENT_TYPE_CUSTOM,
-	buildEventTypeForSave,
-	money,
-} from '@/views/finance/gift/config';
+import { money } from '@/views/finance/gift/config';
 
 const {
 	giftEventTypeOptions,
@@ -503,7 +392,6 @@ const {
 	eventLabel,
 	loadEventTypeOptions,
 	resolveFilterEventType,
-	mapEventTypeToFormFields,
 	presetOptions,
 	customOptions,
 } = useGiftEventTypeOptions();
@@ -515,12 +403,11 @@ const { pagination, handleTableChange, setTotal, resetPagination } =
 	});
 const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
-const saving = ref<boolean>(false);
 const drawerOpen = ref<boolean>(false);
+const currentEditingRecord = ref<GiftEventBusinessInfo | null>(null);
 const searchExpanded = ref<boolean>(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftEventQuery>({});
-const formInfo = ref<GiftEventFormState>({});
 const dataSource = ref<GiftEventBusinessInfo[]>([]);
 const summary = ref<GiftEventSummary>({});
 const eventRange = ref<[string, string] | undefined>();
@@ -661,61 +548,13 @@ const loadPage = async (page: PageInfo) => {
 };
 
 const openDrawer = (record?: GiftEventBusinessInfo) => {
-	const mapped = record ? mapEventTypeToFormFields(record) : {};
-	if (mapped.eventTime) {
-		mapped.eventTime = formatDate(mapped.eventTime);
-	}
-	formInfo.value = mapped;
+	currentEditingRecord.value = record || null;
 	drawerOpen.value = true;
 };
 
-const toSavePayload = (): GiftEventInfo => {
-	const typePayload = buildEventTypeForSave(formInfo.value);
-	let params: Record<string, any> = {
-		id: formInfo.value.id || undefined,
-		eventName: formInfo.value.eventName?.trim() || undefined,
-		eventType: typePayload.eventType || undefined,
-		eventTypeOptionId: typePayload.eventTypeOptionId || undefined,
-		hostPersonId: formInfo.value.hostPersonId || undefined,
-		remark: formInfo.value.remark?.trim() || undefined,
-	};
-	if (formInfo.value.eventTime) {
-		params.eventTime = formatTime(formInfo.value.eventTime);
-	}
-	return params as GiftEventInfo;
-};
-
-const save = async () => {
-	if (!formInfo.value.eventName?.trim()) {
-		message.warning('请输入事件名称');
-		return;
-	}
-	if (
-		formInfo.value.eventTypeMode === EVENT_TYPE_CUSTOM &&
-		!formInfo.value.customEventType?.trim()
-	) {
-		message.warning('请输入自定义事件分类');
-		return;
-	}
-	if (!formInfo.value.eventTypeMode) {
-		message.warning('请选择事件分类');
-		return;
-	}
-	saving.value = true;
-	try {
-		const api = formInfo.value.id ? updateGiftEvent : addGiftEvent;
-		const { code, message: msg } = await api(toSavePayload());
-		if (code === '200') {
-			message.success('保存成功');
-			drawerOpen.value = false;
-			await loadEventTypeOptions();
-			query();
-		} else {
-			message.error(msg || '保存失败');
-		}
-	} finally {
-		saving.value = false;
-	}
+const handleEventSuccess = async () => {
+	await loadEventTypeOptions();
+	query();
 };
 
 const remove = async (id: string) => {
@@ -772,41 +611,11 @@ const categorizedEventTypes = computed(() => {
 	return groups;
 });
 
-const optionSaving = ref<boolean>(false);
 const loadingOptionId = ref<string | null>(null);
 
 const startEditOption = (opt: GiftEventTypeOptionItem) => {
 	editingOption.value = { ...opt };
 	optionEditing.value = true;
-};
-
-const saveOption = async () => {
-	const { id, name, defaultAmount, status, icon, category } =
-		editingOption.value;
-	if (!id || optionSaving.value) return;
-
-	optionSaving.value = true;
-	try {
-		const { code, message: msg } = await updateGiftEventTypeOption({
-			id,
-			eventLabel: name,
-			defaultAmount,
-			status,
-			icon,
-			category,
-		});
-		if (code === '200') {
-			message.success('更新事由配置成功');
-			optionEditing.value = false;
-			await loadEventTypeOptions();
-		} else {
-			message.error(msg || '更新事由配置失败');
-		}
-	} catch (error: unknown) {
-		message.error('更新事由配置失败，请重试');
-	} finally {
-		optionSaving.value = false;
-	}
 };
 
 const toggleOptionStatus = async (opt: GiftEventTypeOptionItem) => {
