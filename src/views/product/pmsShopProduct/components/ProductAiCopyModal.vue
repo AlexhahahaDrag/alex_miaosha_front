@@ -140,8 +140,8 @@ import {
 	generateProductAiCopy,
 	type ProductAiCopyReq,
 	type ProductAiCopyVo,
-} from '../api';
-import type { PmsShopProductData } from '../config';
+} from '@/views/product/pmsShopProduct/api';
+import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 
 const open = defineModel<boolean>('open', { default: false });
 

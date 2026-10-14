@@ -253,11 +253,11 @@ import {
 	SettingOutlined,
 } from '@ant-design/icons-vue';
 import { formatAmount } from '@/utils/amountInfo';
-import type { FinanceSummaryData } from '../api';
+import type { FinanceSummaryData } from '@/views/finance/financeManager/api';
 import type {
 	FinanceBudgetStatusVo,
 	FinanceManagerData,
-} from '../config';
+} from '@/views/finance/financeManager/config';
 
 defineProps<{
 	isFirstSummaryLoaded: boolean;

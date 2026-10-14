@@ -283,9 +283,11 @@ import { useUserStore } from '@/store/modules/user/user';
 import {
 	recommendBudget,
 	parseBudgetCommand,
-	type FinanceBudgetAiRecommendVo,
-	type FinanceBudgetAiParseVo,
-} from '../../api';
+} from '@/views/finance/financeManager/api';
+import type {
+	FinanceBudgetAiRecommendVo,
+	FinanceBudgetAiParseVo,
+} from '@/views/finance/financeManager/config';
 
 const aiRecommendData = defineModel<FinanceBudgetAiRecommendVo | null>(
 	'aiRecommendData',

@@ -409,7 +409,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, nextTick } from 'vue';
 import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
@@ -426,13 +425,14 @@ import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
 	FinanceBudgetAiRecommendVo,
+	FinanceBudgetAiParseVo,
 } from '@/views/finance/financeManager/config';
 import {
 	getFinanceSummary,
 	saveMonthlyBudget,
 	getBudgetCategories,
-	type FinanceBudgetAiParseVo,
 } from '@/views/finance/financeManager/api';
+import BudgetAiAssistantPanel from '@/views/finance/financeManager/finance-budget-modal/components/BudgetAiAssistantPanel.vue';
 
 // 采用 Vue 3.4 原生 defineModel 宏实现 open 双向绑定
 const open = defineModel<boolean>('open', { default: false });

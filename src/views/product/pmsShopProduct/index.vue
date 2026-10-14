@@ -188,6 +188,7 @@ import {
 import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { PageInfo } from '@/composables/usePagination';
+import ProductAiCopyModal from '@/views/product/pmsShopProduct/components/ProductAiCopyModal.vue';
 
 import { useDictInfo } from '@/composables/useDictInfo';
 

@@ -329,13 +329,14 @@ import {
 import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
-import type {
-	GiftRecordInfo,
-	GiftRecordRecommendAmount,
-	GiftEventInfo,
+import {
+	type GiftRecordInfo,
+	type GiftRecordRecommendAmount,
+	type GiftEventInfo,
+	quickGiftAmounts,
 } from '@/views/finance/gift/config';
-import { quickGiftAmounts } from '@/views/finance/gift/config';
-import GiftEventSelectorModal from '../gift-event-selector-modal/index.vue';
+import GiftEventSelectorModal from '@/views/finance/gift/components/gift-event-selector-modal/index.vue';
+import GiftRecordAiParsePanel from '@/views/finance/gift/components/gift-record-form-drawer/components/GiftRecordAiParsePanel.vue';
 
 const open = defineModel<boolean>('open', { default: false });
 

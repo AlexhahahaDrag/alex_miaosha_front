@@ -236,6 +236,7 @@ import {
 	getMonthRangeDayjs,
 } from '@/utils/dayjs';
 import type { ModelInfo } from '@/types/modal';
+import FinanceOverviewCard from '@/views/finance/financeManager/components/FinanceOverviewCard.vue';
 import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,

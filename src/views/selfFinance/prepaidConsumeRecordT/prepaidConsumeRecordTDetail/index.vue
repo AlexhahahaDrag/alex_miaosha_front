@@ -119,7 +119,7 @@ import {
 	getPrepaidConsumeRecordTDetail,
 	addPrepaidConsumeRecordT,
 	editPrepaidConsumeRecordT,
-} from '../api';
+} from '@/views/selfFinance/prepaidConsumeRecordT/api';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/types/modal';

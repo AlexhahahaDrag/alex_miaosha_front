@@ -216,7 +216,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 import type { FormInstance } from 'ant-design-vue';
@@ -232,6 +231,7 @@ import type {
 } from '@/views/finance/gift/config';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import GiftPersonPicker from '@/views/finance/gift/components/gift-person-picker/index.vue';
+import GiftEventCreatePanel from '@/views/finance/gift/components/gift-event-selector-modal/components/GiftEventCreatePanel.vue';
 
 const open = defineModel<boolean>('open', { default: false });
 

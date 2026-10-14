@@ -185,6 +185,7 @@ import {
 	personAvatarSrc,
 	RELATION_CUSTOM,
 } from '@/views/finance/gift/config';
+import GiftPersonProfileView from '@/views/finance/gift/person/gift-person-detail/components/GiftPersonProfileView.vue';
 
 interface GiftPersonDrawerInfo extends ModelInfo {
 	mode?: 'form' | 'profile';
