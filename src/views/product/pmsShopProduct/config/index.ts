@@ -58,7 +58,7 @@ export interface PmsShopProductData {
 	id?: string;
 	image?: string;
 	price?: number;
-	comparePrice?: number | string;
+	comparePrice?: number;
 	name?: string;
 	shop?: string;
 	icons?: string;
