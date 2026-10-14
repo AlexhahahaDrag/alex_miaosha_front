@@ -62,7 +62,7 @@ const props = withDefaults(
 	},
 );
 
-const router = useRouter();
+
 const { relationLabel, loadRelationOptions } = useGiftRelationOptions();
 const { getContacts, isWarmed, warmup } = useGiftRecordOptionsCache();
 
