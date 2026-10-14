@@ -20,7 +20,7 @@
 			<a-form layout="inline" :model="searchInfo">
 				<a-form-item label="事件名称">
 					<a-input
-						v-model:value="searchInfo.eventName"
+						v-model:value="searchInfo.keyword"
 						allow-clear
 						placeholder="搜索事件名称..."
 						class="filter-input"
@@ -398,12 +398,16 @@ const loadPersons = async () => {
 const loadPage = async (page: PageInfo) => {
 	loading.value = true;
 	try {
+		const queryParams = { ...searchInfo.value };
+		if (!queryParams.keyword && (queryParams as any).eventName) {
+			queryParams.keyword = (queryParams as any).eventName;
+		}
 		const {
 			code,
 			data,
 			message: msg,
 		} = await getGiftEventBusinessPage(
-			searchInfo.value,
+			queryParams,
 			page.current,
 			page.pageSize,
 		);

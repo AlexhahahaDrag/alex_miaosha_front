@@ -15,18 +15,28 @@ export interface UsePaginationOptions extends Partial<PageInfo> {
 	onChange?: (pagination: PageInfo) => void;
 }
 
+/**
+ * 根据表格容器净可用高度推荐最佳每页条数（阶梯式自适应：10 / 15 / 20）
+ */
+export const calculateAdaptivePageSize = (availableHeight: number): number => {
+	if (availableHeight <= 0) return 15;
+	if (availableHeight < 460) return 10;
+	if (availableHeight < 660) return 15;
+	return 20;
+};
+
 export const usePagination = (initialConfig?: UsePaginationOptions) => {
 	// 默认配置
 	const defaultConfig: PageInfo = {
 		total: 0,
 		current: 1,
-		pageSize: 10,
-		showTotal: (total: number) => `共 ${total} 条`,
+		pageSize: 15,
+		showTotal: (total: number) => `共 ${Number(total).toLocaleString()} 条`,
 		showSizeChanger: true,
-		pageSizeOptions: ['10', '20', '50', '100'],
+		pageSizeOptions: ['10', '15', '20', '50', '100'],
 		size: 'small',
 		showQuickJumper: true,
-		defaultPageSize: 10,
+		defaultPageSize: 15,
 	};
 
 	const { onChange, ...restConfig } = initialConfig || {};

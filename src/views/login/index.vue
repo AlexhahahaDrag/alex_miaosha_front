@@ -291,8 +291,14 @@ const getPupilStyle = () => {
 	};
 };
 
+const getRandomValue = (): number => {
+	const array = new Uint32Array(1);
+	window.crypto.getRandomValues(array);
+	return array[0] / (0xffffffff + 1);
+};
+
 const scheduleBlink = (charIndex: number) => {
-	const delay = Math.random() * 4000 + 8000;
+	const delay = getRandomValue() * 4000 + 8000;
 	const blinkStartTimer = window.setTimeout(() => {
 		characters[charIndex].isBlinking = true;
 		const blinkEndTimer = window.setTimeout(() => {

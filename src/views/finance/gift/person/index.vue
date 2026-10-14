@@ -20,7 +20,7 @@
 			<a-form layout="inline" :model="searchInfo">
 				<a-form-item label="姓名/称呼">
 					<a-input
-						v-model:value="searchInfo.personName"
+						v-model:value="searchInfo.keyword"
 						allow-clear
 						placeholder="搜索姓名、电话或备注..."
 						class="filter-input"
@@ -55,11 +55,11 @@
 						<a-select-option value="WEAK">泛泛之交</a-select-option>
 					</a-select>
 				</a-form-item>
-				<a-form-item label="人情差额">
+				<a-form-item label="人员范围">
 					<a-select
-						v-model:value="searchInfo.scope"
+						v-model:value="searchInfo.personScope"
 						allow-clear
-						placeholder="全部状态"
+						placeholder="全部范围"
 						:options="giftPersonScopeOptions"
 						class="filter-select"
 						data-testid="gift-person-filter-scope"
@@ -406,6 +406,12 @@ const loadPage = async (page: PageInfo) => {
 	loading.value = true;
 	try {
 		const queryParams = { ...searchInfo.value };
+		if (!queryParams.keyword && (queryParams as any).personName) {
+			queryParams.keyword = (queryParams as any).personName;
+		}
+		if (!queryParams.personScope && (queryParams as any).scope) {
+			queryParams.personScope = (queryParams as any).scope;
+		}
 		if (queryParams.relationType) {
 			queryParams.relationType = resolveFilterRelationType(
 				queryParams.relationType,

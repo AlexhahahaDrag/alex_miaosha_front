@@ -87,7 +87,7 @@
 				:columns="columns"
 				:loading="loading"
 				:row-key="(record: FinanceManagerData) => record.id || ''"
-				:pagination="pagination"
+				:pagination="false"
 				@change="handleTableChange"
 				:scroll="{ x: 'max-content', y: tableScrollY }"
 				:row-selection="rowSelection"
@@ -207,6 +207,55 @@
 				</template>
 			</a-table>
 
+			<!-- 4.1 常驻表格底栏工具条 (Sticky Action Toolbar) -->
+			<div class="table-footer-toolbar">
+				<div class="toolbar-left">
+					<template v-if="selectedRowIds.length">
+						<span class="selection-pill">
+							已选 <strong class="selection-count">{{ selectedRowIds.length }}</strong> 项
+						</span>
+						<a-divider type="vertical" />
+						<a-popconfirm
+							:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
+							ok-text="确认"
+							cancel-text="取消"
+							@confirm="batchDelFinanceManager"
+						>
+							<a-button type="link" danger size="small" class="footer-action-btn">
+								<template #icon><DeleteOutlined /></template>
+								批量删除
+							</a-button>
+						</a-popconfirm>
+						<a-button
+							type="link"
+							size="small"
+							class="footer-action-btn clear-btn"
+							@click="clearSelected"
+						>
+							清空选择
+						</a-button>
+					</template>
+					<template v-else>
+						<span class="total-text">
+							共 <span class="total-num">{{ Number(pagination.total || 0).toLocaleString() }}</span> 笔账目
+						</span>
+					</template>
+				</div>
+				<div class="toolbar-right">
+					<a-pagination
+						size="small"
+						:current="pagination.current"
+						:page-size="pagination.pageSize"
+						:total="pagination.total"
+						:show-size-changer="pagination.showSizeChanger"
+						:page-size-options="pagination.pageSizeOptions"
+						:show-quick-jumper="false"
+						@change="onFooterPageChange"
+						@showSizeChange="onFooterSizeChange"
+					/>
+				</div>
+			</div>
+
 			<!-- 记账 / 修改明细弹窗 -->
 			<finance-manager-detail
 				v-model:modelInfo="modelInfo"
@@ -255,12 +304,14 @@ import {
 	type FinanceSummaryData,
 } from '@/views/selfFinance/financeManager/api';
 import {
-
 	PlusOutlined,
 	DeleteOutlined,
-
-
 } from '@ant-design/icons-vue';
+import {
+	usePagination,
+	useRowSelection,
+	calculateAdaptivePageSize,
+} from '@/composables/usePagination';
 import { useUserStore } from '@/store/modules/user/user';
 import { usePermission } from '@/composables/usePermission';
 import FinanceBudgetModal from '@/views/selfFinance/financeManager/finance-budget-modal/index.vue';
@@ -309,7 +360,11 @@ const canDeleteRecord = (record: FinanceManagerData) => {
 };
 
 // 选中的 ID 列表（严格 string 类型，普通成员禁用勾选他人账目）
-const { selectedRowKeys: selectedRowIds, rowSelection } = useRowSelection({
+const {
+	selectedRowKeys: selectedRowIds,
+	rowSelection,
+	clearSelected,
+} = useRowSelection({
 	config: {
 		getCheckboxProps: (record: FinanceManagerData) => ({
 			disabled: !canDeleteRecord(record),
@@ -325,6 +380,18 @@ const { pagination, handleTableChange, setTotal, resetPagination } =
 			getFinancePage(queryParam, paginationInfo);
 		},
 	});
+
+// 用户是否手动变更过每页条数（若手动选择过，则停止被窗口大小重置）
+const hasUserCustomizedPageSize = ref<boolean>(false);
+
+const onFooterPageChange = (page: number, pageSize: number) => {
+	handleTableChange({ ...pagination, current: page, pageSize });
+};
+
+const onFooterSizeChange = (current: number, size: number) => {
+	hasUserCustomizedPageSize.value = true;
+	handleTableChange({ ...pagination, current: 1, pageSize: size });
+};
 
 const route = useRoute();
 
@@ -761,9 +828,19 @@ const editFinance = (type: string, id?: string) => {
 	modelInfo.value.open = true;
 };
 
+const getInitialAdaptivePageSize = (): number => {
+	if (typeof window === 'undefined') return 15;
+	const windowHeight = window.innerHeight;
+	// 估算表体可用高度（扣除顶部外壳、Tab、搜索栏、统计与按钮的预估高度约 400px）
+	const estimatedTableHeight = windowHeight - 400;
+	return calculateAdaptivePageSize(estimatedTableHeight);
+};
+
 const initPage = () => {
 	resetPagination();
-	pagination.pageSize = 10;
+	if (!hasUserCustomizedPageSize.value) {
+		pagination.pageSize = getInitialAdaptivePageSize();
+	}
 };
 
 // 初始化页面数据
@@ -788,9 +865,17 @@ const tableScrollY = ref<number>(450);
 const updateTableScrollY = () => {
 	if (!tableContainerRef.value) return;
 	const containerHeight = tableContainerRef.value.clientHeight;
-	if (containerHeight > 180) {
-		// 扣除表头(~50px) + 底部分页器与间距(~66px) + 容器内边距(24px) + 边框安全量(12px) ≈ 152px
-		tableScrollY.value = Math.max(containerHeight - 152, 160);
+	if (containerHeight > 160) {
+		// 扣除表头(~46px) + 底栏工具条(~48px) + 容器内边距(12px) ≈ 106px
+		tableScrollY.value = Math.max(containerHeight - 106, 160);
+
+		// 若用户尚未手动选择过条数，根据实际容器渲染高度校准最匹配条数阶梯 (10 / 15 / 20)
+		if (!hasUserCustomizedPageSize.value) {
+			const bestSize = calculateAdaptivePageSize(tableScrollY.value);
+			if (pagination.pageSize !== bestSize) {
+				pagination.pageSize = bestSize;
+			}
+		}
 	}
 };
 
@@ -854,7 +939,7 @@ init();
 	display: flex;
 	flex-direction: column;
 	background: #fff;
-	padding: 12px 16px;
+	padding: 12px 16px 0;
 	border-radius: 8px;
 	border: 1px solid #f0f0f0;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -862,33 +947,92 @@ init();
 	overflow: hidden;
 
 	:deep(.ant-table-wrapper) {
-		height: 100%;
+		flex: 1;
+		min-height: 0;
 		display: flex;
 		flex-direction: column;
-		min-height: 0;
 
 		.ant-spin-nested-loading {
-			height: 100%;
+			flex: 1;
+			min-height: 0;
 			display: flex;
 			flex-direction: column;
-			min-height: 0;
 
 			.ant-spin-container {
-				height: 100%;
+				flex: 1;
+				min-height: 0;
 				display: flex;
 				flex-direction: column;
-				min-height: 0;
 
 				.ant-table {
 					flex: 1;
 					min-height: 0;
 				}
+			}
+		}
+	}
 
-				.ant-pagination {
-					flex-shrink: 0;
-					margin: 12px 0 0 !important;
-					padding-bottom: 2px;
+	.table-footer-toolbar {
+		flex-shrink: 0;
+		height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 16px;
+		margin: 0 -16px;
+		background: #fafafa;
+		border-top: 1px solid #f0f0f0;
+
+		.toolbar-left {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 13px;
+
+			.total-text {
+				color: #8c8c8c;
+				.total-num {
+					font-weight: 600;
+					color: #262626;
 				}
+			}
+
+			.selection-pill {
+				display: inline-flex;
+				align-items: center;
+				padding: 2px 8px;
+				background: #e6f4ff;
+				border: 1px solid #91caff;
+				border-radius: 4px;
+				color: #0958d9;
+				font-size: 12px;
+
+				.selection-count {
+					font-weight: 700;
+					margin: 0 2px;
+				}
+			}
+
+			.footer-action-btn {
+				padding: 0 4px;
+				font-size: 13px;
+				height: auto;
+
+				&.clear-btn {
+					color: #8c8c8c;
+					&:hover {
+						color: #1677ff;
+					}
+				}
+			}
+		}
+
+		.toolbar-right {
+			display: flex;
+			align-items: center;
+
+			:deep(.ant-pagination) {
+				margin: 0 !important;
 			}
 		}
 	}
