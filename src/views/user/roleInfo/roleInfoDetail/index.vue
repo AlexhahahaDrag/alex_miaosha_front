@@ -159,7 +159,7 @@ const permissionTree = ref<unknown[]>([]);
 
 const selectPermission = ref<string[]>([]);
 
-const normalizeOrgIds = (ids?: (string | number)[] | null): string[] =>
+const normalizeOrgIds = (ids?: string[] | null): string[] =>
 	(ids || []).map((id: string) => String(id)).filter(Boolean);
 
 const orgIdsChanged = (next: string[], prev: string[]) => {

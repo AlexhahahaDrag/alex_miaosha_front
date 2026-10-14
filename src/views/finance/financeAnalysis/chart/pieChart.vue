@@ -24,7 +24,7 @@ const props = defineProps({
 		default: () => ({}),
 	},
 	data: {
-		type: Array as PropType<Array<{ name: string; value: number }>>,
+		type: Array as PropType<Array<{ name: string; value: number | string }>>,
 		default: () => [],
 	},
 	width: {
@@ -43,10 +43,7 @@ const hasData = computed(() => {
 	return total > 0;
 });
 
-const totalAmount = computed(() => {
-	if (!props.data) return 0;
-	return props.data.reduce((acc, item) => acc + (Number(item?.value) || 0), 0);
-});
+
 
 const options = computed(() => {
 	const colors = [

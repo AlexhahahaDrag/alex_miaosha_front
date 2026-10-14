@@ -240,7 +240,6 @@ const handleAiPlan = async () => {
 				formState.value.startDate = nowDayjs();
 				formState.value.endDate = addDays(data.validDays);
 			}
-			if (data.marketingCopy) formState.value.description = data.marketingCopy;
 			message.success('已智能应用 AI 营销方案');
 		} else {
 			message.error(msg || 'AI方案生成失败');

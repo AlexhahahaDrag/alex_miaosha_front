@@ -118,6 +118,6 @@ export async function aiPlanCpnCoupon(
 	params: CpnCouponAiPlanReq,
 ): Promise<ResponseBody<CpnCouponAiPlanVo>> {
 	const url = baseService.finance + baseCpnCouponInfo + '/ai-plan';
-	return postData<ResponseBody<CpnCouponAiPlanVo>>(url, params);
+	return postData<CpnCouponAiPlanVo>(url, params);
 }
 

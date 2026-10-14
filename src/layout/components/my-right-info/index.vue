@@ -222,6 +222,7 @@ import { useUserStore } from '@/store/modules/user/user';
 import { refreshRouter } from '@/router';
 import { storeToRefs } from 'pinia';
 import ThemeSetting from './components/ThemeSetting.vue';
+import type { Rule } from 'ant-design-vue/es/form';
 
 // 响应式数据
 const userStore = useUserStore();
@@ -386,7 +387,7 @@ const pwdForm = ref({
 	confirmPassword: '',
 });
 
-const pwdRules = {
+const pwdRules: Record<string, Rule[]> = {
 	oldPassword: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
 	newPassword: [
 		{ required: true, message: '请输入新密码', trigger: 'blur' },

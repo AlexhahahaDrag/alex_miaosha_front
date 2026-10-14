@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getData,
 	postData,
 	putData,
@@ -31,7 +31,9 @@ export function getUserManagerPage(
 }
 
 // 获取用户详情
-export function getUserManagerDetail(id: string): Promise<ResponseBody> {
+export function getUserManagerDetail(
+	id: string,
+): Promise<ResponseBody<UserManagerInfo>> {
 	return getData(baseService.user + baseUserManager + userMangerUrl.url, {
 		id,
 	});

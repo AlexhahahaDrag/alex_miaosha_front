@@ -26,7 +26,7 @@
 						:checked="themeStore.isDark"
 						checked-children="黑夜"
 						un-checked-children="白天"
-						@change="themeStore.toggleDark"
+						@change="() => themeStore.toggleDark()"
 					/>
 				</div>
 

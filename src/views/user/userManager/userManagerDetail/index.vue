@@ -241,7 +241,7 @@ const handleOk = () => {
 };
 
 const customImageRequest = (file: FileInfo) => {
-	formState.value.avatar = file.id;
+	formState.value.avatar = file.id != null ? String(file.id) : undefined;
 	formState.value.avatarUrl = file.preUrl;
 	formState.value.avatarThumbnailUrl = file?.preThumbnailUrl ?? '';
 };

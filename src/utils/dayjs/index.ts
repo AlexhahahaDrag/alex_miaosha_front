@@ -114,7 +114,7 @@ const getMonthRangeDayjs = (dateOrOffset: number | string | Dayjs = 0): [Dayjs, 
 };
 
 // 导出类型与方法（坚决不导出 dayjs 实例）
-export type { Dayjs, DateInput };
+export type { Dayjs };
 export {
 	defaultDateFormat,
 	defaultTimeFormat,

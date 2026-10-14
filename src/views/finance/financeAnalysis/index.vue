@@ -666,10 +666,10 @@ async function getInfo() {
 	try {
 		const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
 		await Promise.all([
-			getBalanceInfo(searchUser.value, dateStr),
-			getIncomeAndExpenseInfo(searchUser.value, dateStr),
-			getDayExpenseInfo(searchUser.value, dateStr),
-			getMonthExpenseInfo(searchUser.value, dateStr),
+			getBalanceInfo(String(searchUser.value), dateStr),
+			getIncomeAndExpenseInfo(String(searchUser.value), dateStr),
+			getDayExpenseInfo(String(searchUser.value), dateStr),
+			getMonthExpenseInfo(String(searchUser.value), dateStr),
 		]);
 	} finally {
 		loading.value = false;
