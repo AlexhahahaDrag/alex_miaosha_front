@@ -69,7 +69,7 @@ const props = withDefaults(
 	},
 );
 
-const router = useRouter();
+
 const { orgScopeHint } = useGiftOrgScope();
 const { relationLabel, loadRelationOptions } = useGiftRelationOptions();
 
