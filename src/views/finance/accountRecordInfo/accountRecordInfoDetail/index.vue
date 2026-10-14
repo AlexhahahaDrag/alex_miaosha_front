@@ -77,9 +77,9 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { labelCol, wrapperCol, rulesRef } from './config';
+import { labelCol, wrapperCol, rulesRef } from '@/views/finance/accountRecordInfo/accountRecordInfoDetail/config';
 import type { ModelInfo } from '@/types/modal';
-import type { AccountRecordInfo } from '../config';
+import type { AccountRecordInfo } from '@/views/finance/accountRecordInfo/config';
 import { defaultTimeFormat, formatDayjs } from '@/utils/dayjs';
 import {
 	getAccountRecordInfoDetail,

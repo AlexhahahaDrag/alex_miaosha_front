@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { MenuInfoData } from '../config';
+import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
 const baseMenuInfo = '/menu-info';
 

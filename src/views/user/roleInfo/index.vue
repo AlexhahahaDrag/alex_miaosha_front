@@ -194,7 +194,7 @@ import { getRoleInfoPage, deleteRoleInfo } from '@/views/user/roleInfo/api';
 import { useDataScopeHint } from '@/composables/useDataScopeHint';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import UserAssignmentDetail from './userAssignmentDetail/index.vue';
+import UserAssignmentDetail from '@/views/user/roleInfo/userAssignmentDetail/index.vue';
 
 // 使用表格行选择组合式函数（保障 ID 为纯 string）
 const {

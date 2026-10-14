@@ -124,7 +124,7 @@
 	</a-modal>
 </template>
 <script lang="ts" setup>
-import type { PmsAttrDetail } from './pmsAttrDetailTs';
+import type { PmsAttrDetail } from '@/views/product/pmsAttr/pmsAttrDetail/pmsAttrDetailTs';
 import {
 	getPmsAttrDetail,
 	addPmsAttr,

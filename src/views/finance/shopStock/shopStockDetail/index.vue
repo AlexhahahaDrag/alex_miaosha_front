@@ -152,7 +152,7 @@
 	</a-modal>
 </template>
 <script lang="ts" setup>
-import type { ShopStockDetail } from './shopStockDetailTs';
+import type { ShopStockDetail } from '@/views/finance/shopStock/shopStockDetail/shopStockDetailTs';
 import {
 	getShopStockDetail,
 	addShopStock,

@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { ShopFinanceData } from '../config';
+import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 
 const baseShopFinance = '/shop-finance';
 

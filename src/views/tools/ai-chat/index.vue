@@ -155,8 +155,8 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { chatAi, chatAiStream } from './api';
-import type { AiAnalyzeReq, AiAnalyzeResp, AiResponseMode } from './api';
+import { chatAi, chatAiStream } from '@/views/tools/ai-chat/api';
+import type { AiAnalyzeReq, AiAnalyzeResp, AiResponseMode } from '@/views/tools/ai-chat/api';
 
 type EngineKey = 'deepseek' | 'rule-based' | 'sensenova';
 type MessageRole = 'user' | 'assistant';

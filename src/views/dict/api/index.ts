@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { DictInfo } from '../config';
+import type { DictInfo } from '@/views/dict/config';
 
 const baseDictManager = '/dict-info';
 

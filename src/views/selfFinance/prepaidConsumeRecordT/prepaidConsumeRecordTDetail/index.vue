@@ -114,7 +114,7 @@
 	</a-modal>
 </template>
 <script lang="ts" setup>
-import type { PrepaidConsumeRecordTDetail } from './prepaidConsumeRecordTDetailTs';
+import type { PrepaidConsumeRecordTDetail } from '@/views/selfFinance/prepaidConsumeRecordT/prepaidConsumeRecordTDetail/prepaidConsumeRecordTDetailTs';
 import {
 	getPrepaidConsumeRecordTDetail,
 	addPrepaidConsumeRecordT,

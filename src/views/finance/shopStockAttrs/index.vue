@@ -153,8 +153,8 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/types/modal';
-import type { SearchInfo } from './shopStockAttrsListTs';
-import { columns } from './shopStockAttrsListTs';
+import type { SearchInfo } from '@/views/finance/shopStockAttrs/shopStockAttrsListTs';
+import { columns } from '@/views/finance/shopStockAttrs/shopStockAttrsListTs';
 import {
 	getShopStockAttrsPage,
 	deleteShopStockAttrs,

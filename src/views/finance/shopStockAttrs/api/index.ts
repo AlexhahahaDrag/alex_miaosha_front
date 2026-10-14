@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { ShopStockAttrsData } from '../config';
+import type { ShopStockAttrsData } from '@/views/finance/shopStockAttrs/config';
 
 const baseShopStockAttrs = '/shop-stock-attrs';
 

@@ -8,7 +8,7 @@ import {
 
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 
-import type { CpnCouponInfoData } from '../config';
+import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
 
 // 基础URL配置
 const baseCpnCouponInfo = '/cpn-coupon-info';

@@ -8,7 +8,7 @@
 
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 
-import type { CpnRedemptionRecordInfoData } from '../config';
+import type { CpnRedemptionRecordInfoData } from '@/views/cpn-coupon/cpn-redemption-record-info/config';
 
 // 基础URL配置
 const baseCpnRedemptionRecordInfo = '/cpn-redemption-record-info';

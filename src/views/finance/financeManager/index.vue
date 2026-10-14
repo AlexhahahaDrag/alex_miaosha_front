@@ -263,7 +263,7 @@ import {
 } from '@ant-design/icons-vue';
 import { useUserStore } from '@/store/modules/user/user';
 import { usePermission } from '@/composables/usePermission';
-import FinanceBudgetModal from './finance-budget-modal/index.vue';
+import FinanceBudgetModal from '@/views/finance/financeManager/finance-budget-modal/index.vue';
 
 const userStore = useUserStore();
 const { hasPermission, isSuperAdmin } = usePermission();

@@ -105,11 +105,11 @@ import {
 	getPayWayInfo,
 } from '@/views/finance/shopFinanceAnalysis/api';
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
-import type { ItemInfo } from './shopAnalysis';
+import type { ItemInfo } from '@/views/finance/shopFinanceAnalysis/shopAnalysis';
 import type { Dayjs } from '@/utils/dayjs';
 import { formatTime, nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
-import type { barItem } from './chart/shopBar';
+import type { barItem } from '@/views/finance/shopFinanceAnalysis/chart/shopBar';
 
 interface ApiResult<T> {
 	code: string;

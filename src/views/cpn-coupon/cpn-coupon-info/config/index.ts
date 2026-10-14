@@ -2,7 +2,7 @@
 
 import type { Dayjs } from '@/utils/dayjs';
 import { formatTime } from '@/utils/dayjs';
-import { rulesRef } from '../cpn-coupon-info-detail/config';
+import { rulesRef } from '@/views/cpn-coupon/cpn-coupon-info/cpn-coupon-info-detail/config';
 
 export { rulesRef };
 

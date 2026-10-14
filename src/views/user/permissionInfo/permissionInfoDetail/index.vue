@@ -101,9 +101,9 @@ import {
 	rulesRef,
 	labelCol,
 	wrapperCol,
-} from './permissionInfoDetailTs';
+} from '@/views/user/permissionInfo/permissionInfoDetail/permissionInfoDetailTs';
 import type { ModelInfo } from '@/types/modal';
-import type { PermissionInfo } from '../permissionInfoListTs';
+import type { PermissionInfo } from '@/views/user/permissionInfo/permissionInfoListTs';
 import {
 	getPermissionInfoDetail,
 	addPermissionInfo,

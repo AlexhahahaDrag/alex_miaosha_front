@@ -105,7 +105,7 @@
 	</a-modal>
 </template>
 <script lang="ts" setup>
-import type { ShopStockAttrsDetail } from './shopStockAttrsDetailTs';
+import type { ShopStockAttrsDetail } from '@/views/finance/shopStockAttrs/shopStockAttrsDetail/shopStockAttrsDetailTs';
 import {
 	getShopStockAttrsDetail,
 	addShopStockAttrs,

@@ -147,7 +147,7 @@ import {
 	DeleteOutlined,
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import MenuInfoDetail from '../menuInfoDetail/index.vue';
+import MenuInfoDetail from '@/views/user/menuInfo/menuInfoDetail/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 
 import type { ModelInfo } from '@/types/modal';

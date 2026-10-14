@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { RoleInfoData } from '../config';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
 const baseRoleInfo = '/role-info';
 

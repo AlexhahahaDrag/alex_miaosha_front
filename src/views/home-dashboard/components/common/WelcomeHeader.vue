@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-import type { DashboardRoleType } from '../../config';
+import type { DashboardRoleType } from '@/views/home-dashboard/config';
 import { formatDate } from '@/utils/dayjs';
 import {
 	UserOutlined,

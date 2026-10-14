@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue';
-import type { QuickActionItem } from '../../config';
+import type { QuickActionItem } from '@/views/home-dashboard/config';
 import {
 	UserOutlined,
 	SafetyCertificateOutlined,

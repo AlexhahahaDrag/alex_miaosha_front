@@ -189,7 +189,7 @@ import {
 	type CpnCouponAiPlanVo,
 } from '@/views/cpn-coupon/cpn-coupon-info/api';
 import type { ModelInfo } from '@/types/modal';
-import type { CpnCouponInfoData } from '../config';
+import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
 import {
 	rulesRef,
 	labelCol,

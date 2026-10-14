@@ -1,5 +1,5 @@
 import type { TableColumnsType } from 'ant-design-vue';
-import type { PermissionInfo } from '../../permissionInfo/permissionInfoListTs';
+import type { PermissionInfo } from '@/views/user/permissionInfo/permissionInfoListTs';
 
 export const columns = ref<TableColumnsType>([
 	{

@@ -115,10 +115,10 @@
 </template>
 
 <script setup lang="ts">
-import WelcomeHeader from '../common/WelcomeHeader.vue';
-import QuickActionGrid from '../common/QuickActionGrid.vue';
-import PersonalTodoCard from './PersonalTodoCard.vue';
-import { USER_ACTIONS } from '../../config';
+import WelcomeHeader from '@/views/home-dashboard/components/common/WelcomeHeader.vue';
+import QuickActionGrid from '@/views/home-dashboard/components/common/QuickActionGrid.vue';
+import PersonalTodoCard from '@/views/home-dashboard/components/user/PersonalTodoCard.vue';
+import { USER_ACTIONS } from '@/views/home-dashboard/config';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	ProfileOutlined,

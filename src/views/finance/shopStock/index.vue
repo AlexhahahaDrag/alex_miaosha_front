@@ -133,8 +133,8 @@ import { useDictInfo } from '@/composables/useDictInfo';
 const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
 
-import type { SearchInfo, DataItem } from './shopStockListTs';
-import { columns } from './shopStockListTs';
+import type { SearchInfo, DataItem } from '@/views/finance/shopStock/shopStockListTs';
+import { columns } from '@/views/finance/shopStock/shopStockListTs';
 import {
 	getShopStockPage,
 	deleteShopStock,

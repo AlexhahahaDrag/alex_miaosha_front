@@ -1,7 +1,7 @@
 ﻿import { postData, baseService } from '@/utils/request';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ResponseBody } from '@/types/api';
-import { consumeSseBuffer, parseSseJson } from './sseParse';
+import { consumeSseBuffer, parseSseJson } from '@/views/tools/ai-chat/api/sseParse';
 
 /**
  * AI Agent：前端 AI 请求结构（与后端 com.alex.api.ai.vo.AiAnalyzeReq 对齐）

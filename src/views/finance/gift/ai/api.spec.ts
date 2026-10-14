@@ -9,7 +9,7 @@ vi.mock('@/store/modules/user/user', () => ({
 	useUserStore: () => ({ getToken: 'Bearer test-token' }),
 }));
 
-import { chatGiftAiStream } from './api';
+import { chatGiftAiStream } from '@/views/finance/gift/ai/api';
 
 describe('chatGiftAiStream', () => {
 	afterEach(() => {

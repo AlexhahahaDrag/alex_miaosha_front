@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { MICRO_SERVICES, type MicroServiceNode } from '../../config';
+import { MICRO_SERVICES, type MicroServiceNode } from '@/views/home-dashboard/config';
 import { SyncOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 

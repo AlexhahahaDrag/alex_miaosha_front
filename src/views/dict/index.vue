@@ -95,11 +95,11 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 
-import type { DictInfo } from './config';
+import type { DictInfo } from '@/views/dict/config';
 import type { ModelInfo } from '@/types/modal';
-import { columns, labelCol, wrapperCol } from './config';
-import { getDictManagerPage, deleteDictManager } from './api';
-import DictDetail from './dict-detail/index.vue';
+import { columns, labelCol, wrapperCol } from '@/views/dict/config';
+import { getDictManagerPage, deleteDictManager } from '@/views/dict/api';
+import DictDetail from '@/views/dict/dict-detail/index.vue';
 import { message } from 'ant-design-vue';
 
 let loading = ref<boolean>(false);

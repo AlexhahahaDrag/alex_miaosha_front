@@ -130,9 +130,9 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/types/modal';
-import type { AccountRecordInfo } from './config';
+import type { AccountRecordInfo } from '@/views/finance/accountRecordInfo/config';
 import { formatAmount } from '@/utils/amountInfo';
-import { columns, labelCol, wrapperCol } from './config';
+import { columns, labelCol, wrapperCol } from '@/views/finance/accountRecordInfo/config';
 import {
 	getAccountRecordInfoPage,
 	deleteAccountRecordInfo,

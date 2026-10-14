@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PrepaidConsumeRecordTData } from '../config';
+import type { PrepaidConsumeRecordTData } from '@/views/selfFinance/prepaidConsumeRecordT/config';
 
 const basePrepaidConsumeRecordT = '/prepaid-consume-record-t';
 

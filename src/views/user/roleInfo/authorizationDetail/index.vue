@@ -63,7 +63,7 @@
 	</a-drawer>
 </template>
 <script lang="ts" setup>
-import type { RoleInfoData } from '../config';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
 // 字典数据已通过 useDictInfo 自动加载
 import {

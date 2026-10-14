@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import { columns } from '@/views/selfFinance/prepaidCardInfoT/config';
-import { getPrepaidCardInfoList } from './api';
+import { getPrepaidCardInfoList } from '@/views/selfFinance/prepaidCardInfoT/api';
 import { getPrepaidConsumeRecordTPage } from '@/views/selfFinance/prepaidConsumeRecordT/api';
 import { message } from 'ant-design-vue';
 import RechargeInfoModal from '@/views/selfFinance/prepaidCardInfoT/recharge-info-modal/index.vue';

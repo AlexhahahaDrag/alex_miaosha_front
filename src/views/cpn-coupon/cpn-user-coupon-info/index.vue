@@ -76,9 +76,9 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import { getCpnUserCouponInfoPage, cancelRedeemCpnUserCouponInfo } from './api';
-import type { CpnUserCouponInfoData } from './config';
-import { columns, labelMap, labelCol, wrapperCol } from './config';
+import { getCpnUserCouponInfoPage, cancelRedeemCpnUserCouponInfo } from '@/views/cpn-coupon/cpn-user-coupon-info/api';
+import type { CpnUserCouponInfoData } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
+import { columns, labelMap, labelCol, wrapperCol } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const {

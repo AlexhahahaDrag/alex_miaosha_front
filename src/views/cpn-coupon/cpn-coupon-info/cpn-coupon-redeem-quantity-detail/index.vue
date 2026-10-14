@@ -111,8 +111,8 @@
 import { message, type FormInstance } from 'ant-design-vue';
 import { computed } from 'vue';
 import type { ModelInfo } from '@/types/modal';
-import type { CpnCouponInfoData } from '../config';
-import { labelMap, createRulesRef, type RedeemFormState } from './config';
+import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
+import { labelMap, createRulesRef, type RedeemFormState } from '@/views/cpn-coupon/cpn-coupon-info/cpn-coupon-redeem-quantity-detail/config';
 import { redeemCpnUserCouponInfo } from '@/views/cpn-coupon/cpn-user-coupon-info/api';
 import type { CpnUserCouponRedeemReq } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
 import { useUserStore } from '@/store/modules/user/user';

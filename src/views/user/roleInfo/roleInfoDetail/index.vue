@@ -115,7 +115,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
-import type { RoleInfoData } from '../config';
+import type { RoleInfoData } from '@/views/user/roleInfo/config';
 import {
 	labelMap,
 	rulesRef,
@@ -160,7 +160,7 @@ const permissionTree = ref<unknown[]>([]);
 const selectPermission = ref<string[]>([]);
 
 const normalizeOrgIds = (ids?: (string | number)[] | null): string[] =>
-	(ids || []).map((id) => String(id)).filter(Boolean);
+	(ids || []).map((id: string) => String(id)).filter(Boolean);
 
 const orgIdsChanged = (next: string[], prev: string[]) => {
 	if (next.length !== prev.length) {

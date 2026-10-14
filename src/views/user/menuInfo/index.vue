@@ -427,8 +427,8 @@ import {
 } from '@ant-design/icons-vue';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
-import MenuInfoDetail from './menuInfoDetail/index.vue';
-import SubMenuManager from './subMenuManager/index.vue';
+import MenuInfoDetail from '@/views/user/menuInfo/menuInfoDetail/index.vue';
+import SubMenuManager from '@/views/user/menuInfo/subMenuManager/index.vue';
 import { getMenuInfoPage, deleteMenuInfo } from '@/views/user/menuInfo/api';
 import { columns } from '@/views/user/menuInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';

@@ -76,9 +76,9 @@
 </template>
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { getCpnRedemptionRecordInfoPage } from './api';
-import type { CpnRedemptionRecordInfoData } from './config';
-import { columns, labelMap, labelCol, wrapperCol } from './config';
+import { getCpnRedemptionRecordInfoPage } from '@/views/cpn-coupon/cpn-redemption-record-info/api';
+import type { CpnRedemptionRecordInfoData } from '@/views/cpn-coupon/cpn-redemption-record-info/config';
+import { columns, labelMap, labelCol, wrapperCol } from '@/views/cpn-coupon/cpn-redemption-record-info/config';
 import { debounce } from 'lodash-es';
 
 // 使用分页组合式函数，直接绑定查询回调，消除包装函数

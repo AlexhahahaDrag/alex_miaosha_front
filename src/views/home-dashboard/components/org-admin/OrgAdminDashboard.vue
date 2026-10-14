@@ -324,10 +324,10 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/modules/user/user';
-import WelcomeHeader from '../common/WelcomeHeader.vue';
-import QuickActionGrid from '../common/QuickActionGrid.vue';
-import OrgTodoCard from './OrgTodoCard.vue';
-import { ORG_ADMIN_ACTIONS, FAMILY_ADMIN_ACTIONS } from '../../config';
+import WelcomeHeader from '@/views/home-dashboard/components/common/WelcomeHeader.vue';
+import QuickActionGrid from '@/views/home-dashboard/components/common/QuickActionGrid.vue';
+import OrgTodoCard from '@/views/home-dashboard/components/org-admin/OrgTodoCard.vue';
+import { ORG_ADMIN_ACTIONS, FAMILY_ADMIN_ACTIONS } from '@/views/home-dashboard/config';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	getGiftPersonSummary,

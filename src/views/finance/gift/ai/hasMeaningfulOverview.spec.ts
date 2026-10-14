@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasMeaningfulOverview } from './hasMeaningfulOverview';
+import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 
 describe('hasMeaningfulOverview', () => {
 	it('returns false for null, undefined, or empty overview', () => {

@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { ShopOrderData } from '../config';
+import type { ShopOrderData } from '@/views/finance/shopOrder/config';
 
 const baseShopOrder = '/shop-order';
 

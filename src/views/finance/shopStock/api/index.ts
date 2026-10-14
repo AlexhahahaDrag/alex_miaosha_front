@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { ShopStockData } from '../config';
+import type { ShopStockData } from '@/views/finance/shopStock/config';
 
 const baseShopStock = '/shop-stock';
 

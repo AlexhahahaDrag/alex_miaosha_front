@@ -6,7 +6,7 @@ import {
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PmsShopProductData } from '../config';
+import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 
 const basePmsShopProduct = '/pms-shop-product';
 

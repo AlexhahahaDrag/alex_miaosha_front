@@ -246,7 +246,7 @@ import * as math from 'mathjs';
 import type { Dayjs } from '@/utils/dayjs';
 import { nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
-import type { barItem } from './chart/bar';
+import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
 import {
 	getBalance,
 	getIncomeAndExpense,
@@ -255,8 +255,8 @@ import {
 } from '@/views/finance/financeAnalysis/api';
 import { useUserStore } from '@/store/modules/user/user';
 import { useUserInfo } from '@/composables/useUserInfo';
-import PieChart from './chart/pieChart.vue';
-import BarChart from './chart/barChart.vue';
+import PieChart from '@/views/finance/financeAnalysis/chart/pieChart.vue';
+import BarChart from '@/views/finance/financeAnalysis/chart/barChart.vue';
 
 const loading = ref<boolean>(false);
 

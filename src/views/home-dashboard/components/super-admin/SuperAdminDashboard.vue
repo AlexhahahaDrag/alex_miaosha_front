@@ -127,11 +127,11 @@
 </template>
 
 <script setup lang="ts">
-import WelcomeHeader from '../common/WelcomeHeader.vue';
-import QuickActionGrid from '../common/QuickActionGrid.vue';
-import ServiceHealthCard from './ServiceHealthCard.vue';
-import SystemAuditTimeline from './SystemAuditTimeline.vue';
-import { SUPER_ADMIN_ACTIONS } from '../../config';
+import WelcomeHeader from '@/views/home-dashboard/components/common/WelcomeHeader.vue';
+import QuickActionGrid from '@/views/home-dashboard/components/common/QuickActionGrid.vue';
+import ServiceHealthCard from '@/views/home-dashboard/components/super-admin/ServiceHealthCard.vue';
+import SystemAuditTimeline from '@/views/home-dashboard/components/super-admin/SystemAuditTimeline.vue';
+import { SUPER_ADMIN_ACTIONS } from '@/views/home-dashboard/config';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	TeamOutlined,

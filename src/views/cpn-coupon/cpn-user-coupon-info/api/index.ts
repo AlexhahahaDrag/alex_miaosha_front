@@ -8,7 +8,7 @@
 
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 
-import type { CpnUserCouponInfoData, CpnUserCouponRedeemReq } from '../config';
+import type { CpnUserCouponInfoData, CpnUserCouponRedeemReq } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
 
 // 基础URL配置
 const baseCpnUserCouponInfo = '/cpn-user-coupon-info';

@@ -176,7 +176,7 @@ import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/types/modal';
-import type { FinanceManagerData } from '../config';
+import type { FinanceManagerData } from '@/views/finance/financeManager/config';
 import {
 	getFinanceMangerDetail,
 	addFinanceManger,

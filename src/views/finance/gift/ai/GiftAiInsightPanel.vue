@@ -44,11 +44,11 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import { chatGiftAiStream } from './api';
+import { chatGiftAiStream } from '@/views/finance/gift/ai/api';
 import {
 	buildGiftAnalysisAiRequest,
 	type GiftAnalysisInsightInput,
-} from './buildAnalysisContext';
+} from '@/views/finance/gift/ai/buildAnalysisContext';
 
 defineOptions({
 	name: 'GiftAiInsightPanel',

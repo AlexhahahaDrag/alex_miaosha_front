@@ -402,7 +402,7 @@ import { debounce } from 'lodash-es';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
 import type { TreeProps } from 'ant-design-vue';
 import type { Key } from 'ant-design-vue/es/_util/type';
-import OrgInfoDetail from './orgInfoDetail/index.vue';
+import OrgInfoDetail from '@/views/user/orgInfo/orgInfoDetail/index.vue';
 
 type OrgTreeNode = OrgInfoData &
 	TreeDataItem & {

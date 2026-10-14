@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PmsAttrData } from '../config';
+import type { PmsAttrData } from '@/views/product/pmsAttr/config';
 
 const basePmsAttr = '/pms-attr';
 

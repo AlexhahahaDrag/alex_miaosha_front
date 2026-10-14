@@ -46,10 +46,10 @@ import { loadEcharts } from '@/utils/echarts/loadEcharts';
 import {
 	resolveDashboardRole,
 	type DashboardRoleType,
-} from './config';
-import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard.vue';
-import OrgAdminDashboard from './components/org-admin/OrgAdminDashboard.vue';
-import UserDashboard from './components/user/UserDashboard.vue';
+} from '@/views/home-dashboard/config';
+import SuperAdminDashboard from '@/views/home-dashboard/components/super-admin/SuperAdminDashboard.vue';
+import OrgAdminDashboard from '@/views/home-dashboard/components/org-admin/OrgAdminDashboard.vue';
+import UserDashboard from '@/views/home-dashboard/components/user/UserDashboard.vue';
 import {
 	ExperimentOutlined,
 	CrownOutlined,

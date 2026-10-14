@@ -1,8 +1,8 @@
 import { postData, baseService } from '@/utils/request';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ResponseBody } from '@/types/api';
-import type { AiAnalyzeReq, AiAnalyzeResp, AiStreamHandlers } from './types';
-import { consumeSseBuffer, parseSseJson } from './sseParse';
+import type { AiAnalyzeReq, AiAnalyzeResp, AiStreamHandlers } from '@/views/finance/gift/ai/types';
+import { consumeSseBuffer, parseSseJson } from '@/views/finance/gift/ai/sseParse';
 
 const baseAi = '/ai';
 const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
@@ -150,4 +150,4 @@ export async function chatGiftAiStream(
 	}
 }
 
-export type { AiAnalyzeReq, AiAnalyzeResp, AiStreamHandlers } from './types';
+export type { AiAnalyzeReq, AiAnalyzeResp, AiStreamHandlers } from '@/views/finance/gift/ai/types';

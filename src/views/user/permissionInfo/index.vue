@@ -187,12 +187,12 @@ import {
 	columns,
 	type PermissionInfo,
 	labelMap,
-} from './permissionInfoListTs';
+} from '@/views/user/permissionInfo/permissionInfoListTs';
 import {
 	getPermissionInfoPage,
 	deletePermissionInfo,
 } from '@/views/user/permissionInfo/api';
-import PermissionInfoDetail from './permissionInfoDetail/index.vue';
+import PermissionInfoDetail from '@/views/user/permissionInfo/permissionInfoDetail/index.vue';
 import { Modal, message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
