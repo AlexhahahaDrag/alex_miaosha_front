@@ -51,7 +51,7 @@
 
 		<!-- 充值对话框 -->
 		<a-modal
-			v-model:visible="rechargeDialogVisible"
+			v-model:open="rechargeDialogVisible"
 			title="充值"
 			@ok="confirmRecharge"
 			@cancel="rechargeDialogVisible = false"
@@ -83,7 +83,7 @@
 
 		<!-- 消费对话框 -->
 		<a-modal
-			v-model:visible="consumeDialogVisible"
+			v-model:open="consumeDialogVisible"
 			title="消费"
 			@ok="confirmConsume"
 			@cancel="consumeDialogVisible = false"

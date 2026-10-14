@@ -23,75 +23,14 @@
 		</template>
 
 		<div class="event-selector-container">
-			<!-- 内联创建新事件表单 -->
-			<div v-if="showCreateForm" class="create-form-panel">
-				<div class="panel-header">
-					<h4 class="panel-title">新建人情事件</h4>
-					<span class="panel-subtitle">创建后将自动为您选中该事件</span>
-				</div>
-				<a-form :model="createForm" layout="vertical" ref="formRef">
-					<a-row :gutter="16">
-						<a-col :span="14">
-							<a-form-item
-								label="事件名称"
-								name="eventName"
-								:rules="[
-									{ required: true, message: '请输入事件名称，如：徐福乐结婚' },
-								]"
-							>
-								<a-input
-									v-model:value="createForm.eventName"
-									placeholder="例如：徐福乐结婚"
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="10">
-							<a-form-item
-								label="事件分类"
-								name="eventType"
-								:rules="[{ required: true, message: '请选择事件分类' }]"
-							>
-								<a-select
-									v-model:value="createForm.eventType"
-									placeholder="请选择分类"
-									:options="eventTypeSelectOptions"
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-
-					<a-row :gutter="16">
-						<a-col :span="12">
-							<a-form-item
-								label="举行时间"
-								name="eventTime"
-								:rules="[{ required: true, message: '请选择举行时间' }]"
-							>
-								<a-date-picker
-									v-model:value="createForm.eventTime"
-									value-format="YYYY-MM-DD"
-									style="width: 100%"
-									placeholder="请选择举行日期"
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="12">
-							<a-form-item label="关联亲友" name="hostPersonId">
-								<gift-person-picker
-									v-model="createForm.hostPersonId"
-									placeholder="选择或搜索关联亲友"
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-				</a-form>
-				<div class="panel-buttons">
-					<a-button @click="showCreateForm = false">返回列表</a-button>
-					<a-button type="primary" :loading="creating" @click="handleCreate"
-						>确定并选中</a-button
-					>
-				</div>
-			</div>
+			<!-- 内联创建新事件表单 (子组件) -->
+			<gift-event-create-panel
+				v-if="showCreateForm"
+				ref="createPanelRef"
+				:event-type-select-options="eventTypeSelectOptions"
+				@created="handleEventCreated"
+				@cancel="showCreateForm = false"
+			/>
 
 			<!-- 事件选择面板 -->
 			<div v-else class="selection-panel">
@@ -355,7 +294,7 @@ const PRESET_NAMES: Record<string, string> = {
 };
 
 const loading = ref<boolean>(false);
-const creating = ref<boolean>(false);
+const createPanelRef = ref<{ resetForm: () => void } | null>(null);
 const showCreateForm = ref<boolean>(false);
 const searchKey = ref('');
 const statusFilter = ref<'ALL' | 'UPCOMING' | 'FINISHED'>('ALL');
@@ -368,14 +307,6 @@ const selectedEvent = ref<GiftEventBusinessInfo | null>(null);
 const total = ref(0);
 const current = ref(1);
 const pageSize = ref(10);
-const formRef = ref<FormInstance>();
-
-const createForm = ref<GiftEventInfo>({
-	eventName: '',
-	eventType: undefined,
-	eventTime: undefined,
-	hostPersonId: undefined,
-});
 
 // 加载联系人映射
 const loadPersons = async () => {
@@ -575,48 +506,14 @@ const confirmSelection = () => {
 };
 
 const openCreatePanel = () => {
-	createForm.value = {
-		eventName: '',
-		eventType: undefined,
-		eventTime: formatDate(new Date()),
-		hostPersonId: undefined,
-	};
+	createPanelRef.value?.resetForm();
 	showCreateForm.value = true;
 };
 
-const handleCreate = async () => {
-	if (!formRef.value) return;
-	creating.value = true;
-	try {
-		await formRef.value.validateFields();
-
-		let params: Record<string, any> = {
-			eventName: createForm.value.eventName?.trim() || undefined,
-			eventType: createForm.value.eventType || undefined,
-			hostPersonId: createForm.value.hostPersonId || undefined,
-		};
-		if (createForm.value.eventTime) {
-			params.eventTime = formatTime(createForm.value.eventTime);
-		}
-
-		const {
-			code,
-			data,
-			message: msg,
-		} = await addGiftEvent(params as GiftEventInfo);
-		if (code === '200' && data) {
-			message.success('创建成功并已选中该事件');
-			showCreateForm.value = false;
-			emit('select', data);
-			open.value = false;
-		} else {
-			message.error(msg || '创建失败');
-		}
-	} catch (e) {
-		// validation failed
-	} finally {
-		creating.value = false;
-	}
+const handleEventCreated = (data: GiftEventInfo) => {
+	showCreateForm.value = false;
+	emit('select', data);
+	open.value = false;
 };
 
 const handleCancel = () => {
@@ -664,35 +561,6 @@ watch(open, async (isOpen) => {
 	flex-direction: column;
 }
 
-.create-form-panel {
-	border: 1px solid #eaecf0;
-	border-radius: 8px;
-	padding: 16px 20px;
-	background: #f8fafc;
-
-	.panel-header {
-		margin-bottom: 16px;
-
-		.panel-title {
-			margin: 0 0 2px;
-			font-weight: 700;
-			font-size: 15px;
-			color: #1e293b;
-		}
-
-		.panel-subtitle {
-			font-size: 12px;
-			color: #64748b;
-		}
-	}
-
-	.panel-buttons {
-		display: flex;
-		justify-content: flex-end;
-		gap: 8px;
-		margin-top: 12px;
-	}
-}
 
 .filter-toolbar {
 	display: flex;

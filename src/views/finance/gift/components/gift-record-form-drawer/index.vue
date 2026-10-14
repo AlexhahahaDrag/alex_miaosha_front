@@ -8,36 +8,13 @@
 		@close="open = false"
 	>
 		<a-spin :spinning="formInitializing">
-			<!-- AI 自然语言智能快速记账 -->
-			<div v-if="!formInfo.id" class="ai-parse-panel">
-				<div class="ai-parse-title">
-					<span class="ai-sparkle">✨</span>
-					<span class="ai-title-text">AI 快速记账</span>
-					<span class="ai-sub-text">粘贴聊天记录或输入一句话自动填单</span>
-				</div>
-				<div class="ai-parse-input-wrap">
-					<a-input
-						v-model:value="aiText"
-						placeholder="例：随了大学同学王五结婚礼金800元 / 收到李叔叔乔迁红包1000块"
-						:disabled="aiLoading"
-						allow-clear
-						data-testid="gift-record-ai-input"
-						@pressEnter="handleAiParse"
-					>
-						<template #suffix>
-							<a-button
-								type="primary"
-								size="small"
-								:loading="aiLoading"
-								data-testid="gift-record-ai-btn"
-								@click="handleAiParse"
-							>
-								智能解析
-							</a-button>
-						</template>
-					</a-input>
-				</div>
-			</div>
+			<!-- AI 自然语言智能快速记账 (子组件) -->
+			<gift-record-ai-parse-panel
+				v-if="!formInfo.id"
+				ref="aiParsePanelRef"
+				:default-direction="formInfo.direction"
+				@parsed="handleAiParsed"
+			/>
 
 			<a-form
 				ref="formRef"
@@ -392,73 +369,46 @@ const isReturnGift = ref<boolean>(false);
 const externalPersonId = ref<string>();
 const familyPersonId = ref<string>();
 
-const aiText = ref('');
-const aiLoading = ref<boolean>(false);
+const aiParsePanelRef = ref<{ resetText: () => void } | null>(null);
 
-const handleAiParse = async () => {
-	const raw = aiText.value?.trim();
-	if (!raw) {
-		message.warning('请输入记账描述，例如：随了发小李四结婚礼金800元');
-		return;
+const handleAiParsed = (data: GiftRecordAiParseVo) => {
+	// 1. 流水方向
+	if (data.direction === 'GIVE' || data.direction === 'RECEIVE') {
+		formInfo.value.direction = data.direction;
 	}
-	aiLoading.value = true;
-	try {
-		const {
-			code,
-			data,
-			message: errorMsg,
-		} = await aiParseGiftRecord({
-			content: raw,
-			defaultDirection: formInfo.value.direction,
-		});
-		if (code === '200' && data) {
-			// 1. 流水方向
-			if (data.direction === 'GIVE' || data.direction === 'RECEIVE') {
-				formInfo.value.direction = data.direction;
-			}
-			// 2. 金额
-			if (data.amount != null && data.amount > 0) {
-				formInfo.value.amount = Number(data.amount);
-			}
-			// 3. 发生时间
-			if (data.payTime) {
-				formInfo.value.payTime = data.payTime.substring(0, 10);
-			}
-			// 4. 补充说明/备注
-			if (data.remark) {
-				formInfo.value.remark = data.remark;
-			}
-			// 5. 亲友匹配
-			if (data.personId) {
-				externalPersonId.value = String(data.personId);
-			} else if (data.personName) {
-				message.info(
-					`已识别亲友【${data.personName}】，可在外部联系人中直接选用或新建`,
-				);
-			}
-			// 6. 事由匹配
-			if (data.eventId) {
-				formInfo.value.eventId = String(data.eventId);
-			}
-			if (data.eventType) {
-				formInfo.value.eventType = data.eventType;
-				const matchedTag = quickEventTags.value.find(
-					(t) =>
-						t.eventType === data.eventType || t.name === data.eventTypeName,
-				);
-				if (matchedTag) {
-					selectQuickTag(matchedTag);
-				}
-			}
-			message.success('已自动识别记账要素并回填，请核对保存');
-		} else {
-			message.warning(errorMsg || '未能识别记账要素，请尝试补充说明');
+	// 2. 金额
+	if (data.amount != null && data.amount > 0) {
+		formInfo.value.amount = Number(data.amount);
+	}
+	// 3. 发生时间
+	if (data.payTime) {
+		formInfo.value.payTime = data.payTime.substring(0, 10);
+	}
+	// 4. 补充说明/备注
+	if (data.remark) {
+		formInfo.value.remark = data.remark;
+	}
+	// 5. 亲友匹配
+	if (data.personId) {
+		externalPersonId.value = String(data.personId);
+	} else if (data.personName) {
+		message.info(
+			`已识别亲友【${data.personName}】，可在外部联系人中直接选用或新建`,
+		);
+	}
+	// 6. 事由匹配
+	if (data.eventId) {
+		formInfo.value.eventId = String(data.eventId);
+	}
+	if (data.eventType) {
+		formInfo.value.eventType = data.eventType;
+		const matchedTag = quickEventTags.value.find(
+			(t) =>
+				t.eventType === data.eventType || t.name === data.eventTypeName,
+		);
+		if (matchedTag) {
+			selectQuickTag(matchedTag);
 		}
-	} catch (e) {
-		console.error(e);
-		message.error('智能解析服务异常，请稍后再试');
-	} finally {
-		aiLoading.value = false;
 	}
 };
 
@@ -803,7 +753,7 @@ const initializeForm = async (record?: GiftRecordInfo) => {
 		await loadEventTypeOptions();
 		await loadRecentEvents();
 		resetForm(record);
-		aiText.value = '';
+		aiParsePanelRef.value?.resetText();
 		if (isReturnGift.value) {
 			return;
 		}
@@ -1047,42 +997,6 @@ watch(
 	font-size: 12px;
 	color: #666;
 	margin-top: 6px;
-}
-
-.ai-parse-panel {
-	margin-bottom: 20px;
-	padding: 12px 14px;
-	background: linear-gradient(135deg, #f0f5ff 0%, #f6ffed 100%);
-	border: 1px solid #d6e4ff;
-	border-radius: 8px;
-
-	.ai-parse-title {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		margin-bottom: 8px;
-
-		.ai-sparkle {
-			font-size: 15px;
-		}
-
-		.ai-title-text {
-			font-weight: 600;
-			font-size: 13px;
-			color: #1d39c4;
-		}
-
-		.ai-sub-text {
-			font-size: 12px;
-			color: #8c8c8c;
-			margin-left: 4px;
-		}
-	}
-
-	.ai-parse-input-wrap {
-		display: flex;
-		align-items: center;
-	}
 }
 
 .ai-recommend-tip-card {
