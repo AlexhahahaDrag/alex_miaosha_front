@@ -173,7 +173,7 @@
 import type { ModelInfo } from '@/types/modal';
 import type { PageInfo } from '@/composables/usePagination';
 
-import type { SearchInfo, DataItem } from '@/views/product/pmsAttr/pmsAttrListTs';
+import type { SearchInfo } from '@/views/product/pmsAttr/pmsAttrListTs';
 import { columns } from '@/views/product/pmsAttr/pmsAttrListTs';
 import { getPmsAttrPage, deletePmsAttr } from '@/views/product/pmsAttr/api';
 import { message } from 'ant-design-vue';

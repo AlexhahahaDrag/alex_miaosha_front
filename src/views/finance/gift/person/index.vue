@@ -585,32 +585,6 @@ const getGradeColor = (grade?: string) => {
 	}
 };
 
-const getStatusLabel = (status?: string) => {
-	switch (status) {
-		case 'ACTIVE':
-			return '活跃';
-		case 'GENERAL':
-			return '一般';
-		case 'DISTANT':
-			return '疏远';
-		default:
-			return '一般';
-	}
-};
-
-const getStatusBadgeType = (status?: string) => {
-	switch (status) {
-		case 'ACTIVE':
-			return 'success';
-		case 'GENERAL':
-			return 'warning';
-		case 'DISTANT':
-			return 'error';
-		default:
-			return 'warning';
-	}
-};
-
 onMounted(async () => {
 	loadRelationOptions();
 	query(true);

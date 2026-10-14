@@ -378,7 +378,6 @@ import {
 } from '@/views/finance/gift/api';
 import type {
 	GiftEventBusinessInfo,
-	GiftEventInfo,
 	GiftEventQuery,
 	GiftEventSummary,
 	GiftEventTypeOptionItem,
@@ -387,7 +386,6 @@ import { money } from '@/views/finance/gift/config';
 
 const {
 	giftEventTypeOptions,
-	eventTypeSelectOptions,
 	quickEvents,
 	eventLabel,
 	loadEventTypeOptions,

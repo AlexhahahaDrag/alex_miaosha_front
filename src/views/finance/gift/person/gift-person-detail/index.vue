@@ -524,35 +524,6 @@ watch(
 	},
 );
 
-const getGradeLabel = (grade?: string) => {
-	switch (grade) {
-		case 'CORE':
-			return '⭐ 核心关系';
-		case 'IMPORTANT':
-			return '🟢 重要关系';
-		case 'NORMAL':
-			return '🔵 普通关系';
-		case 'WEAK':
-			return '弱关系';
-		default:
-			return '普通关系';
-	}
-};
-
-const getGradeColor = (grade?: string) => {
-	switch (grade) {
-		case 'CORE':
-			return 'gold';
-		case 'IMPORTANT':
-			return 'green';
-		case 'NORMAL':
-			return 'blue';
-		case 'WEAK':
-			return 'default';
-		default:
-			return 'blue';
-	}
-};
 </script>
 
 <style scoped lang="less">
