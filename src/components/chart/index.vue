@@ -1,9 +1,11 @@
 <template>
-	<div :id="id" :style="style" />
+	<div
+		ref="chartContainerRef"
+		:style="style"
+	/>
 </template>
 
 <script setup lang="ts">
-import { nanoid } from 'nanoid';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 
 const props = defineProps({
@@ -23,7 +25,7 @@ const props = defineProps({
 	},
 });
 
-const id = ref(`vue-echarts-${nanoid()}`);
+const chartContainerRef = shallowRef<HTMLDivElement>();
 
 const style = computed(() => ({
 	height: props.height,
@@ -38,7 +40,7 @@ const onResize = () => {
 
 const initEcharts = async () => {
 	const echarts = await loadEcharts();
-	const el = document.getElementById(id.value);
+	const el = chartContainerRef.value;
 	if (!el || chart) {
 		return;
 	}

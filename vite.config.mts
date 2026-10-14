@@ -158,40 +158,59 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
 					entryFileNames: 'static/js/[name]-[hash].js',
 					assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
 					manualChunks(id) {
-						if (id.includes('node_modules')) {
-							// 核心框架
-							if (
-								id.includes('node_modules/vue') ||
-								id.includes('node_modules/pinia') ||
-								id.includes('node_modules/vue-router')
-							) {
-								return 'framework';
-							}
-							// UI 图标库
-							if (id.includes('node_modules/@ant-design/icons-vue')) {
-								return 'antd-icons';
-							}
-							// 图表库（合并 echarts 与底层 zrender）
-							if (
-								id.includes('node_modules/echarts') ||
-								id.includes('node_modules/zrender')
-							) {
-								return 'echarts';
-							}
-							// 常用工具库
-							if (
-								vendorLibs.some((lib) => id.includes(`node_modules/${lib}`))
-							) {
-								return 'utils';
-							}
+						if (!id.includes('node_modules')) {
+							return;
+						}
+
+						// 1. 核心响应式与路由状态框架
+						if (
+							/[\\/]node_modules[\\/](vue|@vue[\\/][^\\/]+|vue-router|pinia|pinia-plugin-persistedstate|@vueuse[\\/][^\\/]+)[\\/]/.test(
+								id,
+							)
+						) {
+							return 'framework';
+						}
+
+						// 2. Ant Design 图标库
+						if (/[\\/]node_modules[\\/]@ant-design[\\/]icons-vue[\\/]/.test(id)) {
+							return 'antd-icons';
+						}
+
+						// 3. Ant Design Vue 核心组件库与底层依赖
+						if (
+							/[\\/]node_modules[\\/](ant-design-vue|@ant-design[\\/]cssinjs|@ctrl[\\/]tinycolor|async-validator)[\\/]/.test(
+								id,
+							)
+						) {
+							return 'antd-vendor';
+						}
+
+						// 4. ECharts 图表库与 zrender 渲染引擎
+						if (/[\\/]node_modules[\\/](echarts|zrender)[\\/]/.test(id)) {
+							return 'echarts-vendor';
+						}
+
+						// 5. 粒子特效（按需大包，独立异步化）
+						if (/[\\/]node_modules[\\/]@tsparticles[\\/]/.test(id)) {
+							return 'particles-vendor';
+						}
+
+						// 6. 常用通用工具库（axios, lodash-es, dayjs, bignumber.js, crypto-es, nprogress）
+						if (
+							/[\\/]node_modules[\\/](axios|lodash-es|dayjs|bignumber\.js|crypto-es|nprogress)[\\/]/.test(
+								id,
+							)
+						) {
+							return 'utils-vendor';
 						}
 					},
+
 				},
 				treeshake: true,
 			},
 			outDir: env.VITE_OUTPUT_DIR || 'dist',
 			reportCompressedSize: false,
-			chunkSizeWarningLimit: 800,
+			chunkSizeWarningLimit: 1200,
 			sourcemap: false,
 		},
 		envPrefix: 'VITE_',

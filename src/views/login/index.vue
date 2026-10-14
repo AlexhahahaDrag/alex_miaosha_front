@@ -277,7 +277,7 @@ const getPupilStyle = () => {
 	const angle = Math.atan2(dy, dx);
 
 	// Shyness factor: during password focus, eyes look away
-	let distance = Math.min(4, Math.sqrt(dx * dx + dy * dy) / 50);
+	let distance = Math.min(4, Math.hypot(dx * dx + dy * dy) / 50);
 	let finalAngle = angle;
 
 	if (isPasswordFocused.value) {
@@ -711,10 +711,10 @@ const particlesLoaded = (container: unknown) => {
 			z-index: 2;
 			margin-left: -20px;
 			.eye {
-				background-color: #1a1a1a !important;
+				background-color: #1a1a1a;
 			}
 			.pupil {
-				background-color: #fff !important;
+				background-color: #fff;
 			}
 		}
 

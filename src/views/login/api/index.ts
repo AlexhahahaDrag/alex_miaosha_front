@@ -1,6 +1,6 @@
 import request from '@/utils/request/request';
 import { baseService, getData } from '@/utils/request';
-import type { LoginParams } from '@/views/login/config';
+import type { LoginParams, LoginResultData } from '@/views/login/config';
 import type { ResponseBody } from '@/types/api';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
@@ -13,7 +13,7 @@ enum Api {
 	menus = '/user/menus',
 }
 
-export function loginApi(params: LoginParams): Promise<ResponseBody<any>> {
+export function loginApi(params: LoginParams): Promise<ResponseBody<LoginResultData>> {
 	return request.post(baseService.user + baseUrl + Api.login, null, { params });
 }
 

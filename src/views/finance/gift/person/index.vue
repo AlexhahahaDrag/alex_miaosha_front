@@ -1,72 +1,66 @@
 <template>
 	<div class="gift-screen">
-		<div class="screen-header">
+		<header class="screen-header">
 			<div>
-				<h2>亲友管理</h2>
-				<p>记录亲友档案与每一段礼尚往来，快速查看人情余额。</p>
+				<h2>亲友与人情关系档案</h2>
+				<p>管理常联系人情往来对象，多维度统计礼金净值与往来频次</p>
 			</div>
 			<a-button
 				v-if="hasPermission('gift:add')"
 				type="primary"
+				size="middle"
 				class="primary-action"
 				@click="openDrawer()"
 			>
-				+ 添加联系人
+				+ 新增联系人
 			</a-button>
-		</div>
+		</header>
 
 		<section class="filter-panel">
-			<a-form :model="searchInfo" layout="inline">
-				<a-form-item label="姓名查询">
+			<a-form layout="inline" :model="searchInfo">
+				<a-form-item label="姓名/称呼">
 					<a-input
-						v-model:value="searchInfo.keyword"
-						placeholder="搜索姓名或手机号"
+						v-model:value="searchInfo.personName"
 						allow-clear
+						placeholder="搜索姓名、电话或备注..."
 						class="filter-input"
 					/>
 				</a-form-item>
-				<a-form-item label="关系类别">
+				<a-form-item label="关系类型">
 					<a-select
 						v-model:value="searchInfo.relationType"
-						:options="giftRelationOptions"
-						placeholder="全部关系"
 						allow-clear
+						placeholder="全部关系"
 						class="filter-select"
-					/>
+					>
+						<a-select-option
+							v-for="opt in giftRelationOptions"
+							:key="opt.value"
+							:value="opt.value"
+						>
+							{{ opt.label }}
+						</a-select-option>
+					</a-select>
 				</a-form-item>
 				<a-form-item label="关系等级">
 					<a-select
 						v-model:value="searchInfo.relationGrade"
+						allow-clear
 						placeholder="全部等级"
-						allow-clear
 						class="filter-select"
-						@change="query(true)"
 					>
-						<a-select-option value="CORE">⭐ 核心关系</a-select-option>
-						<a-select-option value="IMPORTANT">🟢 重要关系</a-select-option>
-						<a-select-option value="NORMAL">🔵 普通关系</a-select-option>
-						<a-select-option value="WEAK">⚪ 弱关系</a-select-option>
+						<a-select-option value="CORE">⭐ 核心亲友</a-select-option>
+						<a-select-option value="IMPORTANT">重要亲友</a-select-option>
+						<a-select-option value="NORMAL">普通往来</a-select-option>
+						<a-select-option value="WEAK">泛泛之交</a-select-option>
 					</a-select>
 				</a-form-item>
-				<a-form-item label="关系状态">
+				<a-form-item label="人情差额">
 					<a-select
-						v-model:value="searchInfo.relationStatus"
+						v-model:value="searchInfo.scope"
+						allow-clear
 						placeholder="全部状态"
-						allow-clear
-						class="filter-select"
-						@change="query(true)"
-					>
-						<a-select-option value="ACTIVE">🟢 活跃</a-select-option>
-						<a-select-option value="GENERAL">🟡 一般</a-select-option>
-						<a-select-option value="DISTANT">🔴 疏远</a-select-option>
-					</a-select>
-				</a-form-item>
-				<a-form-item label="人员范围">
-					<a-select
-						v-model:value="searchInfo.personScope"
 						:options="giftPersonScopeOptions"
-						placeholder="全部人员"
-						allow-clear
 						class="filter-select"
 						data-testid="gift-person-filter-scope"
 						@change="query(true)"
@@ -81,66 +75,11 @@
 			</a-form>
 		</section>
 
-		<a-spin :spinning="summaryLoading">
-			<div class="person-summary-grid">
-				<div class="metric-card metric-card-blue">
-					<div class="metric-top">
-						<span>关系总数</span>
-						<span class="card-icon">👥</span>
-					</div>
-					<strong>{{ summary.personCount || 0 }} 人</strong>
-					<p>常联系关系网络</p>
-				</div>
-				<div
-					class="metric-card"
-					:class="
-						summary.netAmount && summary.netAmount >= 0 ?
-							'metric-card-green'
-						:	'metric-card-gray'
-					"
-				>
-					<div class="metric-top">
-						<span>人情净值</span>
-						<span class="card-icon">💰</span>
-					</div>
-					<div class="metric-value-row">
-						<strong v-if="summary.netAmount && summary.netAmount >= 0"
-							>+{{ money(summary.netAmount) }}</strong
-						>
-						<strong v-else>{{ money(summary.netAmount) }}</strong>
-						<div class="balance-tag-group">
-							<span
-								class="tag-pos"
-								title="人情余额正值和（收大于送的亲友差额总和）"
-								>正: +{{ money(summary.positiveBalanceSum) }}</span
-							>
-							<span
-								class="tag-neg"
-								title="人情余额负值和（送大于收的亲友差额总和）"
-								>负: -{{ money(summary.negativeBalanceSum) }}</span
-							>
-						</div>
-					</div>
-					<p>累计收礼与送礼差值</p>
-				</div>
-				<div class="metric-card metric-card-green">
-					<div class="metric-top">
-						<span>人情收礼总值</span>
-						<span class="card-icon">📥</span>
-					</div>
-					<strong>{{ money(summary.totalReceiveAmount) }}</strong>
-					<p>累计收到人情礼金</p>
-				</div>
-				<div class="metric-card metric-card-red">
-					<div class="metric-top">
-						<span>人情随礼总值</span>
-						<span class="card-icon">📤</span>
-					</div>
-					<strong>{{ money(summary.totalGiveAmount) }}</strong>
-					<p>累计送出随礼礼金</p>
-				</div>
-			</div>
-		</a-spin>
+		<!-- 亲友看板统计解耦子组件 -->
+		<gift-person-summary-cards
+			:summary="summary"
+			:loading="summaryLoading"
+		/>
 
 		<section class="table-panel">
 			<div class="panel-head">
@@ -300,7 +239,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
@@ -334,7 +273,6 @@ const {
 	resolveFilterRelationType,
 } = useGiftRelationOptions();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, setTotal, resetPagination } =
 	usePagination({
 		onChange: (page) => loadPage(page),
@@ -530,7 +468,6 @@ const remove = async (id: string) => {
 
 const route = useRoute();
 
-// 快速记录往来逻辑
 function openQuickLog(record: GiftPersonBusinessInfo) {
 	editingRecord.value = {
 		direction: 'RECEIVE',
@@ -539,7 +476,6 @@ function openQuickLog(record: GiftPersonBusinessInfo) {
 	recordDrawerOpen.value = true;
 }
 
-// 关系分级和活跃度逻辑辅助函数
 const getAvatarClass = (grade?: string) => {
 	switch (grade) {
 		case 'CORE':
@@ -603,8 +539,7 @@ onMounted(async () => {
 }
 
 .screen-header,
-.panel-head,
-.metric-top {
+.panel-head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -643,8 +578,7 @@ onMounted(async () => {
 }
 
 .filter-panel,
-.table-panel,
-.metric-card {
+.table-panel {
 	background: #fff;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
@@ -664,153 +598,6 @@ onMounted(async () => {
 
 .filter-select {
 	width: 160px;
-}
-
-.person-summary-grid {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 14px;
-	margin-bottom: 16px;
-}
-
-.metric-card {
-	min-height: 116px;
-	padding: 18px;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
-	}
-
-	span {
-		color: #475569;
-		font-size: 13px;
-		font-weight: 600;
-	}
-
-	strong {
-		display: block;
-		margin-top: 18px;
-		font-size: 24px;
-		line-height: 1;
-		font-weight: 800;
-		color: #0f172a;
-	}
-
-	.metric-value-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 6px;
-		margin-top: 14px;
-
-		strong {
-			margin-top: 0;
-			display: inline-block;
-		}
-	}
-
-	.balance-tag-group {
-		display: inline-flex;
-		flex-direction: column;
-		gap: 3px;
-		font-size: 11px;
-		line-height: 1.2;
-
-		.tag-pos {
-			color: #059669;
-			background: #ecfdf5;
-			border: 1px solid #a7f3d0;
-			padding: 1px 8px;
-			border-radius: 9999px;
-			font-weight: 600;
-			white-space: nowrap;
-		}
-
-		.tag-neg {
-			color: #e11d48;
-			background: #fff1f2;
-			border: 1px solid #fecdd3;
-			padding: 1px 8px;
-			border-radius: 9999px;
-			font-weight: 600;
-			white-space: nowrap;
-		}
-	}
-
-	p {
-		margin: 8px 0 0;
-		color: #64748b;
-		font-size: 12px;
-	}
-}
-
-.card-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 36px;
-	height: 36px;
-	border-radius: 10px;
-	font-size: 18px;
-	transition: all 0.2s ease;
-}
-
-.metric-card-blue strong {
-	color: #0f172a;
-}
-
-.metric-card-blue .card-icon {
-	color: #2563eb;
-	background: #eff6ff;
-	border: 1px solid #dbeafe;
-}
-
-.metric-card-green strong {
-	color: #0f172a;
-}
-
-.metric-card-green .card-icon {
-	color: #059669;
-	background: #ecfdf5;
-	border: 1px solid #a7f3d0;
-}
-
-.metric-card-red strong {
-	color: #0f172a;
-}
-
-.metric-card-red .card-icon {
-	color: #e11d48;
-	background: #fff1f2;
-	border: 1px solid #fecdd3;
-}
-
-.metric-card-gold strong {
-	color: #0f172a;
-}
-
-.metric-card-gold .card-icon {
-	color: #d97706;
-	background: #fffbeb;
-	border: 1px solid #fde68a;
-}
-
-.metric-card-gray strong {
-	color: #0f172a;
-}
-
-.metric-card-gray .card-icon {
-	color: #64748b;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-}
-
-.quick-tag {
-	padding: 2px 10px;
-	border-radius: 9999px;
-	cursor: pointer;
 }
 
 .table-panel {
@@ -897,12 +684,6 @@ onMounted(async () => {
 	gap: 6px;
 }
 
-.grade-tag {
-	font-size: 11px;
-	padding: 0 4px;
-	line-height: 1.5;
-}
-
 .transactions-cell {
 	display: flex;
 	flex-direction: column;
@@ -954,114 +735,5 @@ onMounted(async () => {
 .amount-out {
 	color: #cf1322;
 	font-weight: 700;
-}
-
-.quick-amounts {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-bottom: 10px;
-}
-
-.quick-amount-tag {
-	cursor: pointer;
-}
-
-.quick-event-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-bottom: 8px;
-}
-
-.quick-event-tag {
-	cursor: pointer;
-	user-select: none;
-	padding: 4px 10px;
-	border-radius: 4px;
-	font-size: 13px;
-	transition: all 0.2s;
-
-	&:hover {
-		opacity: 0.85;
-	}
-
-	&.more-tag {
-		background: #f5f5f5;
-		border: 1px dashed #d9d9d9;
-		color: #555;
-	}
-}
-
-.selected-reason-display {
-	margin-top: 8px;
-	font-size: 13px;
-	background: #f0f5ff;
-	padding: 6px 12px;
-	border-radius: 4px;
-	display: inline-block;
-}
-
-.more-events-popover {
-	max-height: 320px;
-	overflow-y: auto;
-	padding: 4px;
-}
-
-.categorized-groups {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
-.category-group {
-	.group-title {
-		font-weight: 800;
-		color: #666;
-		font-size: 12px;
-		margin-bottom: 6px;
-	}
-
-	.group-items {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px;
-	}
-
-	.popover-tag {
-		cursor: pointer;
-		margin: 0;
-	}
-}
-
-.search-results {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	max-height: 200px;
-	overflow-y: auto;
-
-	.search-item {
-		padding: 6px 12px;
-		cursor: pointer;
-		border-radius: 4px;
-		transition: background 0.2s;
-
-		&:hover {
-			background: #f5f5f5;
-		}
-	}
-
-	.no-result {
-		color: #999;
-		text-align: center;
-		padding: 12px 0;
-	}
-}
-
-.recommend-amount-tip {
-	font-size: 12px;
-	color: #666;
-	margin-bottom: 6px;
 }
 </style>

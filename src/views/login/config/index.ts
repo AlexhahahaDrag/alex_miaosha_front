@@ -1,4 +1,15 @@
 import type { Rule } from 'ant-design-vue/es/form/interface';
+import type { UserManagerInfo } from '@/views/user/userManager/config';
+import type { PermissionContext } from '@/utils/permission';
+
+export interface LoginAdminData extends UserManagerInfo {
+	permissionContext?: Partial<PermissionContext>;
+}
+
+export interface LoginResultData {
+	admin: LoginAdminData;
+	token: string;
+}
 
 // 登录参数
 export interface LoginParams {

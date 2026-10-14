@@ -1,3 +1,5 @@
+import type { PermissionContext } from '@/utils/permission';
+
 export interface UserInfo {
 	id?: number;
 	userId: string | number;
@@ -9,5 +11,6 @@ export interface UserInfo {
 	roles: RoleInfo[];
 	avatarUrl?: string;
 	orgName?: string;
+	permissionContext?: Partial<PermissionContext>;
 	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }

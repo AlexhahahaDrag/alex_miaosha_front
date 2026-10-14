@@ -242,7 +242,7 @@ import {
 	type AnalysisData,
 	type ItemInfo,
 } from '@/views/selfFinance/financeAnalysis/analysis';
-import * as math from 'mathjs';
+import BigNumber from 'bignumber.js';
 import type { Dayjs } from '@/utils/dayjs';
 import { nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
@@ -279,8 +279,8 @@ const incomeYoyTrend = ref<string>('');
 const incomeMomTrend = ref<string>('');
 
 // 月消费总金额 / 月收入总金额
-const monthExpenseSum = ref<math.BigNumber>(math.bignumber(0));
-const monthIncomeSum = ref<math.BigNumber>(math.bignumber(0));
+const monthExpenseSum = ref<BigNumber>(new BigNumber(0));
+const monthIncomeSum = ref<BigNumber>(new BigNumber(0));
 
 // 趋势样式
 const getTrendClass = (trend?: string) => {
@@ -304,7 +304,7 @@ const formatTrend = (trend: string | undefined, defaultPrefix: string) => {
 };
 
 const formatAmount = (
-	val: math.BigNumber | number | string | undefined | null,
+	val: BigNumber | number | string | undefined | null,
 ) => {
 	if (val === undefined || val === null) return '0.00';
 	let num: number;
@@ -313,7 +313,7 @@ const formatAmount = (
 	} else if (typeof val === 'string') {
 		num = Number(val) || 0;
 	} else {
-		num = Number(math.format(val, { notation: 'fixed', precision: 2 })) || 0;
+		num = val.toNumber() || 0;
 	}
 	return num.toLocaleString(undefined, {
 		minimumFractionDigits: 2,
@@ -325,42 +325,29 @@ const formatAmount = (
 const sumAmount = computed(() => {
 	return (
 		balanceList.value?.reduce(
-			(acc: math.BigNumber, item: FinanceManagerData) => {
-				return math.add(acc, math.bignumber(item.amount ? item.amount : 0));
+			(acc: BigNumber, item: FinanceManagerData) => {
+				return acc.plus(item.amount ? item.amount : 0);
 			},
-			math.bignumber(0),
-		) || math.bignumber(0)
+			new BigNumber(0),
+		) || new BigNumber(0)
 	);
 });
 
 // 当月结余
 const monthBalance = computed(() => {
-	return math.subtract(
-		monthIncomeSum.value || math.bignumber(0),
-		monthExpenseSum.value || math.bignumber(0),
+	return (monthIncomeSum.value || new BigNumber(0)).minus(
+		monthExpenseSum.value || new BigNumber(0),
 	);
 });
 
 const monthBalanceNumber = computed(() => {
-	return Number(
-		math.format(monthBalance.value, { notation: 'fixed', precision: 2 }),
-	);
+	return (monthBalance.value || new BigNumber(0)).toNumber();
 });
 
 // 当月储蓄率
 const savingsRateText = computed(() => {
-	const income = Number(
-		math.format(monthIncomeSum.value || math.bignumber(0), {
-			notation: 'fixed',
-			precision: 2,
-		}),
-	);
-	const expense = Number(
-		math.format(monthExpenseSum.value || math.bignumber(0), {
-			notation: 'fixed',
-			precision: 2,
-		}),
-	);
+	const income = (monthIncomeSum.value || new BigNumber(0)).toNumber();
+	const expense = (monthExpenseSum.value || new BigNumber(0)).toNumber();
 	if (income <= 0) {
 		return '0.0%';
 	}
@@ -369,24 +356,15 @@ const savingsRateText = computed(() => {
 });
 
 const savingsRateClass = computed(() => {
-	const income = Number(
-		math.format(monthIncomeSum.value || math.bignumber(0), {
-			notation: 'fixed',
-			precision: 2,
-		}),
-	);
-	const expense = Number(
-		math.format(monthExpenseSum.value || math.bignumber(0), {
-			notation: 'fixed',
-			precision: 2,
-		}),
-	);
+	const income = (monthIncomeSum.value || new BigNumber(0)).toNumber();
+	const expense = (monthExpenseSum.value || new BigNumber(0)).toNumber();
 	if (income <= 0) return 'text-muted';
 	const rate = ((income - expense) / income) * 100;
 	if (rate >= 50) return 'text-green';
 	if (rate >= 0) return 'text-blue';
 	return 'text-danger';
 });
+
 
 const searchUser = ref<number>(userInfo?.id || 0);
 const searchDateTime = ref<Dayjs>(nowDayjs());
@@ -494,10 +472,10 @@ const getBalanceInfo = async (userid: string | null, dateStr: string) => {
 		expenseMomTrend.value = (data as any)?.expenseMomTrend || '';
 
 		if ((data as any)?.monthIncomeSum !== undefined) {
-			monthIncomeSum.value = math.bignumber((data as any).monthIncomeSum);
+			monthIncomeSum.value = new BigNumber((data as any).monthIncomeSum || 0);
 		}
 		if ((data as any)?.monthExpenseSum !== undefined) {
-			monthExpenseSum.value = math.bignumber((data as any).monthExpenseSum);
+			monthExpenseSum.value = new BigNumber((data as any).monthExpenseSum || 0);
 		}
 	} else {
 		message.error(messageInfo || '查询余额失败！');

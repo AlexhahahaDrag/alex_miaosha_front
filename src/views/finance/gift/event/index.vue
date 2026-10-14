@@ -1,72 +1,96 @@
 <template>
 	<div class="gift-screen">
-		<div class="screen-header">
+		<header class="screen-header">
 			<div>
-				<h2>人情事件管理</h2>
-				<p>统一管理人情活动事件、分类标签与随礼收支统计。</p>
+				<h2>人情事件台账</h2>
+				<p>统一沉淀婚丧嫁娶、生辰满月等各类人情事由，智能关联礼金明细</p>
 			</div>
 			<a-button
 				v-if="hasPermission('gift:add')"
 				type="primary"
+				size="middle"
 				class="primary-action"
 				@click="openDrawer()"
 			>
-				+ 新增人情事件
+				+ 登记人情事件
 			</a-button>
-		</div>
+		</header>
 
 		<section class="filter-panel">
-			<a-form :model="searchInfo" layout="inline">
+			<a-form layout="inline" :model="searchInfo">
 				<a-form-item label="事件名称">
 					<a-input
-						v-model:value="searchInfo.keyword"
-						placeholder="搜索事件名称或备注"
+						v-model:value="searchInfo.eventName"
 						allow-clear
+						placeholder="搜索事件名称..."
 						class="filter-input"
 					/>
 				</a-form-item>
 				<a-form-item label="事件分类">
 					<a-select
 						v-model:value="searchInfo.eventType"
-						:options="giftEventTypeOptions"
-						placeholder="全部分类"
 						allow-clear
+						placeholder="全部分类"
 						class="filter-select"
-					/>
-				</a-form-item>
-				<a-form-item label="快捷分类">
-					<a-space>
-						<a-tag
-							v-for="item in quickEvents"
-							:key="item.id"
-							class="quick-tag"
-							:color="
-								searchInfo.eventType === resolveFilterEventType(item.id) ?
-									'blue'
-								:	'default'
-							"
-							@click="selectEventType(item.id)"
+					>
+						<a-select-option
+							v-for="opt in giftEventTypeOptions"
+							:key="opt.value"
+							:value="opt.value"
 						>
-							{{ item.name }}
+							{{ opt.label }}
+						</a-select-option>
+					</a-select>
+				</a-form-item>
+				<a-form-item label="高频速选">
+					<a-space wrap :size="[6, 6]">
+						<a-tag
+							v-for="opt in quickEvents"
+							:key="opt.value"
+							:color="
+								searchInfo.eventType === resolveFilterEventType(opt.value)
+									? 'blue'
+									: 'default'
+							"
+							class="quick-tag"
+							@click="selectEventType(opt.value)"
+						>
+							{{ opt.label }}
 						</a-tag>
 					</a-space>
 				</a-form-item>
-				<a-form-item v-if="searchExpanded" label="事件日期">
-					<a-range-picker
-						v-model:value="eventRange"
-						value-format="YYYY-MM-DD"
-					/>
-				</a-form-item>
+
+				<template v-if="searchExpanded">
+					<a-form-item label="举行日期">
+						<a-range-picker
+							v-model:value="eventRange"
+							value-format="YYYY-MM-DD"
+							style="width: 250px"
+						/>
+					</a-form-item>
+					<a-form-item label="事件状态">
+						<a-select
+							v-model:value="searchInfo.eventStatus"
+							allow-clear
+							placeholder="全部状态"
+							class="filter-select"
+						>
+							<a-select-option value="进行中">进行中</a-select-option>
+							<a-select-option value="已完成">已完成</a-select-option>
+						</a-select>
+					</a-form-item>
+				</template>
+
 				<a-form-item>
 					<a-space>
-						<a-button type="primary" @click="query(true)">查询结果</a-button>
+						<a-button type="primary" @click="query(true)">查询</a-button>
 						<a-button @click="resetQuery">重置</a-button>
 						<a-button
 							type="link"
 							class="expand-btn"
 							@click="searchExpanded = !searchExpanded"
 						>
-							<span>{{ searchExpanded ? '收起' : '展开' }}</span>
+							{{ searchExpanded ? '收起' : '展开' }}
 							<down-outlined
 								class="expand-icon"
 								:class="{ 'is-expanded': searchExpanded }"
@@ -77,99 +101,16 @@
 			</a-form>
 		</section>
 
-		<div class="metric-grid metric-grid-three">
-			<div class="metric-card metric-card-gold">
-				<div class="metric-top">
-					<span>本月人情活动</span>
-					<div class="metric-icon">
-						<calendar-outlined />
-					</div>
-				</div>
-				<strong>{{ summary.monthPendingCount || 0 }} 项</strong>
-				<p>近期需要跟进的往来活动</p>
-			</div>
-			<div class="metric-card metric-card-green">
-				<div class="metric-top">
-					<span>累计礼金收支</span>
-					<div class="metric-icon">
-						<pay-circle-outlined />
-					</div>
-				</div>
-				<strong>{{ money(summary.totalAmount) }}</strong>
-				<p>覆盖全部事件收支记录</p>
-			</div>
-			<div class="metric-card metric-card-blue">
-				<div class="metric-top">
-					<span>活跃往来对象</span>
-					<div class="metric-icon">
-						<team-outlined />
-					</div>
-				</div>
-				<strong>{{ summary.activePersonCount || 0 }} 位</strong>
-				<p>近期待往来或已往来对象</p>
-			</div>
-		</div>
-
-		<!-- 高频事件卡片 (Top Category Cards) -->
-		<div
-			class="section-title-bar"
-			style="
-				margin-top: 20px;
-				margin-bottom: 12px;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			"
-		>
-			<h3 style="margin: 0; font-size: 16px; font-weight: 800">高频事件场景</h3>
-			<span style="color: #8c8c8c; font-size: 13px"
-				>自动统计使用频次最高的事由场景，智能辅助随礼梯度</span
-			>
-		</div>
-		<div class="top-event-cards">
-			<div
-				v-for="item in displayTopEvents"
-				:key="item.id"
-				class="top-event-card"
-			>
-				<span class="card-icon-emoji">{{ item.icon || '💬' }}</span>
-				<div class="card-main">
-					<div class="card-title-row">
-						<strong>{{ item.name }}</strong>
-						<a-tag size="small" color="blue" class="category-badge">{{
-							item.category
-						}}</a-tag>
-					</div>
-					<div class="card-stats">
-						<span class="stat-item"
-							>累计使用:
-							<strong style="color: #1890ff">{{ item.useCount || 0 }}</strong>
-							次</span
-						>
-						<span
-							class="stat-item"
-							v-if="item.defaultAmount"
-							style="margin-left: 12px"
-						>
-							建议金额:
-							<strong style="color: #52c41a">¥{{ item.defaultAmount }}</strong>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
+		<!-- 指标统计与高频场景解耦子组件 -->
+		<gift-event-metric-cards
+			:summary="summary"
+			:top-events="displayTopEvents"
+		/>
 
 		<!-- Tabs 布局 -->
 		<a-tabs
 			v-model:activeKey="activeTab"
 			class="event-tabs-panel"
-			style="
-				background: #fff;
-				padding: 12px 18px 20px;
-				border-radius: 8px;
-				margin-top: 20px;
-				border: 1px solid #f0f0f0;
-			"
 		>
 			<a-tab-pane key="instances" tab="事件列表">
 				<section class="table-panel" style="padding: 0">
@@ -278,64 +219,13 @@
 			</a-tab-pane>
 
 			<a-tab-pane key="dictionary" tab="事件分类">
-				<div class="dictionary-grid">
-					<div
-						v-for="(groupItems, groupName) in categorizedEventTypes"
-						:key="groupName"
-						class="dictionary-card"
-					>
-						<div class="dictionary-card-header">
-							<strong>{{ groupName }}</strong>
-						</div>
-						<div class="dictionary-card-body">
-							<div
-								v-for="opt in groupItems"
-								:key="opt.id"
-								class="dictionary-item"
-							>
-								<div class="item-left">
-									<span class="item-icon-emoji">{{ opt.icon || '💬' }}</span>
-									<div class="item-info">
-										<span
-											class="item-name"
-											:class="{ 'disabled-text': opt.status === 0 }"
-											>{{ opt.name }}</span
-										>
-										<span class="item-count"
-											>使用 {{ opt.useCount || 0 }} 次</span
-										>
-									</div>
-								</div>
-								<div class="item-right">
-									<span class="item-amount" v-if="opt.defaultAmount">
-										¥{{ opt.defaultAmount }}
-									</span>
-									<span class="item-amount text-muted" v-else>
-										暂无推荐金额
-									</span>
-									<a-space size="small" style="margin-left: 12px">
-										<a-button
-											type="link"
-											size="small"
-											style="padding: 0"
-											:disabled="loadingOptionId === opt.id"
-											@click="startEditOption(opt)"
-										>
-											编辑
-										</a-button>
-										<a-switch
-											:checked="opt.status !== 0"
-											:loading="loadingOptionId === opt.id"
-											:disabled="loadingOptionId === opt.id"
-											size="small"
-											@change="toggleOptionStatus(opt)"
-										/>
-									</a-space>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<!-- 事件分类字典解耦子组件 -->
+				<gift-event-type-dictionary
+					:preset-options="presetOptions"
+					:custom-options="customOptions"
+					@edit="startEditOption"
+					@refresh="loadEventTypeOptions"
+				/>
 			</a-tab-pane>
 		</a-tabs>
 
@@ -359,12 +249,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
-import {
-	CalendarOutlined,
-	PayCircleOutlined,
-	TeamOutlined,
-	DownOutlined,
-} from '@ant-design/icons-vue';
+import { DownOutlined } from '@ant-design/icons-vue';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
@@ -374,7 +259,6 @@ import {
 	getGiftEventBusinessPage,
 	getGiftEventSummary,
 	getGiftPersonList,
-	updateGiftEventTypeOption,
 } from '@/views/finance/gift/api';
 import type {
 	GiftEventBusinessInfo,
@@ -394,7 +278,6 @@ const {
 	customOptions,
 } = useGiftEventTypeOptions();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, setTotal, resetPagination } =
 	usePagination({
 		onChange: (page) => loadPage(page),
@@ -572,12 +455,10 @@ const optionEditing = ref<boolean>(false);
 const editingOption = ref<Partial<GiftEventTypeOptionItem>>({});
 
 const displayTopEvents = computed(() => {
-	// 高频场景卡片仅展示已启用的有效分类 (status !== 0)
 	const activePresets = presetOptions.value.filter((x) => x.status !== 0);
 	const activeCustoms = customOptions.value.filter((x) => x.status !== 0);
 	const all = [...activePresets, ...activeCustoms];
 
-	// 按使用次数降序排序；使用次数相同时按 sortOrder 权重升序排列，始终保证展示 4 个完整卡片
 	const sorted = [...all].sort((a, b) => {
 		const countA = a.useCount || 0;
 		const countB = b.useCount || 0;
@@ -589,56 +470,9 @@ const displayTopEvents = computed(() => {
 	return sorted.slice(0, 4);
 });
 
-const categorizedEventTypes = computed(() => {
-	const groups: Record<string, GiftEventTypeOptionItem[]> = {
-		婚庆类: [],
-		家庭类: [],
-		节日类: [],
-		其他: [],
-	};
-	const all = [...presetOptions.value, ...customOptions.value];
-	all.forEach((item) => {
-		const cat = item.category || '其他';
-		if (!groups[cat]) {
-			groups[cat] = [];
-		}
-		if (!groups[cat].some((x) => x.name === item.name)) {
-			groups[cat].push(item);
-		}
-	});
-	return groups;
-});
-
-const loadingOptionId = ref<string | null>(null);
-
 const startEditOption = (opt: GiftEventTypeOptionItem) => {
 	editingOption.value = { ...opt };
 	optionEditing.value = true;
-};
-
-const toggleOptionStatus = async (opt: GiftEventTypeOptionItem) => {
-	if (!opt.id || loadingOptionId.value === opt.id) return;
-	loadingOptionId.value = opt.id;
-	const newStatus = opt.status === 0 ? 1 : 0;
-	try {
-		const { code, message: msg } = await updateGiftEventTypeOption({
-			id: opt.id,
-			eventLabel: opt.name,
-			status: newStatus,
-		});
-		if (code === '200') {
-			message.success(
-				`${newStatus === 1 ? '已启用' : '已停用'}事由【${opt.name}】`,
-			);
-			await loadEventTypeOptions();
-		} else {
-			message.error(msg || '操作失败');
-		}
-	} catch (error: unknown) {
-		message.error('操作失败，请重试');
-	} finally {
-		loadingOptionId.value = null;
-	}
 };
 
 onMounted(async () => {
@@ -649,6 +483,7 @@ onMounted(async () => {
 	}
 });
 </script>
+
 <style scoped lang="less">
 .gift-screen {
 	min-height: 100%;
@@ -657,16 +492,10 @@ onMounted(async () => {
 	color: #0f172a;
 }
 
-.screen-header,
-.panel-head,
-.metric-top,
-.event-cell {
+.screen-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-}
-
-.screen-header {
 	margin-bottom: 16px;
 
 	h2 {
@@ -699,8 +528,7 @@ onMounted(async () => {
 }
 
 .filter-panel,
-.table-panel,
-.metric-card {
+.table-panel {
 	background: #fff;
 	border: 1px solid #e2e8f0;
 	border-radius: 16px;
@@ -754,106 +582,21 @@ onMounted(async () => {
 	}
 }
 
-.metric-grid {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 14px;
-	margin-bottom: 16px;
-}
-
-.metric-grid-three {
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.metric-card {
-	min-height: 116px;
-	padding: 18px;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
-	}
-
-	span {
-		color: #475569;
-		font-size: 13px;
-		font-weight: 600;
-	}
-
-	.metric-icon {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 38px;
-		height: 38px;
-		border-radius: 10px;
-		font-size: 18px;
-		transition: all 0.2s ease;
-	}
-
-	strong {
-		display: block;
-		margin-top: 18px;
-		font-size: 24px;
-		line-height: 1;
-		font-weight: 800;
-		color: #0f172a;
-	}
-
-	p {
-		margin: 8px 0 0;
-		color: #64748b;
-		font-size: 12px;
-	}
-}
-
-.metric-card-blue strong {
-	color: #0f172a;
-}
-
-.metric-card-blue .metric-icon {
-	color: #2563eb;
-	background: #eff6ff;
-	border: 1px solid #dbeafe;
-}
-
-.metric-card-green strong {
-	color: #0f172a;
-}
-
-.metric-card-green .metric-icon {
-	color: #059669;
-	background: #ecfdf5;
-	border: 1px solid #a7f3d0;
-}
-
-.metric-card-gold strong {
-	color: #0f172a;
-}
-
-.metric-card-gold .metric-icon {
-	color: #d97706;
-	background: #fffbeb;
-	border: 1px solid #fde68a;
+.event-tabs-panel {
+	background: #fff;
+	padding: 12px 18px 20px;
+	border-radius: 8px;
+	margin-top: 20px;
+	border: 1px solid #f0f0f0;
 }
 
 .table-panel {
 	padding: 0 20px 18px;
 }
 
-.panel-head {
-	padding: 16px 0 14px;
-
-	h3 {
-		margin: 0;
-		font-size: 16px;
-		font-weight: 800;
-		color: #0f172a;
-	}
-}
-
 .event-cell {
+	display: flex;
+	align-items: center;
 	justify-content: flex-start;
 	gap: 12px;
 	max-width: 220px;
@@ -899,171 +642,5 @@ onMounted(async () => {
 .amount-in {
 	color: #059669;
 	font-weight: 700;
-}
-
-.top-event-cards {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 14px;
-	margin-bottom: 20px;
-}
-
-.top-event-card {
-	background: #fff;
-	border: 1px solid #e2e8f0;
-	border-radius: 16px;
-	padding: 16px 18px;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
-	}
-
-	.card-icon-emoji {
-		font-size: 24px;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 44px;
-		height: 44px;
-		background: #eff6ff;
-		border: 1px solid #dbeafe;
-		border-radius: 50%;
-	}
-
-	.card-main {
-		flex: 1;
-
-		.card-title-row {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-bottom: 4px;
-
-			strong {
-				font-size: 14px;
-				font-weight: 700;
-				color: #0f172a;
-			}
-		}
-
-		.card-stats {
-			font-size: 12px;
-			color: #64748b;
-		}
-	}
-}
-
-.dictionary-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 16px;
-	padding: 8px 0;
-}
-
-.dictionary-card {
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 14px;
-	overflow: hidden;
-
-	.dictionary-card-header {
-		padding: 10px 16px;
-		background: #f1f5f9;
-		border-bottom: 1px solid #e2e8f0;
-
-		strong {
-			font-size: 14px;
-			font-weight: 700;
-			color: #1e293b;
-		}
-	}
-
-	.dictionary-card-body {
-		padding: 10px 16px;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.dictionary-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 8px 0;
-		border-bottom: 1px dashed #e2e8f0;
-
-		&:last-child {
-			border-bottom: none;
-		}
-
-		.item-left {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-
-			.item-icon-emoji {
-				font-size: 20px;
-				width: 32px;
-				height: 32px;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				background: #fff;
-				border-radius: 50%;
-				border: 1px solid #e2e8f0;
-			}
-
-			.item-info {
-				display: flex;
-				flex-direction: column;
-
-				.item-name {
-					font-weight: 700;
-					color: #1e293b;
-					font-size: 13px;
-
-					&.disabled-text {
-						color: #94a3b8;
-						text-decoration: line-through;
-					}
-				}
-
-				.item-count {
-					font-size: 11px;
-					color: #64748b;
-					margin-top: 2px;
-				}
-			}
-		}
-
-		.item-right {
-			display: flex;
-			align-items: center;
-
-			.item-amount {
-				font-size: 12px;
-				color: #059669;
-				font-weight: 700;
-
-				&.text-muted {
-					color: #94a3b8;
-					font-weight: normal;
-					font-style: italic;
-				}
-			}
-		}
-	}
-}
-
-.muted-info {
-	font-size: 13px;
-	color: #64748b;
-	font-weight: normal;
 }
 </style>
