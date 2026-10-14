@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import { debounce } from 'lodash-es';

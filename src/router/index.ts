@@ -109,14 +109,21 @@ const getComponent = (item: MenuInfoData) => {
 	if (item.component === 'Layout') {
 		return ParentLayout;
 	}
-	const path = item.component.startsWith('/src/')
+	const rawPath = item.component.startsWith('/src/')
 		? item.component
 		: item.component.startsWith('/')
 		? `/src${item.component}`
 		: `/src/views/${item.component}`;
 
+	// Ponytail 向后兼容归一化：将正式环境老数据库中的 /src/views/finance/ 路径无缝映射到现有的 /src/views/selfFinance/，彻底杜绝 404
+	const path = rawPath
+		.replace('/src/views/finance/financeManager', '/src/views/selfFinance/financeManager')
+		.replace('/src/views/finance/financeAnalysis', '/src/views/selfFinance/financeAnalysis')
+		.replace('/src/views/finance/accountRecordInfo', '/src/views/selfFinance/accountRecordInfo');
+
 	const comp =
 		modules[path] ||
+		modules[rawPath] ||
 		modules[item.component] ||
 		modules['/src/views/error-404/index.vue'];
 

@@ -236,15 +236,15 @@ import {
 	getMonthRangeDayjs,
 } from '@/utils/dayjs';
 import type { ModelInfo } from '@/types/modal';
-import FinanceOverviewCard from '@/views/finance/financeManager/components/FinanceOverviewCard.vue';
+import FinanceOverviewCard from '@/views/selfFinance/financeManager/components/FinanceOverviewCard.vue';
 import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
-} from '@/views/finance/financeManager/config';
+} from '@/views/selfFinance/financeManager/config';
 import {
 	columns,
 	fromSourceTransferList,
-} from '@/views/finance/financeManager/config';
+} from '@/views/selfFinance/financeManager/config';
 import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 import {
@@ -253,7 +253,7 @@ import {
 	getFinanceSummary,
 	getBudgetStatus,
 	type FinanceSummaryData,
-} from '@/views/finance/financeManager/api';
+} from '@/views/selfFinance/financeManager/api';
 import {
 
 	PlusOutlined,
@@ -263,7 +263,7 @@ import {
 } from '@ant-design/icons-vue';
 import { useUserStore } from '@/store/modules/user/user';
 import { usePermission } from '@/composables/usePermission';
-import FinanceBudgetModal from '@/views/finance/financeManager/finance-budget-modal/index.vue';
+import FinanceBudgetModal from '@/views/selfFinance/financeManager/finance-budget-modal/index.vue';
 
 const userStore = useUserStore();
 const { hasPermission, isSuperAdmin } = usePermission();

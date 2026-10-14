@@ -77,15 +77,15 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
-import { labelCol, wrapperCol, rulesRef } from '@/views/finance/accountRecordInfo/accountRecordInfoDetail/config';
+import { labelCol, wrapperCol, rulesRef } from '@/views/selfFinance/accountRecordInfo/accountRecordInfoDetail/config';
 import type { ModelInfo } from '@/types/modal';
-import type { AccountRecordInfo } from '@/views/finance/accountRecordInfo/config';
+import type { AccountRecordInfo } from '@/views/selfFinance/accountRecordInfo/config';
 import { defaultTimeFormat, formatDayjs } from '@/utils/dayjs';
 import {
 	getAccountRecordInfoDetail,
 	addAccountRecordInfo,
 	editAccountRecordInfo,
-} from '@/views/finance/accountRecordInfo/api';
+} from '@/views/selfFinance/accountRecordInfo/api';
 import { useDictInfo } from '@/composables/useDictInfo';
 
 const { getDictByType } = useDictInfo('account_type');

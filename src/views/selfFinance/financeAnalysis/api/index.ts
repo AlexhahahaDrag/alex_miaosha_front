@@ -4,7 +4,7 @@ import type { ResponseBody } from '@/types/api';
 import {
 	type AnalysisData,
 	type BalanceData,
-} from '@/views/finance/financeAnalysis/analysis';
+} from '@/views/selfFinance/financeAnalysis/analysis';
 
 const baseFinanceAnalysis = '/finance-analysis';
 

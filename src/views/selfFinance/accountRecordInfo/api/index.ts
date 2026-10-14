@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { AccountRecordInfo } from '@/views/finance/accountRecordInfo/config';
+import type { AccountRecordInfo } from '@/views/selfFinance/accountRecordInfo/config';
 
 const baseAccountRecordInfo = '/account-record-info';
 

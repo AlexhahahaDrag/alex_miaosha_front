@@ -10,7 +10,7 @@ import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
 	FinanceBudgetSaveReq,
-} from '@/views/finance/financeManager/config';
+} from '@/views/selfFinance/financeManager/config';
 
 const baseFinanceManager = '/finance-info';
 
@@ -120,8 +120,8 @@ export function getBudgetCategories(
 }
 
 export function recommendBudget(
-	params: import('@/views/finance/financeManager/config').FinanceBudgetAiRecommendReq,
-): Promise<ResponseBody<import('@/views/finance/financeManager/config').FinanceBudgetAiRecommendVo>> {
+	params: import('@/views/selfFinance/financeManager/config').FinanceBudgetAiRecommendReq,
+): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').FinanceBudgetAiRecommendVo>> {
 	return postData(
 		baseService.finance + baseBudgetManager + '/ai/recommend',
 		params,
@@ -129,8 +129,8 @@ export function recommendBudget(
 }
 
 export function parseBudgetCommand(
-	params: import('@/views/finance/financeManager/config').FinanceBudgetAiParseReq,
-): Promise<ResponseBody<import('@/views/finance/financeManager/config').FinanceBudgetAiParseVo>> {
+	params: import('@/views/selfFinance/financeManager/config').FinanceBudgetAiParseReq,
+): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').FinanceBudgetAiParseVo>> {
 	return postData(
 		baseService.finance + baseBudgetManager + '/ai/parse',
 		params,

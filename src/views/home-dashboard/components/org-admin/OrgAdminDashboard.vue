@@ -335,12 +335,12 @@ import {
 	getGiftRecordSummary,
 	getGiftAnalysisTrend,
 } from '@/views/finance/gift/api';
-import { getFinanceSummary } from '@/views/finance/financeManager/api';
+import { getFinanceSummary } from '@/views/selfFinance/financeManager/api';
 import {
 	getIncomeAndExpense,
 	getMonthExpense,
 	getBalance,
-} from '@/views/finance/financeAnalysis/api';
+} from '@/views/selfFinance/financeAnalysis/api';
 import { formatMonth, getMonthRange } from '@/utils/dayjs';
 import {
 	TeamOutlined,

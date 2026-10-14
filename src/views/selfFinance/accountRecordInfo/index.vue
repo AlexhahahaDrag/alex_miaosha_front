@@ -130,13 +130,13 @@
 </template>
 <script setup lang="ts">
 import type { ModelInfo } from '@/types/modal';
-import type { AccountRecordInfo } from '@/views/finance/accountRecordInfo/config';
+import type { AccountRecordInfo } from '@/views/selfFinance/accountRecordInfo/config';
 import { formatAmount } from '@/utils/amountInfo';
-import { columns, labelCol, wrapperCol } from '@/views/finance/accountRecordInfo/config';
+import { columns, labelCol, wrapperCol } from '@/views/selfFinance/accountRecordInfo/config';
 import {
 	getAccountRecordInfoPage,
 	deleteAccountRecordInfo,
-} from '@/views/finance/accountRecordInfo/api';
+} from '@/views/selfFinance/accountRecordInfo/api';
 import { message } from 'ant-design-vue';
 
 import { useDictInfo } from '@/composables/useDictInfo';

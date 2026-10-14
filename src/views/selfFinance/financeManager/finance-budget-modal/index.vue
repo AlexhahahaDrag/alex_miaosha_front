@@ -426,13 +426,13 @@ import type {
 	FinanceBudgetStatusVo,
 	FinanceBudgetAiRecommendVo,
 	FinanceBudgetAiParseVo,
-} from '@/views/finance/financeManager/config';
+} from '@/views/selfFinance/financeManager/config';
 import {
 	getFinanceSummary,
 	saveMonthlyBudget,
 	getBudgetCategories,
-} from '@/views/finance/financeManager/api';
-import BudgetAiAssistantPanel from '@/views/finance/financeManager/finance-budget-modal/components/BudgetAiAssistantPanel.vue';
+} from '@/views/selfFinance/financeManager/api';
+import BudgetAiAssistantPanel from '@/views/selfFinance/financeManager/finance-budget-modal/components/BudgetAiAssistantPanel.vue';
 
 // 采用 Vue 3.4 原生 defineModel 宏实现 open 双向绑定
 const open = defineModel<boolean>('open', { default: false });

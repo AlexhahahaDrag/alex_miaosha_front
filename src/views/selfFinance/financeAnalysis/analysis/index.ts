@@ -1,4 +1,4 @@
-import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
 
 interface ItemInfo {
 	name: string;

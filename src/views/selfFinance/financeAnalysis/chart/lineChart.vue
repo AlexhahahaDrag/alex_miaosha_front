@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
+import type { barItem } from '@/views/selfFinance/financeAnalysis/chart/bar';
 
 const props = defineProps({
 	config: {

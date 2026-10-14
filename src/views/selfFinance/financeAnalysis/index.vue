@@ -237,26 +237,26 @@
 import { ref, computed, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { ReloadOutlined } from '@ant-design/icons-vue';
-import type { FinanceManagerData } from '@/views/finance/financeManager/config';
+import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
 import {
 	type AnalysisData,
 	type ItemInfo,
-} from '@/views/finance/financeAnalysis/analysis';
+} from '@/views/selfFinance/financeAnalysis/analysis';
 import * as math from 'mathjs';
 import type { Dayjs } from '@/utils/dayjs';
 import { nowDayjs, dateFormatYYYYMM } from '@/utils/dayjs';
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
-import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
+import type { barItem } from '@/views/selfFinance/financeAnalysis/chart/bar';
 import {
 	getBalance,
 	getIncomeAndExpense,
 	getDayExpense,
 	getMonthExpense,
-} from '@/views/finance/financeAnalysis/api';
+} from '@/views/selfFinance/financeAnalysis/api';
 import { useUserStore } from '@/store/modules/user/user';
 import { useUserInfo } from '@/composables/useUserInfo';
-import PieChart from '@/views/finance/financeAnalysis/chart/pieChart.vue';
-import BarChart from '@/views/finance/financeAnalysis/chart/barChart.vue';
+import PieChart from '@/views/selfFinance/financeAnalysis/chart/pieChart.vue';
+import BarChart from '@/views/selfFinance/financeAnalysis/chart/barChart.vue';
 
 const loading = ref<boolean>(false);
 

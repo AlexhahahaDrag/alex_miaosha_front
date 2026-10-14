@@ -95,5 +95,14 @@ export const canAccessPermission = (
 ) => {
 	if (superAdmin) return true;
 	if (!permissionCode) return false;
-	return permissionSet.has(permissionCode);
+	if (permissionSet.has(permissionCode)) return true;
+	// 兼容支持 selfFinance 与 finance 前缀平滑互转
+	if (permissionCode.startsWith('selfFinance:')) {
+		const legacyCode = permissionCode.replace('selfFinance:', 'finance:');
+		if (permissionSet.has(legacyCode)) return true;
+	} else if (permissionCode.startsWith('finance:')) {
+		const newCode = permissionCode.replace('finance:', 'selfFinance:');
+		if (permissionSet.has(newCode)) return true;
+	}
+	return false;
 };

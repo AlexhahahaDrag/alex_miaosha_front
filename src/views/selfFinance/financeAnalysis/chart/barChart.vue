@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Empty } from 'ant-design-vue';
-import type { barItem } from '@/views/finance/financeAnalysis/chart/bar';
+import type { barItem } from '@/views/selfFinance/financeAnalysis/chart/bar';
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
