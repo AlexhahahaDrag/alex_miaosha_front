@@ -283,4 +283,3 @@ const getContainer = (triggerNode: HTMLElement): HTMLElement => {
 
 const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped></style>

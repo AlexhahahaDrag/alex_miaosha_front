@@ -272,4 +272,3 @@ const handleSuccess = (): void => {
 	getShopStockAttrsListPage(searchInfo.value, pagination);
 };
 </script>
-<style lang="scss" scoped></style>

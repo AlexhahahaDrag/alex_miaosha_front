@@ -161,7 +161,7 @@ import type { Rule } from 'ant-design-vue/es/form';
 import type { FormInstance, UploadProps } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import { CameraOutlined } from '@ant-design/icons-vue';
-import { formatDate } from '@/utils/dayjs';
+
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { usePermission } from '@/composables/usePermission';
 import { addFileManager, getFileDetail } from '@/api/file';
@@ -180,8 +180,8 @@ import type {
 } from '@/views/finance/gift/config';
 import {
 	buildRelationTypeForSave,
-	directionLabel,
-	money,
+
+
 	personAvatarSrc,
 	RELATION_CUSTOM,
 } from '@/views/finance/gift/config';
@@ -195,7 +195,7 @@ const {
 	presetOptions,
 	relationSelectOptions,
 	loadRelationOptions,
-	relationLabel,
+
 	mapRelationToFormFields,
 } = useGiftRelationOptions();
 
@@ -261,7 +261,7 @@ const modalWidth = computed(() => modelInfo.value.width || '520px');
 
 const firstName = (value?: string) => value?.slice(0, 1) || '-';
 
-const profileAvatarUrl = computed(() => personAvatarSrc(profile.value.person));
+
 
 const syncAvatarPreviewFromPerson = async (person?: GiftPersonInfo | null) => {
 	avatarPreviewUrl.value = personAvatarSrc(person);

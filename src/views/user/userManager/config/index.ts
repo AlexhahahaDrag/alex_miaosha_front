@@ -1,4 +1,4 @@
-﻿import type { TableColumnsType } from 'ant-design-vue';
+import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from '@/utils/dayjs';
 
 export const columns = ref<TableColumnsType>([
@@ -79,7 +79,7 @@ export interface UserManagerInfo {
 	username?: string;
 	password?: string;
 	gender?: string;
-	avatar?: number;
+	avatar?: string;
 	email?: string;
 	birthday?: Dayjs | string;
 	mobile?: string;
@@ -100,7 +100,6 @@ export interface UserManagerInfo {
 	roleCode?: string;
 	avatarThumbnailUrl?: string;
 	orgId?: string;
-	roleId?: string;
 	roleIds?: string[];
 	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }

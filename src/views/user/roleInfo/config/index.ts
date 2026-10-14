@@ -78,7 +78,7 @@ export const rulesRef = reactive({
 	orgIds: [
 		{
 			required: true,
-			type: 'array',
+			type: 'array' as const,
 			min: 1,
 			message: '请至少绑定一个机构！',
 		},

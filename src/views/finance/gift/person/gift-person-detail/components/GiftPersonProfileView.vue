@@ -81,8 +81,7 @@ const props = defineProps<{
 const { relationLabel } = useGiftRelationOptions();
 
 const profileAvatarUrl = computed(() => {
-	const avatar = props.profile?.person?.avatar;
-	return avatar ? personAvatarSrc(avatar) : '';
+	return personAvatarSrc(props.profile?.person);
 });
 
 const firstName = (name?: string) => {

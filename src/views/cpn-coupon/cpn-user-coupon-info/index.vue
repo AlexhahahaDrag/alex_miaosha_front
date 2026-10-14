@@ -214,4 +214,3 @@ watch(
 	{ deep: true, immediate: true },
 );
 </script>
-<style lang="scss" scoped></style>

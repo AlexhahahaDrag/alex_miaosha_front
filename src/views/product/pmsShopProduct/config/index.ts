@@ -55,8 +55,10 @@ export const columns = ref<TableColumnsType>([
 ]);
 
 export interface PmsShopProductData {
+	id?: string;
 	image?: string;
 	price?: number;
+	comparePrice?: number | string;
 	name?: string;
 	shop?: string;
 	icons?: string;

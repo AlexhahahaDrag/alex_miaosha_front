@@ -257,4 +257,3 @@ const init = () => {
 
 init();
 </script>
-<style lang="scss" scoped></style>

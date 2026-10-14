@@ -223,4 +223,3 @@ watch(
 
 const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped></style>

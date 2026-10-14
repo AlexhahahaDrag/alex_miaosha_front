@@ -121,6 +121,6 @@ export function generateProductAiCopy(
 	params: ProductAiCopyReq,
 ): Promise<ResponseBody<ProductAiCopyVo>> {
 	const url = baseService.product + basePmsShopProduct + '/ai-copy';
-	return postData<ResponseBody<ProductAiCopyVo>>(url, params);
+	return postData<ProductAiCopyVo>(url, params);
 }
 

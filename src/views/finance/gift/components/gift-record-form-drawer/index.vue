@@ -319,7 +319,6 @@ import { useUserStore } from '@/store/modules/user/user';
 import {
 	addGiftRecord,
 	updateGiftRecord,
-	aiParseGiftRecord,
 	getGiftRecordRecommendAmount,
 	getGiftRecordPage,
 	getGiftEventList,
@@ -333,6 +332,7 @@ import {
 	type GiftRecordInfo,
 	type GiftRecordRecommendAmount,
 	type GiftEventInfo,
+	type GiftRecordAiParseVo,
 	quickGiftAmounts,
 } from '@/views/finance/gift/config';
 import GiftEventSelectorModal from '@/views/finance/gift/components/gift-event-selector-modal/index.vue';

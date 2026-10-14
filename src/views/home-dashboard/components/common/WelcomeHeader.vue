@@ -16,7 +16,7 @@
 					<div class="welcome-info">
 						<div class="greeting-row">
 							<h2 class="greeting-title" data-testid="dash-greeting-text">
-								{{ greetingText }}，{{ userInfo?.nickName || userInfo?.userName || '尊敬的用户' }}
+								{{ greetingText }}，{{ userInfo?.nickName || userInfo?.username || userInfo?.userName || '尊敬的用户' }}
 							</h2>
 							<div class="roles-badge-container">
 								<a-tag

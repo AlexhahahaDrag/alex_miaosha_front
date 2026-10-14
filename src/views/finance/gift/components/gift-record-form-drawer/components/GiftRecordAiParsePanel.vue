@@ -34,10 +34,13 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { aiParseGiftRecord } from '@/views/finance/gift/api';
-import type { GiftRecordAiParseVo } from '@/views/finance/gift/config';
+import type {
+	GiftRecordAiParseVo,
+	GiftDirection,
+} from '@/views/finance/gift/config';
 
 const props = defineProps<{
-	defaultDirection?: 'GIVE' | 'RECEIVE';
+	defaultDirection?: GiftDirection;
 }>();
 
 const emit = defineEmits<{

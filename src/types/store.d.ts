@@ -8,4 +8,6 @@ export interface UserInfo {
 	homePath?: string;
 	roles: RoleInfo[];
 	avatarUrl?: string;
+	orgName?: string;
+	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }

@@ -135,7 +135,7 @@ const handleAiRecommendPermissions = async () => {
 		const { code, data, message: msg } = await aiRecommendRolePermissions({
 			roleName: formState.value?.roleName,
 			roleCode: formState.value?.roleCode,
-			description: formState.value?.description || formState.value?.roleName,
+			description: formState.value?.summary || formState.value?.roleName,
 		});
 		if (code === '200' && data) {
 			if (data.recommendedMenuIds && data.recommendedMenuIds.length > 0) {
