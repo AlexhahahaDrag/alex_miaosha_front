@@ -30,7 +30,7 @@ async function isServerReady(url) {
 	}
 }
 
-async function startViteServerIfNeed(port = 3000) {
+async function startViteServerIfNeed(port = 3100) {
 	const url = `http://localhost:${port}/`;
 	if (await isServerReady(url)) {
 		console.log(`Using existing dev server at ${url}`);
@@ -104,6 +104,31 @@ const mockMenus = [
 				path: 'cpn-coupon-info',
 				component: '/src/views/cpn-coupon/cpn-coupon-info/index.vue',
 				permissionCode: 'coupon:view',
+			},
+		],
+	},
+	{
+		id: '4',
+		name: 'finance',
+		title: '财务中心',
+		path: '/finance',
+		component: 'Layout',
+		children: [
+			{
+				id: '40',
+				name: 'giftRecord',
+				title: '礼金记录',
+				path: 'gift/record',
+				component: '/src/views/finance/gift/record/index.vue',
+				permissionCode: 'gift:view',
+			},
+			{
+				id: '41',
+				name: 'giftDashboard',
+				title: '数据概览',
+				path: 'gift/dashboard',
+				component: '/src/views/finance/gift/gift-dashboard/index.vue',
+				permissionCode: 'gift:view',
 			},
 		],
 	},
@@ -298,6 +323,173 @@ async function setupRouteMocks(page) {
 			});
 		}
 
+		if (pathname.includes('/gift-record-info') && pathname.includes('/ai-parse')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					direction: 'GIVE',
+					amount: 800,
+					personName: '王五',
+					eventTypeName: '结婚',
+					eventType: 'wedding',
+					remark: '随了大学同学王五结婚礼金800元',
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-record-info') && pathname.includes('/recommend-amount')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					recommendAmounts: [500, 600, 800, 1000],
+					aiReasoning: '根据亲友关系【大学同学】及历史往来均值，推荐 800 元',
+					aiGreetingTip: '新婚燕尔，百年好合！',
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-record-info') && pathname.includes('/mark-returned')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				message: '操作成功',
+				data: true,
+			});
+		}
+
+		if (pathname.includes('/gift-record-info') && pathname.includes('/summary')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					totalGiveAmount: 800,
+					totalReceiveAmount: 1200,
+					receiveAmount: 1200,
+					giveAmount: 800,
+					netAmount: 400,
+					totalCount: 2,
+					recordCount: 2,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-record-info') && pathname.includes('/page')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					records: [
+						{
+							id: '10001',
+							direction: 'GIVE',
+							amount: 800,
+							personName: '王五',
+							receiverPersonName: '王五',
+							eventName: '结婚典礼',
+							eventType: 'wedding',
+							payTime: '2026-10-01 12:00:00',
+							remark: '随礼800元',
+							returnedFlag: 0,
+						},
+						{
+							id: '10002',
+							direction: 'RECEIVE',
+							amount: 1000,
+							personName: '赵六',
+							giverPersonName: '赵六',
+							eventName: '乔迁新居',
+							eventType: 'housewarming',
+							payTime: '2026-10-05 10:00:00',
+							remark: '乔迁礼金',
+							returnedFlag: 0,
+						},
+					],
+					total: 2,
+					current: 1,
+					size: 10,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/trend')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ label: '2026-05', giveAmount: 500, receiveAmount: 800 },
+					{ label: '2026-06', giveAmount: 600, receiveAmount: 1000 },
+					{ label: '2026-07', giveAmount: 400, receiveAmount: 1200 },
+					{ label: '2026-08', giveAmount: 700, receiveAmount: 900 },
+					{ label: '2026-09', giveAmount: 500, receiveAmount: 1500 },
+					{ label: '2026-10', giveAmount: 800, receiveAmount: 1800 },
+				],
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/person-ranking')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '王五', personName: '王五', amount: 1800, direction: 'RECEIVE', percent: 80 },
+					{ name: '李四', personName: '李四', amount: 1200, direction: 'GIVE', percent: 60 },
+				],
+			});
+		}
+
+		if (pathname.includes('/gift-person-info') && pathname.includes('/summary')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					personCount: 15,
+					pendingReturnCount: 3,
+					pendingReturnAmount: 1200,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-event-info') && pathname.includes('/list')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{
+						id: '20001',
+						eventName: '结婚典礼',
+						eventType: 'wedding',
+						eventTime: '2026-10-01 12:00:00',
+					},
+				],
+			});
+		}
+
+		if (pathname.includes('/gift-person-info') && pathname.includes('/list')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{
+						id: '30001',
+						personName: '王五',
+						relationType: '大学同学',
+					},
+				],
+			});
+		}
+
+		if (pathname.includes('event-type-option') || pathname.includes('relation-option')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [],
+			});
+		}
+
+		if (pathname.includes('org-member-options')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{
+						id: '1',
+						personName: '超级管理员',
+						bindUserId: '1',
+					},
+				],
+			});
+		}
+
 		return fulfillEncrypted(route, { code: '200', data: {} });
 	});
 }
@@ -381,6 +573,149 @@ async function executeCase(page, c, runtime) {
 			break;
 		}
 
+		case 'AI-GIFT-PC-001': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/record`);
+			const openBtn = page.locator('[data-testid="gift-record-open-drawer"]').first();
+			await openBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await openBtn.click();
+
+			// 等待抽屉唤起及 AI 记账输入框可见并输入测试文本
+			const aiInput = page.locator('[data-testid="gift-record-ai-input"] input, input[data-testid="gift-record-ai-input"]').first();
+			await aiInput.waitFor({ state: 'visible', timeout: 8000 });
+			await aiInput.fill('随了大学同学王五结婚礼金800元');
+
+			// 点击智能解析按钮
+			const aiBtn = page.locator('[data-testid="gift-record-ai-btn"]').first();
+			await aiBtn.click();
+
+			// 等待表单金额项自动回填为 800
+			const amountInput = page.locator('[data-testid="gift-record-form-amount"] input').first();
+			await amountInput.waitFor({ state: 'visible', timeout: 5000 });
+
+			// 等待数值填入并断言
+			await page.waitForFunction(
+				() => {
+					const el = document.querySelector('[data-testid="gift-record-form-amount"] input');
+					return el && el.value && el.value.includes('800');
+				},
+				null,
+				{ timeout: 5000 },
+			);
+
+			const amountVal = await amountInput.inputValue();
+			if (!amountVal.includes('800')) {
+				throw new Error(`AI 智能记账要素回填金额断言失败: expected to include 800, got '${amountVal}'`);
+			}
+
+			// 关闭抽屉保持状态纯净
+			const closeBtn1 = page.locator('.ant-drawer-close').first();
+			if (await closeBtn1.count() && await closeBtn1.isVisible()) {
+				await closeBtn1.click();
+				await page.locator('.ant-drawer-open').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+			}
+			break;
+		}
+
+		case 'GIFT-E2E-PC-DASHBOARD': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/dashboard`);
+
+			// 1. 等待图表容器挂载
+			const trendCard = page.locator('[data-testid="gift-dashboard-trend-chart"]').first();
+			await trendCard.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 验证亲友排行榜全部跳转按钮
+			const rankingBtn = page.locator('[data-testid="gift-dashboard-ranking-all"]').first();
+			await rankingBtn.waitFor({ state: 'visible', timeout: 5000 });
+
+			// 3. 验证最近往来流水入口并点击穿透
+			const recordAllBtn = page.locator('[data-testid="gift-dashboard-record-all"]').first();
+			await recordAllBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await recordAllBtn.click();
+
+			// 4. 断言路由成功穿透至台账页
+			await page.waitForFunction(() => window.location.hash.includes('/finance/gift/record'), null, { timeout: 5000 });
+			break;
+		}
+
+		case 'GIFT-E2E-PC-FLOW-RETURN': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/record`);
+
+			// 1. 等待表格渲染出 RECEIVE 记录并存在“标记已回”按钮
+			const markBtn = page.locator('[data-testid="gift-record-mark-returned"]').first();
+			await markBtn.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 侦听 mark-returned 接口请求触发
+			const [request] = await Promise.all([
+				page.waitForRequest((req) => req.url().includes('mark-returned') && (req.method() === 'PUT' || req.method() === 'POST')),
+				markBtn.click(),
+			]);
+			if (!request) {
+				throw new Error('标记已回礼请求未正常触发');
+			}
+
+			// 3. 打开快速记礼抽屉
+			const openBtn = page.locator('[data-testid="gift-record-open-drawer"]').first();
+			await openBtn.click();
+
+			const formDrawer = page.locator('.ant-drawer-content').first();
+			await formDrawer.waitFor({ state: 'visible', timeout: 5000 });
+
+			// 4. 关闭抽屉保持状态纯净
+			const closeBtn2 = page.locator('.ant-drawer-close').first();
+			if (await closeBtn2.count() && await closeBtn2.isVisible()) {
+				await closeBtn2.click();
+				await page.locator('.ant-drawer-open').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+			}
+			break;
+		}
+
+		case 'GIFT-E2E-PC-FORM-LINKAGE': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/record`);
+
+			// 1. 如果抽屉未打开则打开
+			const existingDrawer = page.locator('.ant-drawer-open').first();
+			if (!(await existingDrawer.count()) || !(await existingDrawer.isVisible())) {
+				const openBtn = page.locator('[data-testid="gift-record-open-drawer"]').first();
+				await openBtn.waitFor({ state: 'visible', timeout: 10000 });
+				await openBtn.click();
+			}
+
+			// 2. 测试快捷人情事件 Tag 点击联动
+			const quickEventTag = page.locator('[data-testid="gift-record-quick-event-tag"]').first();
+			if (await quickEventTag.count()) {
+				await quickEventTag.click();
+			}
+
+			// 3. 测试大额礼金与精度 (999999999.99)
+			const amountInput = page.locator('[data-testid="gift-record-form-amount"] input').first();
+			await amountInput.waitFor({ state: 'visible', timeout: 5000 });
+			await amountInput.fill('999999999.99');
+
+			// 4. 断言数值完全保留且不产生浮点截断
+			await page.waitForFunction(() => {
+				const el = document.querySelector('[data-testid="gift-record-form-amount"] input');
+				return el && el.value && el.value.includes('999999999.99');
+			}, null, { timeout: 5000 });
+
+			// 5. 点击快捷金额 Tag (如 800)
+			const quickAmountTag = page.locator('[data-testid="gift-record-quick-amount-tag"]').first();
+			if (await quickAmountTag.count()) {
+				await quickAmountTag.click();
+				await page.waitForFunction(() => {
+					const el = document.querySelector('[data-testid="gift-record-form-amount"] input');
+					return el && el.value && el.value.length > 0 && !el.value.includes('999999999.99');
+				}, null, { timeout: 5000 });
+			}
+
+			// 6. 完工关闭抽屉
+			const closeBtn3 = page.locator('.ant-drawer-close').first();
+			if (await closeBtn3.count() && await closeBtn3.isVisible()) {
+				await closeBtn3.click();
+				await page.locator('.ant-drawer-open').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+			}
+			break;
+		}
+
 		default:
 			throw new Error(`Unsupported case ID: ${c.caseId}`);
 	}
@@ -392,7 +727,7 @@ async function main() {
 	ensureDir(logDir);
 
 	const cases = loadCases();
-	const server = await startViteServerIfNeed(3000);
+	const server = await startViteServerIfNeed(3100);
 
 	let browser;
 	const launchArgs = ['--no-sandbox', '--disable-setuid-sandbox'];

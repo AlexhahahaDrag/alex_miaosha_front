@@ -18,6 +18,7 @@
 					v-if="hasPermission('gift:add')"
 					type="primary"
 					class="primary-action"
+					data-testid="gift-record-open-drawer"
 					@click="openDrawer()"
 				>
 					+ 快速记礼
@@ -232,6 +233,7 @@
 								v-if="hasPermission('gift:edit')"
 								size="small"
 								type="link"
+								data-testid="gift-record-edit-btn"
 								@click="openDrawer(record)"
 							>
 								编辑
@@ -244,6 +246,7 @@
 								"
 								size="small"
 								type="link"
+								data-testid="gift-record-pending-btn"
 								@click="showPending(record.id)"
 							>
 								待回礼
@@ -256,6 +259,7 @@
 								"
 								size="small"
 								type="link"
+								data-testid="gift-record-mark-returned"
 								@click="markReturned(record.id)"
 							>
 								标记已回
@@ -265,7 +269,14 @@
 								title="确认删除该礼金记录?"
 								@confirm="remove(record.id)"
 							>
-								<a-button size="small" type="link" danger>删除</a-button>
+								<a-button
+									size="small"
+									type="link"
+									danger
+									data-testid="gift-record-delete-btn"
+								>
+									删除
+								</a-button>
 							</a-popconfirm>
 						</a-space>
 					</template>

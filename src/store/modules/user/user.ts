@@ -121,7 +121,7 @@ export const useUserStore = defineStore(
 					data,
 					message: messageInfo,
 				} = await loginApi(loginParams);
-				if (code == '200') {
+				if (code == '200' && data) {
 					const { token: tokenVal, admin } = data;
 					console.log('【登录响应 - 个人信息 admin】:', admin);
 					const normalizedContext = normalizePermissionContext(admin);

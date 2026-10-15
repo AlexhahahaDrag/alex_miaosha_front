@@ -80,188 +80,35 @@
 			</a-space>
 		</div>
 
-		<!-- 4. 账单明细表格 -->
-		<div class="content" ref="tableContainerRef">
-			<a-table
-				:dataSource="dataSource"
-				:columns="columns"
-				:loading="loading"
-				:row-key="(record: FinanceManagerData) => record.id || ''"
-				:pagination="false"
-				@change="handleTableChange"
-				:scroll="{ x: 'max-content', y: tableScrollY }"
-				:row-selection="rowSelection"
-			>
-				<template #bodyCell="{ column, record }">
-					<!-- 操作列：轻量链接按钮降噪 -->
-					<template v-if="column.key === 'operation'">
-						<a-space :size="4">
-							<a-button
-								v-if="canEditRecord(record)"
-								type="link"
-								size="small"
-								class="action-link-btn"
-								@click="editFinance('update', record.id)"
-							>
-								编辑
-							</a-button>
-							<a-button
-								v-else
-								type="link"
-								size="small"
-								class="action-link-btn"
-								@click="editFinance('view', record.id)"
-							>
-								查看
-							</a-button>
-							<template v-if="canDeleteRecord(record)">
-								<a-divider type="vertical" />
-								<a-popconfirm
-									title="确认删除该笔账目?"
-									ok-text="确认"
-									cancel-text="取消"
-									@confirm="delFinance(record.id)"
-									@cancel="cancel"
-								>
-									<a-button
-										type="link"
-										size="small"
-										danger
-										class="action-link-btn"
-									>
-										删除
-									</a-button>
-								</a-popconfirm>
-							</template>
-						</a-space>
-					</template>
+		<!-- 4. 账单明细表格解耦子组件 -->
+		<finance-manager-table
+			:data-source="dataSource"
+			:columns="columns"
+			:loading="loading"
+			:table-scroll-y="tableScrollY"
+			:row-selection="rowSelection"
+			:selected-row-ids="selectedRowIds"
+			:pagination="pagination"
+			:can-edit-record="canEditRecord"
+			:can-delete-record="canDeleteRecord"
+			:get-category-pill-style="getCategoryPillStyle"
+			:format-amount="formatAmount"
+			:get-from-source-name="getFromSourceName"
+			@edit="editFinance"
+			@delete="delFinance"
+			@batch-delete="batchDelFinanceManager"
+			@clear-selected="clearSelected"
+			@filter-category="filterByCategory"
+			@table-change="handleTableChange"
+			@page-change="onFooterPageChange"
+			@size-change="onFooterSizeChange"
+		/>
 
-					<!-- 类别列：语义化彩色胶囊 -->
-					<template v-else-if="column.key === 'typeCode'">
-						<span
-							v-if="record.typeCode"
-							class="category-pill"
-							:style="getCategoryPillStyle(record.typeCode)"
-							@click="filterByCategory(record.typeCode)"
-							:title="`点击仅筛选【${record.typeCode}】`"
-						>
-							{{ record.typeCode }}
-						</span>
-						<span v-else class="text-slate-300">-</span>
-					</template>
-
-					<!-- 金额列：等宽、红绿收支色彩区分 -->
-					<template v-else-if="column.key === 'amount'">
-						<span
-							:class="[
-								'amount-text',
-								record.incomeAndExpenses === 'income' ?
-									'amount-income'
-								:	'amount-expense',
-							]"
-						>
-							{{ record.incomeAndExpenses === 'income' ? '+' : '-' }}¥{{
-								formatAmount(record.amount)
-							}}
-						</span>
-					</template>
-
-					<!-- 状态列：圆点 Badge 风格 -->
-					<template v-else-if="column.key === 'isValid'">
-						<a-badge
-							:status="record.isValid === '1' ? 'success' : 'default'"
-							:text="record.isValid === '1' ? '有效' : '失效'"
-						/>
-					</template>
-
-					<!-- 收支类型列 -->
-					<template v-else-if="column.key === 'incomeAndExpenses'">
-						<a-tag
-							:color="
-								record.incomeAndExpenses === 'income' ? 'success' : 'error'
-							"
-							class="type-tag"
-						>
-							{{ record.incomeAndExpenses === 'income' ? '收入' : '支出' }}
-						</a-tag>
-					</template>
-
-					<!-- 业务时间列 -->
-					<template v-else-if="column.key === 'infoDate'">
-						<span class="info-date-text">
-							{{ record.infoDate ? formatTime(record.infoDate) : '-' }}
-						</span>
-					</template>
-
-					<!-- 支付方式列：图标胶囊 -->
-					<template v-else-if="column.key === 'fromSource'">
-						<div class="from-source-pill">
-							<component
-								v-if="iconComponentMap[`finance-${record.fromSource}`]"
-								:is="iconComponentMap[`finance-${record.fromSource}`]"
-								class="from-source-icon"
-							/>
-							<span>{{ getFromSourceName(record.fromSource) }}</span>
-						</div>
-					</template>
-				</template>
-			</a-table>
-
-			<!-- 4.1 常驻表格底栏工具条 (Sticky Action Toolbar) -->
-			<div class="table-footer-toolbar">
-				<div class="toolbar-left">
-					<template v-if="selectedRowIds.length">
-						<span class="selection-pill">
-							已选 <strong class="selection-count">{{ selectedRowIds.length }}</strong> 项
-						</span>
-						<a-divider type="vertical" />
-						<a-popconfirm
-							:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
-							ok-text="确认"
-							cancel-text="取消"
-							@confirm="batchDelFinanceManager"
-						>
-							<a-button type="link" danger size="small" class="footer-action-btn">
-								<template #icon><DeleteOutlined /></template>
-								批量删除
-							</a-button>
-						</a-popconfirm>
-						<a-button
-							type="link"
-							size="small"
-							class="footer-action-btn clear-btn"
-							@click="clearSelected"
-						>
-							清空选择
-						</a-button>
-					</template>
-					<template v-else>
-						<span class="total-text">
-							共 <span class="total-num">{{ Number(pagination.total || 0).toLocaleString() }}</span> 笔账目
-						</span>
-					</template>
-				</div>
-				<div class="toolbar-right">
-					<a-pagination
-						size="small"
-						:current="pagination.current"
-						:page-size="pagination.pageSize"
-						:total="pagination.total"
-						:show-size-changer="pagination.showSizeChanger"
-						:page-size-options="pagination.pageSizeOptions"
-						:show-quick-jumper="false"
-						@change="onFooterPageChange"
-						@showSizeChange="onFooterSizeChange"
-					/>
-				</div>
-			</div>
-
-			<!-- 记账 / 修改明细弹窗 -->
-			<finance-manager-detail
-				v-model:modelInfo="modelInfo"
-				@success="() => query()"
-			></finance-manager-detail>
-		</div>
+		<!-- 记账 / 修改明细弹窗 -->
+		<finance-manager-detail
+			v-model:modelInfo="modelInfo"
+			@success="() => query()"
+		></finance-manager-detail>
 
 		<!-- 调整零花钱预算弹窗 (自闭环子组件) -->
 		<finance-budget-modal
@@ -277,30 +124,22 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import {
-	formatTime,
 	formatDate,
-	formatMonth,
-	formatDayjs,
-	nowDayjs,
 	getMonthRangeDayjs,
 } from '@/utils/dayjs';
 import type { ModelInfo } from '@/types/modal';
 import FinanceOverviewCard from '@/views/selfFinance/financeManager/components/FinanceOverviewCard.vue';
-import type {
-	FinanceManagerData,
-	FinanceBudgetStatusVo,
-} from '@/views/selfFinance/financeManager/config';
+import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
+import { useFinanceSummary } from './composables/useFinanceSummary';
 import {
 	columns,
 	fromSourceTransferList,
 } from '@/views/selfFinance/financeManager/config';
-import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 import {
 	getFinanceMangerPage,
 	deleteFinanceManger,
 	getFinanceSummary,
-	getBudgetStatus,
 	type FinanceSummaryData,
 } from '@/views/selfFinance/financeManager/api';
 import {
@@ -388,7 +227,7 @@ const onFooterPageChange = (page: number, pageSize: number) => {
 	handleTableChange({ ...pagination, current: page, pageSize });
 };
 
-const onFooterSizeChange = (current: number, size: number) => {
+const onFooterSizeChange = (_: number, size: number) => {
 	hasUserCustomizedPageSize.value = true;
 	handleTableChange({ ...pagination, current: 1, pageSize: size });
 };
@@ -410,205 +249,26 @@ const summaryData = ref<FinanceSummaryData>({
 const summaryLoading = ref<boolean>(false);
 const isFirstSummaryLoaded = ref<boolean>(false);
 
-// 零花钱月度预算状态
-const currentMonthStr = computed(() => formatMonth());
-const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
-const budgetLoading = ref<boolean>(false);
-const isFirstBudgetLoaded = ref<boolean>(false);
+// 零花钱月度预算状态与多维统计 (抽离子领域 composable)
 const budgetModalVisible = ref<boolean>(false);
-
-const budgetDirectionLabel = computed(() => {
-	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
-	const hasExp = dir.includes('expense');
-	const hasInc = dir.includes('income');
-	if (hasExp && hasInc) return '全部收支';
-	if (hasInc) return '全部收入';
-	return '全部支出';
-});
-
-const budgetSpentLabel = computed(() => {
-	const dir = budgetStatus.value?.incomeAndExpenses || 'expense';
-	const hasExp = dir.includes('expense');
-	const hasInc = dir.includes('income');
-	if (hasExp && hasInc) return '已计';
-	if (hasInc) return '已入';
-	return '已用';
-});
-
-/**
- * 根据预算使用率返回语义色阶 (Taste-Skill 财务风控色板)
- * - < 0%: 净结余充裕 (翡翠绿 #52c41a)
- * - [0%, 75%): 常规安全 (品牌蓝 #1677ff)
- * - [75%, 90%): 适度关注 (琥珀黄 #faad14)
- * - [90%, 100%): 临界高压 (火山橙 #fa541c)
- * - [100%, 150%): 超支破线 (警示红 #ff4d4f)
- * - >= 150%: 严重爆表 (深绛红 #cf1322)
- */
-const getBudgetProgressColor = (percent: number): string => {
-	if (percent < 0) return '#52c41a';
-	if (percent >= 150) return '#cf1322';
-	if (percent >= 100) return '#ff4d4f';
-	if (percent >= 90) return '#fa541c';
-	if (percent >= 75) return '#faad14';
-	return '#1677ff';
-};
-
-const progressStrokeColor = computed(() => {
-	const pct = budgetStatus.value?.usagePercent || 0;
-	return getBudgetProgressColor(pct);
-});
-
-const getEffectiveBudgetBelongTo = (): string | undefined => {
-	if (searchInfo.value.belongTo) {
-		return String(searchInfo.value.belongTo);
-	}
-	return undefined;
-};
-
-const loadBudgetStatus = async () => {
-	budgetLoading.value = true;
-	try {
-		const { code, data } = await getBudgetStatus(
-			currentMonthStr.value,
-			getEffectiveBudgetBelongTo(),
-		);
-		if (code === '200' && data) {
-			budgetStatus.value = data;
-		}
-	} catch (e) {
-		console.warn('获取零花钱预算失败:', e);
-	} finally {
-		budgetLoading.value = false;
-		isFirstBudgetLoaded.value = true;
-	}
-};
-
 const openBudgetModal = () => {
 	budgetModalVisible.value = true;
 };
 
-watch(
-	() => searchInfo.value.belongTo,
-	() => {
-		loadBudgetStatus();
-	},
-);
-
-// 统计标签标题自适应
-const summaryTitle = computed(() => {
-	const start = searchInfo.value.infoDateStart;
-	const end = searchInfo.value.infoDateEnd;
-	if (start && end) {
-		const startStr = formatDate(start);
-		const endStr = formatDate(end);
-		if (startStr === endStr) {
-			return `${startStr} 账单`;
-		}
-		if (formatMonth(start) === formatMonth(end)) {
-			return `${formatDate(start, 'YYYY年M月')} 账单`;
-		}
-		return `${formatDate(start, 'M/D')} ~ ${formatDate(end, 'M/D')} 统计`;
-	}
-	if (start) {
-		return `自 ${formatDate(start)} 起`;
-	}
-	if (end) {
-		return `至 ${formatDate(end)} 止`;
-	}
-	return '全量账单统计';
-});
-
-// 有效统计天数计算（用于日均支出）
-const effectiveDaysInfo = computed(() => {
-	const start = searchInfo.value.infoDateStart;
-	const end = searchInfo.value.infoDateEnd;
-	const today = nowDayjs().startOf('day');
-
-	if (start && end) {
-		const startDate = formatDayjs(start).startOf('day');
-		const endDate = formatDayjs(end).endOf('day');
-		// 若为当月（起始为当月1号），按当月已过天数统计更贴合真实花销节奏
-		const isCurrentMonth =
-			startDate.isSame(today, 'month') && startDate.date() === 1;
-		if (isCurrentMonth && !today.isAfter(endDate, 'day')) {
-			const passedDays = today.diff(startDate, 'day') + 1;
-			return {
-				days: Math.max(1, passedDays),
-				label: `本月已过 ${passedDays} 天`,
-			};
-		}
-		const diffDays = Math.max(1, formatDayjs(end).diff(formatDayjs(start), 'day') + 1);
-		return { days: diffDays, label: `区间共 ${diffDays} 天` };
-	}
-
-	if (start) {
-		const startDate = formatDayjs(start).startOf('day');
-		const diffDays = Math.max(1, today.diff(startDate, 'day') + 1);
-		return { days: diffDays, label: `已过 ${diffDays} 天` };
-	}
-
-	if (end) {
-		return { days: 30, label: '参考 30 天' };
-	}
-
-	// 全量未设时间筛选时，默认以当月已过天数为参考
-	const daysThisMonth = today.date();
-	return {
-		days: Math.max(1, daysThisMonth),
-		label: `参考本月已过 ${daysThisMonth} 天`,
-	};
-});
-
-// 日均支出
-const dailyExpenseAvg = computed(() => {
-	const totalExp = Number(summaryData.value?.totalExpense) || 0;
-	if (totalExp <= 0) return 0;
-	const days = effectiveDaysInfo.value.days;
-	return Number((totalExp / days).toFixed(2));
-});
-
-// Top 3 支出分类结构统计
-interface TopExpenseCategoryItem {
-	name: string;
-	amount: number;
-	percent: number;
-}
-
-const topExpenseCategories = computed<TopExpenseCategoryItem[]>(() => {
-	const records = dataSource.value || [];
-	const expenseMap = new Map<string, number>();
-	let totalExpenseInList = 0;
-
-	for (const item of records) {
-		const isExpense =
-			item.incomeAndExpenses === 'expense' ||
-			(!item.incomeAndExpenses && (Number(item.amount) || 0) < 0);
-		if (isExpense && item.typeCode) {
-			const amt = Math.abs(Number(item.amount) || 0);
-			if (amt > 0) {
-				expenseMap.set(
-					item.typeCode,
-					(expenseMap.get(item.typeCode) || 0) + amt,
-				);
-				totalExpenseInList += amt;
-			}
-		}
-	}
-
-	if (expenseMap.size === 0 || totalExpenseInList <= 0) {
-		return [];
-	}
-
-	const sorted = Array.from(expenseMap.entries())
-		.map(([name, amount]) => ({
-			name,
-			amount,
-			percent: Math.round((amount / totalExpenseInList) * 100),
-		}))
-		.sort((a, b) => b.amount - a.amount);
-
-	return sorted.slice(0, 3);
-});
+const {
+	currentMonthStr,
+	budgetStatus,
+	isFirstBudgetLoaded,
+	budgetSpentLabel,
+	budgetDirectionLabel,
+	progressStrokeColor,
+	summaryTitle,
+	effectiveDaysInfo,
+	dailyExpenseAvg,
+	topExpenseCategories,
+	getEffectiveBudgetBelongTo,
+	loadBudgetStatus,
+} = useFinanceSummary(searchInfo, dataSource, summaryData as any);
 
 // 构建规整后的查询参数（过滤空字符串并格式化日期）
 const buildQueryParams = (param: FinanceManagerData): FinanceManagerData => {
@@ -792,8 +452,6 @@ const batchDelFinanceManager = () => {
 	delFinance(selectedRowIds.value.join(','));
 };
 
-const cancel = () => {};
-
 // 分页获取账单数据
 const getFinancePage = async (
 	queryParam: FinanceManagerData,
@@ -931,161 +589,6 @@ init();
 .button {
 	flex-shrink: 0;
 	margin: 0 0 8px;
-}
-
-.content {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	background: #fff;
-	padding: 12px 16px 0;
-	border-radius: 8px;
-	border: 1px solid #f0f0f0;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-	margin: 0;
-	overflow: hidden;
-
-	:deep(.ant-table-wrapper) {
-		flex: 1;
-		min-height: 0;
-		display: flex;
-		flex-direction: column;
-
-		.ant-spin-nested-loading {
-			flex: 1;
-			min-height: 0;
-			display: flex;
-			flex-direction: column;
-
-			.ant-spin-container {
-				flex: 1;
-				min-height: 0;
-				display: flex;
-				flex-direction: column;
-
-				.ant-table {
-					flex: 1;
-					min-height: 0;
-				}
-			}
-		}
-	}
-
-	.table-footer-toolbar {
-		flex-shrink: 0;
-		height: 48px;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0 16px;
-		margin: 0 -16px;
-		background: #fafafa;
-		border-top: 1px solid #f0f0f0;
-
-		.toolbar-left {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			font-size: 13px;
-
-			.total-text {
-				color: #8c8c8c;
-				.total-num {
-					font-weight: 600;
-					color: #262626;
-				}
-			}
-
-			.selection-pill {
-				display: inline-flex;
-				align-items: center;
-				padding: 2px 8px;
-				background: #e6f4ff;
-				border: 1px solid #91caff;
-				border-radius: 4px;
-				color: #0958d9;
-				font-size: 12px;
-
-				.selection-count {
-					font-weight: 700;
-					margin: 0 2px;
-				}
-			}
-
-			.footer-action-btn {
-				padding: 0 4px;
-				font-size: 13px;
-				height: auto;
-
-				&.clear-btn {
-					color: #8c8c8c;
-					&:hover {
-						color: #1677ff;
-					}
-				}
-			}
-		}
-
-		.toolbar-right {
-			display: flex;
-			align-items: center;
-
-			:deep(.ant-pagination) {
-				margin: 0 !important;
-			}
-		}
-	}
-}
-
-.amount-text {
-	font-weight: 600;
-	font-size: 14px;
-	font-family:
-		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-		Arial, sans-serif;
-	font-variant-numeric: tabular-nums;
-
-	&.amount-income {
-		color: #52c41a;
-	}
-
-	&.amount-expense {
-		color: #ff4d4f;
-	}
-}
-
-.action-link-btn {
-	padding: 0 2px;
-	font-size: 13px;
-}
-
-.type-tag {
-	border-radius: 4px;
-	font-size: 12px;
-}
-
-.info-date-text {
-	color: #595959;
-	font-size: 13px;
-	font-variant-numeric: tabular-nums;
-}
-
-.from-source-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 2px 8px;
-	background: #fafafa;
-	border: 1px solid #f0f0f0;
-	border-radius: 4px;
-	font-size: 12px;
-	color: #595959;
-
-	.from-source-icon {
-		width: 16px;
-		height: 16px;
-	}
 }
 
 .linkage-active-banner {

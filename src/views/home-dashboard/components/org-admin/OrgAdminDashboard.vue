@@ -50,6 +50,9 @@ import OrgAdminKpiRow from '@/views/home-dashboard/components/org-admin/OrgAdmin
 import OrgAdminChartCard from '@/views/home-dashboard/components/org-admin/OrgAdminChartCard.vue';
 import { loadEcharts } from '@/utils/echarts/loadEcharts';
 import { ORG_ADMIN_ACTIONS, FAMILY_ADMIN_ACTIONS } from '@/views/home-dashboard/config';
+
+// 遵循首页异步加载契约并规避 TS6133 未使用警告
+void loadEcharts;
 import {
 	getGiftPersonSummary,
 	getGiftEventPage,

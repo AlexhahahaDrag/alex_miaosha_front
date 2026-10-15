@@ -263,7 +263,7 @@ export function getGiftRecordPage(
 }
 
 export function getGiftRecordSummary(
-	params: GiftRecordQuery,
+	params: GiftRecordQuery = {},
 ): Promise<ResponseBody<GiftRecordSummary>> {
 	return postData<GiftRecordSummary>(
 		`${baseUrl(giftApi.record)}/summary`,

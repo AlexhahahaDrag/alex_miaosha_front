@@ -46,16 +46,16 @@
 					<a-space wrap :size="[6, 6]">
 						<a-tag
 							v-for="opt in quickEvents"
-							:key="opt.value"
+							:key="opt.id"
 							:color="
-								searchInfo.eventType === resolveFilterEventType(opt.value)
+								searchInfo.eventType === resolveFilterEventType(opt.id)
 									? 'blue'
 									: 'default'
 							"
 							class="quick-tag"
-							@click="selectEventType(opt.value)"
+							@click="selectEventType(opt.id)"
 						>
-							{{ opt.label }}
+							{{ opt.name }}
 						</a-tag>
 					</a-space>
 				</a-form-item>

@@ -84,6 +84,17 @@ export interface FinanceManagerData {
 	typeCodes?: string[];
 }
 
+export type FinanceManagerParams = FinanceManagerData;
+
+export interface FinanceSummary {
+	totalExpense?: number;
+	totalIncome?: number;
+	totalBalance?: number;
+	totalCount?: number;
+}
+
+export type FinanceBudgetStatus = FinanceBudgetStatusVo;
+
 export interface FinanceBudgetStatusVo {
 	id?: string;
 	orgId?: string;

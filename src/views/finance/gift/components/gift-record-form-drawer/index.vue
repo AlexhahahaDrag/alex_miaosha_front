@@ -62,202 +62,37 @@
 
 				<!-- 人情事件、往来对象、经办成员 (非回礼或编辑时展示) -->
 				<template v-if="formInfo.direction !== 'GIVE' || !isReturnGift">
-					<!-- 人情事件 -->
-					<a-form-item
-						label="人情事件"
-						name="eventId"
-						:rules="[{ required: true, message: '请选择或关联人情事件' }]"
-					>
-						<div class="event-selection-row">
-							<div class="quick-event-tags">
-								<a-tag
-									v-for="item in quickEventTags"
-									:key="item.id"
-									class="quick-event-tag"
-									:color="isSelectedQuickTag(item) ? 'blue' : 'default'"
-									@click="selectQuickTag(item)"
-								>
-									<span>{{ item.icon }} {{ item.name }}</span>
-								</a-tag>
-							</div>
-							<a-button
-								type="link"
-								size="small"
-								style="padding: 0"
-								@click="eventSelectorOpen = true"
-							>
-								请选择人情事件 &gt;
-							</a-button>
-						</div>
+					<!-- 人情事件解耦子组件 -->
+					<gift-record-event-field
+						:event-id="formInfo.eventId"
+						:quick-event-tags="quickEventTags"
+						:selected-event-detail="selectedEventDetail"
+						@select-tag="selectQuickTag"
+						@select-event="handleEventSelect"
+					/>
 
-						<!-- 选中的事件详细展示卡片 -->
-						<div v-if="selectedEventDetail" class="selected-event-card">
-							<div class="card-header">
-								<span class="card-icon">💍</span>
-								<strong class="card-title">{{
-									selectedEventDetail.eventName
-								}}</strong>
-								<a-button
-									type="link"
-									size="small"
-									class="modify-btn"
-									@click="eventSelectorOpen = true"
-									>修改 &gt;</a-button
-								>
-							</div>
-							<div class="card-body">
-								<span class="meta-item"
-									>举行时间:
-									{{ formatDate(selectedEventDetail.eventTime) }}</span
-								>
-								<span class="meta-item" v-if="selectedEventDetail.remark"
-									>地点/备注: {{ selectedEventDetail.remark }}</span
-								>
-							</div>
-						</div>
-					</a-form-item>
-
-					<!-- 往来对象 (送给谁/来自谁) -->
-					<a-form-item
-						:label="formInfo.direction === 'GIVE' ? '送给谁' : '来自谁'"
-						:name="
-							formInfo.direction === 'GIVE' ?
-								'receiverPersonId'
-							:	'giverPersonId'
-						"
-						:rules="contactRules"
-					>
-						<gift-contact-picker
-							v-model:model-value="externalPersonId"
-							test-id="gift-record-form-receiver"
-						/>
-
-						<!-- 最近往来联系人快捷 Tag -->
-						<div v-if="recentContacts.length > 0" class="recent-contacts-tags">
-							<span class="label-text">最近往来:</span>
-							<a-tag
-								v-for="c in recentContacts"
-								:key="c.id"
-								class="contact-quick-tag"
-								:color="
-									String(externalPersonId) === String(c.id) ? 'blue' : 'default'
-								"
-								@click="externalPersonId = c.id"
-							>
-								{{ c.name }}
-							</a-tag>
-						</div>
-
-						<!-- 选中联系人背景详情 -->
-						<div v-if="selectedContactDetail" class="contact-detail-tip">
-							💡 关系:
-							<strong style="color: #1890ff">{{
-								relationLabel(selectedContactDetail.relationType)
-							}}</strong>
-							· 历史往来:
-							<strong>{{ selectedContactDetail.recordCount || 0 }}次</strong> ·
-							累计收到:
-							<strong style="color: #389e0d"
-								>¥{{ selectedContactDetail.totalReceiveAmount || 0 }}</strong
-							>
-							| 累计送出:
-							<strong style="color: #cf1322"
-								>¥{{ selectedContactDetail.totalGiveAmount || 0 }}</strong
-							>
-						</div>
-					</a-form-item>
-
-					<!-- 经办成员 -->
-					<a-form-item
-						label="经办成员"
-						:name="
-							formInfo.direction === 'GIVE' ?
-								'giverPersonId'
-							:	'receiverPersonId'
-						"
-						:rules="orgMemberRules"
-					>
-						<gift-org-member-picker
-							v-model:model-value="familyPersonId"
-							test-id="gift-record-form-giver"
-						/>
-
-						<!-- 经办人快速选择标签 -->
-						<div
-							class="family-members-tags"
-							v-if="familyMembersList.length > 0"
-						>
-							<span class="label-text">经办人:</span>
-							<a-tag
-								v-for="m in familyMembersList"
-								:key="m.id"
-								class="member-quick-tag"
-								:color="
-									String(familyPersonId) === String(m.id) ? 'blue' : 'default'
-								"
-								@click="familyPersonId = m.id"
-							>
-								{{ getMemberLabel(m) }}
-							</a-tag>
-						</div>
-					</a-form-item>
+					<!-- 往来对象与经办成员解耦子组件 -->
+					<gift-record-parties-field
+						v-model:external-person-id="externalPersonId"
+						v-model:family-person-id="familyPersonId"
+						:direction="formInfo.direction"
+						:contact-rules="contactRules"
+						:org-member-rules="orgMemberRules"
+						:recent-contacts="recentContacts"
+						:selected-contact-detail="selectedContactDetail"
+						:family-members-list="familyMembersList"
+						:self-person-id="findSelfPersonId(loginUserId)"
+					/>
 				</template>
 
-				<!-- 礼金金额 -->
-				<a-form-item label="礼金金额" name="amount" :rules="amountRules">
-					<a-input-number
-						v-model:value="formInfo.amount"
-						:min="0.01"
-						:precision="2"
-						style="width: 100%; font-size: 16px; font-weight: bold"
-						placeholder="请输入金额"
-						data-testid="gift-record-form-amount"
-					>
-						<template #prefix>¥</template>
-					</a-input-number>
-
-					<!-- 快捷推荐金额 -->
-					<div class="quick-amounts" style="margin-top: 8px">
-						<a-spin :spinning="recommendLoading" size="small">
-							<a-tag
-								v-for="amount in recommendAmountTags.length ?
-									recommendAmountTags
-								:	quickGiftAmounts"
-								:key="amount"
-								class="quick-amount-tag"
-								:color="formInfo.amount === amount ? 'blue' : 'default'"
-								@click="formInfo.amount = amount"
-							>
-								{{ amount }}
-							</a-tag>
-						</a-spin>
-					</div>
-
-					<!-- AI 推荐考量与场景贺词 -->
-					<div
-						v-if="recommendInfo?.aiReasoning || recommendInfo?.aiGreetingTip"
-						class="ai-recommend-tip-card"
-					>
-						<div v-if="recommendInfo.aiReasoning" class="ai-reason-row">
-							<span class="ai-badge">💡 礼金考量</span>
-							<span class="ai-desc">{{ recommendInfo.aiReasoning }}</span>
-						</div>
-						<div v-if="recommendInfo.aiGreetingTip" class="ai-greeting-row">
-							<span class="ai-badge">🎉 场景贺词</span>
-							<span class="ai-desc greeting-text">{{
-								recommendInfo.aiGreetingTip
-							}}</span>
-							<a-button
-								type="link"
-								size="small"
-								class="copy-greeting-btn"
-								@click="copyGreetingTip(recommendInfo.aiGreetingTip)"
-							>
-								复制贺词
-							</a-button>
-						</div>
-					</div>
-				</a-form-item>
+				<!-- 礼金金额与 AI 推荐贺词解耦子组件 -->
+				<gift-record-amount-field
+					v-model:amount="formInfo.amount"
+					:amount-rules="amountRules"
+					:recommend-loading="recommendLoading"
+					:recommend-amount-tags="recommendAmountTags"
+					:recommend-info="recommendInfo"
+				/>
 
 				<!-- 礼金时间 -->
 				<a-form-item label="礼金时间" name="payTime">
@@ -300,13 +135,6 @@
 			</div>
 		</template>
 	</a-drawer>
-
-	<!-- 人情事件选择器弹窗 -->
-	<gift-event-selector-modal
-		v-model:open="eventSelectorOpen"
-		:selected-id="formInfo.eventId"
-		@select="handleEventSelect"
-	/>
 </template>
 
 <script setup lang="ts">
@@ -326,17 +154,17 @@ import {
 	getGiftPersonProfile,
 } from '@/views/finance/gift/api';
 import { useGiftRecordOptionsCache } from '@/views/finance/gift/composables/useGiftRecordOptionsCache';
-import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import {
 	type GiftRecordInfo,
 	type GiftRecordRecommendAmount,
 	type GiftEventInfo,
 	type GiftRecordAiParseVo,
-	quickGiftAmounts,
 } from '@/views/finance/gift/config';
-import GiftEventSelectorModal from '@/views/finance/gift/components/gift-event-selector-modal/index.vue';
 import GiftRecordAiParsePanel from '@/views/finance/gift/components/gift-record-form-drawer/components/GiftRecordAiParsePanel.vue';
+import GiftRecordEventField from './components/GiftRecordEventField.vue';
+import GiftRecordPartiesField from './components/GiftRecordPartiesField.vue';
+import GiftRecordAmountField from './components/GiftRecordAmountField.vue';
 
 const open = defineModel<boolean>('open', { default: false });
 
@@ -350,9 +178,7 @@ const emit = defineEmits<{
 
 const userStore = useUserStore();
 const { warmup, findSelfPersonId, getOrgMembers } = useGiftRecordOptionsCache();
-const { relationLabel } = useGiftRelationOptions();
-const { presetOptions, customOptions, loadEventTypeOptions } =
-	useGiftEventTypeOptions();
+const { loadEventTypeOptions } = useGiftEventTypeOptions();
 
 const formRef = ref<FormInstance>();
 const saving = ref<boolean>(false);
@@ -373,23 +199,18 @@ const familyPersonId = ref<string>();
 const aiParsePanelRef = ref<{ resetText: () => void } | null>(null);
 
 const handleAiParsed = (data: GiftRecordAiParseVo) => {
-	// 1. 流水方向
 	if (data.direction === 'GIVE' || data.direction === 'RECEIVE') {
 		formInfo.value.direction = data.direction;
 	}
-	// 2. 金额
 	if (data.amount != null && data.amount > 0) {
 		formInfo.value.amount = Number(data.amount);
 	}
-	// 3. 发生时间
 	if (data.payTime) {
 		formInfo.value.payTime = data.payTime.substring(0, 10);
 	}
-	// 4. 补充说明/备注
 	if (data.remark) {
 		formInfo.value.remark = data.remark;
 	}
-	// 5. 亲友匹配
 	if (data.personId) {
 		externalPersonId.value = String(data.personId);
 	} else if (data.personName) {
@@ -397,7 +218,6 @@ const handleAiParsed = (data: GiftRecordAiParseVo) => {
 			`已识别亲友【${data.personName}】，可在外部联系人中直接选用或新建`,
 		);
 	}
-	// 6. 事由匹配
 	if (data.eventId) {
 		formInfo.value.eventId = String(data.eventId);
 	}
@@ -413,29 +233,7 @@ const handleAiParsed = (data: GiftRecordAiParseVo) => {
 	}
 };
 
-const copyGreetingTip = async (text?: string) => {
-	if (!text) return;
-	try {
-		if (navigator?.clipboard?.writeText) {
-			await navigator.clipboard.writeText(text);
-		} else {
-			const ta = document.createElement('textarea');
-			ta.value = text;
-			document.body.appendChild(ta);
-			ta.select();
-			document.execCommand('copy');
-			document.body.removeChild(ta);
-		}
-		message.success('贺词已复制到剪贴板');
-	} catch {
-		message.error('复制失败，请手动选择复制');
-	}
-};
-
-const eventSelectorOpen = ref<boolean>(false);
-const recentEvents = ref<{ id: string; name: string; eventType?: string }[]>(
-	[],
-);
+const recentEvents = ref<{ id: string; name: string; eventType?: string }[]>([]);
 const recentContacts = ref<{ id: string; name: string }[]>([]);
 const selectedEventDetail = ref<GiftEventInfo | null>(null);
 const selectedContactDetail = ref<any | null>(null);
@@ -448,14 +246,6 @@ const familyMembersList = computed(() => {
 	}));
 });
 
-const getMemberLabel = (member: any) => {
-	const selfPersonId = findSelfPersonId(loginUserId.value);
-	if (String(member.id) === String(selfPersonId)) {
-		return `👤 ${member.name} (本人)`;
-	}
-	return member.name;
-};
-
 const loadRecentEvents = async () => {
 	try {
 		const { code, data } = await getGiftRecordPage({}, 1, 10);
@@ -463,7 +253,6 @@ const loadRecentEvents = async () => {
 		const cList: any[] = [];
 		if (code === '200' && data?.records) {
 			data.records.forEach((record) => {
-				// 提取最近事件
 				if (record.eventId && record.eventName) {
 					if (!list.some((x) => x.id === record.eventId)) {
 						list.push({
@@ -473,22 +262,20 @@ const loadRecentEvents = async () => {
 						});
 					}
 				}
-				// 提取最近联系人 (方向 GIVE 时 receiver 是外部, RECEIVE 时 giver 是外部)
 				const extId =
-					record.direction === 'GIVE' ?
-						record.receiverPersonId
-					:	record.giverPersonId;
+					record.direction === 'GIVE'
+						? record.receiverPersonId
+						: record.giverPersonId;
 				const extName =
-					record.direction === 'GIVE' ?
-						record.receiverPersonName
-					:	record.giverPersonName;
+					record.direction === 'GIVE'
+						? record.receiverPersonName
+						: record.giverPersonName;
 				if (extId && extName && !cList.some((x) => x.id === extId)) {
 					cList.push({ id: extId, name: extName });
 				}
 			});
 		}
 
-		// 补足事件
 		if (list.length < 3) {
 			const { code: evCode, data: evData } = await getGiftEventList({});
 			if (evCode === '200' && evData) {
@@ -537,10 +324,6 @@ const selectQuickTag = (item: any) => {
 	formRef.value?.clearValidate('eventId');
 };
 
-const isSelectedQuickTag = (item: any) => {
-	return String(formInfo.value.eventId) === String(item.id);
-};
-
 const handleEventSelect = (item: GiftEventInfo) => {
 	formInfo.value.eventId = item.id;
 	formInfo.value.eventType = item.eventType;
@@ -551,7 +334,6 @@ const handleEventSelect = (item: GiftEventInfo) => {
 	formRef.value?.clearValidate('eventId');
 };
 
-// 监听事件 ID 获取详情卡片并同步事件时间与类型
 watch(
 	() => formInfo.value.eventId,
 	async (newId) => {
@@ -575,7 +357,6 @@ watch(
 	{ immediate: true },
 );
 
-// 监听联系人 ID 获取关系及往来统计
 watch(
 	externalPersonId,
 	async (newId) => {
@@ -623,7 +404,6 @@ const loadRecommendAmount = async () => {
 		if (code === '200' && data) {
 			recommendInfo.value = data;
 			recommendAmountTags.value = data.recommendations || [];
-			// 自动填入推荐金额
 			if (!props.record?.id && !formInfo.value.amount) {
 				const autoAmount =
 					data.latestAmount || data.averageAmount || data.defaultAmount;
@@ -648,133 +428,135 @@ watch(
 );
 
 const loginUserId = computed(() => {
-	const user = userStore.getUserInfo;
-	const rawId = user?.id ?? user?.userId;
-	return rawId == null ? undefined : String(rawId);
+	const info = userStore.getUserInfo;
+	return info?.id ? String(info.id) : (info?.userId ? String(info.userId) : undefined);
 });
 
-const personDistinctRule: Rule = {
-	validator: async () => {
-		const giver = familyPersonId.value;
-		const receiver = externalPersonId.value;
-		if (giver && receiver && giver === receiver) {
-			throw new Error('我方成员与往来对象不能为同一人');
-		}
-	},
+const applyDefaultOrgMember = () => {
+	if (props.record?.id) {
+		return;
+	}
+	const selfPersonId = findSelfPersonId(loginUserId.value);
+	if (selfPersonId) {
+		familyPersonId.value = String(selfPersonId);
+	}
 };
 
-const contactRules: Rule[] = [
-	{ required: true, message: '请选择往来对象' },
-	personDistinctRule,
-];
-
-const orgMemberRules: Rule[] = [
-	{ required: true, message: '请选择我方成员' },
-	personDistinctRule,
-];
-
-const amountRules: Rule[] = [
-	{ required: true, message: '请输入金额' },
+const contactRules = [
 	{
-		validator: async (_rule, value?: number) => {
-			if (value != null && value <= 0) {
-				throw new Error('金额必须大于 0');
+		required: true,
+		validator: async (_rule: any) => {
+			if (!externalPersonId.value) {
+				const label = formInfo.value.direction === 'GIVE' ? '收礼人' : '送礼人';
+				return Promise.reject(new Error(`请选择${label}`));
 			}
+			return Promise.resolve();
 		},
 	},
 ];
 
-const resetForm = (record?: GiftRecordInfo) => {
-	const payDateStr = formatDate(new Date());
-
-	formInfo.value =
-		record ?
-			{
-				...record,
-				payTime: record.payTime ? formatDate(record.payTime) : payDateStr,
+const orgMemberRules = [
+	{
+		required: true,
+		validator: async (_rule: any) => {
+			if (!familyPersonId.value) {
+				return Promise.reject(new Error('请选择经办成员'));
 			}
-		:	{
-				direction: 'GIVE',
-				giverPersonId: undefined,
-				receiverPersonId: undefined,
-				eventId: undefined,
-				eventType: undefined,
-				eventOptionId: undefined,
-				payTime: payDateStr,
-			};
+			return Promise.resolve();
+		},
+	},
+];
 
-	if (record && !record.eventId && record.eventType) {
-		const foundPreset = presetOptions.value.find(
-			(p) => p.eventCode === record.eventType || p.name === record.eventType,
-		);
-		const foundCustom = customOptions.value.find(
-			(c) => c.name === record.eventType,
-		);
-		const opt = foundPreset || foundCustom;
-		if (opt) {
-			formInfo.value.eventOptionId = opt.id;
-			formInfo.value.eventType = opt.eventCode || opt.name;
-		}
-	}
+const amountRules: Rule[] = [
+	{
+		required: true,
+		validator: async (_rule: any, value: number) => {
+			if (value === undefined || value === null) {
+				return Promise.reject(new Error('请输入礼金金额'));
+			}
+			if (value <= 0) {
+				return Promise.reject(new Error('礼金金额必须大于 0'));
+			}
+			return Promise.resolve();
+		},
+		trigger: 'change',
+	},
+];
 
-	if (formInfo.value.direction === 'RETURN') {
-		isReturnGift.value = true;
-		formInfo.value.direction = 'GIVE';
-		familyPersonId.value = formInfo.value.giverPersonId;
-		externalPersonId.value = formInfo.value.receiverPersonId;
-	} else {
-		isReturnGift.value = false;
-		if (formInfo.value.direction === 'RECEIVE') {
-			familyPersonId.value = formInfo.value.receiverPersonId;
-			externalPersonId.value = formInfo.value.giverPersonId;
-		} else {
-			familyPersonId.value = formInfo.value.giverPersonId;
-			externalPersonId.value = formInfo.value.receiverPersonId;
-		}
+const handleReturnRecordSelect = (selectedRecord: GiftRecordInfo) => {
+	if (!selectedRecord) return;
+	externalPersonId.value = selectedRecord.giverPersonId
+		? String(selectedRecord.giverPersonId)
+		: undefined;
+	if (selectedRecord.eventId) {
+		formInfo.value.eventId = selectedRecord.eventId;
+		formInfo.value.eventType = selectedRecord.eventType;
 	}
-};
-
-const applyDefaultOrgMember = () => {
-	if (formInfo.value.id) {
-		return;
-	}
-	const selfPersonId = findSelfPersonId(loginUserId.value);
-	if (!selfPersonId) {
-		return;
-	}
-	familyPersonId.value = selfPersonId;
-	if (!props.record?.giverPersonId && !props.record?.receiverPersonId) {
-		externalPersonId.value = undefined;
-	}
+	formRef.value?.clearValidate(['eventId', 'receiverPersonId']);
 };
 
 const initializeForm = async (record?: GiftRecordInfo) => {
 	formInitializing.value = true;
 	try {
+		await warmup();
 		await loadEventTypeOptions();
 		await loadRecentEvents();
-		resetForm(record);
-		aiParsePanelRef.value?.resetText();
-		if (isReturnGift.value) {
-			return;
-		}
-		await warmup();
 		await nextTick();
-		applyDefaultOrgMember();
+
+		if (record?.id) {
+			formInfo.value = {
+				id: record.id,
+				direction: record.direction || 'GIVE',
+				eventId: record.eventId,
+				eventType: record.eventType,
+				relatedRecordId: record.relatedRecordId,
+				amount: record.amount,
+				paymentMethod: record.paymentMethod,
+				payTime: record.payTime ? record.payTime.substring(0, 10) : undefined,
+				remark: record.remark,
+			};
+			isReturnGift.value = record.direction === 'RETURN';
+			if (record.direction === 'RECEIVE') {
+				externalPersonId.value = record.giverPersonId
+					? String(record.giverPersonId)
+					: undefined;
+				familyPersonId.value = record.receiverPersonId
+					? String(record.receiverPersonId)
+					: undefined;
+			} else {
+				externalPersonId.value = record.receiverPersonId
+					? String(record.receiverPersonId)
+					: undefined;
+				familyPersonId.value = record.giverPersonId
+					? String(record.giverPersonId)
+					: undefined;
+			}
+		} else {
+			const initialDirection = record?.direction || 'GIVE';
+			formInfo.value = {
+				direction: initialDirection,
+				eventId: record?.eventId,
+				eventType: record?.eventType,
+				amount: undefined,
+				paymentMethod: undefined,
+				payTime: formatTime(new Date(), 'YYYY-MM-DD'),
+				remark: undefined,
+			};
+			isReturnGift.value = false;
+			if (initialDirection === 'RECEIVE') {
+				externalPersonId.value = record?.giverPersonId
+					? String(record.giverPersonId)
+					: undefined;
+			} else {
+				externalPersonId.value = record?.receiverPersonId
+					? String(record.receiverPersonId)
+					: undefined;
+			}
+			applyDefaultOrgMember();
+			aiParsePanelRef.value?.resetText();
+		}
 	} finally {
 		formInitializing.value = false;
-	}
-};
-
-const handleReturnRecordSelect = (record?: GiftRecordInfo) => {
-	if (!record) {
-		return;
-	}
-	formInfo.value.eventId = record.eventId;
-	familyPersonId.value = record.giverPersonId;
-	externalPersonId.value = record.receiverPersonId;
-	if (!formInfo.value.amount && record.amount) {
-		formInfo.value.amount = record.amount;
 	}
 };
 
@@ -888,159 +670,3 @@ watch(
 	},
 );
 </script>
-
-<style scoped lang="less">
-.event-selection-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 8px;
-}
-
-.quick-event-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-}
-
-.quick-event-tag {
-	cursor: pointer;
-	user-select: none;
-	padding: 4px 10px;
-	border-radius: 4px;
-	font-size: 13px;
-	transition: all 0.2s;
-
-	&:hover {
-		opacity: 0.85;
-	}
-}
-
-.selected-event-card {
-	border: 1px solid #e8e8e8;
-	border-radius: 6px;
-	padding: 10px 12px;
-	background: #fafafa;
-	margin-top: 8px;
-
-	.card-header {
-		display: flex;
-		align-items: center;
-		margin-bottom: 4px;
-
-		.card-icon {
-			font-size: 16px;
-			margin-right: 6px;
-		}
-
-		.card-title {
-			font-size: 13.5px;
-			color: #262626;
-			flex: 1;
-		}
-
-		.modify-btn {
-			padding: 0;
-			font-size: 12px;
-		}
-	}
-
-	.card-body {
-		font-size: 12px;
-		color: #8c8c8c;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-}
-
-.recent-contacts-tags,
-.family-members-tags {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
-	margin-top: 6px;
-
-	.label-text {
-		font-size: 12px;
-		color: #8c8c8c;
-	}
-
-	.contact-quick-tag,
-	.member-quick-tag {
-		cursor: pointer;
-		margin: 0;
-	}
-}
-
-.contact-detail-tip {
-	margin-top: 6px;
-	font-size: 12px;
-	color: #595959;
-	background: #f6ffed;
-	border: 1px solid #b7eb8f;
-	padding: 6px 10px;
-	border-radius: 4px;
-}
-
-.quick-amounts {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-
-.quick-amount-tag {
-	cursor: pointer;
-}
-
-.recommend-amount-tip {
-	font-size: 12px;
-	color: #666;
-	margin-top: 6px;
-}
-
-.ai-recommend-tip-card {
-	margin-top: 10px;
-	padding: 10px 12px;
-	background: #fafafa;
-	border: 1px dashed #d9d9d9;
-	border-radius: 6px;
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-
-	.ai-reason-row,
-	.ai-greeting-row {
-		display: flex;
-		align-items: flex-start;
-		font-size: 12px;
-		line-height: 1.6;
-		gap: 6px;
-	}
-
-	.ai-badge {
-		font-weight: 600;
-		color: #1890ff;
-		white-space: nowrap;
-		flex-shrink: 0;
-	}
-
-	.ai-desc {
-		color: #595959;
-		flex: 1;
-
-		&.greeting-text {
-			color: #cf1322;
-			font-weight: 500;
-		}
-	}
-
-	.copy-greeting-btn {
-		padding: 0 4px;
-		height: auto;
-		font-size: 12px;
-		flex-shrink: 0;
-	}
-}
-</style>

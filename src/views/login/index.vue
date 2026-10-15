@@ -17,73 +17,13 @@
 		</header>
 
 		<div class="login-container">
-			<!-- Left Side: Interactive Visuals -->
-			<div class="login-visual">
-				<div class="login-visual-panel">
-					<div class="panel-copy">
-						<h2 class="copy-title">{{ alexFriendsTitle }}</h2>
-						<p class="copy-slogan">{{ platformSlogan }}</p>
-						<div class="copy-divider"></div>
-						<ul class="copy-features">
-							<li v-for="friend in alexFriends" :key="friend.id">
-								<span :class="['feature-dot', friend.colorClass]"></span>
-								<component
-									:is="featureIconMap[friend.colorClass]"
-									class="feature-icon"
-								/>
-								<span class="feature-label">{{ friend.role }}</span>
-								<span class="feature-name">{{ friend.name }}</span>
-							</li>
-						</ul>
-						<div class="copy-divider"></div>
-						<p class="copy-warm">{{ platformWarmLine }}</p>
-					</div>
-					<div class="panel-stage">
-						<div class="character-halo"></div>
-						<div class="character-ground"></div>
-						<div
-							class="character-container"
-							:class="{ 'is-entered': pageEntered }"
-						>
-							<div
-								v-for="char in characters"
-								:key="char.id"
-								:class="['character', char.colorClass]"
-								:style="getCharacterStyle(char)"
-							>
-								<div class="eyes">
-									<div
-										class="eye"
-										:style="{
-											height: char.isBlinking ? '2px' : '15px',
-										}"
-									>
-										<div
-											v-if="!char.isBlinking"
-											class="pupil"
-											:style="getPupilStyle()"
-										></div>
-									</div>
-									<div
-										class="eye"
-										:style="{
-											height: char.isBlinking ? '2px' : '15px',
-										}"
-									>
-										<div
-											v-if="!char.isBlinking"
-											class="pupil"
-											:style="getPupilStyle()"
-										></div>
-									</div>
-								</div>
-								<div v-if="char.hasMouth" class="mouth"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="visual-gradient"></div>
-			</div>
+			<!-- Left Side: Interactive Visuals 解耦子组件 -->
+			<login-visual-panel
+				:is-email-focused="isEmailFocused"
+				:is-password-focused="isPasswordFocused"
+				:mouse-pos="mousePos"
+				:page-entered="pageEntered"
+			/>
 
 			<!-- Right Side: Login Form -->
 			<div class="login-content">
@@ -166,49 +106,14 @@
 
 <script setup lang="ts">
 import { getCurrentInstance } from 'vue';
-import type { FormInstance } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
+import type { FormInstance } from 'ant-design-vue';
 import type { LoginParams } from '@/views/login/config';
 import { loginRules, options } from '@/views/login/config';
-import {
-	ALEX_FRIENDS,
-	ALEX_FRIENDS_TITLE,
-	PLATFORM_SLOGAN,
-	PLATFORM_WARM_LINE,
-	type CharacterColorClass,
-} from '@/views/login/config/alexFriends';
 import { useUserStore } from '@/store/modules/user/user';
-import {
-	UserOutlined,
-	LockOutlined,
-	BarChartOutlined,
-	ApartmentOutlined,
-	RobotOutlined,
-} from '@ant-design/icons-vue';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { decryptSimple, encrypt } from '@/utils/crypto';
 import { useLoginStore } from '@/store/modules/login';
-
-interface CharacterItem {
-	id: number;
-	name: string;
-	role: string;
-	colorClass: CharacterColorClass;
-	baseHeight: number;
-	hasMouth: boolean;
-	isBlinking: boolean;
-}
-
-const alexFriends = ALEX_FRIENDS;
-const alexFriendsTitle = ALEX_FRIENDS_TITLE;
-const platformSlogan = PLATFORM_SLOGAN;
-const platformWarmLine = PLATFORM_WARM_LINE;
-
-const featureIconMap: Record<CharacterColorClass, typeof UserOutlined> = {
-	coral: UserOutlined,
-	purple: BarChartOutlined,
-	black: ApartmentOutlined,
-	yellow: RobotOutlined,
-};
 
 const particlesGlobalKey = '__particles_installed__';
 
@@ -228,91 +133,15 @@ const loading = ref<boolean>(false);
 const particlesReady = ref<boolean>(false);
 const pageEntered = ref<boolean>(false);
 const formRef = ref<FormInstance>();
-const blinkTimerIds = ref<number[]>([]);
 
 // Mouse tracking for eyes
 const mousePos = reactive({ x: 0, y: 0 });
 const isEmailFocused = ref<boolean>(false);
 const isPasswordFocused = ref<boolean>(false);
 
-const characters = reactive<CharacterItem[]>(
-	ALEX_FRIENDS.map((friend) => ({
-		...friend,
-		isBlinking: false,
-	})),
-);
-
 const handleMouseMove = (e: MouseEvent) => {
 	mousePos.x = e.clientX;
 	mousePos.y = e.clientY;
-};
-
-const getCharacterStyle = (char: CharacterItem) => {
-	let transform = 'translateY(20px)';
-	let height = `${char.baseHeight}px`;
-
-	if (isEmailFocused.value) {
-		// Tilting towards the form (right)
-		transform = 'translateY(20px) skewX(-12deg) translateX(40px)';
-		height = `${char.baseHeight + 40}px`;
-	} else if (isPasswordFocused.value) {
-		// Hiding or tilting away
-		transform = 'translateY(20px) skewX(12deg) translateX(-20px)';
-	}
-
-	return {
-		height,
-		transform,
-		transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-	};
-};
-
-const getPupilStyle = () => {
-	let offsetX = 0;
-	if (isEmailFocused.value) offsetX = 40;
-	if (isPasswordFocused.value) offsetX = -20;
-
-	const dx = mousePos.x - (window.innerWidth / 4 + offsetX);
-	const dy = mousePos.y - window.innerHeight / 2;
-	const angle = Math.atan2(dy, dx);
-
-	// Shyness factor: during password focus, eyes look away
-	let distance = Math.min(4, Math.hypot(dx * dx + dy * dy) / 50);
-	let finalAngle = angle;
-
-	if (isPasswordFocused.value) {
-		finalAngle += Math.PI; // Look opposite way
-		distance = 2; // Fixed look away
-	}
-
-	return {
-		transform: `translate(${Math.cos(finalAngle) * distance}px, ${Math.sin(finalAngle) * distance}px)`,
-		transition: 'transform 0.1s ease-out',
-	};
-};
-
-const getRandomValue = (): number => {
-	const array = new Uint32Array(1);
-	window.crypto.getRandomValues(array);
-	return array[0] / (0xffffffff + 1);
-};
-
-const scheduleBlink = (charIndex: number) => {
-	const delay = getRandomValue() * 4000 + 8000;
-	const blinkStartTimer = window.setTimeout(() => {
-		characters[charIndex].isBlinking = true;
-		const blinkEndTimer = window.setTimeout(() => {
-			characters[charIndex].isBlinking = false;
-			scheduleBlink(charIndex);
-		}, 150);
-		blinkTimerIds.value.push(blinkEndTimer);
-	}, delay);
-	blinkTimerIds.value.push(blinkStartTimer);
-};
-
-const clearBlinkTimers = () => {
-	blinkTimerIds.value.forEach((timerId) => window.clearTimeout(timerId));
-	blinkTimerIds.value = [];
 };
 
 const initParticles = async () => {
@@ -379,12 +208,10 @@ onMounted(async () => {
 			loginForm.isRememberMe = info.isRememberMe || false;
 		}
 	}
-	characters.forEach((_, index) => scheduleBlink(index));
 });
 
 onUnmounted(() => {
 	window.removeEventListener('keydown', onKeydownEnter);
-	clearBlinkTimers();
 });
 
 const particlesLoaded = (container: unknown) => {
@@ -485,321 +312,9 @@ const particlesLoaded = (container: unknown) => {
 /* Left Side Styles */
 .login-visual {
 	flex: 1.65;
-	background-color: transparent;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	z-index: 1;
 	border-right: 1px solid rgba(255, 255, 255, 0.05);
-
-	.login-visual-panel {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		padding: 36px 48px 20px;
-		position: relative;
-		z-index: 2;
-	}
-
-	.panel-copy {
-		flex-shrink: 0;
-
-		.copy-title {
-			margin: 0 0 8px;
-			font-size: 26px;
-			font-weight: 700;
-			color: rgba(255, 255, 255, 0.92);
-		}
-
-		.copy-slogan {
-			margin: 0;
-			font-size: 14px;
-			color: rgba(255, 255, 255, 0.55);
-		}
-
-		.copy-divider {
-			height: 1px;
-			margin: 20px 0;
-			background: linear-gradient(
-				90deg,
-				rgba(22, 119, 255, 0.45),
-				rgba(255, 255, 255, 0.08),
-				transparent
-			);
-		}
-
-		.copy-features {
-			list-style: none;
-			padding: 0;
-			margin: 0;
-
-			li {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-				margin-bottom: 14px;
-				font-size: 15px;
-				color: rgba(255, 255, 255, 0.78);
-			}
-
-			.feature-dot {
-				width: 8px;
-				height: 8px;
-				border-radius: 50%;
-				flex-shrink: 0;
-
-				&.coral {
-					background-color: #f07050;
-				}
-				&.purple {
-					background-color: #7c4dff;
-				}
-				&.black {
-					background-color: #334155;
-					box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.35);
-				}
-				&.yellow {
-					background-color: #fdd835;
-				}
-			}
-
-			.feature-icon {
-				font-size: 15px;
-				color: #1677ff;
-			}
-
-			.feature-label {
-				flex: 1;
-			}
-
-			.feature-name {
-				font-size: 12px;
-				color: rgba(255, 255, 255, 0.4);
-				letter-spacing: 0.02em;
-			}
-		}
-
-		.copy-warm {
-			margin: 0;
-			font-size: 15px;
-			font-weight: 500;
-			color: rgba(255, 255, 255, 0.65);
-			letter-spacing: 0.04em;
-		}
-	}
-
-	.panel-stage {
-		flex: 1;
-		min-height: 300px;
-		display: flex;
-		align-items: flex-end;
-		justify-content: center;
-		position: relative;
-		margin-top: 8px;
-	}
-
-	.character-halo {
-		position: absolute;
-		bottom: 48px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 420px;
-		height: 300px;
-		background: radial-gradient(
-			ellipse at center,
-			rgba(22, 119, 255, 0.2) 0%,
-			rgba(22, 119, 255, 0.06) 45%,
-			transparent 72%
-		);
-		pointer-events: none;
-		z-index: 0;
-	}
-
-	.character-ground {
-		position: absolute;
-		bottom: 8px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 460px;
-		height: 28px;
-		background: radial-gradient(
-			ellipse at center,
-			rgba(0, 0, 0, 0.45) 0%,
-			rgba(22, 119, 255, 0.08) 35%,
-			transparent 72%
-		);
-		pointer-events: none;
-		z-index: 1;
-	}
-
-	#tsparticles {
-		display: none;
-	}
-
-	.character-container {
-		display: flex;
-		align-items: flex-end;
-		gap: 0;
-		position: relative;
-		z-index: 2;
-		width: 100%;
-		justify-content: center;
-		opacity: 0;
-		transform: translateY(24px);
-
-		&.is-entered {
-			animation: character-rise-in 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275)
-				forwards;
-		}
-	}
-
-	.character {
-		width: 145px;
-		border-radius: 72px 72px 0 0;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-start;
-		padding-top: 48px;
-		transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-		box-shadow:
-			0 0 28px rgba(22, 119, 255, 0.22),
-			0 8px 24px rgba(0, 0, 0, 0.25);
-		outline: 2px solid rgba(22, 119, 255, 0.14);
-
-		&:hover {
-			transform: translateY(-6px);
-			box-shadow:
-				0 0 36px rgba(22, 119, 255, 0.32),
-				0 12px 28px rgba(0, 0, 0, 0.28);
-		}
-
-		&.coral {
-			background-color: #f07050;
-			z-index: 4;
-		}
-		&.purple {
-			background-color: #7c4dff;
-			z-index: 1;
-			margin-left: -20px;
-		}
-		&.black {
-			background-color: #111;
-			z-index: 3;
-			margin-left: -30px;
-
-			/* Conan Shadow Man expressive eyes */
-			.eye {
-				width: 18px;
-				height: 14px;
-				border-radius: 80% 20% 80% 20%;
-			}
-			.eye:first-child {
-				transform: rotate(15deg);
-			}
-			.eye:last-child {
-				transform: scaleX(-1) rotate(15deg);
-			}
-
-			/* Shadow Man white grin */
-			.mouth {
-				width: 36px;
-				height: 16px;
-				background-color: #fff;
-				margin-top: 12px;
-				border-radius: 0 0 18px 18px;
-			}
-		}
-		&.yellow {
-			background-color: #fdd835;
-			z-index: 2;
-			margin-left: -20px;
-			.eye {
-				background-color: #1a1a1a;
-			}
-			.pupil {
-				background-color: #fff;
-			}
-		}
-
-		.eyes {
-			display: flex;
-			gap: 15px;
-		}
-
-		.eye {
-			width: 15px;
-			height: 15px;
-			background-color: #fff;
-			border-radius: 50%;
-			position: relative;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: height 0.1s ease-in-out;
-		}
-
-		.pupil {
-			width: 6px;
-			height: 6px;
-			background-color: #1a1a1a;
-			border-radius: 50%;
-			transition: transform 0.1s ease-out;
-		}
-
-		.mouth {
-			width: 30px;
-			height: 2px;
-			background-color: #1a1a1a;
-			margin-top: 20px;
-			border-radius: 1px;
-		}
-	}
-
-	.visual-gradient {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background:
-			radial-gradient(
-				circle at 50% 85%,
-				rgba(22, 119, 255, 0.08) 0%,
-				transparent 45%
-			),
-			radial-gradient(
-				circle at 50% 20%,
-				rgba(0, 0, 0, 0.28) 0%,
-				transparent 50%
-			);
-		pointer-events: none;
-	}
 }
 
-@keyframes character-rise-in {
-	from {
-		opacity: 0;
-		transform: translateY(24px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.login-visual .character-container {
-		opacity: 1;
-		transform: translateY(0);
-
-		&.is-entered {
-			animation: none;
-		}
-	}
-}
 
 /* Right Side Styles */
 .login-content {

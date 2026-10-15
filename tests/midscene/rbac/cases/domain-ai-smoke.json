@@ -16,5 +16,29 @@
 		"title": "角色权限配置抽屉 AI 智能推荐与 Diff 高亮",
 		"persona": "super_super",
 		"level": "flow"
+	},
+	{
+		"caseId": "AI-GIFT-PC-001",
+		"title": "PC 端自然语言快速记礼与抽屉表单回填",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-E2E-PC-DASHBOARD",
+		"title": "PC 礼尚往来驾驶舱指标与解耦多卡片渲染",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-E2E-PC-FLOW-RETURN",
+		"title": "PC 收礼标记已回与回礼状态机关联闭环",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-E2E-PC-FORM-LINKAGE",
+		"title": "PC 解耦表单抽屉多字段联动与大额精度录入",
+		"persona": "super_super",
+		"level": "flow"
 	}
 ]

@@ -44,11 +44,17 @@ export function useGiftRecordOptionsCache() {
 					getGiftOrgMemberOptions(),
 				]);
 				cacheState.value.events =
-					eventRes.code === '200' ? eventRes.data || [] : [];
+					eventRes.code === '200' && Array.isArray(eventRes.data)
+						? eventRes.data
+						: [];
 				cacheState.value.contacts =
-					contactRes.code === '200' ? contactRes.data || [] : [];
+					contactRes.code === '200' && Array.isArray(contactRes.data)
+						? contactRes.data
+						: [];
 				cacheState.value.orgMembers =
-					orgMemberRes.code === '200' ? orgMemberRes.data || [] : [];
+					orgMemberRes.code === '200' && Array.isArray(orgMemberRes.data)
+						? orgMemberRes.data
+						: [];
 				cacheState.value.warmed = true;
 			} finally {
 				cacheState.value.warming = false;

@@ -105,7 +105,7 @@ const setOptions = (list: GiftPersonInfo[], isSearch = false) => {
 	} else {
 		options.value.forEach((item) => map.set(item.value, item));
 	}
-	list.forEach((person) => {
+	(Array.isArray(list) ? list : []).forEach((person) => {
 		if (person.id) {
 			map.set(String(person.id), formatPersonOption(person));
 		}

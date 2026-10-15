@@ -94,6 +94,7 @@ export interface GiftEventSummary {
 export interface GiftEventQuery {
 	keyword?: string;
 	eventType?: string;
+	eventStatus?: string;
 	eventTimeStart?: string;
 	eventTimeEnd?: string;
 }
