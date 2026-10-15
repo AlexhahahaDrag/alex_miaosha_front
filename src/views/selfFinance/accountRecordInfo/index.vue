@@ -11,6 +11,8 @@
 						<a-col :span="6">
 							<a-form-item name="name" label="名称">
 								<a-input
+									id="name"
+									name="name"
 									v-model:value="searchInfo.name"
 									placeholder="名称"
 									@change="query(true)"
@@ -21,6 +23,8 @@
 						<a-col :span="6">
 							<a-form-item name="account" label="账号">
 								<a-select
+									id="account"
+									name="account"
 									ref="select"
 									v-model:value="searchInfo.account"
 									placeholder="请选择账号"
