@@ -133,14 +133,8 @@ const triggerDebouncedQuery = debounce((): void => {
 	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
 }, 300);
 
-// 初始化
-const init = (): void => {
-	//获取消费券核销记录表 (按数量核销)页面数据
-	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
-};
-
 onMounted(() => {
-	init();
+	getCpnRedemptionRecordInfoListPage(searchInfo.value, pagination);
 });
 
 watch(

@@ -219,7 +219,7 @@ const getSubMenuList = async () => {
 // 7. Watchers
 watch(
 	() => modelInfo.value.open,
-	(newVal) => {
+	(newVal: boolean | undefined) => {
 		if (newVal && modelInfo.value.id) {
 			resetPagination();
 			getSubMenuList();
@@ -253,8 +253,8 @@ const emit = defineEmits(['success']);
 		transition: background-color 0.2s ease;
 	}
 
-	:deep(.ant-table-tbody > tr:hover > td) {
-		background: #f8fafc !important;
+	:deep(.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td) {
+		background: #f8fafc;
 	}
 }
 
@@ -269,8 +269,8 @@ const emit = defineEmits(['success']);
 		border-bottom: 1px solid #1e293b;
 	}
 
-	:deep(.ant-table-tbody > tr:hover > td) {
-		background: #1e293b !important;
+	:deep(.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td) {
+		background: #1e293b;
 	}
 }
 </style>

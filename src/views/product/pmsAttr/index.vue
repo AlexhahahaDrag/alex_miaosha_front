@@ -266,12 +266,9 @@ function getPmsAttrListPage(param: SearchInfo, cur: PageInfo) {
 		});
 }
 
-const init = () => {
-	//获取商品属性页面数据
-	getPmsAttrListPage(searchInfo.value, pagination);
-};
-
-init();
+onMounted(() => {
+	query(true);
+});
 
 const modelInfo = ref<ModelInfo>({});
 

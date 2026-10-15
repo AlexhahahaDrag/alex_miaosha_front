@@ -292,13 +292,9 @@ const handleSuccess = (): void => {
 	query(false);
 };
 
-const init = (): void => {
-	//获取消费券信息表页面数据
-	pagination.current = 1;
-	getCpnCouponInfoListPage(searchInfo.value, pagination);
-};
-
-init();
+onMounted(() => {
+	query(true);
+});
 
 // 页面卸载时取消防抖任务，避免产生“卸载后仍触发请求”的副作用
 onUnmounted(() => {

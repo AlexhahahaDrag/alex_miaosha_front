@@ -40,5 +40,35 @@
 		"title": "PC 解耦表单抽屉多字段联动与大额精度录入",
 		"persona": "super_super",
 		"level": "flow"
+	},
+	{
+		"caseId": "AI-BUDGET-001",
+		"title": "零花钱预算 AI 智能测算与三档推荐采纳",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "AI-BUDGET-002",
+		"title": "零花钱预算自然语言口语化指令解析与回填",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "BUDGET-E2E-STATUS-OVER",
+		"title": "零花钱预算超支状态机判定与超支负数展示",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "RBAC-PC-MEMBER-OWNER-PROTECT",
+		"title": "普通家庭成员属主保护与预算只读浏览",
+		"persona": "family_member",
+		"level": "flow"
+	},
+	{
+		"caseId": "RBAC-PC-ADMIN-FULL-MANAGE",
+		"title": "家庭管理员全量管理与预算调整权限",
+		"persona": "family_admin",
+		"level": "flow"
 	}
 ]

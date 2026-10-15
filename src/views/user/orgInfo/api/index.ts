@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -57,3 +57,5 @@ export function editOrgInfo(
 ): Promise<ResponseBody<boolean>> {
 	return putData(baseService.user + baseOrgInfo + OrgInfoUrl.url, params);
 }
+
+export { unassignOrgUser, addOrgUserInfo } from '@/views/user/orgUserInfo/api';

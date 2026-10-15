@@ -52,6 +52,7 @@
 					size="small"
 					class="!text-xs !p-0 !text-indigo-600 hover:!text-indigo-800 font-medium flex items-center gap-1"
 					:loading="aiRecommending"
+					data-testid="btn-fetch-ai-recommend"
 					@click="fetchAiRecommend"
 				>
 					<ThunderboltOutlined v-if="!aiRecommending" />
@@ -61,6 +62,7 @@
 				<button
 					type="button"
 					class="cursor-pointer text-xs text-slate-500 hover:text-indigo-600 flex items-center gap-1 bg-transparent border-none p-0 transition-colors"
+					data-testid="btn-toggle-ai-expand"
 					@click="isAiExpanded = !isAiExpanded"
 				>
 					<span>{{ isAiExpanded ? '收起' : '口语配置' }}</span>
@@ -82,6 +84,7 @@
 					placeholder="口语化输入，如：“帮我设2500预算，重点管餐饮和交通” 或 “不设上限”"
 					class="!rounded-lg text-xs"
 					allow-clear
+					data-testid="ai-command-input"
 					@press-enter="handleAiParseCommand"
 				/>
 				<a-button
@@ -89,6 +92,7 @@
 					size="small"
 					class="!rounded-lg !text-xs !h-8 !px-3 !bg-indigo-600 hover:!bg-indigo-500 !border-indigo-600 flex items-center gap-1"
 					:loading="aiParsing"
+					data-testid="btn-ai-parse-command"
 					@click="handleAiParseCommand"
 				>
 					<span>AI 解析回填</span>
@@ -197,6 +201,7 @@
 						</div>
 						<div
 							class="cursor-pointer p-2 rounded-lg border border-solid transition-all text-center relative"
+							data-testid="btn-apply-tier-moderate"
 							:class="
 								currentBudgetAmount === aiRecommendData.moderateAmount ?
 									'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs ring-1 ring-indigo-300'
@@ -342,6 +347,7 @@ const fetchAiRecommend = async () => {
 		});
 		if (code === '200' && data) {
 			aiRecommendData.value = data;
+			isAiExpanded.value = true;
 			message.success('AI 智能测算完成');
 		} else {
 			message.warning(msg || 'AI 测算服务暂不可用');

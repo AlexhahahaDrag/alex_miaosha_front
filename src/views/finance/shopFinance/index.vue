@@ -289,11 +289,6 @@ const initPage = () => {
 	pagination.pageSize = 10;
 };
 
-// 初始化页面数据
-const init = () => {
-	//获取商店财务表页面数据
-	getShopFinanceListPage(searchInfo.value, pagination);
-};
 
 //新增和修改弹窗
 const editShopFinance = (type: string, id?: string) => {
@@ -322,7 +317,7 @@ watch(
 );
 
 onMounted(() => {
-	init();
+	query(true);
 });
 </script>
 <style lang="scss" scoped>

@@ -12,7 +12,7 @@ export function useUserInfo() {
 		try {
 			const { code, data, message: messageInfo } = await getUserManagerList({});
 			if (code == '200') {
-				userList.value = data || [];
+				userList.value = Array.isArray(data) ? data : [];
 			} else {
 				message.error(messageInfo || '查询用户列表失败！');
 			}

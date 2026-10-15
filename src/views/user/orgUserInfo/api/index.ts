@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -58,4 +58,15 @@ export function editOrgUserInfo(
 		baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url,
 		params,
 	);
+}
+
+// 移除用户机构归属（等价 unassignUser：将用户从该机构解绑并清理权限缓存）
+export function unassignOrgUser(
+	userId: string,
+	orgId: string,
+): Promise<ResponseBody<boolean>> {
+	return deleteData(baseService.user + baseOrgUserInfo + '/unassign', {
+		userId,
+		orgId,
+	});
 }

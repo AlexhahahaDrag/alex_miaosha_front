@@ -316,12 +316,9 @@ const loadUsers = async () => {
 	}
 };
 
-const init = async () => {
-	await Promise.all([loadOrgOptions(), loadUsers()]);
-};
-
 onMounted(() => {
-	init();
+	loadOrgOptions();
+	loadUsers();
 });
 </script>
 <style lang="scss" scoped>

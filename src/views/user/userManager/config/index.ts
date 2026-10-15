@@ -1,50 +1,24 @@
 import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from '@/utils/dayjs';
 
-export const columns = ref<TableColumnsType>([
+export const columns: TableColumnsType = [
 	{
-		title: '用户名',
-		dataIndex: 'username',
-		key: 'username',
-		width: 120,
+		title: '用户信息',
+		key: 'userInfo',
+		width: 220,
 	},
 	{
-		title: '昵称',
-		dataIndex: 'nickName',
-		key: 'nickName',
-		width: 120,
-	},
-	{
-		title: '性别',
-		dataIndex: 'gender',
-		key: 'gender',
-		width: 80,
-		align: 'center',
-	},
-	{
-		title: '个人头像',
-		dataIndex: 'avatarUrl',
-		key: 'avatarUrl',
-		width: 90,
-		align: 'center',
-	},
-	{
-		title: '生日',
-		dataIndex: 'birthday',
-		key: 'birthday',
-		width: 120,
-	},
-	{
-		title: '手机',
+		title: '手机号',
 		dataIndex: 'mobile',
 		key: 'mobile',
 		width: 130,
 	},
 	{
-		title: '职业',
-		dataIndex: 'occupation',
-		key: 'occupation',
-		width: 110,
+		title: '性别',
+		dataIndex: 'gender',
+		key: 'gender',
+		width: 70,
+		align: 'center',
 	},
 	{
 		title: '状态',
@@ -57,21 +31,28 @@ export const columns = ref<TableColumnsType>([
 		title: '所属机构',
 		dataIndex: 'orgName',
 		key: 'orgName',
-		width: 130,
+		width: 240,
 	},
 	{
-		title: '角色名称',
+		title: '角色',
 		dataIndex: 'roleName',
 		key: 'roleName',
-		width: 200,
+		width: 180,
+	},
+	{
+		title: '生日',
+		dataIndex: 'birthday',
+		key: 'birthday',
+		width: 110,
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: 150,
+		width: 180,
+		align: 'center',
 	},
-]);
+];
 
 export interface UserManagerInfo {
 	id?: string;
@@ -100,14 +81,17 @@ export interface UserManagerInfo {
 	roleCode?: string;
 	avatarThumbnailUrl?: string;
 	orgId?: string;
+	auxiliaryOrgIds?: string[];
+	auxiliaryOrgList?: Array<{ id?: string; orgName?: string; orgCode?: string }>;
+	auxiliaryOrgNames?: string;
 	roleIds?: string[];
 	roleInfoVoList?: Array<{ id?: string; roleName?: string; roleCode?: string }>;
 }
 
-export const labelCol = ref({ span: 5 });
-export const wrapperCol = ref({ span: 19 });
+export const labelCol = { span: 5 };
+export const wrapperCol = { span: 19 };
 
-export const rulesRef = reactive({
+export const rulesRef = {
 	username: [
 		{
 			required: true,
@@ -127,7 +111,7 @@ export const rulesRef = reactive({
 		},
 		{
 			message: '输入的电话号码不合法',
-			pattern: /^1[34578]\d{9}$/,
+			pattern: /^1[3-9]\d{9}$/,
 		},
 	],
 	email: [
@@ -139,7 +123,7 @@ export const rulesRef = reactive({
 	orgId: [
 		{
 			required: true,
-			message: '所属机构不能为空',
+			message: '所属主机构不能为空',
 		},
 	],
-});
+};

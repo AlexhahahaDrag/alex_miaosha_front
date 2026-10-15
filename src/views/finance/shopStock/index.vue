@@ -231,24 +231,17 @@ const getShopStockListPage = async (
 	}
 };
 
-// 初始化页面数据
-const init = () => {
-	//获取商店库存表页面数据
-	getShopStockListPage(searchInfo.value, pagination);
-};
-
-init();
+onMounted(() => {
+	query(true);
+});
 
 const modelInfo = ref<ModelInfo>({});
 
 //新增和修改弹窗
-function editShopStock(type: string, id?: number) {
+function editShopStock(type: string, id?: string | number) {
 	const isAdd = type === 'add';
 	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id =
-		isAdd ? undefined
-		: id !== undefined ? String(id)
-		: undefined;
+	modelInfo.value.id = isAdd || id === undefined ? undefined : String(id);
 	modelInfo.value.confirmLoading = true;
 	modelInfo.value.open = true;
 }

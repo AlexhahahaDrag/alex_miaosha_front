@@ -134,6 +134,7 @@
 							v-if="budgetStatus?.isOverBudget"
 							color="error"
 							class="budget-tag"
+							data-testid="budget-over-tag"
 						>
 							已超支
 						</a-tag>
@@ -142,6 +143,7 @@
 						type="link"
 						size="small"
 						class="budget-setting-btn"
+						data-testid="btn-open-budget-modal"
 						@click="$emit('open-budget-modal')"
 					>
 						<template #icon><SettingOutlined /></template>
@@ -160,6 +162,7 @@
 								'stat-val',
 								budgetStatus?.isOverBudget ? 'text-expense' : 'text-income',
 							]"
+							data-testid="budget-remaining-value"
 						>
 							{{ budgetStatus?.isOverBudget ? '-' : '' }}¥{{
 								formatAmount(Math.abs(budgetStatus?.remainingAmount || 0))

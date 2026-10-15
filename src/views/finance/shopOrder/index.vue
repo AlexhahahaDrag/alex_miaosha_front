@@ -278,10 +278,6 @@ const getShopOrderListPage = async (
 	}
 };
 
-const init = (): void => {
-	//获取商店订单表页面数据
-	getShopOrderListPage(searchInfo.value, pagination);
-};
 
 //新增和修改弹窗
 const editShopOrder = (type: string, id?: string): void => {
@@ -297,7 +293,7 @@ const handleSuccess = (): void => {
 };
 
 onMounted(() => {
-	init();
+	getShopOrderListPage(searchInfo.value, pagination);
 });
 </script>
 <style lang="scss" scoped>

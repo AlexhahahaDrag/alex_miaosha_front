@@ -33,6 +33,16 @@
 			layout="vertical"
 			class="space-y-4 py-2"
 		>
+			<!-- 普通成员只读提示横幅 -->
+			<a-alert
+				v-if="!canEditBudget"
+				type="info"
+				show-icon
+				message="家庭成员浏览模式，仅家庭管理员可调整月度预算设定"
+				class="!rounded-lg !mb-2"
+				data-testid="budget-readonly-alert"
+			/>
+
 			<!-- AI 智能助手面板 (子组件) -->
 			<budget-ai-assistant-panel
 				ref="aiAssistantPanelRef"
@@ -79,8 +89,10 @@
 						v-model:value="budgetEditForm.budgetAmount"
 						:min="0"
 						:precision="2"
+						:disabled="!canEditBudget"
 						prefix="¥"
 						placeholder="0.00"
+						data-testid="budget-amount-input"
 						:class="[
 							'w-full !rounded-lg font-mono font-medium transition-all duration-500',
 							isBudgetHighlighted
@@ -394,10 +406,14 @@
 
 		<template #footer>
 			<div class="flex items-center justify-end gap-2.5 pt-2">
-				<a-button @click="open = false" class="!rounded-lg">取消</a-button>
+				<a-button @click="open = false" class="!rounded-lg" data-testid="btn-close-budget">
+					{{ canEditBudget ? '取消' : '关闭' }}
+				</a-button>
 				<a-button
+					v-if="canEditBudget"
 					type="primary"
 					:loading="budgetSaving"
+					data-testid="btn-save-budget"
 					class="!rounded-lg !bg-blue-600 hover:!bg-blue-500"
 					@click="handleSaveBudget"
 				>
@@ -421,6 +437,7 @@ import {
 import { formatAmount } from '@/utils/amountInfo';
 import { getMonthRange } from '@/utils/dayjs';
 import { useUserStore } from '@/store/modules/user/user';
+import { usePermission } from '@/composables/usePermission';
 import type {
 	FinanceManagerData,
 	FinanceBudgetStatusVo,
@@ -450,6 +467,12 @@ const emit = defineEmits<{
 }>();
 
 const userStore = useUserStore();
+const { hasPermission, isSuperAdmin } = usePermission();
+
+const canEditBudget = computed(() => {
+	if (isSuperAdmin.value) return true;
+	return hasPermission('finance:financeManager:budget:edit');
+});
 
 // 预算表单与状态
 const budgetSaving = ref<boolean>(false);
@@ -801,6 +824,10 @@ const applyRecommendedCategories = (categories?: string[]) => {
 };
 
 const handleSaveBudget = async () => {
+	if (!canEditBudget.value) {
+		message.warning('家庭成员浏览模式，仅家庭管理员可调整月度预算设定');
+		return;
+	}
 	try {
 		await budgetFormRef.value?.validate();
 	} catch {

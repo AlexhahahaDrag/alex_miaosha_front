@@ -9,7 +9,8 @@ export function useDictInfo(initialDictTypes?: string) {
 	const getDictInfoList = async (dictTypes: string) => {
 		loading.value = true;
 		try {
-			const { code, data, message: messageInfo } = await getDictList(dictTypes);
+			const res = await getDictList(dictTypes);
+			const { code, data, message: messageInfo } = res || {};
 			if (code === '200') {
 				// 按 belongTo 分组数据
 				const groupedData = new Map<string, DictInfo[]>();

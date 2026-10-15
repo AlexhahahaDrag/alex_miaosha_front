@@ -130,9 +130,120 @@ const mockMenus = [
 				component: '/src/views/finance/gift/gift-dashboard/index.vue',
 				permissionCode: 'gift:view',
 			},
+			{
+				id: '42',
+				name: 'financeManager',
+				title: '收支明细',
+				path: 'financeManager',
+				component: '/src/views/selfFinance/financeManager/index.vue',
+				permissionCode: 'finance:view',
+			},
 		],
 	},
 ];
+
+const PERSONA_CONFIGS = {
+	super_super: {
+		user: { id: '1', username: 'superman', realName: '超级管理员' },
+		roleInfo: { roleCode: 'super_super', roleName: '超级管理员' },
+		permCtx: {
+			superAdmin: true,
+			roleList: [{ roleCode: 'super_super', roleName: '超级管理员' }],
+			permissionCodes: ['*'],
+			buttonPermissionCodes: ['*'],
+			currentOrgId: '20',
+		},
+	},
+	family_admin: {
+		user: { id: '1', username: 'admin_dad', realName: '家庭管理员爸爸' },
+		roleInfo: { roleCode: 'family_admin', roleName: '家庭管理员' },
+		permCtx: {
+			superAdmin: false,
+			roleList: [{ roleCode: 'family_admin', roleName: '家庭管理员' }],
+			currentOrgId: '20',
+			permissionCodes: [
+				'finance:view',
+				'finance:financeManager:query',
+				'finance:financeManager:add',
+				'finance:financeManager:edit',
+				'finance:financeManager:delete',
+				'finance:financeManager:budget:view',
+				'finance:financeManager:budget:edit',
+			],
+			buttonPermissionCodes: [
+				'finance:view',
+				'finance:financeManager:query',
+				'finance:financeManager:add',
+				'finance:financeManager:edit',
+				'finance:financeManager:delete',
+				'finance:financeManager:budget:view',
+				'finance:financeManager:budget:edit',
+			],
+		},
+	},
+	family_member: {
+		user: { id: '2', username: 'member_kid', realName: '普通成员小袋子' },
+		roleInfo: { roleCode: 'family_member', roleName: '家庭成员' },
+		permCtx: {
+			superAdmin: false,
+			roleList: [{ roleCode: 'family_member', roleName: '家庭成员' }],
+			currentOrgId: '20',
+			permissionCodes: [
+				'finance:view',
+				'finance:financeManager:query',
+				'finance:financeManager:add',
+				'finance:financeManager:edit',
+				'finance:financeManager:delete',
+				'finance:financeManager:budget:view',
+			],
+			buttonPermissionCodes: [
+				'finance:view',
+				'finance:financeManager:query',
+				'finance:financeManager:add',
+				'finance:financeManager:edit',
+				'finance:financeManager:delete',
+				'finance:financeManager:budget:view',
+			],
+		},
+	},
+};
+
+let currentPersonaKey = 'super_super';
+
+async function switchPersona(page, personaKey = 'super_super', baseUrl = 'http://localhost:3100/') {
+	if (currentPersonaKey === personaKey && page.url() && page.url() !== 'about:blank') {
+		return;
+	}
+	currentPersonaKey = personaKey;
+	const p = PERSONA_CONFIGS[personaKey] || PERSONA_CONFIGS.super_super;
+	if (!page.url() || page.url() === 'about:blank') {
+		await page.goto(baseUrl);
+	}
+	await page.evaluate(
+		({ user, roleInfo, permCtx, menus }) => {
+			window.localStorage.setItem('token', 'mock-e2e-token-xyz');
+			window.localStorage.setItem('userInfo', JSON.stringify(user));
+			window.localStorage.setItem('roleInfo', JSON.stringify(roleInfo));
+			window.localStorage.setItem('menuInfo', JSON.stringify(menus));
+			window.localStorage.setItem('permissionContext', JSON.stringify(permCtx));
+			window.localStorage.setItem(
+				'app-user',
+				JSON.stringify({
+					token: 'mock-e2e-token-xyz',
+					userInfo: user,
+					roleInfo: roleInfo,
+					menuInfo: menus,
+					hasMenu: true,
+					permissionContext: permCtx,
+				}),
+			);
+		},
+		{ user: p.user, roleInfo: p.roleInfo, permCtx: p.permCtx, menus: mockMenus },
+	);
+	await page.reload();
+}
+
+let isBudgetOverStatus = false;
 
 function encryptPayload(data) {
 	const key = Buffer.from('20230610HelloDog', 'utf-8');
@@ -162,25 +273,20 @@ async function setupRouteMocks(page) {
 		}
 
 		if (pathname.includes('/login/')) {
+			const p = PERSONA_CONFIGS[currentPersonaKey] || PERSONA_CONFIGS.super_super;
 			return fulfillEncrypted(route, {
 				code: '200',
 				message: '登录成功',
 				data: {
 					token: 'mock-e2e-token-xyz',
 					admin: {
-						id: '1',
-						username: 'superman',
-						realName: '超级管理员',
-						roleInfoVoList: [{ roleCode: 'super_super', roleName: '超级管理员' }],
-						permissionContext: {
-							superAdmin: true,
-							roleList: [{ roleCode: 'super_super', roleName: '超级管理员' }],
-							permissionCodes: ['*'],
-							buttonPermissionCodes: ['*'],
-							currentOrgId: '1',
-						},
+						id: p.user.id,
+						username: p.user.username,
+						realName: p.user.realName,
+						roleInfoVoList: p.permCtx.roleList,
+						permissionContext: p.permCtx,
 					},
-					userInfo: { id: '1', username: 'superman', realName: '超级管理员' },
+					userInfo: p.user,
 					menuInfo: mockMenus,
 				},
 			});
@@ -490,12 +596,150 @@ async function setupRouteMocks(page) {
 			});
 		}
 
+		if (pathname.includes('/finance-budget/status')) {
+			if (isBudgetOverStatus) {
+				return fulfillEncrypted(route, {
+					code: '200',
+					data: {
+						id: '7002',
+						budgetMonth: '2026-10',
+						budgetAmount: 2000,
+						actualExpense: 2850,
+						remainingAmount: -850,
+						usagePercent: 142.5,
+						isOverBudget: true,
+						isInherited: false,
+						categoryCodes: [],
+					},
+				});
+			}
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					id: '7001',
+					budgetMonth: '2026-10',
+					budgetAmount: 3000,
+					actualExpense: 1200,
+					remainingAmount: 1800,
+					usagePercent: 40,
+					isOverBudget: false,
+					isInherited: false,
+					categoryCodes: [],
+				},
+			});
+		}
+
+		if (pathname.includes('/finance-budget/ai/recommend') || pathname.includes('/finance-budget/ai-recommend')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					avgMonthlyExpense: 2600,
+					recommendAmount: 2600,
+					savingAmount: 2210,
+					moderateAmount: 2600,
+					relaxedAmount: 2990,
+					recommendedCategories: ['餐饮美食', '交通出行'],
+					healthAdvice: '近3月平均支出约 2,600 元，建议本月适度控制在 2,600 元以内，重点关注餐饮与交通。',
+					dailyLimitSuggest: 86.67,
+					isFallback: false,
+				},
+			});
+		}
+
+		if (pathname.includes('/finance-budget/ai/parse') || pathname.includes('/finance-budget/ai-parse')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					hasBudget: true,
+					amount: 2500,
+					hasCategories: true,
+					categories: ['餐饮美食', '交通出行'],
+					reasoning: '根据指令，设定月度预算为 2500 元，重点管控餐饮美食、交通出行分类。',
+				},
+			});
+		}
+
+		if (pathname.includes('/finance-budget/categories')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: ['餐饮美食', '交通出行', '数码电器', '服饰鞋包', '日用百货'],
+			});
+		}
+
+		if (pathname.includes('/finance-budget/save')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: true,
+			});
+		}
+
+		if (pathname.includes('/finance-info/summary')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					totalExpense: isBudgetOverStatus ? 2850 : 1200,
+					totalIncome: 5000,
+					totalBalance: isBudgetOverStatus ? 2150 : 3800,
+					totalCount: 10,
+				},
+			});
+		}
+
+		if (pathname.includes('/finance-info/page')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					records: [
+						{
+							id: '6001',
+							name: '【管理员】全家电费缴纳',
+							amount: 320,
+							belongTo: '1',
+							incomeAndExpenses: 'expense',
+							typeCode: '住房物业',
+							isValid: '1',
+							infoDate: '2026-10-10',
+						},
+						{
+							id: '6002',
+							name: '【普通成员】文具图书购买',
+							amount: 85,
+							belongTo: '2',
+							incomeAndExpenses: 'expense',
+							typeCode: '休闲娱乐',
+							isValid: '1',
+							infoDate: '2026-10-12',
+						},
+					],
+					total: 2,
+					current: 1,
+					size: 10,
+				},
+			});
+		}
+
+		if (pathname.includes('/user/list')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{
+						id: '1',
+						nickName: '超级管理员',
+						username: 'superman',
+					},
+				],
+			});
+		}
+
 		return fulfillEncrypted(route, { code: '200', data: {} });
 	});
 }
 
 async function executeCase(page, c, runtime) {
 	console.log(`Running case ${c.caseId}: ${c.title}...`);
+	if (c.persona) {
+		await switchPersona(page, c.persona, runtime.baseUrl);
+	}
 
 	switch (c.caseId) {
 		case 'AI-COUPON-001': {
@@ -716,6 +960,236 @@ async function executeCase(page, c, runtime) {
 			break;
 		}
 
+		case 'AI-BUDGET-001': {
+			isBudgetOverStatus = false;
+			await page.goto(`${runtime.baseUrl}#/home-dashboard`);
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+			const openModalBtn = page.locator('[data-testid="btn-open-budget-modal"]').first();
+			await openModalBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await openModalBtn.click();
+
+			try {
+				// 1. 等待 AI 适度档推荐卡片可见（弹窗打开时自闭环触发测算）
+				const moderateCard = page.locator('[data-testid="btn-apply-tier-moderate"]').first();
+				try {
+					await moderateCard.waitFor({ state: 'visible', timeout: 6000 });
+				} catch {
+					// 若尚未就绪，手动触发测算
+					const recommendBtn = page.locator('[data-testid="btn-fetch-ai-recommend"]').first();
+					await recommendBtn.click();
+					await moderateCard.waitFor({ state: 'visible', timeout: 8000 });
+				}
+
+				// 2. 点击适度档推荐 (2600)
+				await moderateCard.click();
+
+				// 3. 断言输入框金额已填入 2600
+				await page.waitForFunction(() => {
+					const el = document.querySelector('[data-testid="budget-amount-input"] input') || document.querySelector('[data-testid="budget-amount-input"]');
+					const val = el ? (el.value || el.innerText || '') : '';
+					return val.includes('2600');
+				}, null, { timeout: 8000 });
+			} finally {
+				// 4. 关闭弹窗
+				const closeBtn = page.locator('.ant-modal-close').first();
+				if (await closeBtn.count() && await closeBtn.isVisible()) {
+					await closeBtn.click();
+					await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'AI-BUDGET-002': {
+			isBudgetOverStatus = false;
+			await page.goto(`${runtime.baseUrl}#/home-dashboard`);
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+			const openModalBtn = page.locator('[data-testid="btn-open-budget-modal"]').first();
+			await openModalBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await openModalBtn.click();
+
+			try {
+				// 1. 展开口语指令区
+				const cmdInput = page.locator('[data-testid="ai-command-input"] input, input[data-testid="ai-command-input"]').first();
+				const toggleExpandBtn = page.locator('[data-testid="btn-toggle-ai-expand"]').first();
+				await toggleExpandBtn.waitFor({ state: 'visible', timeout: 5000 });
+
+				if (!await cmdInput.isVisible()) {
+					await toggleExpandBtn.click();
+					await cmdInput.waitFor({ state: 'visible', timeout: 5000 });
+				}
+
+				// 2. 输入口语化指令
+				await cmdInput.fill('帮我设2500预算，重点管餐饮和交通');
+
+				// 3. 点击 AI 解析回填
+				const parseBtn = page.locator('[data-testid="btn-ai-parse-command"]').first();
+				await parseBtn.click();
+
+				// 4. 断言输入框金额已更新为 2500
+				await page.waitForFunction(() => {
+					const el = document.querySelector('[data-testid="budget-amount-input"] input') || document.querySelector('[data-testid="budget-amount-input"]');
+					const val = el ? (el.value || el.innerText || '') : '';
+					return val.includes('2500');
+				}, null, { timeout: 8000 });
+			} finally {
+				// 5. 关闭弹窗
+				const closeBtn = page.locator('.ant-modal-close').first();
+				if (await closeBtn.count() && await closeBtn.isVisible()) {
+					await closeBtn.click();
+					await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'BUDGET-E2E-STATUS-OVER': {
+			isBudgetOverStatus = true;
+			await page.goto(`${runtime.baseUrl}#/home-dashboard`);
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+
+			// 1. 断言超支标签可见
+			const overTag = page.locator('[data-testid="budget-over-tag"]').first();
+			await overTag.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 断言剩余金额展示负数超支 (850)
+			const remainingVal = page.locator('[data-testid="budget-remaining-value"]').first();
+			await remainingVal.waitFor({ state: 'visible', timeout: 5000 });
+			const valText = await remainingVal.innerText();
+			if (!valText.includes('850')) {
+				throw new Error(`超支金额未正确展示: 预期包含 850，实际为 ${valText}`);
+			}
+
+			isBudgetOverStatus = false;
+			break;
+		}
+
+		case 'RBAC-PC-MEMBER-OWNER-PROTECT': {
+			await page.goto(`${runtime.baseUrl}#/home-dashboard`);
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+
+			// 1. 等待表格行加载 (包含两行：6001 为管理员账目，6002 为普通成员账目)
+			const tableRowAdmin = page.locator('tr[data-row-key="6001"]').first();
+			await tableRowAdmin.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 断言他人记录 (ID=1) 对应的多选复选框处于 disabled 状态
+			const adminCheckbox = tableRowAdmin.locator('input[type="checkbox"]').first();
+			const isAdminDisabled = await adminCheckbox.isDisabled();
+			if (!isAdminDisabled) {
+				throw new Error('普通家庭成员视角下，他人账目的多选复选框应处于禁用状态');
+			}
+
+			// 3. 断言他人记录操作列中不渲染“编辑”和“删除”按钮，仅渲染“查看”按钮
+			const editBtnInAdminRow = tableRowAdmin.locator('[data-testid="btn-edit-finance"]');
+			const delBtnInAdminRow = tableRowAdmin.locator('[data-testid="btn-delete-finance"]');
+			const viewBtnInAdminRow = tableRowAdmin.locator('[data-testid="btn-view-finance"]');
+			if ((await editBtnInAdminRow.count()) > 0) {
+				throw new Error('普通家庭成员视角下，他人账目操作列不应展示编辑按钮');
+			}
+			if ((await delBtnInAdminRow.count()) > 0) {
+				throw new Error('普通家庭成员视角下，他人账目操作列不应展示删除按钮');
+			}
+			if ((await viewBtnInAdminRow.count()) === 0) {
+				throw new Error('普通家庭成员视角下，他人账目操作列应展示查看按钮');
+			}
+
+			// 4. 校验自己记录 (ID=2, row 6002) Checkbox 可用且展示编辑/删除按钮
+			const tableRowMember = page.locator('tr[data-row-key="6002"]').first();
+			const memberCheckbox = tableRowMember.locator('input[type="checkbox"]').first();
+			const isMemberDisabled = await memberCheckbox.isDisabled();
+			if (isMemberDisabled) {
+				throw new Error('普通家庭成员视角下，自己账目的多选复选框应处于可用状态');
+			}
+			const editBtnInMemberRow = tableRowMember.locator('[data-testid="btn-edit-finance"]');
+			if ((await editBtnInMemberRow.count()) === 0) {
+				throw new Error('普通家庭成员视角下，自己账目应展示编辑按钮');
+			}
+
+			// 5. 打开预算弹窗
+			const openModalBtn = page.locator('[data-testid="btn-open-budget-modal"]').first();
+			await openModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await openModalBtn.click();
+
+			try {
+				// 6. 断言预算弹窗中只读提示条存在且预算金额输入框处于 disabled 状态
+				const readonlyAlert = page.locator('[data-testid="budget-readonly-alert"]').first();
+				await readonlyAlert.waitFor({ state: 'visible', timeout: 5000 });
+
+				const isInputDisabled = await page.evaluate(() => {
+					const wrapper = document.querySelector('[data-testid="budget-amount-input"]');
+					const input = wrapper?.querySelector('input') || wrapper;
+					return (
+						input?.disabled === true ||
+						input?.hasAttribute('disabled') ||
+						wrapper?.classList.contains('ant-input-number-disabled') ||
+						wrapper?.classList.contains('ant-input-number-affix-wrapper-disabled')
+					);
+				});
+				if (!isInputDisabled) {
+					throw new Error('普通家庭成员视角下，预算额度输入框应处于禁用状态');
+				}
+
+				// 7. 断言保存配置按钮不渲染
+				const saveBtn = page.locator('[data-testid="btn-save-budget"]');
+				if ((await saveBtn.count()) > 0 && (await saveBtn.first().isVisible())) {
+					throw new Error('普通家庭成员视角下，预算弹窗不应渲染保存配置按钮');
+				}
+			} finally {
+				const closeBtn = page.locator('[data-testid="btn-close-budget"]').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'RBAC-PC-ADMIN-FULL-MANAGE': {
+			await page.goto(`${runtime.baseUrl}#/home-dashboard`);
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+
+			// 1. 等待表格数据加载
+			const tableRowMember = page.locator('tr[data-row-key="6002"]').first();
+			await tableRowMember.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 断言管理员可管理家庭成员账目 (Checkbox 可用，编辑与删除按钮均渲染)
+			const memberCheckbox = tableRowMember.locator('input[type="checkbox"]').first();
+			const isMemberDisabled = await memberCheckbox.isDisabled();
+			if (isMemberDisabled) {
+				throw new Error('家庭管理员视角下，全家账目的多选复选框应处于可用状态');
+			}
+			const editBtnInMemberRow = tableRowMember.locator('[data-testid="btn-edit-finance"]');
+			const delBtnInMemberRow = tableRowMember.locator('[data-testid="btn-delete-finance"]');
+			if ((await editBtnInMemberRow.count()) === 0) {
+				throw new Error('家庭管理员视角下，全家成员账目应展示编辑按钮');
+			}
+			if ((await delBtnInMemberRow.count()) === 0) {
+				throw new Error('家庭管理员视角下，全家成员账目应展示删除按钮');
+			}
+
+			// 3. 打开预算弹窗
+			const openModalBtn = page.locator('[data-testid="btn-open-budget-modal"]').first();
+			await openModalBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await openModalBtn.click();
+
+			try {
+				// 4. 断言保存配置按钮可见且可用
+				const saveBtn = page.locator('[data-testid="btn-save-budget"]').first();
+				await saveBtn.waitFor({ state: 'visible', timeout: 5000 });
+				await saveBtn.click();
+
+				// 5. 等待弹窗保存关闭
+				await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 8000 });
+			} finally {
+				const closeBtn = page.locator('.ant-modal-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
 		default:
 			throw new Error(`Unsupported case ID: ${c.caseId}`);
 	}
@@ -758,18 +1232,23 @@ async function main() {
 		viewport: { width: 1440, height: 900 },
 	});
 
-	// 注入 localStorage mock 状态以维持登录态
+	// 注入 localStorage mock 状态以维持登录态（若已注入则不覆盖）
 	await context.addInitScript((menus) => {
+		if (window.localStorage.getItem('token')) {
+			return;
+		}
 		const user = { id: '1', username: 'superman', realName: '超级管理员' };
+		const roleInfo = { roleCode: 'super_super', roleName: '超级管理员' };
 		const permCtx = {
 			superAdmin: true,
 			roleList: [{ roleCode: 'super_super', roleName: '超级管理员' }],
 			permissionCodes: ['*'],
 			buttonPermissionCodes: ['*'],
-			currentOrgId: '1',
+			currentOrgId: '20',
 		};
 		window.localStorage.setItem('token', 'mock-e2e-token-xyz');
 		window.localStorage.setItem('userInfo', JSON.stringify(user));
+		window.localStorage.setItem('roleInfo', JSON.stringify(roleInfo));
 		window.localStorage.setItem('menuInfo', JSON.stringify(menus));
 		window.localStorage.setItem('permissionContext', JSON.stringify(permCtx));
 		window.localStorage.setItem(
@@ -777,6 +1256,7 @@ async function main() {
 			JSON.stringify({
 				token: 'mock-e2e-token-xyz',
 				userInfo: user,
+				roleInfo: roleInfo,
 				menuInfo: menus,
 				hasMenu: true,
 				permissionContext: permCtx,
@@ -788,6 +1268,10 @@ async function main() {
 	page.on('console', (msg) => console.log(`[BROWSER ${msg.type()}]`, msg.text()));
 	page.on('pageerror', (err) => console.error('[BROWSER_PAGE_ERR]', err));
 	await setupRouteMocks(page);
+
+	// 预热 Vite Dev Server，确保依赖预打包完全就绪
+	await page.goto(`${server.url}#/home-dashboard`);
+	await page.waitForLoadState('networkidle').catch(() => {});
 
 	const results = [];
 

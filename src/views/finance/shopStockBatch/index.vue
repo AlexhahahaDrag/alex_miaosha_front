@@ -190,12 +190,9 @@ const getShopStockBatchListPage = async (
 	}
 };
 
-const init = (): void => {
-	//获取商店库存批次表页面数据
+onMounted(() => {
 	getShopStockBatchListPage(searchInfo.value, pagination);
-};
-
-init();
+});
 
 const modelInfo = ref<ModelInfo>({});
 

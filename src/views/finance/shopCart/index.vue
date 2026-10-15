@@ -233,13 +233,8 @@ const handleSuccess = (): void => {
 	getShopCartListPage(searchInfo.value, pagination);
 };
 
-const init = (): void => {
-	//获取购物车表页面数据
-	getShopCartListPage(searchInfo.value, pagination);
-};
-
 onMounted(() => {
-	init();
+	getShopCartListPage(searchInfo.value, pagination);
 });
 </script>
 <style lang="scss" scoped>

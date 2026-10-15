@@ -19,6 +19,7 @@
 							type="link"
 							size="small"
 							class="action-link-btn"
+							data-testid="btn-edit-finance"
 							@click="$emit('edit', 'update', record.id)"
 						>
 							编辑
@@ -28,6 +29,7 @@
 							type="link"
 							size="small"
 							class="action-link-btn"
+							data-testid="btn-view-finance"
 							@click="$emit('edit', 'view', record.id)"
 						>
 							查看
@@ -45,6 +47,7 @@
 									size="small"
 									danger
 									class="action-link-btn"
+									data-testid="btn-delete-finance"
 								>
 									删除
 								</a-button>

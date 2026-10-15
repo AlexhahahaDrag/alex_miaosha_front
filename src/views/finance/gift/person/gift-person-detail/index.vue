@@ -26,28 +26,26 @@
 						:custom-request="onAvatarUpload"
 						:disabled="uploadingAvatar"
 					>
-						<div
+						<a-button
+							type="text"
 							class="form-avatar-trigger"
 							data-testid="gift-person-avatar-upload"
-							role="button"
 							aria-label="上传头像"
 						>
-							<img
-								v-if="avatarPreviewUrl"
-								class="form-avatar-img"
+							<a-avatar
+								:size="88"
 								:src="avatarPreviewUrl"
-								alt=""
-							/>
-							<span v-else class="form-avatar-fallback">
+								class="form-avatar-main"
+							>
 								{{ firstName(formState.personName) }}
-							</span>
-							<span class="form-avatar-camera">
+							</a-avatar>
+							<span class="form-avatar-camera" aria-hidden="true">
 								<camera-outlined />
 							</span>
 							<span v-if="uploadingAvatar" class="form-avatar-loading">
 								上传中…
 							</span>
-						</div>
+						</a-button>
 					</a-upload>
 					<p class="form-avatar-hint">更换头像</p>
 					<a-button
@@ -548,34 +546,38 @@ watch(
 	width: 88px;
 	height: 88px;
 	border-radius: 50%;
-	overflow: hidden;
-	background: #eff6ff;
+	border: none;
+	padding: 0;
+	background: transparent;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
+	line-height: 1;
 	transition: transform 0.15s ease;
 
-	&:hover {
+	&:hover,
+	&:focus {
 		transform: scale(1.02);
+		background: transparent;
 	}
 
 	&:active {
 		transform: scale(0.98);
+		background: transparent;
+	}
+
+	&:focus-visible {
+		outline: 2px solid #2563eb;
+		outline-offset: 2px;
 	}
 }
 
-.form-avatar-img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.form-avatar-fallback {
+.form-avatar-main {
+	background: #eff6ff;
 	color: #2563eb;
 	font-size: 32px;
 	font-weight: 800;
-	line-height: 1;
 }
 
 .form-avatar-camera {
@@ -599,6 +601,7 @@ watch(
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border-radius: 50%;
 	background: rgba(255, 255, 255, 0.72);
 	color: #2563eb;
 	font-size: 12px;

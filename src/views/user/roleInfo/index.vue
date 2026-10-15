@@ -311,15 +311,9 @@ function query(resetPage = false) {
 	getRoleInfoListPage(searchInfo.value, pagination);
 }
 
-// 初始化页面数据
-const init = () => {
-	authModelInfo.value = { open: false };
-	//获取角色信息表页面数据
-	getRoleInfoListPage(searchInfo.value, pagination);
-};
-
 onMounted(() => {
-	init();
+	authModelInfo.value = { open: false };
+	getRoleInfoListPage(searchInfo.value, pagination);
 });
 
 // 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页

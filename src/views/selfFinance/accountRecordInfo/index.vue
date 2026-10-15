@@ -246,14 +246,8 @@ const handleSuccess = () => {
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
 };
 
-// 初始化页面数据
-const init = () => {
-	modelInfo.value.open = false;
-	modelInfo.value.confirmLoading = false;
+onMounted(() => {
 	initPage();
-	//获取页面数据
 	getAccountRecordInfoListPage(searchInfo.value, pagination);
-};
-
-init();
+});
 </script>

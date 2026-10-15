@@ -5,21 +5,28 @@ export const columns = ref<TableColumnsType>([
 		title: '菜单标题',
 		dataIndex: 'title',
 		key: 'title',
-		width: 160,
+		width: 200,
 		ellipsis: true,
 	},
 	{
-		title: '菜单名称',
-		dataIndex: 'name',
-		key: 'name',
+		title: '所属上级',
+		dataIndex: 'parentTitle',
+		key: 'parentTitle',
 		width: 140,
 		ellipsis: true,
 	},
 	{
-		title: '菜单路径',
+		title: '路由路径',
 		dataIndex: 'path',
 		key: 'path',
-		width: 160,
+		width: 180,
+		ellipsis: true,
+	},
+	{
+		title: '权限标识',
+		dataIndex: 'permissionCode',
+		key: 'permissionCode',
+		width: 170,
 		ellipsis: true,
 	},
 	{
@@ -30,59 +37,31 @@ export const columns = ref<TableColumnsType>([
 		ellipsis: true,
 	},
 	{
-		title: '跳转',
-		dataIndex: 'redirect',
-		key: 'redirect',
+		title: '路由名称',
+		dataIndex: 'name',
+		key: 'name',
 		width: 140,
 		ellipsis: true,
 	},
 	{
-		title: '菜单图标',
+		title: '图标',
 		dataIndex: 'icon',
 		key: 'icon',
-		width: 100,
+		width: 90,
 		align: 'center',
 	},
 	{
-		title: '权限标识',
-		dataIndex: 'permissionCode',
-		key: 'permissionCode',
-		width: 160,
-		ellipsis: true,
-	},
-	{
-		title: '是否隐藏菜单',
+		title: '导航显示',
 		dataIndex: 'hideInMenu',
 		key: 'hideInMenu',
-		width: 120,
-		align: 'center',
-	},
-	{
-		title: '首页展示',
-		dataIndex: 'showInHome',
-		key: 'showInHome',
 		width: 100,
 		align: 'center',
-	},
-	{
-		title: '父级菜单ID',
-		dataIndex: 'parentId',
-		key: 'parentId',
-		width: 110,
-		ellipsis: true,
-	},
-	{
-		title: '备注',
-		dataIndex: 'summary',
-		key: 'summary',
-		width: 140,
-		ellipsis: true,
 	},
 	{
 		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
-		width: 90,
+		width: 100,
 		align: 'center',
 	},
 	{
@@ -116,6 +95,7 @@ export interface MenuInfoData {
 	summary?: string;
 	status?: string;
 	orderBy?: string;
+	parentTitle?: string;
 	children?: MenuInfoData[];
 }
 
@@ -129,13 +109,13 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	permissionCode: { name: 'permissionCode', label: '权限标识' },
 	hideInMenu: { name: 'hideInMenu', label: '是否隐藏菜单' },
 	showInHome: { name: 'showInHome', label: '首页展示' },
-	parentId: { name: 'parentId', label: '父级机构id' },
+	parentId: { name: 'parentId', label: '父级菜单' },
 	summary: { name: 'summary', label: '备注' },
 	status: { name: 'status', label: '状态' },
 	orderBy: { name: 'orderBy', label: '排序' },
 });
 
-/** 菜单详情表单校验（与 labelMap / a-form-item :name 对齐） */
+/** 菜单详情表单校验 */
 export const rulesRef = reactive({
 	name: [{ required: true, message: '菜单名称不能为空！' }],
 	title: [{ required: true, message: '菜单标题不能为空！' }],
@@ -143,5 +123,6 @@ export const rulesRef = reactive({
 	status: [{ required: true, message: '状态不能为空！' }],
 });
 
-export const labelCol: { span: number } = { span: 5 };
-export const wrapperCol: { span: number } = { span: 19 };
+export const labelCol: { span: number } = { span: 6 };
+export const wrapperCol: { span: number } = { span: 18 };
+

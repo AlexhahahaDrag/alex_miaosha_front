@@ -187,10 +187,7 @@ const handleSuccess = () => {
 	getDictPage(searchInfo.value, pagination);
 };
 
-// 初始化页面数据
-const init = () => {
+onMounted(() => {
 	getDictPage(searchInfo.value, pagination);
-};
-
-init();
+});
 </script>

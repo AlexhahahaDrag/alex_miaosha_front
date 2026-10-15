@@ -281,10 +281,6 @@ async function getPmsShopProductListPage(
 	}
 }
 
-const init = () => {
-	//获取商品网上商品信息页面数据
-	getPmsShopProductListPage(searchInfo.value, pagination);
-};
 
 //新增和修改弹窗
 function editPmsShopProduct(type: string, id?: string) {
@@ -331,7 +327,7 @@ const handleApplyAiCopy = ({ title }: { title: string }) => {
 };
 
 onMounted(() => {
-	init();
+	query(true);
 });
 
 onUnmounted(() => {

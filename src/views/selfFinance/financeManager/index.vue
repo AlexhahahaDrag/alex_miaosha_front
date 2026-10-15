@@ -502,7 +502,7 @@ const initPage = () => {
 };
 
 // 初始化页面数据
-const init = () => {
+const loadInitialFinanceData = () => {
 	initPage();
 	if (route.query.fromSource) {
 		searchInfo.value.fromSource = route.query.fromSource as string;
@@ -540,6 +540,7 @@ const updateTableScrollY = () => {
 let resizeObserver: ResizeObserver | null = null;
 
 onMounted(() => {
+	loadInitialFinanceData();
 	nextTick(() => {
 		updateTableScrollY();
 		if (tableContainerRef.value && typeof ResizeObserver !== 'undefined') {
@@ -559,8 +560,6 @@ onUnmounted(() => {
 	}
 	window.removeEventListener('resize', updateTableScrollY);
 });
-
-init();
 </script>
 
 <style lang="scss" scoped>

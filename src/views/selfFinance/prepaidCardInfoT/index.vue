@@ -193,15 +193,11 @@ const handleTableChange = (pagination: PageInfo) => {
 	getPrepaidConsumeRecordTPageInfo();
 };
 
-const init = () => {
+onMounted(() => {
 	selectedCardId.value = null;
-	// 获取消费卡列表
 	getPrepaidCardInfoListInfo();
-	// 获取消费记录列表
 	getPrepaidConsumeRecordTPageInfo();
-};
-
-init();
+});
 </script>
 
 <style lang="less" scoped>

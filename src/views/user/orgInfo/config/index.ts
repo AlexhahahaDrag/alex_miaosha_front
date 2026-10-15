@@ -1,15 +1,12 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
-export interface SearchInfo {
-	orgCode?: string;
-	orgName?: string;
-	orgShortName?: string;
-	parentId?: string;
-	summary?: string;
-	status?: string;
-}
-
-export const columns = ref<TableColumnsType>([
+export const columns: TableColumnsType = [
+	{
+		title: '机构名称',
+		dataIndex: 'orgName',
+		key: 'orgName',
+		width: 260,
+	},
 	{
 		title: '机构编码',
 		dataIndex: 'orgCode',
@@ -17,16 +14,10 @@ export const columns = ref<TableColumnsType>([
 		width: 140,
 	},
 	{
-		title: '机构名称',
-		dataIndex: 'orgName',
-		key: 'orgName',
-		width: 180,
-	},
-	{
 		title: '机构简称',
 		dataIndex: 'orgShortName',
 		key: 'orgShortName',
-		width: 140,
+		width: 130,
 	},
 	{
 		title: '父级机构',
@@ -38,16 +29,17 @@ export const columns = ref<TableColumnsType>([
 		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
-		width: 90,
+		width: 100,
 		align: 'center',
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: 150,
+		width: 250,
+		align: 'center',
 	},
-]);
+];
 
 export interface OrgInfoData {
 	id?: string;
@@ -60,15 +52,20 @@ export interface OrgInfoData {
 	status?: string;
 	// 机构树接口（/org-info/tree）返回的子机构列表
 	children?: OrgInfoData[];
+	disabled?: boolean;
+	createTime?: string;
+	updateTime?: string;
+	creator?: string;
+	updater?: string;
 }
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	orgCode: { name: 'orgCode', label: '机构编码' },
 	orgName: { name: 'orgName', label: '机构名称' },
 	orgShortName: { name: 'orgShortName', label: '机构简称' },
-	parentId: { name: 'parentId', label: '父级机构id' },
-	summary: { name: 'summary', label: '简介最多150字' },
-	status: { name: 'status', label: '状态' },
+	parentId: { name: 'parentId', label: '父级机构' },
+	summary: { name: 'summary', label: '机构简介' },
+	status: { name: 'status', label: '机构状态' },
 });
 
 export const rulesRef = reactive({
@@ -90,18 +87,6 @@ export const rulesRef = reactive({
 			message: '机构简称不能为空！',
 		},
 	],
-	parentId: [
-		{
-			required: true,
-			message: '父级机构id不能为空！',
-		},
-	],
-	summary: [
-		{
-			required: true,
-			message: '简介最多150字不能为空！',
-		},
-	],
 	status: [
 		{
 			required: true,
@@ -110,5 +95,5 @@ export const rulesRef = reactive({
 	],
 });
 
-export const labelCol = ref({ span: 5 });
-export const wrapperCol = ref({ span: 19 });
+export const labelCol = { span: 5 };
+export const wrapperCol = { span: 19 };

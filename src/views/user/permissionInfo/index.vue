@@ -284,13 +284,8 @@ const getPermissionInfoListPage = async (param: SearchInfo, cur: PageInfo) => {
 	}
 };
 
-const init = () => {
-	// 获取权限信息表页面数据
-	getPermissionInfoListPage(searchInfo.value, pagination);
-};
-
 onMounted(() => {
-	init();
+	getPermissionInfoListPage(searchInfo.value, pagination);
 });
 
 const modelInfo = ref<ModelInfo>({});

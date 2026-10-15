@@ -294,12 +294,9 @@ const loadUsers = async () => {
 	}
 };
 
-const init = async () => {
-	await Promise.all([loadRoleOptions(), loadUsers()]);
-};
-
 onMounted(() => {
-	init();
+	loadRoleOptions();
+	loadUsers();
 });
 </script>
 <style lang="scss" scoped>

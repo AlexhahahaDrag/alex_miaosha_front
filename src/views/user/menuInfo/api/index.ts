@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -47,3 +47,10 @@ export function editMenuInfo(
 ): Promise<ResponseBody<MenuInfoData>> {
 	return putData(baseService.user + baseMenuInfo + MenuInfoUrl.url, params);
 }
+
+export function getMenuInfoTree(
+	params?: MenuInfoData,
+): Promise<ResponseBody<MenuInfoData[]>> {
+	return postData(baseService.user + baseMenuInfo + '/tree', params || {});
+}
+

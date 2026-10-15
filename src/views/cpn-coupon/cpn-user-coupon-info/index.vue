@@ -185,13 +185,8 @@ const getCpnUserCouponInfoListPage = async (
 	}
 };
 
-const init = (): void => {
-	//获取用户消费券库存表 (按数量核销)页面数据
-	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
-};
-
 onMounted(() => {
-	init();
+	getCpnUserCouponInfoListPage(searchInfo.value, pagination);
 });
 
 onBeforeUnmount(() => {

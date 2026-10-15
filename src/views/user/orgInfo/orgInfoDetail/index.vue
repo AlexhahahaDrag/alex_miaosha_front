@@ -4,8 +4,10 @@
 			:open="!!modelInfo.open"
 			:width="modelInfo?.width || 640"
 			:title="modelInfo?.title || '机构信息'"
-			:loading="loading || modelConfig.confirmLoading"
-			:destroy-on-close="modelConfig.destroyOnClose"
+			:subtitle="subtitle"
+			:summary-items="summaryItems"
+			:loading="loading"
+			:destroy-on-close="true"
 			@update:open="(open) => (modelInfo.open = open)"
 			@save="handleOk"
 			@cancel="handleCancel"
@@ -13,24 +15,13 @@
 			<a-form
 				ref="formRef"
 				name="OrgInfoForm"
-				class="ant-advanced-search-form"
+				class="ant-advanced-search-form mt-2"
 				:model="formState"
-				:rules="rulesRef"
-				:label-col="labelCol"
-				:wrapper-col="wrapperCol"
+				:rules="isReadonly ? {} : rulesRef"
+				:label-col="{ span: 6 }"
+				:wrapper-col="{ span: 18 }"
 			>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['orgCode'].name"
-							:label="labelMap['orgCode'].label"
-						>
-							<a-input
-								v-model:value="formState.orgCode"
-								:placeholder="'请填写' + labelMap['orgCode'].label"
-							></a-input>
-						</a-form-item>
-					</a-col>
+				<a-row :gutter="20">
 					<a-col :span="12">
 						<a-form-item
 							:name="labelMap['orgName'].name"
@@ -38,12 +29,28 @@
 						>
 							<a-input
 								v-model:value="formState.orgName"
-								:placeholder="'请填写' + labelMap['orgName'].label"
+								:disabled="isReadonly"
+								placeholder="请输入机构名称"
+								class="rounded-lg"
+							></a-input>
+						</a-form-item>
+					</a-col>
+					<a-col :span="12">
+						<a-form-item
+							:name="labelMap['orgCode'].name"
+							:label="labelMap['orgCode'].label"
+						>
+							<a-input
+								v-model:value="formState.orgCode"
+								:disabled="isReadonly"
+								placeholder="请输入机构编码"
+								class="rounded-lg font-mono"
 							></a-input>
 						</a-form-item>
 					</a-col>
 				</a-row>
-				<a-row :gutter="24">
+
+				<a-row :gutter="20">
 					<a-col :span="12">
 						<a-form-item
 							:name="labelMap['orgShortName'].name"
@@ -51,7 +58,9 @@
 						>
 							<a-input
 								v-model:value="formState.orgShortName"
-								:placeholder="'请填写' + labelMap['orgShortName'].label"
+								:disabled="isReadonly"
+								placeholder="请输入机构简称"
+								class="rounded-lg"
 							></a-input>
 						</a-form-item>
 					</a-col>
@@ -59,11 +68,13 @@
 						<a-form-item
 							:name="labelMap['parentId'].name"
 							:label="labelMap['parentId'].label"
+							extra="留空则作为顶级根机构创建"
 						>
 							<a-tree-select
 								v-model:value="formState.parentId"
-								:tree-data="treeData"
-								:placeholder="'请选择' + labelMap['parentId'].label"
+								:tree-data="selectableTreeData"
+								:disabled="isReadonly"
+								placeholder="请选择父级机构"
 								:field-names="{
 									children: 'children',
 									label: 'orgName',
@@ -73,43 +84,64 @@
 								allow-clear
 								show-search
 								tree-node-filter-prop="orgName"
+								class="rounded-lg"
 							>
 							</a-tree-select>
 						</a-form-item>
 					</a-col>
 				</a-row>
-				<a-row :gutter="24">
-					<a-col :span="12">
-						<a-form-item
-							:name="labelMap['summary'].name"
-							:label="labelMap['summary'].label"
-						>
-							<a-input
-								v-model:value="formState.summary"
-								:placeholder="'请填写' + labelMap['summary'].label"
-								:maxlength="150"
-								show-count
-							></a-input>
-						</a-form-item>
-					</a-col>
+
+				<a-row :gutter="20">
 					<a-col :span="12">
 						<a-form-item
 							:name="labelMap['status'].name"
 							:label="labelMap['status'].label"
 						>
-							<a-radio-group v-model:value="formState.status">
-								<a-radio
+							<a-radio-group
+								v-model:value="formState.status"
+								:disabled="isReadonly"
+								button-style="solid"
+							>
+								<a-radio-button
 									v-for="item in statusList"
 									:key="item.typeCode"
 									:value="item.typeCode"
 								>
 									{{ item.typeName }}
-								</a-radio>
+								</a-radio-button>
 							</a-radio-group>
 						</a-form-item>
 					</a-col>
 				</a-row>
+
+				<a-row :gutter="20">
+					<a-col :span="24">
+						<a-form-item
+							:name="labelMap['summary'].name"
+							:label="labelMap['summary'].label"
+							:label-col="{ span: 3 }"
+							:wrapper-col="{ span: 21 }"
+						>
+							<a-textarea
+								v-model:value="formState.summary"
+								:disabled="isReadonly"
+								placeholder="请输入机构简介或职责描述..."
+								:rows="3"
+								:maxlength="150"
+								show-count
+								class="rounded-lg"
+							></a-textarea>
+						</a-form-item>
+					</a-col>
+				</a-row>
 			</a-form>
+
+			<!-- 只读模式自定义 Footer -->
+			<template v-if="isReadonly" #footer>
+				<div class="flex justify-end">
+					<a-button @click="handleCancel">关闭</a-button>
+				</div>
+			</template>
 		</base-rbac-drawer>
 	</div>
 </template>
@@ -117,14 +149,11 @@
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/types/modal';
-import {
-	labelMap,
-	labelCol,
-	wrapperCol,
-	rulesRef,
-} from '@/views/user/orgInfo/config';
+import type { RbacSummaryItem } from '@/components/rbac/types';
+import { labelMap, rulesRef } from '@/views/user/orgInfo/config';
 import {
 	getOrgInfoDetail,
+	getOrgInfoTree,
 	addOrgInfo,
 	editOrgInfo,
 } from '@/views/user/orgInfo/api';
@@ -132,31 +161,74 @@ import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { TreeDataItem } from 'ant-design-vue/es/tree';
 
-defineProps<{
-	treeData?: TreeDataItem[];
-}>();
-
 const { getDictByType } = useDictInfo('is_valid');
 
 // 字典数据已通过 useDictInfo 自动加载
 const statusList = computed(() => getDictByType('is_valid'));
 
 const loading = ref<boolean>(false);
-
+const rawTreeData = ref<TreeDataItem[]>([]);
 const formRef = ref<FormInstance>();
-
-const modelConfig = reactive({
-	confirmLoading: true,
-	destroyOnClose: true,
-});
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', {
 	default: () => ({}),
 });
 
+const isReadonly = computed(() => Boolean(modelInfo.value?.readonly));
+
+const subtitle = computed(() => {
+	if (formState.value.orgCode) {
+		return `编码: ${formState.value.orgCode}`;
+	}
+	return isReadonly.value ? '机构详情' : undefined;
+});
+
+const summaryItems = computed<RbacSummaryItem[]>(() => {
+	if (!formState.value.id) return [];
+	const items: RbacSummaryItem[] = [];
+	if (formState.value.createTime) {
+		items.push({ label: '创建时间', value: formState.value.createTime });
+	}
+	if (formState.value.updateTime) {
+		items.push({ label: '更新时间', value: formState.value.updateTime });
+	}
+	return items;
+});
+
+// 编辑节点时，前端递归禁用自身及其子孙节点，杜绝成环与自选
+const disableSelfAndDescendants = (
+	nodes: TreeDataItem[],
+	targetId?: string,
+	ancestorDisabled: boolean = false,
+): TreeDataItem[] => {
+	return nodes.map((node) => {
+		const isSelf = Boolean(targetId && String(node.id) === String(targetId));
+		const disabled = Boolean(ancestorDisabled || isSelf || node.disabled);
+		return {
+			...node,
+			disabled,
+			children:
+				node.children?.length ?
+					disableSelfAndDescendants(node.children, targetId, disabled)
+				:	undefined,
+		};
+	});
+};
+
+const selectableTreeData = computed(() => {
+	if (!modelInfo.value?.id) {
+		return rawTreeData.value;
+	}
+	return disableSelfAndDescendants(rawTreeData.value, String(modelInfo.value.id));
+});
+
 const formState = ref<OrgInfoData>({});
 
 const handleOk = () => {
+	if (isReadonly.value) {
+		handleCancel();
+		return;
+	}
 	loading.value = true;
 	if (formRef.value) {
 		formRef.value
@@ -172,11 +244,15 @@ const handleCancel = () => {
 	modelInfo.value.open = false;
 };
 
-//保存机构表信息
+// 保存机构表信息
 const saveOrgInfoManager = async () => {
 	try {
 		const api = formState.value.id ? editOrgInfo : addOrgInfo;
-		const { code, message: messageInfo } = await api(formState.value);
+		const payload: OrgInfoData = {
+			...formState.value,
+			parentId: formState.value.parentId ? String(formState.value.parentId) : undefined,
+		};
+		const { code, message: messageInfo } = await api(payload);
 		if (code === '200') {
 			message.success(messageInfo || '保存成功！');
 			formState.value = {};
@@ -191,21 +267,38 @@ const saveOrgInfoManager = async () => {
 };
 
 const init = async () => {
-	if (modelInfo.value?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getOrgInfoDetail(modelInfo.value.id);
-		if (code === '200') {
-			formState.value = data || {};
-			modelConfig.confirmLoading = false;
+	loading.value = true;
+	formState.value = modelInfo.value?.id ? {} : { status: '1' };
+	try {
+		const treePromise = getOrgInfoTree();
+		if (modelInfo.value?.id) {
+			const [treeRes, detailRes] = await Promise.all([
+				treePromise,
+				getOrgInfoDetail(modelInfo.value.id),
+			]);
+			const { code: treeCode, data: treeDataList } = treeRes || {};
+			const { code: detailCode, data: detailData, message: detailMsg } = detailRes || {};
+			if (treeCode === '200') {
+				rawTreeData.value = (treeDataList || []) as TreeDataItem[];
+			}
+			if (detailCode === '200') {
+				formState.value = detailData || {};
+			} else if (detailCode) {
+				message.error(detailMsg || '查询失败！');
+			}
 		} else {
-			message.error(messageInfo || '查询失败！');
+			const { code, data } = (await treePromise) || {};
+			if (code === '200') {
+				rawTreeData.value = (data || []) as TreeDataItem[];
+			}
 		}
-	} else {
-		modelConfig.confirmLoading = false;
-		formState.value = {};
+	} catch {
+		message.error('加载失败，请重试');
+	} finally {
+		loading.value = false;
+		nextTick(() => {
+			formRef.value?.clearValidate();
+		});
 	}
 };
 
