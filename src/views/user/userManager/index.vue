@@ -386,6 +386,17 @@
 							</div>
 							<span v-else class="text-slate-400">-</span>
 						</template>
+
+						<!-- 生日 -->
+						<template v-else-if="column.key === 'birthday'">
+							<span
+								v-if="record.birthday"
+								class="text-xs text-slate-600 dark:text-slate-300 font-mono"
+							>
+								{{ formatDate(record.birthday) }}
+							</span>
+							<span v-else class="text-slate-400">-</span>
+						</template>
 					</template>
 				</a-table>
 			</div>
@@ -407,6 +418,7 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 import { columns } from '@/views/user/userManager/config';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
+import { formatDate } from '@/utils/dayjs';
 import {
 	getUserManagerPage,
 	deleteUserManager,

@@ -315,7 +315,6 @@ const particlesLoaded = (container: unknown) => {
 	border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-
 /* Right Side Styles */
 .login-content {
 	flex: 1;

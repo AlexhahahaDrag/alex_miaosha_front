@@ -43,7 +43,7 @@ export const columns: TableColumnsType = [
 		title: '生日',
 		dataIndex: 'birthday',
 		key: 'birthday',
-		width: 110,
+		width: 120,
 	},
 	{
 		title: '操作',

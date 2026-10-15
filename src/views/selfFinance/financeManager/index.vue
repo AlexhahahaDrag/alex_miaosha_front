@@ -336,7 +336,7 @@ const getCategoryPillStyle = (name?: string) => {
 	if (!name) return {};
 	let hash = 0;
 	for (let i = 0; i < name.length; i++) {
-		hash = (hash << 5) - hash + name.charCodeAt(i);
+		hash = (hash << 5) - hash + (name.codePointAt(i) ?? 0);
 		hash |= 0;
 	}
 	const idx = Math.abs(hash) % pillColorPalette.length;

@@ -28,8 +28,8 @@
 						class="search-user-select"
 						v-model:value="searchUser"
 						:field-names="{ label: 'nickName', value: 'id' }"
-						:options="userList"
-						placeholder="请选择用户"
+						:options="userOptions"
+						placeholder="请选择成员"
 						@change="changeMonth"
 					/>
 				</div>
@@ -153,9 +153,38 @@ const loading = ref<boolean>(false);
 // 用户信息
 const userInfo = useUserStore()?.getUserInfo;
 
-// 用户列表
+// 用户列表与选项（置顶「家庭组所有人」，后续展示家庭组织成员）
 const { userList } = useUserInfo();
-userList.value = [{ id: '0', nickName: '所有人' }];
+
+const userOptions = computed(() => {
+	const list: Array<{ id: string; nickName: string }> = [
+		{ id: '0', nickName: '家庭组所有人' },
+	];
+	const exists = new Set<string>(['0']);
+
+	if (Array.isArray(userList.value) && userList.value.length > 0) {
+		for (const u of userList.value) {
+			if (u.id != null) {
+				const idStr = String(u.id);
+				exists.add(idStr);
+				list.push({
+					id: idStr,
+					nickName: u.nickName || u.username || `成员(${idStr})`,
+				});
+			}
+		}
+	}
+
+	// 若当前用户尚未在列表中（如异步加载阶段），提前占位保障回显
+	if (userInfo?.id && !exists.has(String(userInfo.id))) {
+		list.push({
+			id: String(userInfo.id),
+			nickName: userInfo.nickName || userInfo.username || '当前用户',
+		});
+	}
+
+	return list;
+});
 
 // 余额列表
 const balanceList = ref<FinanceManagerData[]>([]);
@@ -256,7 +285,7 @@ const savingsRateClass = computed(() => {
 });
 
 
-const searchUser = ref<number>(userInfo?.id || 0);
+const searchUser = ref<string>(userInfo?.id ? String(userInfo.id) : '0');
 const searchDateTime = ref<Dayjs>(nowDayjs());
 
 const selectPrevMonth = () => {
@@ -341,11 +370,11 @@ const pieExpenseData = ref<ItemInfo[]>([]);
 const pieIncomeData = ref<ItemInfo[]>([]);
 
 // 获取余额信息
-const getBalanceInfo = async (userid: string | null, dateStr: string) => {
-	const belongTo =
-		userid === '0' || userid === null || userid === undefined ?
-			null
-		:	Number(userid);
+const getBalanceInfo = async (
+	userid: string | null | undefined,
+	dateStr: string,
+) => {
+	const belongTo = !userid || userid === '0' ? null : String(userid);
 	const {
 		code,
 		data,
@@ -374,13 +403,10 @@ const getBalanceInfo = async (userid: string | null, dateStr: string) => {
 
 // 获取收入和支出信息
 const getIncomeAndExpenseInfo = async (
-	userid: string | null,
+	userid: string | null | undefined,
 	dateStr: string,
 ) => {
-	const belongTo =
-		userid === '0' || userid === null || userid === undefined ?
-			null
-		:	Number(userid);
+	const belongTo = !userid || userid === '0' ? null : String(userid);
 	const {
 		code,
 		data,
@@ -436,14 +462,11 @@ const monthConfig = ref<barItem>({
 });
 
 const getExpenseSeries = async (
-	requestFn: (belongTo?: number | null, dateStr?: string) => Promise<any>,
-	userid: string | null,
+	requestFn: (belongTo?: string | null, dateStr?: string) => Promise<any>,
+	userid: string | null | undefined,
 	dateStr: string,
 ): Promise<AnalysisData[]> => {
-	const belongTo =
-		userid === '0' || userid === null || userid === undefined ?
-			null
-		:	Number(userid);
+	const belongTo = !userid || userid === '0' ? null : String(userid);
 	const {
 		code,
 		data,
@@ -458,7 +481,10 @@ const getExpenseSeries = async (
 };
 
 // 获取日收支对比信息
-const getDayExpenseInfo = async (userid: string | null, dateStr: string) => {
+const getDayExpenseInfo = async (
+	userid: string | null | undefined,
+	dateStr: string,
+) => {
 	const rawList = await getExpenseSeries(getDayExpense, userid, dateStr);
 	const xAxis: string[] = [];
 	const incomeList: number[] = [];
@@ -491,7 +517,10 @@ const getDayExpenseInfo = async (userid: string | null, dateStr: string) => {
 };
 
 // 获取月收支对比信息
-const getMonthExpenseInfo = async (userid: string | null, dateStr: string) => {
+const getMonthExpenseInfo = async (
+	userid: string | null | undefined,
+	dateStr: string,
+) => {
 	const rawList = await getExpenseSeries(getMonthExpense, userid, dateStr);
 	const xAxis: string[] = [];
 	const incomeList: number[] = [];
@@ -533,11 +562,12 @@ async function getInfo() {
 	loading.value = true;
 	try {
 		const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
+		const userParam = searchUser.value ? String(searchUser.value) : '0';
 		await Promise.all([
-			getBalanceInfo(String(searchUser.value), dateStr),
-			getIncomeAndExpenseInfo(String(searchUser.value), dateStr),
-			getDayExpenseInfo(String(searchUser.value), dateStr),
-			getMonthExpenseInfo(String(searchUser.value), dateStr),
+			getBalanceInfo(userParam, dateStr),
+			getIncomeAndExpenseInfo(userParam, dateStr),
+			getDayExpenseInfo(userParam, dateStr),
+			getMonthExpenseInfo(userParam, dateStr),
 		]);
 	} finally {
 		loading.value = false;
@@ -586,7 +616,7 @@ onMounted(() => {
 		}
 
 		.search-user-select {
-			width: 140px;
+			width: 160px;
 		}
 	}
 }

@@ -259,6 +259,12 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import type { TableColumnsType, TablePaginationConfig } from 'ant-design-vue';
+import {
+	TeamOutlined,
+	ReloadOutlined,
+	UserAddOutlined,
+	ExclamationCircleOutlined,
+} from '@ant-design/icons-vue';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 import { getUserManagerPage, getUserManagerList } from '@/views/user/userManager/api';
 import type { UserManagerInfo } from '@/views/user/userManager/config';

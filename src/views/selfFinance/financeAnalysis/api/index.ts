@@ -16,13 +16,15 @@ const financeAnalysisUrl = {
 };
 
 export const getBalance = (
-	belongTo?: number | null,
+	belongTo?: string | number | null,
 	searchDate?: string,
 ): Promise<ResponseBody<BalanceData>> => {
-	let params = {
+	const params: Record<string, unknown> = {
 		searchDate,
-		belongTo,
-	} as Record<string, unknown>;
+	};
+	if (belongTo && belongTo !== '0') {
+		params.belongTo = String(belongTo);
+	}
 	return getData(
 		baseService.finance + baseFinanceAnalysis + financeAnalysisUrl.getBalance,
 		params,
@@ -32,15 +34,17 @@ export const getBalance = (
 // 获取收入和支出信息
 // todo: 将来添加type参数，根据type查询收入和支出
 export const getIncomeAndExpense = (
-	belongTo?: number | null,
+	belongTo?: string | number | null,
 	searchDate?: string,
 	type?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
-	let params = {
-		belongTo,
+	const params: Record<string, unknown> = {
 		searchDate,
 		type,
-	} as Record<string, unknown>;
+	};
+	if (belongTo && belongTo !== '0') {
+		params.belongTo = String(belongTo);
+	}
 	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
@@ -50,13 +54,15 @@ export const getIncomeAndExpense = (
 };
 
 export const getDayExpense = (
-	belongTo?: number | null,
+	belongTo?: string | number | null,
 	searchDate?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
-	let params = {
-		belongTo,
+	const params: Record<string, unknown> = {
 		searchDate,
-	} as Record<string, unknown>;
+	};
+	if (belongTo && belongTo !== '0') {
+		params.belongTo = String(belongTo);
+	}
 	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
@@ -66,13 +72,15 @@ export const getDayExpense = (
 };
 
 export const getMonthExpense = (
-	belongTo?: number | null,
+	belongTo?: string | number | null,
 	searchDate?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
-	let params = {
-		belongTo,
+	const params: Record<string, unknown> = {
 		searchDate,
-	} as Record<string, unknown>;
+	};
+	if (belongTo && belongTo !== '0') {
+		params.belongTo = String(belongTo);
+	}
 	return getData(
 		baseService.finance +
 			baseFinanceAnalysis +
