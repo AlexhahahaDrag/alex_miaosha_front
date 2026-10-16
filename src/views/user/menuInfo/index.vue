@@ -1,76 +1,50 @@
 <template>
 	<div
-		class="menu-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors"
+		class="menu-management-screen h-full flex flex-col p-4 lg:p-5 bg-slate-50/60 dark:bg-slate-950 transition-colors overflow-hidden"
 	>
-		<!-- 1. 页面头部与紧凑指标 -->
+		<!-- 1. 页面头部与极简概览胶囊 (Impeccable Distill: 移除重复的图标方块瓷砖) -->
 		<div
-			class="screen-header mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+			class="screen-header mb-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0"
 		>
 			<div>
 				<div class="flex items-center gap-2.5">
 					<span
-						class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"
+						class="w-2 h-5 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 flex-shrink-0 shadow-2xs"
 					></span>
 					<h1
-						class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0"
+						class="text-lg font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0 leading-none"
 					>
 						菜单管理
 					</h1>
+					<span
+						class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50/80 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50 ml-1"
+					>
+						<AppstoreOutlined class="text-[11px]" />
+						<span>顶级模块 {{ fullMenuTree.length }}</span>
+						<span class="opacity-40">·</span>
+						<span>总节点 {{ totalTreeCount }}</span>
+					</span>
 				</div>
 				<p
-					class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-5 font-normal"
+					class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 ml-4.5 font-normal"
 				>
-					左侧树状层级导航，右侧聚焦展示所选目录下的明细与功能项（双栏架构）
+					配置系统多级导航菜单、前端路由映射与按钮级权限标识
 				</p>
-			</div>
-
-			<!-- 概览徽标 -->
-			<div class="flex items-center gap-3">
-				<div
-					class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 shadow-2xs"
-				>
-					<div
-						class="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs"
-					>
-						<AppstoreOutlined />
-					</div>
-					<div class="flex items-baseline gap-1.5">
-						<span class="text-xs text-slate-400 dark:text-slate-500 font-medium">顶级模块</span>
-						<span class="text-sm font-extrabold text-slate-800 dark:text-slate-100 font-mono">
-							{{ fullMenuTree.length }}
-						</span>
-					</div>
-				</div>
-				<div
-					class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 shadow-2xs"
-				>
-					<div
-						class="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs"
-					>
-						<CheckCircleOutlined />
-					</div>
-					<div class="flex items-baseline gap-1.5">
-						<span class="text-xs text-slate-400 dark:text-slate-500 font-medium">节点总数</span>
-						<span class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-							{{ totalTreeCount }}
-						</span>
-					</div>
-				</div>
 			</div>
 		</div>
 
-		<!-- 2. 主工作区：左侧树 + 右侧工作区 -->
-		<div class="flex flex-col lg:flex-row gap-5 items-start">
-			<!-- 左侧目录树卡片 (w-full lg:w-72 flex-shrink-0) -->
+		<!-- 2. 主工作区：左侧树 (264px) + 右侧工作区 (Zero-Page-Scroll 满屏自适应) -->
+		<div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 items-stretch overflow-hidden">
+			<!-- 左侧目录树卡片 -->
 			<div
-				class="w-full lg:w-72 flex-shrink-0 bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 shadow-xs"
+				class="w-full lg:w-64 flex-shrink-0 bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3.5 shadow-xs flex flex-col overflow-hidden"
 			>
 				<div
-					class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3"
+					class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800 mb-2.5 flex-shrink-0"
 				>
-					<span class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+					<span class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
 						<ApartmentOutlined class="text-blue-600" />
-						<span>目录架构</span>
+						<span>目录层级导航</span>
 					</span>
 					<a-button
 						size="small"
@@ -83,7 +57,7 @@
 				</div>
 
 				<!-- 树快速过滤搜索框 -->
-				<div class="mb-3">
+				<div class="mb-2.5 flex-shrink-0">
 					<a-input
 						v-model:value="treeSearchKey"
 						placeholder="搜索目录名称..."
@@ -100,14 +74,14 @@
 				<!-- 置顶全部菜单选项 -->
 				<div
 					:class="[
-						'px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between cursor-pointer transition-all mb-2',
+						'px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between cursor-pointer transition-all mb-2 flex-shrink-0',
 						selectedTreeKeys.length === 0 || selectedTreeKeys[0] === 'ALL'
 							? 'bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/80 dark:border-blue-900/60 shadow-2xs'
 							: 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900',
 					]"
 					@click="handleSelectAllNode"
 				>
-					<span class="flex items-center gap-2">
+					<span class="flex items-center gap-1.5">
 						<FolderOpenOutlined />
 						<span>全部菜单（全量平铺）</span>
 					</span>
@@ -119,33 +93,32 @@
 				</div>
 
 				<!-- 树组件容器 -->
-				<div class="menu-tree-container overflow-y-auto max-h-[calc(100vh-320px)] pr-1">
+				<div class="menu-tree-container flex-1 min-h-0 overflow-y-auto pr-1">
 					<a-tree
 						v-model:selectedKeys="selectedTreeKeys"
 						v-model:expandedKeys="treeExpandedKeys"
-						:tree-data="filteredTreeData"
+						:tree-data="(filteredTreeData as any)"
 						:field-names="{ title: 'title', key: 'id', children: 'children' }"
 						show-line
 						class="modern-menu-ant-tree"
 						@select="onTreeSelect"
 					>
-						<template #title="{ title, record }">
-							<span class="text-xs select-none font-medium flex items-center gap-1.5">
+						<template #title="{ title, dataRef }">
+							<span class="text-xs select-none font-medium inline-flex items-center gap-1.5">
+								<FolderFilled
+									v-if="!dataRef?.parentId || String(dataRef.parentId) === '0'"
+									class="text-blue-500 text-xs flex-shrink-0"
+								/>
+								<FileTextOutlined
+									v-else
+									class="text-emerald-500 text-xs flex-shrink-0"
+								/>
+								<span class="truncate">{{ title }}</span>
 								<span
-									v-if="!record.parentId || String(record.parentId) === '0'"
-									class="text-blue-600"
+									v-if="dataRef?.children?.length"
+									class="text-[10px] text-slate-400 font-mono ml-0.5"
 								>
-									📁
-								</span>
-								<span v-else class="text-emerald-600">
-									📄
-								</span>
-								<span>{{ title }}</span>
-								<span
-									v-if="record.children && record.children.length > 0"
-									class="text-[10px] text-slate-400 font-mono ml-auto"
-								>
-									({{ record.children.length }})
+									({{ dataRef.children.length }})
 								</span>
 							</span>
 						</template>
@@ -154,40 +127,46 @@
 			</div>
 
 			<!-- 右侧工作区 (flex-1 min-w-0) -->
-			<div class="flex-1 min-w-0 w-full flex flex-col gap-5">
-				<!-- 搜索与筛选栏 -->
+			<div class="flex-1 min-w-0 min-h-0 flex flex-col gap-3.5 overflow-hidden">
+				<!-- 搜索与筛选栏 (Ponytail D5: 内存 computed 实时过滤，移除无意义空 query 按钮) -->
 				<div
-					class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs"
+					class="filter-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-4 py-2.5 shadow-xs flex-shrink-0"
 				>
 					<a-form
 						:model="searchInfo"
 						layout="inline"
-						class="flex flex-wrap items-center gap-y-3 gap-x-4"
+						class="flex flex-wrap items-center gap-y-2 gap-x-3"
 					>
-						<a-form-item label="名称/标题" class="!mr-0 mb-0">
+						<a-form-item label="名称/路由" class="!mr-0 mb-0">
 							<a-input
 								v-model:value="searchInfo.title"
 								placeholder="输入标题或路由名"
 								class="rounded-lg w-44"
 								allow-clear
-								@keyup.enter="query"
-							/>
+							>
+								<template #prefix>
+									<SearchOutlined class="text-slate-400 text-xs" />
+								</template>
+							</a-input>
 						</a-form-item>
 
 						<a-form-item label="权限标识" class="!mr-0 mb-0">
 							<a-input
 								v-model:value="searchInfo.permissionCode"
 								placeholder="如 user:list"
-								class="rounded-lg w-40"
+								class="rounded-lg w-40 font-mono"
 								allow-clear
-								@keyup.enter="query"
-							/>
+							>
+								<template #prefix>
+									<SafetyCertificateOutlined class="text-slate-400 text-xs" />
+								</template>
+							</a-input>
 						</a-form-item>
 
 						<a-form-item label="状态" class="!mr-0 mb-0">
 							<a-select
 								v-model:value="searchInfo.status"
-								placeholder="选择状态"
+								placeholder="全部状态"
 								:field-names="{ label: 'typeName', value: 'typeCode' }"
 								:options="statusList"
 								class="rounded-lg w-28"
@@ -195,19 +174,10 @@
 							/>
 						</a-form-item>
 
-						<div class="flex items-center gap-2.5 ml-auto">
-							<a-button
-								type="primary"
-								data-testid="rbac-menu-btn-query"
-								class="rounded-lg px-4"
-								@click="query"
-							>
-								<template #icon><SearchOutlined /></template>
-								查找
-							</a-button>
+						<div class="flex items-center gap-2 ml-auto">
 							<a-button
 								data-testid="rbac-menu-btn-reset"
-								class="rounded-lg px-4"
+								class="rounded-lg px-3.5"
 								@click="cancelQuery"
 							>
 								<template #icon><ReloadOutlined /></template>
@@ -219,42 +189,40 @@
 
 				<!-- 表格卡片 -->
 				<div
-					class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden"
+					class="table-card flex-1 min-h-0 bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xs flex flex-col overflow-hidden"
 				>
-					<!-- 提示条与操作栏 -->
+					<!-- 提示条与操作栏 (Impeccable Clarify: 消除同行重复两次的上级名称) -->
 					<div
-						class="table-toolbar px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+						class="table-toolbar px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 flex-shrink-0"
 					>
-						<div class="flex items-center gap-2.5 flex-wrap">
-							<span class="text-base font-bold text-slate-800 dark:text-slate-100">
-								{{ activeParentNode ? `【${activeParentNode.title}】及其全部下级列表` : '全部菜单列表（全层级平铺）' }}
+						<div class="flex items-center gap-2 flex-wrap">
+							<span class="text-sm font-bold text-slate-800 dark:text-slate-100">
+								{{ activeParentNode ? `${activeParentNode.title} · 下级菜单` : '全部菜单列表' }}
 							</span>
 							<span
-								class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-mono font-medium"
+								class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-mono font-medium"
 							>
 								共 {{ currentTableData.length }} 项
 							</span>
 
-							<!-- 当前聚焦标签 -->
-							<span
+							<button
 								v-if="activeParentNode"
-								class="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200/70 dark:bg-blue-950/60 dark:text-blue-400 flex items-center gap-1.5"
+								type="button"
+								class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200/70 dark:bg-blue-950/60 dark:text-blue-400 flex items-center gap-1 cursor-pointer transition-colors"
+								title="清除目录聚焦，查看全部菜单"
+								@click="handleSelectAllNode"
 							>
-								<span>当前聚焦：{{ activeParentNode.title }}（含子孙下级）</span>
-								<CloseCircleOutlined
-									class="cursor-pointer hover:text-blue-800 text-[11px]"
-									title="清除聚焦，查看全量"
-									@click="handleSelectAllNode"
-								/>
-							</span>
+								<span>查看全部</span>
+								<CloseCircleOutlined class="text-[11px]" />
+							</button>
 						</div>
 
-						<div class="flex items-center gap-2.5">
+						<div class="flex items-center gap-2">
 							<a-button
 								v-permission="'menu:add'"
 								type="primary"
 								data-testid="rbac-menu-btn-add"
-								class="inline-flex items-center gap-1.5 shadow-xs rounded-lg font-medium"
+								class="inline-flex items-center gap-1 shadow-xs rounded-lg font-medium"
 								@click="handleAddFromCurrentContext"
 							>
 								<template #icon><PlusOutlined /></template>
@@ -263,101 +231,109 @@
 
 							<span v-permission="'menu:delete'">
 								<a-popconfirm
-									v-if="rowIds.length > 0"
 									:title="`确认批量删除选中的 ${rowIds.length} 个菜单?`"
 									ok-text="确认"
 									cancel-text="取消"
-									@confirm="batchDelMenuInfo"
+									:disabled="rowIds.length === 0"
+									@confirm="delMenuInfo(rowIds.join(','))"
 								>
 									<a-button
 										type="primary"
 										danger
+										:disabled="rowIds.length === 0"
 										data-testid="rbac-menu-btn-batch-delete"
 										class="rounded-lg font-medium"
 									>
 										<template #icon><DeleteOutlined /></template>
-										批量删除 ({{ rowIds.length }})
+										批量删除{{ rowIds.length > 0 ? ` (${rowIds.length})` : '' }}
 									</a-button>
 								</a-popconfirm>
 							</span>
 						</div>
 					</div>
 
-					<!-- 平铺表格体 (单层无横向挤压，干净透彻) -->
-					<div class="px-2 pt-2 pb-4">
+					<!-- 紧凑复合表格体 (Taste-Skill VISUAL_DENSITY=8, 8列紧凑排版 + 内部自适应滚动) -->
+					<div class="flex-1 min-h-0 px-2 pt-1.5 pb-2 overflow-hidden">
 						<a-table
 							:data-source="currentTableData"
 							:columns="columns"
 							:loading="loading"
 							:row-key="(record: any) => String(record.id)"
 							:pagination="false"
-							:scroll="{ x: 'max-content' }"
+							size="middle"
+							:scroll="{ x: 1080, y: 'calc(100vh - 285px)' }"
 							:row-selection="rowSelection"
 							class="modern-menu-table"
 							data-testid="rbac-menu-table"
 						>
 							<template #bodyCell="{ column, record }">
-								<!-- 菜单标题（带类型徽标，清爽无代码变量噪音） -->
+								<!-- 1. 菜单信息复合列 (标题 + 类型徽标 + 副行 name & icon) -->
 								<template v-if="column.key === 'title'">
-									<div class="inline-flex items-center gap-2">
-										<span
-											v-if="!record.parentId || String(record.parentId) === '0'"
-											class="text-blue-600 dark:text-blue-400 text-sm flex-shrink-0"
-										>
-											<FolderOutlined />
-										</span>
-										<span
-											v-else-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
-											class="text-slate-400 dark:text-slate-500 text-sm flex-shrink-0"
-										>
-											<FileProtectOutlined />
-										</span>
-										<span
-											v-else
-											class="text-emerald-600 dark:text-emerald-400 text-sm flex-shrink-0"
-										>
-											<FileTextOutlined />
-										</span>
-
-										<span
+									<div class="flex items-start gap-2.5 py-0.5">
+										<div
 											:class="[
+												'w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0 border mt-0.5',
 												!record.parentId || String(record.parentId) === '0'
-													? 'font-bold text-slate-900 dark:text-slate-100 text-[13.5px]'
+													? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-900/50'
 													: String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'
-													? 'text-slate-500 dark:text-slate-400 text-xs'
-													: 'font-medium text-slate-800 dark:text-slate-200 text-xs',
+													? 'bg-slate-100 text-slate-500 border-slate-200/80 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+													: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-900/50',
 											]"
 										>
-											{{ record.title }}
-										</span>
+											<FolderOutlined v-if="!record.parentId || String(record.parentId) === '0'" />
+											<FileProtectOutlined
+												v-else-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
+											/>
+											<FileTextOutlined v-else />
+										</div>
 
-										<!-- 类型微胶囊 -->
-										<span
-											v-if="!record.parentId || String(record.parentId) === '0'"
-											class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-blue-50 text-blue-600 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900/60 ml-0.5 select-none"
-										>
-											目录
-										</span>
-										<span
-											v-else-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
-											class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-normal bg-slate-100 text-slate-500 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 ml-0.5 select-none"
-										>
-											内页
-										</span>
-										<span
-											v-else
-											class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-normal bg-emerald-50 text-emerald-600 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-900/60 ml-0.5 select-none"
-										>
-											菜单
-										</span>
+										<div class="flex flex-col min-w-0">
+											<div class="flex items-center gap-1.5">
+												<span
+													:class="[
+														'truncate leading-tight',
+														!record.parentId || String(record.parentId) === '0'
+															? 'font-bold text-slate-900 dark:text-slate-100 text-[13px]'
+															: 'font-semibold text-slate-800 dark:text-slate-200 text-xs',
+													]"
+												>
+													{{ record.title || '-' }}
+												</span>
+												<span
+													v-if="!record.parentId || String(record.parentId) === '0'"
+													class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-blue-50 text-blue-600 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900/60 flex-shrink-0"
+												>
+													目录
+												</span>
+												<span
+													v-else-if="String(record.hideInMenu) === '1' || String(record.hideInMenu) === 'true'"
+													class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-normal bg-slate-100 text-slate-500 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 flex-shrink-0"
+												>
+													内页
+												</span>
+												<span
+													v-else
+													class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-normal bg-emerald-50 text-emerald-600 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-900/60 flex-shrink-0"
+												>
+													菜单
+												</span>
+											</div>
+											<div class="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-400 dark:text-slate-500 font-mono truncate">
+												<span>{{ record.name || '-' }}</span>
+												<template v-if="record.icon">
+													<span>·</span>
+													<span class="text-slate-400">{{ record.icon }}</span>
+												</template>
+											</div>
+										</div>
 									</div>
 								</template>
 
-								<!-- 所属上级（平铺列表中的直观归属） -->
+								<!-- 2. 所属上级 -->
 								<template v-else-if="column.key === 'parentTitle'">
 									<span
 										v-if="!record.parentTitle || record.parentTitle === '根目录'"
-										class="text-xs text-slate-400 dark:text-slate-500 font-mono"
+										class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50"
 									>
 										根目录
 									</span>
@@ -366,11 +342,38 @@
 										class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60"
 									>
 										<ApartmentOutlined class="text-[10px] text-blue-500" />
-										<span>{{ record.parentTitle }}</span>
+										<span class="truncate max-w-[90px]">{{ record.parentTitle }}</span>
 									</span>
 								</template>
 
-								<!-- 权限标识 (支持快速点击复制) -->
+								<!-- 3. 路由与组件复合列 (path + component) -->
+								<template v-else-if="column.key === 'path'">
+									<div class="flex flex-col min-w-0 py-0.5">
+										<span
+											class="text-xs font-mono font-medium text-slate-700 dark:text-slate-200 truncate"
+											:title="record.path"
+										>
+											{{ record.path || '-' }}
+										</span>
+										<div class="flex items-center gap-1 mt-0.5">
+											<span
+												v-if="record.component === 'Layout'"
+												class="inline-flex items-center px-1.5 py-0 rounded text-[10px] font-mono bg-blue-50/80 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50"
+											>
+												Layout
+											</span>
+											<span
+												v-else
+												class="text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate"
+												:title="record.component"
+											>
+												{{ record.component || '-' }}
+											</span>
+										</div>
+									</div>
+								</template>
+
+								<!-- 4. 权限标识 (支持快速点击复制) -->
 								<template v-else-if="column.key === 'permissionCode'">
 									<span
 										v-if="record.permissionCode"
@@ -378,32 +381,50 @@
 										title="点击复制权限标识"
 										@click="copyPermissionCode(record.permissionCode)"
 									>
-										<span>{{ record.permissionCode }}</span>
-										<CopyOutlined class="text-[10px] opacity-70" />
+										<span class="truncate max-w-[115px]">{{ record.permissionCode }}</span>
+										<CopyOutlined class="text-[10px] opacity-70 flex-shrink-0" />
 									</span>
 									<span v-else class="text-slate-400 text-xs">-</span>
 								</template>
 
-								<!-- 隐藏菜单 -->
+								<!-- 5. 可见性 (导航显示/隐藏 + 首页标识) -->
 								<template v-else-if="column.key === 'hideInMenu'">
+									<div class="inline-flex items-center gap-1">
+										<span
+											v-if="
+												String(record.hideInMenu) === '1' ||
+												String(record.hideInMenu) === 'true'
+											"
+											class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-600 border border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
+										>
+											隐藏
+										</span>
+										<span
+											v-else
+											class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50/70 text-emerald-600 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900"
+										>
+											显示
+										</span>
+										<span
+											v-if="String(record.showInHome) === '1' || String(record.showInHome) === 'true'"
+											class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+											title="在首页展示"
+										>
+											首页
+										</span>
+									</div>
+								</template>
+
+								<!-- 6. 排序 -->
+								<template v-else-if="column.key === 'orderBy'">
 									<span
-										v-if="
-											String(record.hideInMenu) === '1' ||
-											String(record.hideInMenu) === 'true'
-										"
-										class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600 border border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900"
+										class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800"
 									>
-										隐藏
-									</span>
-									<span
-										v-else
-										class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
-									>
-										显示
+										{{ record.orderBy ?? '-' }}
 									</span>
 								</template>
 
-								<!-- 状态（行内微开关） -->
+								<!-- 7. 状态（行内微开关） -->
 								<template v-else-if="column.key === 'status'">
 									<a-switch
 										:checked="String(record.status) === '1'"
@@ -415,15 +436,26 @@
 									/>
 								</template>
 
-								<!-- 操作列 -->
+								<!-- 8. 操作列 (查看只读 + 子项 + 编辑 + 删除) -->
 								<template v-else-if="column.key === 'operation'">
 									<div class="flex items-center justify-center gap-1">
+										<a-button
+											type="link"
+											size="small"
+											data-testid="rbac-menu-row-view"
+											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-slate-600 bg-slate-100/80 hover:bg-slate-200/80 dark:text-slate-300 dark:bg-slate-800"
+											@click="viewMenuInfo(String(record.id))"
+										>
+											<template #icon><EyeOutlined /></template>
+											查看
+										</a-button>
+
 										<a-button
 											v-permission="'menu:add'"
 											type="link"
 											size="small"
 											data-testid="rbac-menu-row-add-child"
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400"
+											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-indigo-600 bg-indigo-50/70 hover:bg-indigo-100 dark:text-indigo-400 dark:bg-indigo-950/50"
 											@click="handleAddChild(record)"
 										>
 											<template #icon><PlusOutlined /></template>
@@ -435,7 +467,7 @@
 											type="link"
 											size="small"
 											data-testid="rbac-menu-row-edit"
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400"
+											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-blue-600 bg-blue-50/70 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-950/50"
 											@click="editMenuInfo('update', String(record.id))"
 										>
 											<template #icon><EditOutlined /></template>
@@ -454,7 +486,7 @@
 													size="small"
 													danger
 													data-testid="rbac-menu-row-delete"
-													class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-rose-500 hover:text-rose-700 dark:text-rose-400"
+													class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-rose-500 bg-rose-50/70 hover:bg-rose-100 dark:text-rose-400 dark:bg-rose-950/50"
 												>
 													<template #icon><DeleteOutlined /></template>
 													删除
@@ -470,9 +502,10 @@
 			</div>
 		</div>
 
-		<!-- 详情与新增弹窗 -->
+		<!-- 详情与新增抽屉 (复用父组件 fullMenuTree，消除重复请求) -->
 		<menu-info-detail
 			v-model:model-info="modelInfo"
+			:tree-data="fullMenuTree"
 			@success="() => reloadAll()"
 		></menu-info-detail>
 	</div>
@@ -481,21 +514,23 @@
 <script setup lang="ts">
 import {
 	AppstoreOutlined,
-	CheckCircleOutlined,
 	SearchOutlined,
 	ReloadOutlined,
 	PlusOutlined,
 	DeleteOutlined,
 	EditOutlined,
+	EyeOutlined,
 	CopyOutlined,
 	FolderOutlined,
+	FolderFilled,
 	FolderOpenOutlined,
 	FileTextOutlined,
 	FileProtectOutlined,
 	ApartmentOutlined,
 	CloseCircleOutlined,
+	SafetyCertificateOutlined,
 } from '@ant-design/icons-vue';
-import { Modal, message } from 'ant-design-vue';
+import { message } from 'ant-design-vue';
 import MenuInfoDetail from '@/views/user/menuInfo/menuInfoDetail/index.vue';
 import {
 	getMenuInfoTree,
@@ -507,17 +542,14 @@ import { useDictInfo } from '@/composables/useDictInfo';
 import type { ModelInfo } from '@/types/modal';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 
-// 3. Hooks
 const { getDictByType } = useDictInfo('is_valid');
 
-// 表格选择
 const {
 	selectedRowKeys: rowIds,
 	rowSelection,
 	clearSelected: clearSelection,
 } = useRowSelection();
 
-// 4. State
 const loading = ref<boolean>(false);
 const fullMenuTree = ref<MenuInfoData[]>([]);
 const searchInfo = ref<MenuInfoData>({});
@@ -531,7 +563,6 @@ const activeParentNode = ref<MenuInfoData | null>(null);
 
 const statusList = computed(() => getDictByType('is_valid'));
 
-// 节点总数
 const totalTreeCount = computed(() => {
 	const countNodes = (nodes: MenuInfoData[]): number => {
 		if (!Array.isArray(nodes)) return 0;
@@ -543,7 +574,6 @@ const totalTreeCount = computed(() => {
 	return countNodes(fullMenuTree.value);
 });
 
-// 所有包含子项的节点 Key
 const allTreeKeys = computed(() => {
 	const keys: string[] = [];
 	const traverse = (nodes: MenuInfoData[]) => {
@@ -562,14 +592,9 @@ const isTreeAllExpanded = computed(
 );
 
 const toggleTreeExpand = () => {
-	if (isTreeAllExpanded.value) {
-		treeExpandedKeys.value = [];
-	} else {
-		treeExpandedKeys.value = [...allTreeKeys.value];
-	}
+	treeExpandedKeys.value = isTreeAllExpanded.value ? [] : [...allTreeKeys.value];
 };
 
-// 树节点过滤
 const filteredTreeData = computed(() => {
 	const key = treeSearchKey.value.trim().toLowerCase();
 	if (!key) return fullMenuTree.value;
@@ -593,17 +618,13 @@ const filteredTreeData = computed(() => {
 	return filterBranch(fullMenuTree.value);
 });
 
-// 递归收集节点及其所有后代为纯一维数组（必须解构剥离 children 属性，确保 Ant Table 绝不渲染 + 号展开列）
+// 递归收集节点及其所有后代为纯一维数组（剥离 children 属性，防止 Ant Table 渲染树形 + 号）
 const flattenNodeAndDescendants = (
 	node: MenuInfoData,
 	parentTitle = '根目录',
 ): MenuInfoData[] => {
 	const { children, ...pureItem } = node;
-	const flatItem: MenuInfoData = {
-		...pureItem,
-		parentTitle,
-	};
-	const result: MenuInfoData[] = [flatItem];
+	const result: MenuInfoData[] = [{ ...pureItem, parentTitle }];
 	if (Array.isArray(children) && children.length > 0) {
 		const currentTitle = node.title || node.name || '未命名';
 		for (const child of children) {
@@ -613,7 +634,6 @@ const flattenNodeAndDescendants = (
 	return result;
 };
 
-// 平铺全树所有节点
 const flattenAllTree = (nodes: MenuInfoData[], parentTitle = '根目录'): MenuInfoData[] => {
 	const list: MenuInfoData[] = [];
 	for (const n of nodes) {
@@ -622,12 +642,10 @@ const flattenAllTree = (nodes: MenuInfoData[], parentTitle = '根目录'): MenuI
 	return list;
 };
 
-// 右侧表格展示的数据源（纯平铺一维数组，彻底杜绝 children 字段与 + 号）
 const currentTableData = computed(() => {
 	let rawList: MenuInfoData[] = [];
 
 	if (activeParentNode.value) {
-		// 当前选中了某个节点，平铺展示该节点本身 + 其所有的下级和孙级等后代
 		const pTitle =
 			activeParentNode.value.parentId && String(activeParentNode.value.parentId) !== '0'
 				? findNodeById(fullMenuTree.value, String(activeParentNode.value.parentId))?.title ||
@@ -635,11 +653,9 @@ const currentTableData = computed(() => {
 				: '根目录';
 		rawList = flattenNodeAndDescendants(activeParentNode.value, pTitle);
 	} else {
-		// 默认展示全量菜单平铺列表
 		rawList = flattenAllTree(fullMenuTree.value);
 	}
 
-	// 结合右侧搜索条件过滤
 	const { title, permissionCode, status } = searchInfo.value;
 	return rawList.filter((item) => {
 		if (title) {
@@ -659,13 +675,11 @@ const currentTableData = computed(() => {
 	});
 });
 
-// 5. Actions
 const handleSelectAllNode = () => {
 	selectedTreeKeys.value = ['ALL'];
 	activeParentNode.value = null;
 };
 
-// 递归查找指定 ID 的节点
 const findNodeById = (nodes: MenuInfoData[], id: string): MenuInfoData | null => {
 	for (const node of nodes) {
 		if (String(node.id) === String(id)) return node;
@@ -701,15 +715,12 @@ const copyPermissionCode = async (codeStr: string) => {
 	}
 };
 
-const query = () => {
-	// 纯响应式计算过滤，触发视觉刷新
-};
-
 const cancelQuery = () => {
 	searchInfo.value = {};
 };
 
 const delMenuInfo = async (ids: string) => {
+	if (!ids) return;
 	const { code, message: messageInfo } = await deleteMenuInfo(ids);
 	if (code === '200') {
 		message.success(messageInfo ? `删除${messageInfo}` : '删除成功！');
@@ -720,19 +731,13 @@ const delMenuInfo = async (ids: string) => {
 	}
 };
 
-const batchDelMenuInfo = () => {
-	if (!rowIds.value.length) {
-		message.warning('请先选择数据！');
-		return;
-	}
-	Modal.confirm({
-		title: '确认删除',
-		content: `确定删除选中的 ${rowIds.value.length} 条数据吗？`,
-		okText: '删除',
-		okType: 'danger',
-		cancelText: '取消',
-		onOk: () => delMenuInfo(rowIds.value.join(',')),
-	});
+const viewMenuInfo = (id: string) => {
+	modelInfo.value = {
+		title: '查看菜单明细',
+		open: true,
+		id,
+		readonly: true,
+	};
 };
 
 const editMenuInfo = (type: string, id?: string) => {
@@ -742,10 +747,10 @@ const editMenuInfo = (type: string, id?: string) => {
 		open: true,
 		id: isAdd ? undefined : (id ?? null),
 		parentId: isAdd ? '0' : undefined,
+		readonly: false,
 	};
 };
 
-// 在当前选中的上下文模块下新增
 const handleAddFromCurrentContext = () => {
 	if (activeParentNode.value) {
 		modelInfo.value = {
@@ -753,19 +758,20 @@ const handleAddFromCurrentContext = () => {
 			open: true,
 			id: undefined,
 			parentId: String(activeParentNode.value.id),
+			readonly: false,
 		};
 	} else {
 		editMenuInfo('add');
 	}
 };
 
-// 行级快捷向当前行节点下挂子项
 const handleAddChild = (parentRecord: MenuInfoData) => {
 	modelInfo.value = {
 		title: `新增子菜单 - 所属上级【${parentRecord.title || parentRecord.name}】`,
 		open: true,
 		id: undefined,
 		parentId: String(parentRecord.id),
+		readonly: false,
 	};
 };
 
@@ -773,13 +779,18 @@ const handleToggleStatus = async (record: any, checked: boolean) => {
 	const newStatus = checked ? '1' : '0';
 	record._statusLoading = true;
 	try {
+		const { parentTitle, _statusLoading, children, ...cleanRecord } = record;
 		const { code, message: msg } = await apiEditMenuInfo({
-			...record,
+			...cleanRecord,
 			id: String(record.id),
 			status: newStatus,
 		});
 		if (code === '200') {
 			record.status = newStatus;
+			const sourceNode = findNodeById(fullMenuTree.value, String(record.id));
+			if (sourceNode) {
+				sourceNode.status = newStatus;
+			}
 			message.success(`${record.title || record.name} 已${checked ? '启用' : '禁用'}`);
 		} else {
 			message.error(msg || '状态更新失败');
@@ -798,12 +809,10 @@ const reloadAll = async () => {
 		if (code === '200' && Array.isArray(data)) {
 			fullMenuTree.value = data;
 
-			// 默认展开一级目录节点，层次清晰直观
 			if (treeExpandedKeys.value.length === 0) {
 				treeExpandedKeys.value = data.map((d: any) => String(d.id));
 			}
 
-			// 如果之前有选中的节点，刷新其引用
 			if (activeParentNode.value && activeParentNode.value.id) {
 				const refreshed = findNodeById(data, String(activeParentNode.value.id));
 				activeParentNode.value = refreshed;
@@ -816,7 +825,6 @@ const reloadAll = async () => {
 	}
 };
 
-// 初始化
 reloadAll();
 </script>
 
@@ -852,16 +860,16 @@ reloadAll();
 		background: #f1f5f9;
 		color: #334155;
 		font-weight: 700;
-		font-size: 13px;
+		font-size: 12.5px;
 		letter-spacing: 0.02em;
 		border-bottom: 1px solid #e2e8f0;
-		padding: 13px 16px;
+		padding: 10px 12px;
 	}
 
 	:deep(.ant-table-tbody > tr > td) {
 		border-bottom: 1px solid #f1f5f9;
-		padding: 12px 16px;
-		transition: background-color 0.2s ease;
+		padding: 9px 12px;
+		transition: background-color 0.15s ease;
 	}
 
 	:deep(.ant-table-tbody > tr:hover > td) {

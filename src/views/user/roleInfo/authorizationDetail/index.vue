@@ -1,89 +1,128 @@
 <template>
-	<a-drawer
-		:width="500"
+	<base-rbac-drawer
+		:open="!!modelInfo.open"
+		:width="560"
 		:title="modelInfo.title || '角色权限配置'"
-		placement="right"
-		v-model:open="modelInfo.open"
-		:footer-style="{ textAlign: 'right' }"
+		:subtitle="drawerSubtitle"
+		:loading="loading"
+		:destroy-on-close="true"
 		data-testid="rbac-relation-drawer"
-		@close="handleCancel"
+		@update:open="(open: boolean) => (modelInfo.open = open)"
+		@save="handleOk"
+		@cancel="handleCancel"
 	>
-		<template #footer>
-			<a-button
-				style="margin-right: 8px"
-				key="back"
-				data-testid="rbac-relation-btn-cancel"
-				@click="handleCancel"
-			>
-				取消
-			</a-button>
-			<a-button
-				key="submit"
-				type="primary"
-				:loading="loading"
-				data-testid="rbac-relation-btn-submit"
-				@click="handleOk"
-			>
-				保存
-			</a-button>
-		</template>
-		<div class="ai-role-recommend-bar" data-testid="rbac-ai-recommend-bar">
-			<div class="ai-bar-header">
-				<span class="ai-badge">✨ AI 智能权限推荐</span>
+		<!-- AI 智能权限推荐栏 -->
+		<div
+			class="mb-4 p-3.5 rounded-xl bg-gradient-to-r from-blue-50/90 via-indigo-50/80 to-blue-50/90 dark:from-blue-950/60 dark:via-indigo-950/50 dark:to-blue-950/60 border border-blue-200/80 dark:border-blue-800/80"
+			data-testid="rbac-ai-recommend-bar"
+		>
+			<div class="flex items-center justify-between gap-2">
+				<div class="flex items-center gap-2">
+					<span class="text-xs font-bold text-blue-700 dark:text-blue-300">
+						✨ AI 智能权限推荐
+					</span>
+					<span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+						根据岗位名称与职责自动匹配
+					</span>
+				</div>
 				<a-button
 					type="primary"
 					size="small"
 					ghost
 					:loading="aiLoading"
+					class="rounded-md text-xs font-medium"
 					data-testid="btn-ai-recommend-permissions"
 					@click="handleAiRecommendPermissions"
 				>
 					一键智能推荐勾选
 				</a-button>
 			</div>
-			<div v-if="aiReasoning" class="ai-reasoning-box">
-				<span class="ai-reason-label">推荐分析：</span>
+			<div
+				v-if="aiReasoning"
+				class="mt-2.5 px-3 py-2 rounded-lg bg-white/80 dark:bg-slate-900/80 text-xs text-blue-700 dark:text-blue-300 leading-relaxed border border-blue-100 dark:border-blue-900"
+			>
+				<span class="font-semibold">推荐分析：</span>
 				<span>{{ aiReasoning }}</span>
 			</div>
 		</div>
+
+		<!-- 菜单与按钮权限树面板 -->
 		<rbac-permission-tree-panel
-			title="菜单权限树"
-			description="勾选角色可访问的菜单/按钮权限，支持批量展开收起"
+			title="菜单与功能权限树"
+			:description="`当前已勾选 ${selectPermission.length} 项权限，支持全选、清空与一键展开`"
 			:tree-data="rbacTreeData"
 			:checked-keys="selectPermission"
 			:expanded-keys="expandedKeys"
 			:half-checked-keys="halfCheckedKeys"
-			@update:checkedKeys="(keys) => (selectPermission = keys.map(String))"
-			@update:expandedKeys="(keys) => (expandedKeys = keys.map(String))"
+			@update:checked-keys="(keys) => (selectPermission = keys.map(String))"
+			@update:expanded-keys="(keys) => (expandedKeys = keys.map(String))"
 			@select-all="selectPermission = allPermissionKeys"
 			@clear="selectPermission = []"
 			@expand-all="expandedKeys = allPermissionKeys"
 			@collapse-all="expandedKeys = []"
 		/>
-	</a-drawer>
-</template>
-<script lang="ts" setup>
-import type { RoleInfoData } from '@/views/user/roleInfo/config';
 
-// 字典数据已通过 useDictInfo 自动加载
+		<template #footer>
+			<div class="flex justify-end gap-2">
+				<a-button
+					:disabled="loading"
+					data-testid="rbac-relation-btn-cancel"
+					@click="handleCancel"
+				>
+					取消
+				</a-button>
+				<a-button
+					type="primary"
+					:loading="loading"
+					data-testid="rbac-relation-btn-submit"
+					@click="handleOk"
+				>
+					保存
+				</a-button>
+			</div>
+		</template>
+	</base-rbac-drawer>
+</template>
+
+<script lang="ts" setup>
+import { message } from 'ant-design-vue';
+import type { ModelInfo } from '@/types/modal';
+import type { RbacTreeNode } from '@/components/rbac';
+import type {
+	RoleInfoData,
+	RolePermissionItem,
+} from '@/views/user/roleInfo/config';
 import {
 	getRoleInfoDetail,
 	assignRolePermissions,
 	aiRecommendRolePermissions,
 } from '@/views/user/roleInfo/api';
-import { message } from 'ant-design-vue';
-import type { RbacTreeNode } from '@/components/rbac';
+import type { PermissionInfo } from '@/views/user/permissionInfo/config';
 
-interface RawPermissionNode {
-	id?: string;
-	permissionName?: string;
-	children?: RawPermissionNode[];
-}
+const modelInfo = defineModel<ModelInfo>('modelInfo', {
+	default: () => ({}),
+});
+const emit = defineEmits(['success']);
 
+const loading = ref<boolean>(false);
+const expandedKeys = ref<string[]>([]);
+const halfCheckedKeys = ref<string[]>([]);
+const aiLoading = ref<boolean>(false);
+const aiReasoning = ref<string>('');
 const aiRecommendedKeys = ref<string[]>([]);
 
-// 将后端 id/permissionName/children 结构映射为 RbacPermissionTreePanel 所需的 key/title/children
-const toRbacTree = (nodes: RawPermissionNode[]): RbacTreeNode[] =>
+const formState = ref<RoleInfoData>({});
+const permissionTree = ref<PermissionInfo[]>([]);
+const selectPermission = ref<string[]>([]);
+
+const drawerSubtitle = computed(() => {
+	if (formState.value.roleName || formState.value.roleCode) {
+		return `${formState.value.roleName || ''} (${formState.value.roleCode || ''})`;
+	}
+	return '分配角色可访问的菜单、按钮及接口权限';
+});
+
+const toRbacTree = (nodes: PermissionInfo[]): RbacTreeNode[] =>
 	(nodes || []).map((node) => {
 		const key = String(node.id ?? '');
 		const isAiRec = aiRecommendedKeys.value.includes(key);
@@ -102,37 +141,17 @@ const collectAllKeys = (nodes: RbacTreeNode[]): string[] =>
 		...(node.children?.length ? collectAllKeys(node.children) : []),
 	]);
 
-const loading = ref<boolean>(false);
-const expandedKeys = ref<string[]>([]);
-const halfCheckedKeys = ref<string[]>([]);
-const aiLoading = ref<boolean>(false);
-const aiReasoning = ref<string>('');
-
-const modelConfig = {
-	confirmLoading: true,
-	destroyOnClose: true,
-};
-
-import type { ModelInfo } from '@/types/modal';
-
-const modelInfo = defineModel<ModelInfo>('modelInfo', {
-	default: () => ({}),
-});
-
-const formState = ref<RoleInfoData>({});
-
-// 字典数据已通过 useDictInfo 自动加载
-
-const permissionTree = ref<RawPermissionNode[]>([]);
 const rbacTreeData = computed(() => toRbacTree(permissionTree.value));
 const allPermissionKeys = computed(() => collectAllKeys(rbacTreeData.value));
-
-const selectPermission = ref<string[]>([]);
 
 const handleAiRecommendPermissions = async () => {
 	aiLoading.value = true;
 	try {
-		const { code, data, message: msg } = await aiRecommendRolePermissions({
+		const {
+			code,
+			data,
+			message: msg,
+		} = await aiRecommendRolePermissions({
 			roleName: formState.value?.roleName,
 			roleCode: formState.value?.roleCode,
 			description: formState.value?.summary || formState.value?.roleName,
@@ -145,14 +164,16 @@ const handleAiRecommendPermissions = async () => {
 				expandedKeys.value = ids;
 				aiReasoning.value =
 					data.reasoning || '已根据角色岗位特征智能匹配最契合的功能权限。';
-				message.success(`AI 已推荐并自动勾选 ${ids.length} 项权限（已在权限树高亮标记）！`);
+				message.success(
+					`AI 已推荐并自动勾选 ${ids.length} 项权限（已在权限树高亮标记）！`,
+				);
 			} else {
 				message.info('未匹配到特定权限，请根据需要手动勾选。');
 			}
 		} else {
 			message.warning(msg || 'AI 权限推荐未返回结果');
 		}
-	} catch (err) {
+	} catch {
 		message.error('AI 权限推荐请求失败');
 	} finally {
 		aiLoading.value = false;
@@ -191,42 +212,36 @@ const saveRoleInfoManager = async () => {
 	}
 };
 
-// 获取所有权限列表和已选权限
 const getAllPermissions = async () => {
+	loading.value = true;
 	try {
 		const roleId = modelInfo.value?.id;
-
 		if (roleId) {
 			const {
 				code,
 				data,
 				message: messageInfo,
-			} = await getRoleInfoDetail(roleId);
-			if (code === '200') {
-				formState.value = data as RoleInfoData;
-				permissionTree.value =
-					(data as { permissionList?: RawPermissionNode[] })
-						?.permissionList || [];
-				selectPermission.value =
-					(
-						data as { rolePermissionInfoVoList?: { id: string }[] }
-					)?.rolePermissionInfoVoList?.map((item: { id: string }) =>
-						String(item.id),
-					) || [];
+			} = await getRoleInfoDetail(String(roleId));
+			if (code === '200' && data) {
+				formState.value = data;
+				permissionTree.value = data.permissionList || [];
+				selectPermission.value = (data.rolePermissionInfoVoList || [])
+					.map((item: RolePermissionItem) =>
+						String(item.permissionId || item.id || ''),
+					)
+					.filter(Boolean);
 			} else {
 				message.error(messageInfo || '获取权限信息失败！');
 			}
 		}
-	} catch (error) {
-		console.error('获取权限列表失败:', error);
+	} catch {
 		message.error('获取权限列表失败！');
 	} finally {
-		modelConfig.confirmLoading = false;
+		loading.value = false;
 	}
 };
 
 const init = async () => {
-	// 重置状态
 	permissionTree.value = [];
 	selectPermission.value = [];
 	expandedKeys.value = [];
@@ -234,9 +249,6 @@ const init = async () => {
 	formState.value = {};
 	aiReasoning.value = '';
 	aiRecommendedKeys.value = [];
-	modelConfig.confirmLoading = true;
-
-	// 始终获取所有权限列表
 	await getAllPermissions();
 };
 
@@ -247,45 +259,6 @@ watch(
 			init();
 		}
 	},
-	{
-		immediate: true,
-	},
+	{ immediate: true },
 );
-
-const emit = defineEmits(['success']);
 </script>
-<style lang="scss" scoped>
-.ai-role-recommend-bar {
-	margin-bottom: 12px;
-	padding: 10px 14px;
-	background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
-	border: 1px solid #adc6ff;
-	border-radius: 6px;
-
-	.ai-bar-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-
-		.ai-badge {
-			font-weight: 600;
-			color: #1d39c4;
-			font-size: 13px;
-		}
-	}
-
-	.ai-reasoning-box {
-		margin-top: 8px;
-		padding: 6px 8px;
-		background: rgba(255, 255, 255, 0.7);
-		border-radius: 4px;
-		font-size: 12px;
-		color: #2f54eb;
-		line-height: 1.5;
-
-		.ai-reason-label {
-			font-weight: 600;
-		}
-	}
-}
-</style>

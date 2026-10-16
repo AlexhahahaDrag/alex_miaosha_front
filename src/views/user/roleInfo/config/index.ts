@@ -1,44 +1,63 @@
 import type { TableColumnsType } from 'ant-design-vue';
-import type { PermissionInfo } from '@/views/user/permissionInfo/permissionInfoListTs';
+import type { PermissionInfo } from '@/views/user/permissionInfo/config';
 
-export const columns = ref<TableColumnsType>([
+export const columns: TableColumnsType = [
 	{
-		title: '角色编码',
-		dataIndex: 'roleCode',
-		key: 'roleCode',
-	},
-	{
-		title: '角色名称',
+		title: '角色信息 (名称 / 职责说明)',
 		dataIndex: 'roleName',
 		key: 'roleName',
+		width: 220,
+		ellipsis: true,
 	},
 	{
-		title: '描述',
-		dataIndex: 'summary',
-		key: 'summary',
+		title: '角色编码 (Code)',
+		dataIndex: 'roleCode',
+		key: 'roleCode',
+		width: 170,
+		ellipsis: true,
+	},
+	{
+		title: '绑定机构',
+		dataIndex: 'orgNames',
+		key: 'orgNames',
+		width: 210,
+		ellipsis: true,
+	},
+	{
+		title: '授权与成员规模',
+		key: 'metrics',
+		width: 190,
+		align: 'center',
 	},
 	{
 		title: '状态',
 		dataIndex: 'status',
 		key: 'status',
+		width: 95,
+		align: 'center',
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		width: 265,
+		align: 'center',
 	},
-]);
+];
 
-export const labelMap = ref<Record<string, { name: string; label: string }>>({
-	orgId: { name: 'orgId', label: '公司角色id' },
-	orgIds: { name: 'orgIds', label: '绑定机构' },
-	userId: { name: 'userId', label: '用户id' },
-	roleCode: { name: 'roleCode', label: '角色编码' },
-	roleName: { name: 'roleName', label: '角色名称' },
-	summary: { name: 'summary', label: '描述' },
-	status: { name: 'status', label: '状态' },
-});
+export interface RolePermissionItem {
+	id?: string;
+	roleId?: string;
+	permissionId?: string;
+	status?: string;
+}
+
+export interface RoleUserItem {
+	id?: string;
+	roleId?: string;
+	userId?: string;
+	status?: string;
+}
 
 export interface RoleInfoData {
 	id?: string;
@@ -47,34 +66,18 @@ export interface RoleInfoData {
 	summary?: string;
 	status?: string;
 	orgIds?: string[];
+	orgNames?: string;
+	boundUserCount?: number | string;
+	permissionCount?: number | string;
 	permissionList?: PermissionInfo[];
+	rolePermissionInfoVoList?: RolePermissionItem[];
+	roleUserInfoVoList?: RoleUserItem[];
 }
 
 export const rulesRef = reactive({
-	roleCode: [
-		{
-			required: true,
-			message: '角色编码不能为空！',
-		},
-	],
-	roleName: [
-		{
-			required: true,
-			message: '角色名称不能为空！',
-		},
-	],
-	summary: [
-		{
-			required: true,
-			message: '描述不能为空！',
-		},
-	],
-	status: [
-		{
-			required: true,
-			message: '状态不能为空！',
-		},
-	],
+	roleCode: [{ required: true, message: '角色编码不能为空！' }],
+	roleName: [{ required: true, message: '角色名称不能为空！' }],
+	status: [{ required: true, message: '状态不能为空！' }],
 	orgIds: [
 		{
 			required: true,
@@ -84,6 +87,3 @@ export const rulesRef = reactive({
 		},
 	],
 });
-
-export const labelCol = ref({ span: 5 });
-export const wrapperCol = ref({ span: 19 });

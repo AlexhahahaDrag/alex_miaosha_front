@@ -140,7 +140,7 @@ async function gotoMenu(page, names) {
 async function gotoRbacPage(page, runtime, key) {
 	const map = {
 		user: {
-			menus: '用户信息、用户',
+			menus: '用户管理、用户信息、用户',
 			paths: ['/user', '/user-manager', '/user/info', '/#/user/userManager', '/#/user/userManager/'],
 			testId: 'rbac-user-table',
 			anchors: ['用户信息', '用户管理', '用户名', '账号', '查询', '新增'],

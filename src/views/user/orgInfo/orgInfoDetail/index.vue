@@ -270,26 +270,20 @@ const init = async () => {
 	loading.value = true;
 	formState.value = modelInfo.value?.id ? {} : { status: '1' };
 	try {
-		const treePromise = getOrgInfoTree();
+		// 1. 公共组织机构树：统一先行加载并赋值
+		const { code: treeCode, data: treeDataList } = (await getOrgInfoTree()) || {};
+		if (treeCode === '200') {
+			rawTreeData.value = (treeDataList || []) as TreeDataItem[];
+		}
+
+		// 2. 仅编辑模式按需拉取详情
 		if (modelInfo.value?.id) {
-			const [treeRes, detailRes] = await Promise.all([
-				treePromise,
-				getOrgInfoDetail(modelInfo.value.id),
-			]);
-			const { code: treeCode, data: treeDataList } = treeRes || {};
-			const { code: detailCode, data: detailData, message: detailMsg } = detailRes || {};
-			if (treeCode === '200') {
-				rawTreeData.value = (treeDataList || []) as TreeDataItem[];
-			}
+			const { code: detailCode, data: detailData, message: detailMsg } =
+				(await getOrgInfoDetail(modelInfo.value.id)) || {};
 			if (detailCode === '200') {
 				formState.value = detailData || {};
 			} else if (detailCode) {
 				message.error(detailMsg || '查询失败！');
-			}
-		} else {
-			const { code, data } = (await treePromise) || {};
-			if (code === '200') {
-				rawTreeData.value = (data || []) as TreeDataItem[];
 			}
 		}
 	} catch {

@@ -1,79 +1,142 @@
 <template>
-	<div class="page-info">
-		<a-alert
-			message="角色-用户关系配置"
-			description="选择角色后，在下方双栏中调整已分配用户，保存前可预览本次新增/移除的差异。"
-			type="info"
-			show-icon
-			style="margin-bottom: 16px"
-		/>
-		<div class="toolbar">
-			<a-space>
-				<span class="toolbar__label">选择角色：</span>
-				<a-select
-					v-model:value="selectedRoleId"
-					:options="roleOptions"
-					placeholder="请选择角色"
-					show-search
-					:filter-option="filterOption"
-					style="width: 260px"
-					data-testid="rbac-role-user-select-role"
-					@change="onRoleChange"
-				/>
-			</a-space>
+	<div
+		class="role-user-page flex flex-col gap-3 h-[calc(100vh-110px)] overflow-hidden"
+	>
+		<!-- 顶部标题与角色选择工具栏 -->
+		<div
+			class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-5 py-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] shrink-0"
+		>
+			<div class="flex flex-wrap items-center justify-between gap-3">
+				<div class="flex items-center gap-2.5">
+					<div
+						class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20"
+					>
+						<TeamOutlined class="text-base" />
+					</div>
+					<div>
+						<div class="flex items-center gap-2 flex-wrap">
+							<h2
+								class="text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight m-0"
+							>
+								角色-用户关系配置
+							</h2>
+							<span
+								v-if="selectedRoleOrgNames"
+								class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800"
+							>
+								角色适用机构: {{ selectedRoleOrgNames }}
+							</span>
+							<span
+								v-else
+								class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800"
+							>
+								批量分配角色关联成员并预览变更差异
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex items-center gap-2.5 flex-wrap">
+					<div class="flex items-center gap-2">
+						<span
+							class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+						>
+							目标角色:
+						</span>
+						<a-select
+							v-model:value="selectedRoleId"
+							:options="roleOptions"
+							placeholder="请选择要分配成员的角色"
+							show-search
+							:filter-option="filterOption"
+							class="w-64"
+							data-testid="rbac-role-user-select-role"
+							@change="onRoleChange"
+						/>
+					</div>
+
+					<a-button
+						class="rounded-lg text-slate-600 dark:text-slate-300"
+						@click="router.back()"
+					>
+						返回角色管理
+					</a-button>
+				</div>
+			</div>
 		</div>
 
-		<a-empty v-if="!selectedRoleId" description="请先选择角色" />
-		<template v-else>
-			<rbac-dual-list-selector
-				available-title="全部用户"
-				assigned-title="已分配用户"
-				:available-items="availableItems"
-				:assigned-items="assignedItems"
-				v-model:selected-available-keys="selectedAvailableKeys"
-				v-model:selected-assigned-keys="selectedAssignedKeys"
-				v-model:available-keyword="availableKeyword"
-				v-model:assigned-keyword="assignedKeyword"
-				:loading="pageLoading"
-				@search-available="(value) => (availableKeyword = value)"
-				@search-assigned="(value) => (assignedKeyword = value)"
-				@add="handleAdd"
-				@remove="handleRemove"
-			/>
-
-			<rbac-diff-preview
-				title="本次变更预览"
-				description="保存后将全量替换该角色的用户关系"
-				:added="diffAdded"
-				:removed="diffRemoved"
-				:unchanged="diffUnchanged"
-				style="margin-top: 16px"
-			/>
-
-			<div class="footer-bar">
-				<a-space>
-					<a-button
-						:disabled="!hasChanges"
-						data-testid="rbac-role-user-btn-reset"
-						@click="resetDraft"
-					>
-						重置
-					</a-button>
-					<a-button
-						type="primary"
-						:disabled="!hasChanges"
-						:loading="saving"
-						data-testid="rbac-role-user-btn-save"
-						@click="handleSave"
-					>
-						保存
-					</a-button>
-				</a-space>
+		<!-- 主体双栏穿梭与差异预览区 -->
+		<div
+			class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-5 py-4 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] flex-1 flex flex-col min-h-0 overflow-y-auto"
+		>
+			<div
+				v-if="!selectedRoleId"
+				class="flex-1 flex flex-col items-center justify-center py-16"
+			>
+				<a-empty
+					description="请先在右上角选择角色，随后可在双栏中批量调整该角色下的绑定成员"
+				/>
 			</div>
-		</template>
+
+			<div v-else class="flex flex-col gap-3.5 flex-1">
+				<rbac-dual-list-selector
+					available-title="全部可分配用户"
+					assigned-title="已分配该角色的用户"
+					:available-items="availableItems"
+					:assigned-items="assignedItems"
+					v-model:selected-available-keys="selectedAvailableKeys"
+					v-model:selected-assigned-keys="selectedAssignedKeys"
+					v-model:available-keyword="availableKeyword"
+					v-model:assigned-keyword="assignedKeyword"
+					:loading="pageLoading"
+					@search-available="(value) => (availableKeyword = value)"
+					@search-assigned="(value) => (assignedKeyword = value)"
+					@add="handleAdd"
+					@remove="handleRemove"
+				/>
+
+				<rbac-diff-preview
+					title="本次变更预览"
+					description="保存后将全量替换该角色的用户绑定关系，并刷新受影响用户的权限缓存"
+					:added="diffAdded"
+					:removed="diffRemoved"
+					:unchanged="diffUnchanged"
+				/>
+
+				<div
+					class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between"
+				>
+					<span class="text-xs text-slate-400 dark:text-slate-500">
+						提示：被分配用户的所属机构须与该角色绑定的机构存在交集。
+					</span>
+					<div class="flex items-center gap-2">
+						<a-button
+							:disabled="!hasChanges"
+							class="rounded-lg"
+							data-testid="rbac-role-user-btn-reset"
+							@click="resetDraft"
+						>
+							重置变更
+						</a-button>
+						<a-button
+							type="primary"
+							:disabled="!hasChanges"
+							:loading="saving"
+							class="rounded-lg font-medium"
+							data-testid="rbac-role-user-btn-save"
+							@click="handleSave"
+						>
+							保存分配
+						</a-button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
+import { TeamOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import type { RbacDiffItem, RbacSelectableItem } from '@/components/rbac';
 import {
@@ -81,14 +144,18 @@ import {
 	getRoleInfoDetail,
 	assignRoleUsers,
 } from '@/views/user/roleInfo/api';
-import type { RoleInfoData } from '@/views/user/roleInfo/config';
+import type { RoleInfoData, RoleUserItem } from '@/views/user/roleInfo/config';
 import { getUserManagerList } from '@/views/user/userManager/api';
 import type { UserManagerInfo } from '@/views/user/userManager/config';
 
 interface RoleOption {
 	label: string;
 	value: string;
+	orgNames?: string;
 }
+
+const router = useRouter();
+const route = useRoute();
 
 const roleOptions = ref<RoleOption[]>([]);
 const selectedRoleId = ref<string>();
@@ -99,6 +166,14 @@ const userMap = computed(() => {
 		if (user.id) map.set(String(user.id), user);
 	});
 	return map;
+});
+
+const selectedRoleOrgNames = computed(() => {
+	if (!selectedRoleId.value) return '';
+	const found = roleOptions.value.find(
+		(r) => r.value === String(selectedRoleId.value),
+	);
+	return found?.orgNames || '';
 });
 
 const initialAssignedUserIds = ref<string[]>([]);
@@ -214,8 +289,8 @@ const handleSave = async () => {
 	saving.value = true;
 	try {
 		const { code, message: messageInfo } = await assignRoleUsers(
-			selectedRoleId.value,
-			draftAssignedUserIds.value,
+			String(selectedRoleId.value),
+			draftAssignedUserIds.value.map(String),
 		);
 		if (code === '200') {
 			message.success(messageInfo || '保存成功！');
@@ -236,14 +311,11 @@ const loadRoleUsers = async (roleId: string) => {
 			data,
 			message: messageInfo,
 		} = await getRoleInfoDetail(roleId);
-		if (code === '200') {
-			const list =
-				(
-					data as unknown as {
-						roleUserInfoVoList?: { userId?: string; id?: string }[];
-					}
-				)?.roleUserInfoVoList || [];
-			const ids = list.map((item) => String(item.userId || item.id));
+		if (code === '200' && data) {
+			const list = data.roleUserInfoVoList || [];
+			const ids = list
+				.map((item: RoleUserItem) => String(item.userId || item.id || ''))
+				.filter(Boolean);
 			initialAssignedUserIds.value = ids;
 			draftAssignedUserIds.value = [...ids];
 		} else {
@@ -257,7 +329,7 @@ const loadRoleUsers = async (roleId: string) => {
 };
 
 const onRoleChange = (roleId: string) => {
-	if (roleId) loadRoleUsers(roleId);
+	if (roleId) loadRoleUsers(String(roleId));
 };
 
 const loadRoleOptions = async () => {
@@ -268,8 +340,9 @@ const loadRoleOptions = async () => {
 	} = await getRoleInfoPage({ status: '1' }, 1, 1000);
 	if (code === '200') {
 		roleOptions.value = (data?.records || []).map((role: RoleInfoData) => ({
-			label: role.roleName || '',
+			label: `${role.roleName || ''}${role.roleCode ? ` (${role.roleCode})` : ''}`,
 			value: String(role.id),
+			orgNames: role.orgNames,
 		}));
 	} else {
 		message.error(messageInfo || '加载角色列表失败！');
@@ -294,29 +367,11 @@ const loadUsers = async () => {
 	}
 };
 
-onMounted(() => {
-	loadRoleOptions();
-	loadUsers();
+onMounted(async () => {
+	await Promise.all([loadRoleOptions(), loadUsers()]);
+	if (route.query.roleId) {
+		selectedRoleId.value = String(route.query.roleId);
+		loadRoleUsers(selectedRoleId.value);
+	}
 });
 </script>
-<style lang="scss" scoped>
-.page-info {
-	background: #fff;
-	padding: 24px;
-	border-radius: 8px;
-
-	.toolbar {
-		margin-bottom: 16px;
-
-		.toolbar__label {
-			color: #333;
-			font-weight: 500;
-		}
-	}
-
-	.footer-bar {
-		margin-top: 16px;
-		text-align: right;
-	}
-}
-</style>

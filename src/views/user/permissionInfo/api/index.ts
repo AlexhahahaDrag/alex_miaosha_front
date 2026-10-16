@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getDataOne,
 	postData,
 	putData,
@@ -6,7 +6,7 @@
 	baseService,
 } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
-import type { PermissionInfo } from '@/views/user/permissionInfo/permissionInfoListTs';
+import type { PermissionInfo, SearchInfo } from '@/views/user/permissionInfo/config';
 
 const basePermissionInfo = '/permission-info';
 
@@ -16,7 +16,7 @@ const PermissionInfoUrl = {
 };
 
 export function getPermissionInfoPage(
-	params: PermissionInfo,
+	params: SearchInfo | PermissionInfo,
 	pageNum: number | null | undefined,
 	pageSize: number | null | undefined,
 ): Promise<ResponseBody<CommonPageResult<PermissionInfo>>> {
@@ -66,7 +66,7 @@ export function editPermissionInfo(
 
 export function getPermissionInfoList(
 	params?: Record<string, unknown>,
-): Promise<ResponseBody<unknown[]>> {
+): Promise<ResponseBody<PermissionInfo[]>> {
 	return postData(
 		baseService.user + basePermissionInfo + '/list',
 		params ?? {},

@@ -1,66 +1,38 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
-export const columns = ref<TableColumnsType>([
+export const columns: TableColumnsType = [
 	{
-		title: '菜单标题',
+		title: '菜单信息 (标题 / 路由名)',
 		dataIndex: 'title',
 		key: 'title',
-		width: 200,
+		width: 220,
 		ellipsis: true,
 	},
 	{
 		title: '所属上级',
 		dataIndex: 'parentTitle',
 		key: 'parentTitle',
-		width: 140,
+		width: 120,
 		ellipsis: true,
 	},
 	{
-		title: '路由路径',
+		title: '路由与组件 (Path / Component)',
 		dataIndex: 'path',
 		key: 'path',
-		width: 180,
+		width: 220,
 		ellipsis: true,
 	},
 	{
 		title: '权限标识',
 		dataIndex: 'permissionCode',
 		key: 'permissionCode',
-		width: 170,
+		width: 150,
 		ellipsis: true,
 	},
 	{
-		title: '组件',
-		dataIndex: 'component',
-		key: 'component',
-		width: 180,
-		ellipsis: true,
-	},
-	{
-		title: '路由名称',
-		dataIndex: 'name',
-		key: 'name',
-		width: 140,
-		ellipsis: true,
-	},
-	{
-		title: '图标',
-		dataIndex: 'icon',
-		key: 'icon',
-		width: 90,
-		align: 'center',
-	},
-	{
-		title: '导航显示',
+		title: '可见性',
 		dataIndex: 'hideInMenu',
 		key: 'hideInMenu',
-		width: 100,
-		align: 'center',
-	},
-	{
-		title: '状态',
-		dataIndex: 'status',
-		key: 'status',
 		width: 100,
 		align: 'center',
 	},
@@ -68,20 +40,28 @@ export const columns = ref<TableColumnsType>([
 		title: '排序',
 		dataIndex: 'orderBy',
 		key: 'orderBy',
-		width: 80,
+		width: 70,
+		align: 'center',
+	},
+	{
+		title: '状态',
+		dataIndex: 'status',
+		key: 'status',
+		width: 85,
 		align: 'center',
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: 220,
+		width: 210,
 		align: 'center',
 	},
-]);
+];
 
 export interface MenuInfoData {
 	id?: string;
+	key?: string | number;
 	name?: string;
 	path?: string;
 	title?: string;
@@ -94,26 +74,11 @@ export interface MenuInfoData {
 	parentId?: string;
 	summary?: string;
 	status?: string;
-	orderBy?: string;
+	orderBy?: string | number;
 	parentTitle?: string;
+	disabled?: boolean;
 	children?: MenuInfoData[];
 }
-
-export const labelMap = ref<Record<string, { name: string; label: string }>>({
-	name: { name: 'name', label: '菜单名称' },
-	path: { name: 'path', label: '菜单路径' },
-	title: { name: 'title', label: '菜单标题' },
-	component: { name: 'component', label: '组件' },
-	redirect: { name: 'redirect', label: '跳转' },
-	icon: { name: 'icon', label: '菜单图标' },
-	permissionCode: { name: 'permissionCode', label: '权限标识' },
-	hideInMenu: { name: 'hideInMenu', label: '是否隐藏菜单' },
-	showInHome: { name: 'showInHome', label: '首页展示' },
-	parentId: { name: 'parentId', label: '父级菜单' },
-	summary: { name: 'summary', label: '备注' },
-	status: { name: 'status', label: '状态' },
-	orderBy: { name: 'orderBy', label: '排序' },
-});
 
 /** 菜单详情表单校验 */
 export const rulesRef = reactive({
@@ -122,7 +87,3 @@ export const rulesRef = reactive({
 	permissionCode: [{ required: true, message: '权限标识不能为空！' }],
 	status: [{ required: true, message: '状态不能为空！' }],
 });
-
-export const labelCol: { span: number } = { span: 6 };
-export const wrapperCol: { span: number } = { span: 18 };
-

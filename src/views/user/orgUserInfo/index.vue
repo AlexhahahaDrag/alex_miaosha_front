@@ -1,85 +1,141 @@
 <template>
-	<div class="page-info">
-		<a-alert
-			message="机构-用户关系配置"
-			description="选择机构后，在下方双栏中调整已分配用户；单个用户仅能拥有一个有效机构，添加即会覆盖其原机构归属。"
-			type="info"
-			show-icon
-			style="margin-bottom: 16px"
-		/>
-		<div class="toolbar">
-			<a-space>
-				<span class="toolbar__label">选择机构：</span>
-				<a-select
-					v-model:value="selectedOrgId"
-					:options="orgOptions"
-					placeholder="请选择机构"
-					show-search
-					:filter-option="filterOption"
-					style="width: 260px"
-					data-testid="rbac-org-user-select-org"
-					@change="onOrgChange"
-				/>
-			</a-space>
+	<div
+		class="org-user-page flex flex-col gap-3 h-[calc(100vh-110px)] overflow-hidden"
+	>
+		<!-- 顶部标题与机构选择工具栏 -->
+		<div
+			class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-5 py-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] shrink-0"
+		>
+			<div class="flex flex-wrap items-center justify-between gap-3">
+				<div class="flex items-center gap-2.5">
+					<div
+						class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20"
+					>
+						<ApartmentOutlined class="text-base" />
+					</div>
+					<div>
+						<div class="flex items-center gap-2 flex-wrap">
+							<h2
+								class="text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight m-0"
+							>
+								机构-用户关系配置
+							</h2>
+							<span
+								class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800"
+							>
+								批量调配机构归属成员与权限缓存同步
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex items-center gap-2.5 flex-wrap">
+					<div class="flex items-center gap-2">
+						<span
+							class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+						>
+							目标机构:
+						</span>
+						<a-select
+							v-model:value="selectedOrgId"
+							:options="orgOptions"
+							placeholder="请选择要调配成员的机构"
+							show-search
+							:filter-option="filterOption"
+							class="w-64"
+							data-testid="rbac-org-user-select-org"
+							@change="onOrgChange"
+						/>
+					</div>
+
+					<a-button
+						class="rounded-lg text-slate-600 dark:text-slate-300"
+						@click="router.back()"
+					>
+						返回上一页
+					</a-button>
+				</div>
+			</div>
 		</div>
 
-		<a-empty v-if="!selectedOrgId" description="请先选择机构" />
-		<template v-else>
-			<rbac-dual-list-selector
-				available-title="全部用户"
-				assigned-title="已分配用户"
-				:available-items="availableItems"
-				:assigned-items="assignedItems"
-				v-model:selected-available-keys="selectedAvailableKeys"
-				v-model:selected-assigned-keys="selectedAssignedKeys"
-				v-model:available-keyword="availableKeyword"
-				v-model:assigned-keyword="assignedKeyword"
-				:loading="pageLoading"
-				@search-available="(value) => (availableKeyword = value)"
-				@search-assigned="(value) => (assignedKeyword = value)"
-				@add="handleAdd"
-				@remove="handleRemove"
-			/>
-
-			<rbac-diff-preview
-				title="本次变更预览"
-				description="保存后按单用户唯一有效机构规则同步新增/移除关系"
-				:added="diffAdded"
-				:removed="diffRemoved"
-				:unchanged="diffUnchanged"
-				style="margin-top: 16px"
-			/>
-
-			<div class="footer-bar">
-				<a-space>
-					<a-button
-						:disabled="!hasChanges"
-						data-testid="rbac-org-user-btn-reset"
-						@click="resetDraft"
-					>
-						重置
-					</a-button>
-					<a-button
-						type="primary"
-						:disabled="!hasChanges"
-						:loading="saving"
-						data-testid="rbac-org-user-btn-save"
-						@click="handleSave"
-					>
-						保存
-					</a-button>
-				</a-space>
+		<!-- 主体双栏穿梭与差异预览区 -->
+		<div
+			class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-5 py-4 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] flex-1 flex flex-col min-h-0 overflow-y-auto"
+		>
+			<div
+				v-if="!selectedOrgId"
+				class="flex-1 flex flex-col items-center justify-center py-16"
+			>
+				<a-empty
+					description="请先在右上角选择目标机构，随后可在双栏中批量调配机构成员"
+				/>
 			</div>
-		</template>
+
+			<div v-else class="flex flex-col gap-3.5 flex-1">
+				<rbac-dual-list-selector
+					available-title="可调入用户"
+					assigned-title="当前机构成员"
+					:available-items="availableItems"
+					:assigned-items="assignedItems"
+					v-model:selected-available-keys="selectedAvailableKeys"
+					v-model:selected-assigned-keys="selectedAssignedKeys"
+					v-model:available-keyword="availableKeyword"
+					v-model:assigned-keyword="assignedKeyword"
+					:loading="pageLoading"
+					@search-available="(value) => (availableKeyword = value)"
+					@search-assigned="(value) => (assignedKeyword = value)"
+					@add="handleAdd"
+					@remove="handleRemove"
+				/>
+
+				<rbac-diff-preview
+					title="本次变更预览"
+					description="保存后将同步更新机构归属并主动刷新受影响成员的权限缓存"
+					:added="diffAdded"
+					:removed="diffRemoved"
+					:unchanged="diffUnchanged"
+				/>
+
+				<div
+					class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between"
+				>
+					<span class="text-xs text-slate-400 dark:text-slate-500">
+						提示：也可在「机构管理」列表行内点击「成员」抽屉按分页管理成员。
+					</span>
+					<div class="flex items-center gap-2">
+						<a-button
+							:disabled="!hasChanges"
+							class="rounded-lg"
+							data-testid="rbac-org-user-btn-reset"
+							@click="resetDraft"
+						>
+							重置变更
+						</a-button>
+						<a-button
+							type="primary"
+							:disabled="!hasChanges"
+							:loading="saving"
+							class="rounded-lg font-medium"
+							data-testid="rbac-org-user-btn-save"
+							@click="handleSave"
+						>
+							保存调配
+						</a-button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
+import { ApartmentOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import type { RbacDiffItem, RbacSelectableItem } from '@/components/rbac';
 import {
 	getOrgUserInfoPage,
 	addOrgUserInfo,
-	deleteOrgUserInfo,
+	unassignOrgUser,
 } from '@/views/user/orgUserInfo/api';
 import { getOrgInfoPage } from '@/views/user/orgInfo/api';
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
@@ -90,6 +146,9 @@ interface OrgOption {
 	label: string;
 	value: string;
 }
+
+const router = useRouter();
+const route = useRoute();
 
 const orgOptions = ref<OrgOption[]>([]);
 const selectedOrgId = ref<string>();
@@ -102,7 +161,6 @@ const userMap = computed(() => {
 	return map;
 });
 
-// 已存在的机构-用户关系：userId -> 关系记录 id（用于保存时精确删除）
 const initialRelationMap = ref<Record<string, string>>({});
 const draftAssignedUserIds = ref<string[]>([]);
 
@@ -213,31 +271,29 @@ const resetDraft = () => {
 
 const handleSave = async () => {
 	if (!selectedOrgId.value) return;
+	const targetOrgId = String(selectedOrgId.value);
 	const initialIds = new Set(Object.keys(initialRelationMap.value));
 	const draftIds = new Set(draftAssignedUserIds.value);
-	const toAdd = [...draftIds].filter((id) => !initialIds.has(id));
-	const toRemoveRelationIds = [...initialIds]
-		.filter((id) => !draftIds.has(id))
-		.map((id) => initialRelationMap.value[id])
-		.filter((relationId): relationId is string => !!relationId);
+	const toAddUserIds = [...draftIds].filter((id) => !initialIds.has(id));
+	const toRemoveUserIds = [...initialIds].filter((id) => !draftIds.has(id));
 
 	saving.value = true;
 	try {
-		const tasks: Promise<{ code: string; message: string }>[] = [];
-		if (toAdd.length) {
-			toAdd.forEach((userId) => {
-				tasks.push(
-					addOrgUserInfo({
-						orgId: selectedOrgId.value,
-						userId,
-						status: '1',
-					}),
-				);
-			});
-		}
-		if (toRemoveRelationIds.length) {
-			tasks.push(deleteOrgUserInfo(toRemoveRelationIds.join(',')));
-		}
+		const tasks: Promise<{ code: string; message?: string }>[] = [];
+		toAddUserIds.forEach((userId) => {
+			tasks.push(
+				addOrgUserInfo({
+					orgId: targetOrgId,
+					userId: String(userId),
+					status: '1',
+				}),
+			);
+		});
+		// 移除统一走 unassignOrgUser，确保置为失效态并主动清理 Redis permission_context 缓存
+		toRemoveUserIds.forEach((userId) => {
+			tasks.push(unassignOrgUser(String(userId), targetOrgId));
+		});
+
 		const results = await Promise.all(tasks);
 		const failed = results.find((result) => result.code !== '200');
 		if (failed) {
@@ -247,7 +303,7 @@ const handleSave = async () => {
 		}
 	} finally {
 		saving.value = false;
-		await loadOrgUsers(selectedOrgId.value);
+		await Promise.all([loadOrgUsers(targetOrgId), loadUsers()]);
 	}
 };
 
@@ -279,7 +335,7 @@ const loadOrgUsers = async (orgId: string) => {
 };
 
 const onOrgChange = (orgId: string) => {
-	if (orgId) loadOrgUsers(orgId);
+	if (orgId) loadOrgUsers(String(orgId));
 };
 
 const loadOrgOptions = async () => {
@@ -316,29 +372,11 @@ const loadUsers = async () => {
 	}
 };
 
-onMounted(() => {
-	loadOrgOptions();
-	loadUsers();
+onMounted(async () => {
+	await Promise.all([loadOrgOptions(), loadUsers()]);
+	if (route.query.orgId) {
+		selectedOrgId.value = String(route.query.orgId);
+		loadOrgUsers(selectedOrgId.value);
+	}
 });
 </script>
-<style lang="scss" scoped>
-.page-info {
-	background: #fff;
-	padding: 24px;
-	border-radius: 8px;
-
-	.toolbar {
-		margin-bottom: 16px;
-
-		.toolbar__label {
-			color: #333;
-			font-weight: 500;
-		}
-	}
-
-	.footer-bar {
-		margin-top: 16px;
-		text-align: right;
-	}
-}
-</style>

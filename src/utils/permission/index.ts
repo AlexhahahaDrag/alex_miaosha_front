@@ -74,16 +74,19 @@ export const buildPermissionSet = (
 
 export const isSuperAdmin = (
 	contextOrRole?: Partial<PermissionContext> | PermissionRole | null,
-) => {
+): boolean => {
 	if (!contextOrRole) return false;
 	if ('superAdmin' in contextOrRole && contextOrRole.superAdmin === true)
 		return true;
-	if ('roleList' in contextOrRole) {
-		return !!contextOrRole.roleList?.some(
-			(role) => role?.roleCode === 'super_super',
+	if ('roleList' in contextOrRole && Array.isArray(contextOrRole.roleList)) {
+		return (contextOrRole.roleList as PermissionRole[]).some(
+			(role: PermissionRole) => role?.roleCode === 'super_super',
 		);
 	}
-	if ('roleCode' in contextOrRole)
+	if (
+		'roleCode' in contextOrRole &&
+		typeof contextOrRole.roleCode === 'string'
+	)
 		return contextOrRole.roleCode === 'super_super';
 	return false;
 };
