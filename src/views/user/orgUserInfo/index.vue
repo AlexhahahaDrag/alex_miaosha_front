@@ -1,31 +1,34 @@
 <template>
 	<div
-		class="org-user-page flex flex-col gap-3 h-[calc(100vh-110px)] overflow-hidden"
+		class="org-user-management-screen min-h-full p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950 transition-colors flex flex-col gap-5"
 	>
-		<!-- 顶部标题与机构选择工具栏 -->
+		<!-- 1. 顶部标题与目标机构选择工具栏 -->
 		<div
-			class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-5 py-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] shrink-0"
+			class="screen-header bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl px-5 py-4 shadow-xs transition-colors shrink-0"
 		>
-			<div class="flex flex-wrap items-center justify-between gap-3">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div class="flex items-center gap-2.5">
-					<div
-						class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20"
-					>
-						<ApartmentOutlined class="text-base" />
-					</div>
+					<span
+						class="w-2.5 h-6 rounded-full bg-blue-600 flex-shrink-0 shadow-xs"
+					></span>
 					<div>
-						<div class="flex items-center gap-2 flex-wrap">
-							<h2
-								class="text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight m-0"
+						<div class="flex items-center gap-2.5 flex-wrap">
+							<h1
+								class="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 m-0"
 							>
 								机构-用户关系配置
-							</h2>
+							</h1>
 							<span
-								class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800"
+								class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800"
 							>
 								批量调配机构归属成员与权限缓存同步
 							</span>
 						</div>
+						<p
+							class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0 font-normal"
+						>
+							选择目标机构，在双栏穿梭面板中灵活调入或移出直属用户，实时预览变更差异
+						</p>
 					</div>
 				</div>
 
@@ -42,25 +45,26 @@
 							placeholder="请选择要调配成员的机构"
 							show-search
 							:filter-option="filterOption"
-							class="w-64"
+							class="w-64 rounded-lg"
 							data-testid="rbac-org-user-select-org"
 							@change="onOrgChange"
 						/>
 					</div>
 
 					<a-button
-						class="rounded-lg text-slate-600 dark:text-slate-300"
+						class="rounded-lg text-slate-600 dark:text-slate-300 px-3.5 inline-flex items-center gap-1.5"
 						@click="router.back()"
 					>
+						<template #icon><ArrowLeftOutlined /></template>
 						返回上一页
 					</a-button>
 				</div>
 			</div>
 		</div>
 
-		<!-- 主体双栏穿梭与差异预览区 -->
+		<!-- 2. 主体双栏穿梭与差异预览面板 -->
 		<div
-			class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-5 py-4 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] flex-1 flex flex-col min-h-0 overflow-y-auto"
+			class="table-card bg-[var(--card-bg)] border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 shadow-xs transition-colors flex-1 flex flex-col min-h-0 overflow-y-auto"
 		>
 			<div
 				v-if="!selectedOrgId"
@@ -71,7 +75,7 @@
 				/>
 			</div>
 
-			<div v-else class="flex flex-col gap-3.5 flex-1">
+			<div v-else class="flex flex-col gap-4 flex-1">
 				<rbac-dual-list-selector
 					available-title="可调入用户"
 					assigned-title="当前机构成员"
@@ -97,15 +101,15 @@
 				/>
 
 				<div
-					class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between"
+					class="mt-auto pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
 				>
 					<span class="text-xs text-slate-400 dark:text-slate-500">
 						提示：也可在「机构管理」列表行内点击「成员」抽屉按分页管理成员。
 					</span>
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2.5">
 						<a-button
 							:disabled="!hasChanges"
-							class="rounded-lg"
+							class="rounded-lg px-4"
 							data-testid="rbac-org-user-btn-reset"
 							@click="resetDraft"
 						>
@@ -115,7 +119,7 @@
 							type="primary"
 							:disabled="!hasChanges"
 							:loading="saving"
-							class="rounded-lg font-medium"
+							class="rounded-lg px-4 font-medium shadow-xs"
 							data-testid="rbac-org-user-btn-save"
 							@click="handleSave"
 						>
@@ -129,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ApartmentOutlined } from '@ant-design/icons-vue';
+import { ArrowLeftOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import type { RbacDiffItem, RbacSelectableItem } from '@/components/rbac';
 import {

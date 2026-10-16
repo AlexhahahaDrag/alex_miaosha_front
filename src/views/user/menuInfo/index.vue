@@ -109,6 +109,10 @@
 									v-if="!dataRef?.parentId || String(dataRef.parentId) === '0'"
 									class="text-blue-500 text-xs flex-shrink-0"
 								/>
+								<FileProtectOutlined
+									v-else-if="String(dataRef?.hideInMenu) === '1' || String(dataRef?.hideInMenu) === 'true'"
+									class="text-slate-400 text-xs flex-shrink-0"
+								/>
 								<FileTextOutlined
 									v-else
 									class="text-emerald-500 text-xs flex-shrink-0"

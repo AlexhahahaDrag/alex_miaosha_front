@@ -154,9 +154,12 @@ const buildRouteRecord = (
 	if (item.children?.length) {
 		item.children.forEach((childItem: MenuInfoData) => {
 			if (judgeMenuPermission(childItem, permissionSet, superAdmin)) {
-				routeInfo.children!.push(
-					buildRouteRecord(childItem, permissionSet, superAdmin),
-				);
+				const childRoute = buildRouteRecord(childItem, permissionSet, superAdmin);
+				routeInfo.children!.push(childRoute);
+				if (childItem.component !== 'Layout' && childRoute.children?.length) {
+					const nestedRoutes = childRoute.children.splice(0);
+					routeInfo.children!.push(...nestedRoutes);
+				}
 			}
 		});
 	}
