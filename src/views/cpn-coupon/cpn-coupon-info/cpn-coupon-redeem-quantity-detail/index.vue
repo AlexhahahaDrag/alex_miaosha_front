@@ -1,149 +1,155 @@
 <template>
-	<a-modal
-		v-model:open="open"
-		:width="'min(600px, 60%)'"
-		:confirmLoading="loading"
-		:destroyOnClose="true"
+	<BaseRbacDrawer
+		v-model:open="drawerOpen"
+		:title="modelInfo?.title || '消费券核销'"
+		subtitle="按数量核销选定消费券库存，核销后将实时生成核销流水记录"
+		width="480px"
+		:confirm-loading="loading"
+		ok-text="确认核销"
 		@ok="onOk"
 		@cancel="onCancel"
 	>
-		<!-- AI Agent: 使用 title 插槽定制标题样式，避免影响全局 Modal 标题 -->
-		<template #title>
-			<div class="ai-agent-modal-title-wrap">
-				<span class="ai-agent-modal-title">
-					{{ props.modelInfo?.title || '消费券核销' }}
-				</span>
-				<!-- AI Agent: 标题下方横线（如截图红框） -->
-				<div class="ai-agent-modal-title-divider"></div>
-			</div>
-		</template>
-		<template #footer>
-			<a-button key="back" @click="onCancel">取消</a-button>
-			<a-button
-				key="submit"
-				type="primary"
-				:loading="loading"
-				class="btn-confirm"
-				@click="onOk"
-			>
-				确认核销
-			</a-button>
-		</template>
-
-		<a-form
-			ref="formRef"
-			name="CpnCouponRedeemQuantityForm"
-			class="cpn-coupon-redeem-form"
-			:model="formState"
-			:rules="rulesRef"
-			:disabled="loading"
-			layout="vertical"
-		>
-			<!-- 消费券信息 -->
-			<div class="section-title">
-				<span class="section-bar"></span>
-				<span class="section-text">消费券信息</span>
-			</div>
-			<div class="info-box">
-				<div class="info-row">
-					<div class="info-item">
-						<span class="info-label">消费券名称：</span>
-						<span class="info-value">{{ formState.couponName || '-' }}</span>
-					</div>
-					<div class="info-item info-item-right">
-						<span class="info-label">剩余数量：</span>
-						<span class="info-value info-value-warn">
-							<!-- 与核销数量联动展示：剩余数量 = 原剩余 - 核销数量（不小于0） -->
-							{{ linkedRemainingQuantity }}
+		<!-- 1. 消费券票面与剩余库存联动预览卡 -->
+		<div class="redeem-voucher-card">
+			<div class="voucher-top">
+				<div class="voucher-title-group">
+					<span class="voucher-icon">
+						<GiftOutlined />
+					</span>
+					<div class="voucher-meta">
+						<h4 class="voucher-name">{{ formState.couponName || '—' }}</h4>
+						<span class="voucher-sub">
+							核销前可用：{{ formState.remainingQuantity ?? 0 }} 张
 						</span>
 					</div>
 				</div>
+				<div class="voucher-remain-box">
+					<span class="remain-label">核销后剩余</span>
+					<span class="remain-value">{{ linkedRemainingQuantity }} 张</span>
+				</div>
 			</div>
+		</div>
 
-			<!-- 核销设置 -->
-			<div class="section-title section-title-gap">
-				<span class="section-bar"></span>
-				<span class="section-text">
-					核销设置 <span class="required-star">*</span>
-				</span>
-			</div>
+		<!-- 2. 核销表单 -->
+		<a-form
+			ref="formRef"
+			name="CpnCouponRedeemQuantityForm"
+			layout="vertical"
+			class="modern-redeem-form"
+			:model="formState"
+			:rules="rulesRef"
+			:disabled="loading"
+		>
 			<a-form-item
 				:name="labelMap.redemptionQuantity.name"
-				class="form-item-no-label"
+				label="本次核销数量"
 			>
-				<a-space-compact style="width: 280px">
-					<a-button :disabled="isMinusDisabled" @click="onMinusQuantity">
-						-
+				<div class="stepper-row">
+					<a-space-compact class="stepper-compact">
+						<a-button
+							class="step-btn"
+							:disabled="isMinusDisabled"
+							@click="onMinusQuantity"
+						>
+							-
+						</a-button>
+						<a-input-number
+							id="form_redemptionQuantity"
+							name="redemptionQuantity"
+							v-model:value="formState.redemptionQuantity"
+							:min="1"
+							:max="maxRedeemQuantity"
+							:precision="0"
+							:controls="false"
+							class="step-input"
+						/>
+						<a-button
+							class="step-btn"
+							:disabled="isPlusDisabled"
+							@click="onPlusQuantity"
+						>
+							+
+						</a-button>
+					</a-space-compact>
+					<a-button
+						v-if="maxRedeemQuantity > 1"
+						type="link"
+						size="small"
+						@click="formState.redemptionQuantity = maxRedeemQuantity"
+					>
+						全部核销 ({{ maxRedeemQuantity }})
 					</a-button>
-					<a-input-number
-						v-model:value="formState.redemptionQuantity"
-						:min="1"
-						:max="maxRedeemQuantity"
-						:precision="0"
-						:controls="false"
-						style="width: 120px; text-align: center"
-					/>
-					<a-button :disabled="isPlusDisabled" @click="onPlusQuantity">
-						+
-					</a-button>
-				</a-space-compact>
-				<div class="hint-text">核销后将不可撤回，请确认数量</div>
+				</div>
+				<div class="hint-text">
+					⚠️ 核销成功后库存将实时扣减，如需回退可在「用户领券管理」中取消核销
+				</div>
 			</a-form-item>
 
-			<!-- 备注 -->
-			<div class="section-title section-title-gap">
-				<span class="section-bar"></span>
-				<span class="section-text">备注</span>
-			</div>
-			<a-form-item :name="labelMap.remarks.name" class="form-item-no-label">
+			<a-form-item :name="labelMap.remarks.name" label="核销备注">
 				<a-textarea
+					id="form_remarks"
+					name="remarks"
 					v-model:value="formState.remarks"
-					placeholder="请输入备注（如：人工核销、异常补录）"
+					placeholder="请输入核销备注（如：线下门店核销、人工补录）"
 					allow-clear
-					:auto-size="{ minRows: 2, maxRows: 4 }"
+					:rows="3"
 				/>
 			</a-form-item>
 		</a-form>
-	</a-modal>
+	</BaseRbacDrawer>
 </template>
 
 <script setup lang="ts">
 import { message, type FormInstance } from 'ant-design-vue';
-import { computed } from 'vue';
+import { GiftOutlined } from '@ant-design/icons-vue';
+import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
 import type { ModelInfo } from '@/types/modal';
 import type { CpnCouponInfoData } from '@/views/cpn-coupon/cpn-coupon-info/config';
-import { labelMap, createRulesRef, type RedeemFormState } from '@/views/cpn-coupon/cpn-coupon-info/cpn-coupon-redeem-quantity-detail/config';
+import {
+	labelMap,
+	createRulesRef,
+	type RedeemFormState,
+} from '@/views/cpn-coupon/cpn-coupon-info/cpn-coupon-redeem-quantity-detail/config';
 import { redeemCpnUserCouponInfo } from '@/views/cpn-coupon/cpn-user-coupon-info/api';
 import type { CpnUserCouponRedeemReq } from '@/views/cpn-coupon/cpn-user-coupon-info/config';
 import { useUserStore } from '@/store/modules/user/user';
 
 const userStore = useUserStore();
-
 const userInfo = computed(() => userStore.getUserInfo);
 
 interface Props {
-	modelInfo?: ModelInfo;
-	// 从列表行传入，用于初始化弹窗展示/校验
 	couponInfo?: CpnCouponInfoData;
+	open?: boolean;
 }
 
 const props = defineProps<Props>();
-const open = defineModel<boolean>('open', { default: false });
+const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
+const emit = defineEmits<{
+	(e: 'update:open', val: boolean): void;
+	(e: 'success'): void;
+}>();
+
+// 同时兼容 v-model:modelInfo 与 v-model:open
+const drawerOpen = computed({
+	get: () => Boolean(modelInfo.value?.open ?? props.open),
+	set: (val: boolean) => {
+		if (modelInfo.value) {
+			modelInfo.value.open = val;
+		}
+		emit('update:open', val);
+	},
+});
 
 const loading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
-
 const formState = ref<RedeemFormState>({});
 
-// 表单校验规则（与 formState 关联，尤其是 remainingQuantity 动态上限）
 const rulesRef = createRulesRef(formState);
 
-// 核销数量上下限与按钮禁用态
 const maxRedeemQuantity = computed(
 	() => formState.value.remainingQuantity || 0,
 );
 
-// 剩余数量联动展示（原型效果）
 const linkedRemainingQuantity = computed(() => {
 	return Math.max(
 		0,
@@ -161,7 +167,6 @@ const isPlusDisabled = computed(() => {
 	return cur >= maxRedeemQuantity.value;
 });
 
-// 数量加减按钮事件（Vue 事件处理函数以 on 开头）
 const onMinusQuantity = () => {
 	const cur = formState.value.redemptionQuantity || 1;
 	formState.value.redemptionQuantity = Math.max(1, cur - 1);
@@ -175,9 +180,7 @@ const onPlusQuantity = () => {
 	);
 };
 
-// 确认核销按钮事件
 const onOk = () => {
-	// 无可核销数量时直接拦截（避免 max=0 仍可点击确认）
 	if (maxRedeemQuantity.value <= 0) {
 		message.warning('当前消费券无可核销数量');
 		return;
@@ -191,12 +194,10 @@ const onOk = () => {
 	}
 };
 
-// 取消按钮事件
 const onCancel = () => {
-	open.value = false;
+	drawerOpen.value = false;
 };
 
-// 提交（调用后端“消费券核销数量（按数量核销）”接口）
 const onSubmit = async () => {
 	try {
 		if (!formState.value.couponId) {
@@ -205,8 +206,8 @@ const onSubmit = async () => {
 		}
 
 		const req: CpnUserCouponRedeemReq = {
-			userId: userInfo.value?.id ?? 0,
-			couponId: formState.value.couponId,
+			userId: String(userInfo.value?.id ?? '0'),
+			couponId: String(formState.value.couponId),
 			redemptionQuantity: formState.value.redemptionQuantity ?? 0,
 			remarks: formState.value.remarks,
 		};
@@ -214,7 +215,7 @@ const onSubmit = async () => {
 		const { code, message: messageInfo } = await redeemCpnUserCouponInfo(req);
 		if (code === '200') {
 			message.success(messageInfo || '核销成功！');
-			open.value = false;
+			drawerOpen.value = false;
 			emit('success');
 		} else {
 			message.error(messageInfo || '核销失败！');
@@ -224,22 +225,20 @@ const onSubmit = async () => {
 	}
 };
 
-// 初始化弹窗数据
 const initDetail = () => {
-	// 弹窗打开时用传入行数据初始化
 	const coupon = props.couponInfo;
+	const remain = coupon?.remainingQuantity ?? 0;
 	formState.value = {
-		couponId: coupon?.id,
+		couponId: coupon?.id ? String(coupon.id) : undefined,
 		couponName: coupon?.couponName,
-		remainingQuantity: coupon?.remainingQuantity ?? 0,
-		// 核销数量默认值与剩余数量联动：有剩余默认 1，否则 0（避免默认值非法）
-		redemptionQuantity: coupon?.remainingQuantity ?? 0,
+		remainingQuantity: remain,
+		redemptionQuantity: remain > 0 ? 1 : 0,
 		remarks: undefined,
 	};
 };
 
 watch(
-	() => open.value,
+	() => drawerOpen.value,
 	(newVal) => {
 		if (newVal) {
 			initDetail();
@@ -247,130 +246,114 @@ watch(
 	},
 	{ immediate: true },
 );
-
-const emit = defineEmits(['success']);
 </script>
 
 <style lang="scss" scoped>
-// 弹窗样式升级（按截图风格）
-.cpn-coupon-redeem-form {
-	:deep(.ant-divider-horizontal.ant-divider-with-text) {
-		margin: 16px 0 12px;
+.redeem-voucher-card {
+	margin-bottom: 20px;
+	padding: 16px 18px;
+	border-radius: 12px;
+	border: 1px solid #fed7aa;
+	background: linear-gradient(135deg, #fff7ed 0%, #ffffff 75%);
+
+	.voucher-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		flex-wrap: wrap;
+	}
+
+	.voucher-title-group {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.voucher-icon {
+		width: 40px;
+		height: 40px;
+		border-radius: 10px;
+		background: #ffffff;
+		border: 1px solid #fed7aa;
+		color: #ea580c;
+		font-size: 18px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.voucher-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+
+		.voucher-name {
+			margin: 0;
+			font-size: 15px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.voucher-sub {
+			font-size: 12px;
+			color: #64748b;
+		}
+	}
+
+	.voucher-remain-box {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 2px;
+
+		.remain-label {
+			font-size: 11px;
+			color: #64748b;
+		}
+
+		.remain-value {
+			font-size: 20px;
+			font-weight: 800;
+			color: #ea580c;
+			font-variant-numeric: tabular-nums;
+		}
 	}
 }
 
-.required-star {
-	color: #ff4d4f;
-	margin-left: 6px;
-	font-weight: 600;
-}
-
-/* AI Agent: 弹窗标题字号调大“两号”（默认约 16px -> 18px） */
-.ai-agent-modal-title-wrap {
-	width: 100%;
-}
-.ai-agent-modal-title {
-	font-size: 18px;
-	line-height: 24px;
-	font-weight: 600;
-	color: rgba(0, 0, 0, 0.88);
-}
-
-/* AI Agent: 标题下横线（不改全局 ant 样式，局部实现） */
-.ai-agent-modal-title-divider {
-	/* AI Agent: antd Modal header 默认左右 padding 为 24px，这里用负 margin 抵消，让线“顶到两端” */
-	width: calc(100% + 48px);
-	margin-left: -24px;
-	height: 1px;
-	margin-top: 12px;
-	/* AI Agent: 分割线颜色加深（对标 Ant 边框色更清晰） */
-	background: #d9d9d9;
-}
-
-.hint-text {
-	margin-top: 8px;
-	color: rgba(0, 0, 0, 0.45);
-	font-size: 12px;
-}
-
-// 原型分组标题（左侧竖线 + 标题）
-.section-title {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	margin: 6px 0 12px;
-	font-size: 16px;
-	font-weight: 600;
-	color: rgba(0, 0, 0, 0.85);
-	margin-top: 20px;
-}
-.section-title-gap {
-	margin-top: 18px;
-}
-.section-bar {
-	width: 3px;
-	height: 16px;
-	border-radius: 2px;
-	background: rgba(0, 0, 0, 0.45);
-}
-.section-text {
-	line-height: 1;
-}
-
-// 消费券信息灰底框（原型样式）
-.info-box {
-	background: #fafafa;
-	border: 1px solid #f0f0f0;
-	border-radius: 8px;
-	padding: 14px 16px;
-}
-.info-row {
-	display: flex;
-	justify-content: space-between;
-	gap: 16px;
-}
-.info-item {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	min-width: 0;
-}
-.info-item-right {
-	justify-content: flex-end;
-}
-.info-label {
-	color: rgba(0, 0, 0, 0.65);
-	white-space: nowrap;
-}
-.info-value {
-	color: rgba(0, 0, 0, 0.85);
-	font-weight: 600;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.info-value-warn {
-	color: #fa8c16;
-}
-
-// 隐藏 form-item label（原型没有“核销数量/备注”字段 label）
-.form-item-no-label {
-	:deep(.ant-form-item-label) {
-		display: none;
+.modern-redeem-form {
+	:deep(.ant-form-item-label > label) {
+		font-size: 13px;
+		font-weight: 600;
+		color: #334155;
 	}
-	:deep(.ant-form-item-control) {
-		margin-top: 0;
-	}
-}
 
-// 确认核销按钮改成橙色（原型）
-.btn-confirm {
-	background: #fa8c16 !important;
-	border-color: #fa8c16 !important;
-}
-.btn-confirm:hover,
-.btn-confirm:focus {
-	background: #ff9c2a !important;
-	border-color: #ff9c2a !important;
+	.stepper-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.step-btn {
+		width: 38px;
+		height: 36px;
+		font-weight: 700;
+	}
+
+	.step-input {
+		width: 120px;
+		height: 36px;
+		:deep(.ant-input-number-input) {
+			text-align: center;
+			font-weight: 700;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+
+	.hint-text {
+		margin-top: 8px;
+		font-size: 12px;
+		color: #64748b;
+	}
 }
 </style>

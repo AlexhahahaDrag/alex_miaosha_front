@@ -1,69 +1,72 @@
-﻿import type { Dayjs } from '@/utils/dayjs';
+import type { Dayjs } from '@/utils/dayjs';
 import type { TableColumnsType } from 'ant-design-vue';
 
-// 充值表单
+// 充值/消费表单
 export interface IRechargeForm {
 	id?: string;
 	cardId?: string;
 	cardName?: string;
 	consumeAmount?: number;
 	type?: string;
-	userId?: number;
+	userId?: string;
 	description?: string;
 }
 
-// 表格列定义
+// 交易流水表格列定义（对应 PrepaidConsumeRecordTVo）
 export const columns = ref<TableColumnsType>([
 	{
-		title: '卡号（业务唯一标识）',
-		dataIndex: 'cardId',
-		key: 'cardId',
-	},
-	{
-		title: '卡名称',
+		title: '储值卡名称',
 		dataIndex: 'cardName',
 		key: 'cardName',
+		width: 160,
 	},
 	{
-		title: '持卡人ID',
-		dataIndex: 'userId',
-		key: 'userId',
+		title: '交易类型',
+		dataIndex: 'type',
+		key: 'type',
+		align: 'center',
+		width: 110,
 	},
 	{
-		title: '初始金额',
-		dataIndex: 'initialBalance',
-		key: 'initialBalance',
+		title: '变动金额',
+		dataIndex: 'amount',
+		key: 'amount',
+		align: 'right',
+		width: 140,
 	},
 	{
-		title: '当前余额',
-		dataIndex: 'currentBalance',
-		key: 'currentBalance',
+		title: '变动后余额',
+		dataIndex: 'balanceAfter',
+		key: 'balanceAfter',
+		align: 'right',
+		width: 140,
 	},
 	{
-		title: '过期日期',
-		dataIndex: 'expireDate',
-		key: 'expireDate',
+		title: '交易流水号',
+		dataIndex: 'orderNo',
+		key: 'orderNo',
+		width: 190,
+		ellipsis: true,
 	},
 	{
-		title: '状态（正常/冻结/挂失/过期）',
-		dataIndex: 'cardStatus',
-		key: 'cardStatus',
+		title: '交易描述 / 商户',
+		dataIndex: 'description',
+		key: 'description',
+		minWidth: 180,
+		ellipsis: true,
 	},
 	{
-		title: '版本',
-		dataIndex: 'version',
-		key: 'version',
-	},
-	{
-		title: '操作',
-		key: 'operation',
-		fixed: 'right',
-		width: '8',
+		title: '交易时间',
+		dataIndex: 'consumeTime',
+		key: 'consumeTime',
+		align: 'center',
+		width: 170,
 	},
 ]);
 
 export interface PrepaidCardInfoTData {
-	cardId?: number;
+	id?: string;
+	cardId?: string;
 	cardName?: string;
 	userId?: string;
 	initialBalance?: number;

@@ -1,140 +1,192 @@
 <template>
-	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['shopName'].name"
-								:label="labelMap['shopName'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.shopName"
-									:placeholder="'请填写' + labelMap['shopName'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['shopCode'].name"
-								:label="labelMap['shopCode'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.shopCode"
-									:placeholder="'请填写' + labelMap['shopCode'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['category'].name"
-								:label="labelMap['category'].label"
-							>
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.category"
-									:placeholder="'请选择' + labelMap['category'].label"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="categoryList"
-									:allowClear="true"
-								>
-								</a-select>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['purchasePlace'].name"
-								:label="labelMap['purchasePlace'].label"
-							>
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.purchasePlace"
-									:placeholder="'请选择' + labelMap['purchasePlace'].label"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="purchasePlaceList"
-									:allowClear="true"
-								>
-								</a-select>
-							</a-form-item>
-						</a-col>
-						<a-col style="text-align: right">
-							<a-space>
-								<a-button type="primary" @click="() => query()"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
+	<div class="shop-stock-screen">
+		<header class="screen-header">
+			<div class="title-block">
+				<span class="eyebrow">SHOP INVENTORY LEDGER</span>
+				<h1>商店商品库存台账</h1>
+				<p class="subtitle">
+					统一纳管门店在库商品、进货成本、零售定价、货源渠道与库存余量监控
+				</p>
 			</div>
-		</div>
-		<div class="button">
-			<a-space>
-				<a-button type="primary" @click="editShopStock('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelShopStock">
-					删除
-				</a-button>
-			</a-space>
-		</div>
-		<div class="content">
+			<div class="header-actions">
+				<a-space :size="10">
+					<a-button type="primary" @click="openStockDrawer('add')">
+						新增库存
+					</a-button>
+					<a-button
+						danger
+						:disabled="!selectedRowKeys.length"
+						@click="batchDelShopStock"
+					>
+						批量删除
+					</a-button>
+				</a-space>
+			</div>
+		</header>
+
+		<section class="filter-card">
+			<a-form :model="searchInfo" class="filter-form">
+				<div class="filter-grid">
+					<a-form-item name="shopName" label="商品名称">
+						<a-input
+							id="filter-stock-name"
+							v-model:value="searchInfo.shopName"
+							name="shopName"
+							placeholder="请输入商品名称关键词"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="shopCode" label="商品编码">
+						<a-input
+							id="filter-stock-code"
+							v-model:value="searchInfo.shopCode"
+							name="shopCode"
+							placeholder="请输入商品编码"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="category" label="商品类别">
+						<a-select
+							id="filter-stock-category"
+							v-model:value="searchInfo.category"
+							placeholder="全部商品类别"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="categoryList"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="purchasePlace" label="进货地点">
+						<a-select
+							id="filter-stock-place"
+							v-model:value="searchInfo.purchasePlace"
+							placeholder="全部进货地点"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="purchasePlaceList"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<div class="filter-actions">
+						<a-space :size="8">
+							<a-button type="primary" @click="() => query(true)">
+								查询
+							</a-button>
+							<a-button @click="cancelQuery">重置</a-button>
+						</a-space>
+					</div>
+				</div>
+			</a-form>
+		</section>
+
+		<section class="table-card">
+			<div class="table-toolbar">
+				<span class="table-summary">
+					门店商品库存列表
+					<template v-if="selectedRowKeys.length">
+						· 已勾选 <strong>{{ selectedRowKeys.length }}</strong> 项
+					</template>
+				</span>
+			</div>
+
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record) => String(record.id)"
 				:pagination="pagination"
-				:scroll="{ x: 'max-content', y: 420 }"
+				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
 				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
+					<template v-if="column.key === 'shopName'">
+						<a
+							class="shop-name-link"
+							@click="openStockDrawer('view', record.id)"
+						>
+							{{ record.shopName || '--' }}
+						</a>
+					</template>
+
+					<template v-else-if="column.key === 'shopCode'">
+						<span class="mono-code">{{ record.shopCode || '--' }}</span>
+					</template>
+
+					<template v-else-if="column.key === 'costAmount'">
+						<span class="cost-text">
+							¥{{ Number(record.costAmount ?? 0).toFixed(2) }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'saleAmount'">
+						<span class="sale-text">
+							¥{{ Number(record.saleAmount ?? 0).toFixed(2) }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'saleNum'">
+						<span class="qty-badge">{{ record.saleNum ?? 0 }} 件</span>
+					</template>
+
+					<template v-else-if="column.key === 'isValid'">
+						<span
+							class="status-pill"
+							:class="record.isValid === '1' ? 'is-valid' : 'is-invalid'"
+						>
+							{{ record.isValid === '1' ? '有效' : '失效' }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'operation'">
+						<a-space :size="4">
 							<a-button
-								type="primary"
+								type="link"
 								size="small"
-								@click="editShopStock('update', record.id)"
+								@click="openStockDrawer('view', record.id)"
+							>
+								查看
+							</a-button>
+							<a-button
+								type="link"
+								size="small"
+								@click="openStockDrawer('update', record.id)"
 							>
 								编辑
 							</a-button>
 							<a-popconfirm
-								title="确认删除?"
+								title="确认删除该库存记录吗？"
 								ok-text="确认"
 								cancel-text="取消"
-								@confirm="delShopStock(record.id)"
-								@cancel="cancel"
+								@confirm="delShopStock(String(record.id))"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button type="link" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
-						<span></span>
 					</template>
 				</template>
 			</a-table>
+
 			<ShopStockDetail
 				v-model:modelInfo="modelInfo"
+				:is-readonly="isReadonlyMode"
 				@success="handleSuccess"
-			></ShopStockDetail>
-		</div>
+			/>
+		</section>
 	</div>
 </template>
+
 <script setup lang="ts">
 import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
-
-const { getDictByType } = useDictInfo('is_valid');
 import type { PageInfo } from '@/composables/usePagination';
-
-import type { SearchInfo } from '@/views/finance/shopStock/shopStockListTs';
-import { columns } from '@/views/finance/shopStock/shopStockListTs';
+import {
+	columns,
+	type SearchInfo,
+	type ShopStockData,
+} from '@/views/finance/shopStock/config';
 import {
 	getShopStockPage,
 	deleteShopStock,
@@ -142,37 +194,34 @@ import {
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const { getDictByType } = useDictInfo(
+	'is_valid',
+	'shop_category',
+	'stock_place',
+);
+
 const { selectedRowKeys, rowSelection, clearSelected } = useRowSelection();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, resetPagination, setTotal } =
 	usePagination({
 		onChange: (p) => getShopStockListPage(searchInfo.value, p),
 	});
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
+const searchInfo = ref<SearchInfo>({});
+const loading = ref<boolean>(false);
+const dataSource = ref<ShopStockData[]>([]);
+const modelInfo = ref<ModelInfo>({});
+const isReadonlyMode = ref<boolean>(false);
 
-const labelMap = ref<Record<string, { name: string; label: string }>>({
-	shopName: { name: 'shopName', label: '商品名称' },
-	shopCode: { name: 'shopCode', label: '商品编码' },
-	costAmount: { name: 'costAmount', label: '成本价' },
-	saleAmount: { name: 'saleAmount', label: '零售价' },
-	isValid: { name: 'isValid', label: '状态' },
-	saleDate: { name: 'saleDate', label: '进货日期' },
-	category: { name: 'category', label: '类别' },
-	purchasePlace: { name: 'purchasePlace', label: '进货地点' },
-	saleNum: { name: 'saleNum', label: '数量' },
-});
+const categoryList = computed(() => getDictByType('shop_category'));
+const purchasePlaceList = computed(() => getDictByType('stock_place'));
 
-let searchInfo = ref<SearchInfo>({});
-
-// 字典数据已通过 useDictInfo 自动加载
-const categoryList = computed(() => getDictByType('category'));
-const purchasePlaceList = computed(() => getDictByType('purchase_place'));
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
 
 function cancelQuery() {
+	triggerDebouncedQuery.cancel();
 	searchInfo.value = {};
 	query(true);
 }
@@ -203,57 +252,60 @@ const batchDelShopStock = (): void => {
 	delShopStock(selectedRowKeys.value.join(','));
 };
 
-let loading = ref<boolean>(false);
-
-let dataSource = ref();
-
-const cancel = (e: MouseEvent) => {
-	console.log(e);
-};
-
 const getShopStockListPage = async (
 	param: SearchInfo,
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getShopStockPage(param, cur.current, cur.pageSize).finally(() => {
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopStockPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = (data?.records || []).map((item) => ({
+				...item,
+				id: item.id !== undefined ? String(item.id) : undefined,
+			}));
+			setTotal(data?.total || 0);
+		} else {
+			message.error(messageInfo || '查询列表失败！');
+		}
+	} finally {
 		loading.value = false;
-	});
-	if (code === '200') {
-		dataSource.value = data?.records || [];
-		setTotal(data?.total || 0);
-	} else {
-		message.error(messageInfo || '查询列表失败！');
 	}
 };
 
-onMounted(() => {
-	query(true);
-});
-
-const modelInfo = ref<ModelInfo>({});
-
-//新增和修改弹窗
-function editShopStock(type: string, id?: string | number) {
-	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd || id === undefined ? undefined : String(id);
-	modelInfo.value.confirmLoading = true;
-	modelInfo.value.open = true;
+function openStockDrawer(
+	type: 'add' | 'update' | 'view',
+	id?: string,
+) {
+	isReadonlyMode.value = type === 'view';
+	const titleMap = {
+		add: '新增商店商品库存',
+		update: '编辑商店商品库存',
+		view: '商店商品库存档案',
+	};
+	modelInfo.value = {
+		title: titleMap[type],
+		id: type === 'add' ? undefined : id !== undefined ? String(id) : undefined,
+		confirmLoading: false,
+		open: true,
+	};
 }
 
 const handleSuccess = () => {
 	query(false);
 };
 
-// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
-const triggerDebouncedQuery = debounce(() => {
+onMounted(() => {
 	query(true);
-}, 300);
+});
+
+onBeforeUnmount(() => {
+	triggerDebouncedQuery.cancel();
+});
 
 watch(
 	() => searchInfo.value,
@@ -263,3 +315,161 @@ watch(
 	{ deep: true },
 );
 </script>
+
+<style lang="scss" scoped>
+.shop-stock-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 24px 28px;
+	background: #f8fafc;
+	min-height: 100%;
+}
+
+.screen-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 24px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+	.title-block {
+		.eyebrow {
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: #2563eb;
+			background: #eff6ff;
+			padding: 2px 8px;
+			border-radius: 999px;
+			margin-bottom: 6px;
+		}
+
+		h1 {
+			margin: 0 0 4px;
+			font-size: 20px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.subtitle {
+			margin: 0;
+			font-size: 13px;
+			color: #64748b;
+		}
+	}
+}
+
+.filter-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+		gap: 14px;
+		align-items: center;
+
+		:deep(.ant-form-item) {
+			margin-bottom: 0;
+		}
+	}
+
+	.filter-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.table-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.table-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		.table-summary {
+			font-size: 13px;
+			font-weight: 600;
+			color: #334155;
+
+			strong {
+				color: #2563eb;
+			}
+		}
+	}
+}
+
+.shop-name-link {
+	font-weight: 600;
+	color: #0f172a;
+	cursor: pointer;
+
+	&:hover {
+		color: #2563eb;
+		text-decoration: underline;
+	}
+}
+
+.mono-code {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 12px;
+	color: #475569;
+}
+
+.cost-text {
+	color: #64748b;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.sale-text {
+	color: #0f172a;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+.qty-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #eff6ff;
+	color: #1d4ed8;
+}
+
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+
+	&.is-valid {
+		background: #dcfce7;
+		color: #15803d;
+	}
+
+	&.is-invalid {
+		background: #f1f5f9;
+		color: #64748b;
+	}
+}
+</style>

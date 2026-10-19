@@ -62,7 +62,7 @@ export const columns: TableColumnsType = [
 		key: 'operation',
 		fixed: 'right',
 		align: 'center',
-		width: 130,
+		width: 165,
 	},
 ];
 
@@ -79,6 +79,7 @@ export interface FinanceManagerData {
 	infoDate?: Dayjs | string;
 	incomeAndExpenses?: string;
 	belongTo?: string;
+	belongToName?: string;
 	infoDateStart?: Dayjs | string;
 	infoDateEnd?: Dayjs | string;
 	typeCodes?: string[];

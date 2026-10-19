@@ -1,46 +1,57 @@
-﻿import type { TableColumnsType } from 'ant-design-vue';
-
+import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from '@/utils/dayjs';
 
 export const columns = ref<TableColumnsType>([
 	{
-		title: '消费券',
+		title: '消费券名称',
 		dataIndex: 'couponName',
 		key: 'couponName',
+		width: 240,
+		ellipsis: true,
 	},
 	{
 		title: '核销用户',
 		dataIndex: 'userName',
 		key: 'userName',
+		width: 160,
 	},
 	{
 		title: '核销数量',
 		dataIndex: 'redemptionQuantity',
 		key: 'redemptionQuantity',
+		align: 'center',
+		width: 130,
+	},
+	{
+		title: '状态',
+		dataIndex: 'status',
+		key: 'status',
+		align: 'center',
+		width: 130,
 	},
 	{
 		title: '核销时间',
 		dataIndex: 'receiveTime',
 		key: 'receiveTime',
+		align: 'center',
+		width: 180,
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		align: 'center',
+		width: 140,
 	},
 ]);
 
 export interface CpnUserCouponInfoData {
-	id?: number;
-	userId?: number;
-	// AI Agent：关联用户表返回
+	id?: string;
+	userId?: string;
 	userName?: string;
-	couponId?: number;
-	// AI Agent：关联消费券表返回
+	couponId?: string;
 	couponName?: string;
 	status?: string;
-	// AI Agent：按数量核销本次消耗数量
 	redemptionQuantity?: number;
 	receiveTime?: Dayjs | string;
 	expireTime?: Dayjs | string;
@@ -56,13 +67,10 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	receiveTime: { name: 'receiveTime', label: '核销时间' },
 });
 
-// AI Agent：消费券核销数量请求（按数量核销）
 export interface CpnUserCouponRedeemReq {
-	userId: number | string;
-	couponId: number | string;
-	// AI Agent：券明细ID（对应后端 userCouponId，用于取消核销）
-	userCouponId?: number;
+	userId: string;
+	couponId: string;
+	userCouponId?: string;
 	redemptionQuantity: number;
 	remarks?: string;
-	// 其他后端支持的字段（如 orderId/merchantId/redemptionValue/redemptionTime）暂不在该页面使用
 }

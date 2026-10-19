@@ -28,12 +28,13 @@
 				</button>
 			</a-tooltip>
 
-			<a-tooltip title="消息通知" placement="bottom">
+			<a-tooltip title="消息与到期提醒" placement="bottom">
 				<a-badge :count="newsCount" :offset="[-4, 4]" :overflow-count="99">
 					<button
 						type="button"
 						class="tool-btn"
 						aria-label="通知中心"
+						data-testid="pc-header-btn-notification"
 						@click="handleNotificationClick"
 					>
 						<bell-outlined />
@@ -200,6 +201,12 @@
 				</a-form-item>
 			</a-form>
 		</a-modal>
+
+		<!-- 消息与到期提醒抽屉 -->
+		<MessageCenterDrawer
+			v-model:open="messageDrawerVisible"
+			@summary-change="handleSummaryChange"
+		/>
 	</div>
 </template>
 
@@ -218,16 +225,20 @@ import {
 } from '@ant-design/icons-vue';
 import { logoutApi } from '@/views/login/api';
 import { getUserManagerDetail } from '@/views/user/userManager/api';
+import { getSysMessageSummary } from '@/views/message/api';
+import type { SysMessageSummaryData } from '@/views/message/config';
 import { useUserStore } from '@/store/modules/user/user';
 import { refreshRouter } from '@/router';
 import { storeToRefs } from 'pinia';
 import ThemeSetting from './components/ThemeSetting.vue';
+import MessageCenterDrawer from './components/MessageCenterDrawer.vue';
 import type { Rule } from 'ant-design-vue/es/form';
 
 // 响应式数据
 const userStore = useUserStore();
 const { userInfo, roleInfo, orgInfo } = storeToRefs(userStore);
 const newsCount = ref<number>(0);
+const messageDrawerVisible = ref<boolean>(false);
 const dropdownVisible = ref<boolean>(false);
 const isFullscreen = ref<boolean>(false);
 const router = useRouter();
@@ -324,7 +335,11 @@ onMounted(() => {
 
 // 消息通知点击
 const handleNotificationClick = () => {
-	message.info('当前暂无未读系统通知');
+	messageDrawerVisible.value = true;
+};
+
+const handleSummaryChange = (summaryData: SysMessageSummaryData) => {
+	newsCount.value = Number(summaryData?.unreadTotal || 0);
 };
 
 // 菜单点击分发
@@ -465,7 +480,14 @@ const handleLogout = async () => {
 
 // 获取消息数
 const fetchNewsCount = async () => {
-	newsCount.value = 0;
+	try {
+		const { code, data } = await getSysMessageSummary();
+		if (code === '200' && data) {
+			newsCount.value = Number(data.unreadTotal || 0);
+		}
+	} catch {
+		newsCount.value = 0;
+	}
 };
 </script>
 

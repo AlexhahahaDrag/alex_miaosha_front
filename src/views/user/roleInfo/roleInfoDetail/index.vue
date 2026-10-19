@@ -10,12 +10,136 @@
 		@save="handleOk"
 		@cancel="handleCancel"
 	>
+		<!-- 1. 只读模式：结构化角色详情卡片 (Read/Write Separation) -->
+		<div v-if="isReadonly" class="role-detail-readonly space-y-4">
+			<!-- Hero 角色概览卡片 -->
+			<div
+				class="flex items-center gap-4 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-r from-slate-50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-900/80 dark:to-slate-800/40 shadow-xs"
+			>
+				<div
+					class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/70 flex items-center justify-center text-xl shrink-0"
+				>
+					<IdcardOutlined />
+				</div>
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-2 flex-wrap">
+						<h3 class="text-base font-bold text-slate-900 dark:text-slate-100 m-0 truncate">
+							{{ formState.roleName || '-' }}
+						</h3>
+						<span
+							v-if="formState.roleCode === 'super_super'"
+							class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-400 border border-amber-300/70 dark:border-amber-800"
+						>
+							超级管理员
+						</span>
+						<span
+							v-if="String(formState.status) === '1'"
+							class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/70"
+						>
+							<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+							有效
+						</span>
+						<span
+							v-else
+							class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200/70 dark:border-slate-700"
+						>
+							<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+							失效
+						</span>
+					</div>
+					<div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+						<span class="inline-flex items-center gap-1 font-mono text-blue-600 dark:text-blue-400">
+							编码: {{ formState.roleCode || '-' }}
+						</span>
+						<span class="inline-flex items-center gap-1">
+							已授权限: <strong class="font-mono text-slate-700 dark:text-slate-200">{{ selectPermission.length }}</strong> 项
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- 管辖机构与职责说明卡片 -->
+			<div
+				class="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-3"
+			>
+				<div
+					class="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800"
+				>
+					<BankOutlined class="text-blue-600 dark:text-blue-400 text-sm" />
+					<span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+						管辖机构与角色职责
+					</span>
+				</div>
+
+				<div class="text-xs space-y-2.5">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-slate-400">适用机构 ({{ resolvedOrgNames.length }})</span>
+						<div v-if="resolvedOrgNames.length > 0" class="flex flex-wrap gap-1.5">
+							<span
+								v-for="name in resolvedOrgNames"
+								:key="name"
+								class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700"
+							>
+								<BankOutlined class="text-[11px] text-slate-400" />
+								{{ name }}
+							</span>
+						</div>
+						<span v-else class="text-slate-400 italic">暂未绑定适用机构</span>
+					</div>
+
+					<div class="flex flex-col gap-1 pt-1">
+						<span class="text-slate-400">职责说明</span>
+						<p
+							v-if="formState.summary"
+							class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed m-0 whitespace-pre-wrap"
+						>
+							{{ formState.summary }}
+						</p>
+						<span v-else class="text-slate-400 italic">暂无角色职责描述</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- 功能权限树只读预览卡片 -->
+			<div
+				class="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs"
+			>
+				<div
+					class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800"
+				>
+					<div class="flex items-center gap-2">
+						<SafetyCertificateOutlined class="text-indigo-600 dark:text-indigo-400 text-sm" />
+						<span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+							功能权限分配清单
+						</span>
+					</div>
+					<span class="text-[11px] font-mono text-slate-400">
+						共授权 {{ selectPermission.length }} 项
+					</span>
+				</div>
+
+				<rbac-permission-tree-panel
+					title="菜单与按钮权限"
+					description="只读展示该角色已授权的菜单及按钮/API权限点"
+					:tree-data="rbacTreeData"
+					:checked-keys="selectPermission"
+					:expanded-keys="expandedKeys"
+					:disabled="true"
+					@update:expanded-keys="(keys) => (expandedKeys = keys.map(String))"
+					@expand-all="expandedKeys = allPermissionKeys"
+					@collapse-all="expandedKeys = []"
+				/>
+			</div>
+		</div>
+
+		<!-- 2. 编辑/新增模式：标准化 A11y 表单 -->
 		<a-form
+			v-else
 			ref="formRef"
 			name="RoleInfoForm"
 			layout="vertical"
 			:model="formState"
-			:rules="isReadonly ? {} : rulesRef"
+			:rules="rulesRef"
 			class="space-y-5"
 		>
 			<!-- 1. 角色基础标识与绑定机构 -->
@@ -30,8 +154,9 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
 					<a-form-item label="角色名称" name="roleName" class="mb-3.5">
 						<a-input
+							id="form_roleName"
 							v-model:value="formState.roleName"
-							:disabled="isReadonly"
+							name="roleName"
 							placeholder="如：财务管理员"
 							allow-clear
 							class="rounded-lg"
@@ -41,8 +166,9 @@
 
 					<a-form-item label="角色编码 (Code)" name="roleCode" class="mb-3.5">
 						<a-input
+							id="form_roleCode"
 							v-model:value="formState.roleCode"
-							:disabled="isReadonly"
+							name="roleCode"
 							placeholder="如：rbac_finance_admin"
 							allow-clear
 							class="rounded-lg font-mono"
@@ -54,9 +180,9 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
 					<a-form-item label="绑定机构" name="orgIds" class="mb-3.5">
 						<a-select
+							id="form_orgIds"
 							v-model:value="formState.orgIds"
 							mode="multiple"
-							:disabled="isReadonly"
 							:options="orgOptions"
 							:field-names="{ label: 'orgName', value: 'id' }"
 							placeholder="请选择角色适用的机构（支持多选）"
@@ -70,8 +196,9 @@
 
 					<a-form-item label="生效状态" name="status" class="mb-3.5">
 						<a-radio-group
+							id="form_status"
 							v-model:value="formState.status"
-							:disabled="isReadonly"
+							name="status"
 							button-style="solid"
 							data-testid="rbac-role-field-status"
 						>
@@ -88,8 +215,9 @@
 
 				<a-form-item label="角色职责说明" name="summary" class="mb-0">
 					<a-textarea
+						id="form_summary"
 						v-model:value="formState.summary"
-						:disabled="isReadonly"
+						name="summary"
 						:rows="2"
 						:maxlength="150"
 						show-count
@@ -122,7 +250,7 @@
 					:tree-data="rbacTreeData"
 					:checked-keys="selectPermission"
 					:expanded-keys="expandedKeys"
-					:disabled="isReadonly"
+					:disabled="false"
 					@update:checked-keys="(keys) => (selectPermission = keys.map(String))"
 					@update:expanded-keys="(keys) => (expandedKeys = keys.map(String))"
 					@select-all="selectPermission = allPermissionKeys"
@@ -153,6 +281,11 @@
 </template>
 
 <script lang="ts" setup>
+import {
+	IdcardOutlined,
+	BankOutlined,
+	SafetyCertificateOutlined,
+} from '@ant-design/icons-vue';
 import type { FormInstance } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
 import type { ModelInfo } from '@/types/modal';
@@ -200,6 +333,26 @@ const statusOptions = computed(() => {
 		{ typeCode: '1', typeName: '有效' },
 		{ typeCode: '0', typeName: '失效' },
 	];
+});
+
+const resolvedOrgNames = computed<string[]>(() => {
+	const ids = formState.value.orgIds || [];
+	if (ids.length > 0 && orgOptions.value.length > 0) {
+		const orgMap = new Map(
+			orgOptions.value.map((o) => [String(o.id), o.orgName || String(o.id)]),
+		);
+		const names = ids
+			.map((id) => orgMap.get(String(id)))
+			.filter((n): n is string => Boolean(n));
+		if (names.length > 0) return names;
+	}
+	if (formState.value.orgNames) {
+		return formState.value.orgNames
+			.split(',')
+			.map((s) => s.trim())
+			.filter(Boolean);
+	}
+	return [];
 });
 
 const drawerTitle = computed(() => {

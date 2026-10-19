@@ -1,9 +1,1 @@
-export interface ShopStockAttrsDetail {
-	id?: number;
-	stockId?: number;
-	attrCode?: string;
-	attrName?: string;
-	attrValue?: string;
-	isValid?: string;
-	description?: string;
-}
+export type { ShopStockAttrsDetail, ShopStockAttrsData } from '@/views/finance/shopStockAttrs/config';

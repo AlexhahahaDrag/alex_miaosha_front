@@ -1,0 +1,14 @@
+[
+	{
+		"caseId": "MESSAGE-PC-SMOKE-001",
+		"title": "PC 顶栏通知中心铃铛与抽屉开合、分类标签切换与未读统计",
+		"persona": "super_super",
+		"level": "smoke"
+	},
+	{
+		"caseId": "MESSAGE-PC-SMOKE-002",
+		"title": "PC 消息中心抽屉新增自定义提醒弹窗表单校验与取消闭环",
+		"persona": "super_super",
+		"level": "flow"
+	}
+]

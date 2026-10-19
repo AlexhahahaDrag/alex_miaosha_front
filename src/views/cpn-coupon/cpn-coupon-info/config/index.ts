@@ -1,5 +1,4 @@
-﻿import type { TableColumnsType } from 'ant-design-vue';
-
+import type { TableColumnsType } from 'ant-design-vue';
 import type { Dayjs } from '@/utils/dayjs';
 import { formatTime } from '@/utils/dayjs';
 import { rulesRef } from '@/views/cpn-coupon/cpn-coupon-info/cpn-coupon-info-detail/config';
@@ -11,43 +10,57 @@ export const columns = ref<TableColumnsType>([
 		title: '消费券名称',
 		dataIndex: 'couponName',
 		key: 'couponName',
+		width: 220,
+		ellipsis: true,
 	},
 	{
-		title: '总数量',
-		dataIndex: 'remainingQuantity',
-		key: 'remainingQuantity',
-	},
-	{
-		title: '有效期',
-		dataIndex: 'endDate',
-		key: 'endDate',
-		customRender: ({ text }) => formatTime(text, 'YYYY-MM-DD HH:mm'),
-	},
-	{
-		title: '过期状态',
-		dataIndex: 'expireStatus',
-		key: 'expireStatus',
-	},
-	{
-		title: '消费券面值',
+		title: '面值 / 门槛',
 		dataIndex: 'unitValue',
 		key: 'unitValue',
+		align: 'right',
+		width: 150,
+	},
+	{
+		title: '剩余 / 发行量',
+		dataIndex: 'remainingQuantity',
+		key: 'remainingQuantity',
+		align: 'center',
+		width: 150,
+	},
+	{
+		title: '有效期至',
+		dataIndex: 'endDate',
+		key: 'endDate',
+		align: 'center',
+		width: 170,
+		customRender: ({ text }) =>
+			text ? formatTime(text, 'YYYY-MM-DD HH:mm') : '—',
+	},
+	{
+		title: '临期状态',
+		dataIndex: 'expireStatus',
+		key: 'expireStatus',
+		align: 'center',
+		width: 130,
 	},
 	{
 		title: '支付状态',
 		dataIndex: 'paymentStatus',
 		key: 'paymentStatus',
+		align: 'center',
+		width: 110,
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		align: 'center',
+		width: 185,
 	},
 ]);
 
 export interface CpnCouponInfoData {
-	id?: number;
+	id?: string;
 	couponName?: string;
 	totalQuantity?: number;
 	startDate?: Dayjs | string;
@@ -56,23 +69,21 @@ export interface CpnCouponInfoData {
 	minSpend?: number;
 	expireStatus?: string;
 	expireRangeStatus?: number;
-	remainingQuantity?: number; // AI Agent：剩余数量
-	consumedQuantity?: number; // AI Agent：已核销数量
-	// AI Agent：支付状态（1：已支付，0：未支付）
+	remainingQuantity?: number;
+	consumedQuantity?: number;
 	paymentStatus?: number;
-	// AI Agent：仅查询有效的、未核销完成的数据（true：还有剩余数量且未过期）
-	onlyValidAndNotFullyRedeemed?: boolean;
+	onlyValidAndNotFullyRedeemed?: boolean | null;
 }
 
 export const labelCol = ref({ span: 5 });
 export const wrapperCol = ref({ span: 19 });
 
 export const labelMap = ref<Record<string, { name: string; label: string }>>({
-	couponName: { name: 'couponName', label: '名称' },
-	totalQuantity: { name: 'totalQuantity', label: '总数量' },
+	couponName: { name: 'couponName', label: '消费券名称' },
+	totalQuantity: { name: 'totalQuantity', label: '发行总数量' },
 	startDate: { name: 'startDate', label: '有效期开始时间' },
-	endDate: { name: 'endDate', label: '有效期' },
-	unitValue: { name: 'unitValue', label: '面值' },
+	endDate: { name: 'endDate', label: '有效期截止时间' },
+	unitValue: { name: 'unitValue', label: '消费券面值' },
 	minSpend: { name: 'minSpend', label: '最低消费门槛' },
 	paymentStatus: { name: 'paymentStatus', label: '支付状态' },
 	onlyValidAndNotFullyRedeemed: {
@@ -81,8 +92,6 @@ export const labelMap = ref<Record<string, { name: string; label: string }>>({
 	},
 });
 
-// AI Agent：使用 lodash-es 的 debounce，避免输入频繁变化导致接口被高频调用
-// 获取过期状态颜色
 export const getExpireStatusColor = (status: number | undefined): string => {
 	if (status === undefined) return 'default';
 	switch (status) {

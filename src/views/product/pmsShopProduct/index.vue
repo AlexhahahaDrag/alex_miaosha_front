@@ -1,169 +1,257 @@
 <template>
-	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="6">
-							<a-form-item
-								:name="searchFieldMap.name.name"
-								:label="searchFieldMap.name.label"
-							>
-								<a-input
-									v-model:value="searchInfo.name"
-									:placeholder="`请输入${searchFieldMap.name.label}`"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item
-								:name="searchFieldMap.shop.name"
-								:label="searchFieldMap.shop.label"
-							>
-								<a-input
-									v-model:value="searchInfo.shop"
-									:placeholder="`请输入${searchFieldMap.shop.label}`"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6">
-							<a-form-item
-								:name="searchFieldMap.source.name"
-								:label="searchFieldMap.source.label"
-							>
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.source"
-									:placeholder="`请选择${searchFieldMap.source.label}`"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="sourceList"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="6" style="text-align: right">
-							<a-space>
-								<a-button type="primary" @click="() => query()"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
+	<div class="shop-product-screen">
+		<header class="screen-header">
+			<div class="title-block">
+				<span class="eyebrow">PRODUCT &amp; SECKILL CENTER</span>
+				<h1>商城商品与秒杀池管理</h1>
+				<p class="subtitle">
+					统一纳管全渠道采集商品、实时比价预警、历史价格曲线与 AI 秒杀爆款文案生成
+				</p>
 			</div>
-		</div>
-		<div class="button">
-			<a-space>
-				<a-button type="primary" @click="editPmsShopProduct('add')">
-					新增
-				</a-button>
-				<a-button type="primary" danger @click="batchDelPmsShopProduct">
-					删除
-				</a-button>
-				<a-button
-					type="dashed"
-					data-testid="btn-open-ai-copy"
-					@click="openAiCopyModal"
-				>
-					✨ AI 秒杀营销文案生成
-				</a-button>
-			</a-space>
-		</div>
-		<div class="content">
+			<div class="header-actions">
+				<a-space :size="10">
+					<a-button
+						class="ai-copy-trigger-btn"
+						data-testid="btn-open-ai-copy"
+						@click="openAiCopyModal"
+					>
+						✨ AI 秒杀营销文案生成
+					</a-button>
+					<a-button type="primary" @click="openProductDrawer('add')">
+						新增商品
+					</a-button>
+					<a-button
+						danger
+						:disabled="!rowIds.length"
+						@click="batchDelPmsShopProduct"
+					>
+						批量删除
+					</a-button>
+				</a-space>
+			</div>
+		</header>
+
+		<section class="filter-card">
+			<a-form :model="searchInfo" class="filter-form">
+				<div class="filter-grid">
+					<a-form-item
+						:name="searchFieldMap.name.name"
+						:label="searchFieldMap.name.label"
+					>
+						<a-input
+							id="filter-product-name"
+							v-model:value="searchInfo.name"
+							name="name"
+							:placeholder="`请输入${searchFieldMap.name.label}关键词`"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item
+						:name="searchFieldMap.shop.name"
+						:label="searchFieldMap.shop.label"
+					>
+						<a-input
+							id="filter-product-shop"
+							v-model:value="searchInfo.shop"
+							name="shop"
+							:placeholder="`请输入${searchFieldMap.shop.label}名称`"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item
+						:name="searchFieldMap.source.name"
+						:label="searchFieldMap.source.label"
+					>
+						<a-select
+							id="filter-product-source"
+							v-model:value="searchInfo.source"
+							:placeholder="`请选择${searchFieldMap.source.label}`"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="sourceList"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<div class="filter-actions">
+						<a-space :size="8">
+							<a-button type="primary" @click="() => query(true)">
+								查询
+							</a-button>
+							<a-button @click="cancelQuery">重置</a-button>
+						</a-space>
+					</div>
+				</div>
+			</a-form>
+		</section>
+
+		<section class="table-card">
+			<div class="table-toolbar">
+				<span class="table-summary">
+					商城商品列表
+					<template v-if="rowIds.length">
+						· 已勾选 <strong>{{ rowIds.length }}</strong> 项
+					</template>
+				</span>
+			</div>
+
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record) => String(record.id)"
 				:pagination="pagination"
-				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
+					<template v-if="column.key === 'image'">
+						<div class="product-img-cell">
+							<a-image
+								v-if="record.image"
+								:width="56"
+								:height="56"
+								:src="record.image"
+								class="thumb-img"
+							/>
+							<span v-else class="thumb-empty">无图</span>
+						</div>
+					</template>
+
+					<template v-else-if="column.key === 'name'">
+						<a
+							class="product-name-link"
+							@click="openProductDrawer('view', record.id)"
+						>
+							{{ record.name || '--' }}
+						</a>
+					</template>
+
+					<template v-else-if="column.key === 'price'">
+						<div v-if="record.price !== undefined && record.price !== null" class="price-cell">
+							<span
+								v-if="
+									record.comparePrice &&
+									record.price < record.comparePrice
+								"
+								class="price-drop-chip"
+								:title="`对比价 ¥${record.comparePrice}`"
+							>
+								↓ ¥{{ Number(record.price).toFixed(2) }}
+							</span>
+							<span v-else class="price-normal-chip">
+								¥{{ Number(record.price).toFixed(2) }}
+							</span>
+							<span
+								v-if="
+									record.comparePrice &&
+									record.price < record.comparePrice
+								"
+								class="compare-price-strike"
+							>
+								¥{{ Number(record.comparePrice).toFixed(2) }}
+							</span>
+						</div>
+						<span v-else class="text-muted">--</span>
+					</template>
+
+					<template v-else-if="column.key === 'icons'">
+						<div v-if="record.icons" class="tag-group">
+							<span
+								v-for="(tag, idx) in splitTags(record.icons)"
+								:key="idx"
+								class="promo-mini-tag"
+							>
+								{{ tag }}
+							</span>
+						</div>
+						<span v-else class="text-muted">--</span>
+					</template>
+
+					<template v-else-if="column.key === 'source'">
+						<div class="source-cell">
+							<template v-for="source in sourceTransferList" :key="source.value">
+								<span
+									v-if="
+										record.source &&
+										source.value !== '' &&
+										record.source.indexOf(source.value) >= 0
+									"
+									class="source-badge"
+								>
+									<component
+										v-if="iconComponentMap[`soft-${source.label}`]"
+										:is="iconComponentMap[`soft-${source.label}`]"
+										class="svg-icon"
+									/>
+									<span>{{ source.name }}</span>
+								</span>
+							</template>
+							<span
+								v-if="!record.source"
+								class="text-muted"
+							>
+								--
+							</span>
+						</div>
+					</template>
+
+					<template v-else-if="column.key === 'productUrl'">
+						<a
+							v-if="record.productUrl"
+							:href="record.productUrl"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="external-link-pill"
+						>
+							商城详情 ↗
+						</a>
+						<span v-else class="text-muted">--</span>
+					</template>
+
+					<template v-else-if="column.key === 'operateTime'">
+						<span class="time-text">
+							{{ record.operateTime ? formatTime(record.operateTime) : '--' }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'operation'">
+						<a-space :size="4">
 							<a-button
-								type="primary"
+								type="link"
 								size="small"
-								@click="editPmsShopProduct('update', record.id)"
+								@click="openProductDrawer('view', record.id)"
+							>
+								查看
+							</a-button>
+							<a-button
+								type="link"
+								size="small"
+								@click="openProductDrawer('update', record.id)"
 							>
 								编辑
 							</a-button>
 							<a-popconfirm
-								title="确认删除?"
+								title="确认删除该商城商品吗？"
 								ok-text="确认"
 								cancel-text="取消"
-								@confirm="delPmsShopProduct(record.id)"
-								@cancel="cancel"
+								@confirm="delPmsShopProduct(String(record.id))"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button type="link" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
-						<span></span>
-					</template>
-					<template v-else-if="column.key === 'image' && record.image">
-						<a-image :width="80" :src="record.image" />
-					</template>
-					<template
-						v-else-if="column.key === 'productUrl' && record.productUrl"
-					>
-						<a :href="record.productUrl" target="_blank">查看商城商品信息</a>
-					</template>
-					<template v-else-if="column.key === 'price' && record.price">
-						<span
-							v-if="
-								record.comparePrice &&
-								record.price &&
-								record.price < record.comparePrice
-							"
-							style="font-weight: 900; font-style: oblique; color: red"
-						>
-							{{ record.price }}</span
-						>
-						<span v-else>{{ record.price }}</span>
-					</template>
-					<template v-else-if="column.key === 'source'">
-						<template v-for="source in sourceTransferList" :key="source.value">
-							<component
-								v-if="
-									record.source &&
-									source.value !== '' &&
-									record.source.indexOf(source.value) >= 0 &&
-									iconComponentMap[`soft-${source.label}`]
-								"
-								:is="iconComponentMap[`soft-${source.label}`]"
-								class="svg"
-								style="
-									width: 1.5em;
-									height: 1.5em;
-									font-size: 18px;
-									cursor: pointer;
-									vertical-align: middle;
-								"
-							/>
-						</template>
-					</template>
-					<template
-						v-else-if="column.key === 'operateTime' && record.operateTime"
-					>
-						<span>
-							{{ formatTime(record.operateTime) }}
-						</span>
 					</template>
 				</template>
 			</a-table>
+
 			<PmsShopProductDetail
 				v-model:modelInfo="modelInfo"
+				:is-readonly="isReadonlyMode"
 				@success="() => query()"
-			>
-			</PmsShopProductDetail>
-		</div>
+			/>
+		</section>
 
 		<!-- AI 营销文案生成 Modal (子组件) -->
 		<product-ai-copy-modal
@@ -173,6 +261,7 @@
 		/>
 	</div>
 </template>
+
 <script setup lang="ts">
 import type { ModelInfo } from '@/types/modal';
 import { iconComponentMap } from '@/config/icons';
@@ -180,6 +269,7 @@ import type { PmsShopProductData } from '@/views/product/pmsShopProduct/config';
 import {
 	columns,
 	sourceTransferList,
+	DEFAULT_SHOP_SOURCE_OPTIONS,
 } from '@/views/product/pmsShopProduct/config';
 import {
 	getNewestPmsShopProductPage,
@@ -189,43 +279,56 @@ import { message } from 'ant-design-vue';
 import { formatTime } from '@/utils/dayjs';
 import type { PageInfo } from '@/composables/usePagination';
 import ProductAiCopyModal from '@/views/product/pmsShopProduct/components/ProductAiCopyModal.vue';
-
 import { useDictInfo } from '@/composables/useDictInfo';
 
-const { getDictByType } = useDictInfo('is_valid');
+const { getDictByType } = useDictInfo('shop_type');
 
-// 字典数据已通过 useDictInfo 自动加载
-const sourceList = computed(() => getDictByType('is_valid'));
+const sourceList = computed(() => {
+	const list = getDictByType('shop_type');
+	return list?.length ? list : DEFAULT_SHOP_SOURCE_OPTIONS;
+});
 
-// 使用表格行选择组合式函数（保障 ID 为纯 string）
 const {
 	selectedRowKeys: rowIds,
 	rowSelection,
 	clearSelected,
 } = useRowSelection();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, setTotal, resetPagination } =
 	usePagination({
 		onChange: (p) => getPmsShopProductListPage(searchInfo.value, p),
 	});
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
 const searchFieldMap = {
 	name: { name: 'name', label: '商品名称' },
-	shop: { name: 'shop', label: '商铺' },
-	source: { name: 'source', label: '来源' },
+	shop: { name: 'shop', label: '所属商铺' },
+	source: { name: 'source', label: '来源平台' },
 } as const;
+
 let queryTimer: ReturnType<typeof setTimeout> | null = null;
 
 const searchInfo = ref<PmsShopProductData>({});
 const loading = ref<boolean>(false);
 const dataSource = ref<PmsShopProductData[]>([]);
 const modelInfo = ref<ModelInfo>({});
+const isReadonlyMode = ref<boolean>(false);
+
+const splitTags = (raw?: string) => {
+	if (!raw) return [];
+	return raw
+		.split(/[,，\s]+/)
+		.map((s) => s.trim())
+		.filter(Boolean)
+		.slice(0, 3);
+};
 
 function cancelQuery() {
+	if (queryTimer) {
+		clearTimeout(queryTimer);
+		queryTimer = null;
+	}
 	searchInfo.value = {};
+	query(true);
 }
 
 function query(resetPage = false) {
@@ -257,7 +360,6 @@ const batchDelPmsShopProduct = (): void => {
 	}
 	delPmsShopProduct(rowIds.value.join(','));
 };
-const cancel = () => {};
 
 async function getPmsShopProductListPage(
 	param: PmsShopProductData,
@@ -271,7 +373,10 @@ async function getPmsShopProductListPage(
 			message: messageInfo,
 		} = await getNewestPmsShopProductPage(param, cur.current, cur.pageSize);
 		if (code === '200') {
-			dataSource.value = data?.records || [];
+			dataSource.value = (data?.records || []).map((item) => ({
+				...item,
+				id: item.id !== undefined ? String(item.id) : undefined,
+			}));
 			setTotal(data?.total || 0);
 		} else {
 			message.error(messageInfo || '查询列表失败！');
@@ -281,17 +386,20 @@ async function getPmsShopProductListPage(
 	}
 }
 
-
-//新增和修改弹窗
-function editPmsShopProduct(type: string, id?: string) {
-	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? undefined : (id ?? undefined);
-	modelInfo.value.confirmLoading = true;
-	modelInfo.value.open = true;
+function openProductDrawer(type: 'add' | 'update' | 'view', id?: string) {
+	isReadonlyMode.value = type === 'view';
+	const titleMap = {
+		add: '新增商城商品',
+		update: '编辑商城商品',
+		view: '商城商品档案与价格监测',
+	};
+	modelInfo.value = {
+		title: titleMap[type],
+		id: type === 'add' ? undefined : id !== undefined ? String(id) : undefined,
+		confirmLoading: false,
+		open: true,
+	};
 }
-
-// 移除冗余的 handleSuccess 函数
 
 // ── AI 营销文案助手
 const aiCopyModalVisible = ref<boolean>(false);
@@ -330,9 +438,10 @@ onMounted(() => {
 	query(true);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
 	if (queryTimer) {
 		clearTimeout(queryTimer);
+		queryTimer = null;
 	}
 });
 
@@ -343,9 +452,256 @@ watch(
 			clearTimeout(queryTimer);
 		}
 		queryTimer = setTimeout(() => {
-			resetPagination();
-			query();
+			query(true);
 		}, 300);
 	},
 );
 </script>
+
+<style lang="scss" scoped>
+.shop-product-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 24px 28px;
+	background: #f8fafc;
+	min-height: 100%;
+}
+
+.screen-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 24px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+	.title-block {
+		.eyebrow {
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: #2563eb;
+			background: #eff6ff;
+			padding: 2px 8px;
+			border-radius: 999px;
+			margin-bottom: 6px;
+		}
+
+		h1 {
+			margin: 0 0 4px;
+			font-size: 20px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.subtitle {
+			margin: 0;
+			font-size: 13px;
+			color: #64748b;
+		}
+	}
+
+	.ai-copy-trigger-btn {
+		border-color: #c084fc;
+		color: #7e22ce;
+		background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+		font-weight: 600;
+
+		&:hover {
+			border-color: #9333ea;
+			color: #6b21a8;
+			background: #f3e8ff;
+		}
+	}
+}
+
+.filter-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+		gap: 16px;
+		align-items: center;
+
+		:deep(.ant-form-item) {
+			margin-bottom: 0;
+		}
+	}
+
+	.filter-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.table-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.table-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		.table-summary {
+			font-size: 13px;
+			font-weight: 600;
+			color: #334155;
+
+			strong {
+				color: #2563eb;
+			}
+		}
+	}
+}
+
+.product-img-cell {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	:deep(.ant-image-img),
+	.thumb-img {
+		border-radius: 8px;
+		object-fit: cover;
+		border: 1px solid #e2e8f0;
+	}
+
+	.thumb-empty {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		height: 48px;
+		border-radius: 8px;
+		background: #f8fafc;
+		border: 1px dashed #cbd5e1;
+		font-size: 11px;
+		color: #94a3b8;
+	}
+}
+
+.product-name-link {
+	font-weight: 600;
+	color: #0f172a;
+	cursor: pointer;
+
+	&:hover {
+		color: #2563eb;
+		text-decoration: underline;
+	}
+}
+
+.price-cell {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+
+	.price-drop-chip {
+		display: inline-flex;
+		align-items: center;
+		padding: 2px 8px;
+		border-radius: 999px;
+		background: #fef2f2;
+		color: #dc2626;
+		font-weight: 700;
+		font-size: 13px;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.price-normal-chip {
+		font-weight: 700;
+		font-size: 13px;
+		color: #0f172a;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.compare-price-strike {
+		font-size: 11px;
+		color: #94a3b8;
+		text-decoration: line-through;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+.tag-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+
+	.promo-mini-tag {
+		padding: 1px 6px;
+		border-radius: 4px;
+		font-size: 11px;
+		font-weight: 600;
+		background: #fff1f2;
+		color: #e11d48;
+		border: 1px solid #fecdd3;
+	}
+}
+
+.source-cell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	.source-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 2px 8px;
+		border-radius: 999px;
+		background: #f1f5f9;
+		font-size: 12px;
+		font-weight: 600;
+		color: #334155;
+
+		.svg-icon {
+			width: 14px;
+			height: 14px;
+		}
+	}
+}
+
+.external-link-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #2563eb;
+	background: #eff6ff;
+	text-decoration: none;
+
+	&:hover {
+		background: #dbeafe;
+	}
+}
+
+.time-text {
+	font-size: 12px;
+	color: #64748b;
+	font-variant-numeric: tabular-nums;
+}
+
+.text-muted {
+	color: #94a3b8;
+	font-size: 12px;
+}
+</style>

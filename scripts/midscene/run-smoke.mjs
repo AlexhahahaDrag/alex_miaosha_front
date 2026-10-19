@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import { chromium } from 'playwright';
@@ -1070,6 +1070,79 @@ async function assertGiftPcExportAction(page, agent, runtime) {
 	}
 }
 
+async function assertMessagePcSmoke(page, agent, runtime) {
+	// 等待顶栏未读汇总接口返回
+	const summaryPromise = page.waitForResponse(
+		(res) => res.url().includes('/sys-message-info/summary') && res.status() === 200,
+		{ timeout: 15000 },
+	).catch(() => null);
+	await page.goto(`${runtime.baseUrl}/#/home`, { waitUntil: 'domcontentloaded' });
+	await summaryPromise;
+
+	// 断言顶栏通知中心铃铛存在并点击
+	const bellBtn = page.getByTestId('pc-header-btn-notification');
+	await bellBtn.waitFor({ state: 'visible', timeout: 10000 });
+	
+	// 注册抽屉内分页查询接口等待
+	const pagePromise = page.waitForResponse(
+		(res) => res.url().includes('/sys-message-info/page') && res.status() === 200,
+		{ timeout: 15000 },
+	).catch(() => null);
+	await bellBtn.click();
+	await pagePromise;
+
+	// 断言右侧消息抽屉已滑出
+	const drawer = page.getByTestId('pc-message-drawer');
+	await drawer.waitFor({ state: 'visible', timeout: 10000 });
+
+	// 断言各分类 Tab 与操作按钮可见
+	await page.getByTestId('pc-message-tab-ALL').waitFor({ state: 'visible', timeout: 5000 });
+	await page.getByTestId('pc-message-tab-GIFT_EVENT').waitFor({ state: 'visible', timeout: 5000 });
+	await page.getByTestId('pc-message-btn-read-all').waitFor({ state: 'visible', timeout: 5000 });
+	await page.getByTestId('pc-message-btn-publish').waitFor({ state: 'visible', timeout: 5000 });
+
+	// 切换到礼尚往来分类 Tab 并等待数据刷新
+	const tabChangePromise = page.waitForResponse(
+		(res) => res.url().includes('/sys-message-info/page') && res.status() === 200,
+		{ timeout: 15000 },
+	).catch(() => null);
+	await page.getByTestId('pc-message-tab-GIFT_EVENT').click();
+	await tabChangePromise;
+
+	// 关闭抽屉
+	await page.locator('.ant-drawer-close').click();
+	await drawer.waitFor({ state: 'hidden', timeout: 5000 });
+}
+
+async function assertMessagePcPublishModal(page, agent, runtime) {
+	await page.goto(`${runtime.baseUrl}/#/home`, { waitUntil: 'domcontentloaded' });
+	const bellBtn = page.getByTestId('pc-header-btn-notification');
+	await bellBtn.waitFor({ state: 'visible', timeout: 10000 });
+	await bellBtn.click();
+
+	const publishBtn = page.getByTestId('pc-message-btn-publish');
+	await publishBtn.waitFor({ state: 'visible', timeout: 10000 });
+	await publishBtn.click();
+
+	// 断言发布弹窗已打开并可见标题输入框与内容输入框
+	const titleInput = page.getByTestId('pc-message-input-title');
+	const contentInput = page.getByTestId('pc-message-input-content');
+	await titleInput.waitFor({ state: 'visible', timeout: 10000 });
+	await contentInput.waitFor({ state: 'visible', timeout: 10000 });
+
+	// 填入测试备忘内容
+	await titleInput.fill('Midscene自动化巡检备忘');
+	await contentInput.fill('测试消息中心弹窗表单校验');
+
+	// 点击取消按钮平稳关闭弹窗
+	const cancelBtn = page.locator('.ant-modal-footer .ant-btn').first();
+	await cancelBtn.click();
+	await titleInput.waitFor({ state: 'hidden', timeout: 5000 });
+
+	// 关闭抽屉
+	await page.locator('.ant-drawer-close').click();
+}
+
 async function runCase(testCase, runtime, page, agent) {
 	const startedAt = new Date().toISOString();
 	await resetSession(page, runtime);
@@ -1298,6 +1371,12 @@ async function runCase(testCase, runtime, page, agent) {
 			break;
 		case 'GIFT-PC-EXPORT-001':
 			await assertGiftPcExportAction(page, agent, runtime);
+			break;
+		case 'MESSAGE-PC-SMOKE-001':
+			await assertMessagePcSmoke(page, agent, runtime);
+			break;
+		case 'MESSAGE-PC-SMOKE-002':
+			await assertMessagePcPublishModal(page, agent, runtime);
 			break;
 		default:
 			throw new Error(`Unsupported caseId=${testCase.caseId}`);

@@ -1,7 +1,7 @@
-﻿import type { Dayjs } from '@/utils/dayjs';
+import type { Dayjs } from '@/utils/dayjs';
 import type { TableColumnsType } from 'ant-design-vue';
 export interface SearchInfo {
-	cardId?: number;
+	cardId?: string;
 	orderNo?: string;
 	amount?: number;
 	balanceAfter?: number;

@@ -1,186 +1,181 @@
 <template>
-	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleOrderCode'].name"
-								:label="labelMap['saleOrderCode'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleOrderCode"
-									:placeholder="'请填写' + labelMap['saleOrderCode'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleOrderName'].name"
-								:label="labelMap['saleOrderName'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleOrderName"
-									:placeholder="'请填写' + labelMap['saleOrderName'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleAmount'].name"
-								:label="labelMap['saleAmount'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleAmount"
-									:placeholder="'请填写' + labelMap['saleAmount'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['isValid'].name"
-								:label="labelMap['isValid'].label"
-							>
-								<a-select
-									ref="select"
-									v-model:value="searchInfo.isValid"
-									:placeholder="'请选择' + labelMap['isValid'].label"
-									:field-names="{ label: 'typeName', value: 'typeCode' }"
-									:options="isValidList"
-									:allowClear="true"
-								>
-								</a-select>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleDate'].name"
-								:label="labelMap['saleDate'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleDate"
-									:placeholder="'请填写' + labelMap['saleDate'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['description'].name"
-								:label="labelMap['description'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.description"
-									:placeholder="'请填写' + labelMap['description'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['payWay'].name"
-								:label="labelMap['payWay'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.payWay"
-									:placeholder="'请填写' + labelMap['payWay'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleCount'].name"
-								:label="labelMap['saleCount'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleCount"
-									:placeholder="'请填写' + labelMap['saleCount'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="20" class="actions-col">
-							<a-space>
-								<a-button type="primary" @click="() => query()"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
+	<div class="shop-order-screen">
+		<header class="screen-header">
+			<div class="title-block">
+				<span class="eyebrow">SHOP ORDER CENTER</span>
+				<h1>商店销售订单管理</h1>
+				<p class="subtitle">
+					集中管理门店销售订单主数据、成交金额、购买件数、支付渠道与订单状态
+				</p>
 			</div>
-		</div>
-		<div class="button">
-			<a-space>
-				<a-button type="primary" @click="editShopOrder('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelShopOrder">
-					删除
-				</a-button>
-			</a-space>
-		</div>
-		<div class="content">
+			<div class="header-actions">
+				<a-space :size="10">
+					<a-button type="primary" @click="openOrderDrawer('add')">
+						新增订单
+					</a-button>
+					<a-button
+						danger
+						:disabled="!rowIds.length"
+						@click="batchDelShopOrder"
+					>
+						批量删除
+					</a-button>
+				</a-space>
+			</div>
+		</header>
+
+		<section class="filter-card">
+			<a-form :model="searchInfo" class="filter-form">
+				<div class="filter-grid">
+					<a-form-item name="saleOrderCode" label="订单编码">
+						<a-input
+							id="filter-order-code"
+							v-model:value="searchInfo.saleOrderCode"
+							name="saleOrderCode"
+							placeholder="请输入订单编码"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="saleOrderName" label="订单名称">
+						<a-input
+							id="filter-order-name"
+							v-model:value="searchInfo.saleOrderName"
+							name="saleOrderName"
+							placeholder="请输入订单名称关键词"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="payWay" label="支付方式">
+						<a-input
+							id="filter-order-pay-way"
+							v-model:value="searchInfo.payWay"
+							name="payWay"
+							placeholder="请输入支付方式"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="isValid" label="有效状态">
+						<a-select
+							id="filter-order-is-valid"
+							v-model:value="searchInfo.isValid"
+							placeholder="全部状态"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="isValidList"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<div class="filter-actions">
+						<a-space :size="8">
+							<a-button type="primary" @click="() => query(true)">
+								查询
+							</a-button>
+							<a-button @click="cancelQuery">重置</a-button>
+						</a-space>
+					</div>
+				</div>
+			</a-form>
+		</section>
+
+		<section class="table-card">
+			<div class="table-toolbar">
+				<span class="table-summary">
+					销售订单列表
+					<template v-if="rowIds.length">
+						· 已勾选 <strong>{{ rowIds.length }}</strong> 笔
+					</template>
+				</span>
+			</div>
+
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record) => String(record.id)"
 				:pagination="pagination"
-				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
+					<template v-if="column.key === 'saleOrderCode'">
+						<a
+							class="mono-code-link"
+							@click="openOrderDrawer('view', record.id)"
+						>
+							{{ record.saleOrderCode || '--' }}
+						</a>
+					</template>
+
+					<template v-else-if="column.key === 'saleAmount'">
+						<span class="amount-chip">
+							¥{{ Number(record.saleAmount ?? 0).toFixed(2) }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'saleCount'">
+						<span class="count-badge">{{ record.saleCount ?? 0 }} 件</span>
+					</template>
+
+					<template v-else-if="column.key === 'isValid'">
+						<span
+							class="status-pill"
+							:class="record.isValid === '1' ? 'is-valid' : 'is-invalid'"
+						>
+							{{ record.isValid === '1' ? '有效' : '失效' }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'operation'">
+						<a-space :size="4">
 							<a-button
-								type="primary"
+								type="link"
 								size="small"
-								@click="editShopOrder('update', record.id)"
+								@click="openOrderDrawer('view', record.id)"
+							>
+								查看
+							</a-button>
+							<a-button
+								type="link"
+								size="small"
+								@click="openOrderDrawer('update', record.id)"
 							>
 								编辑
 							</a-button>
 							<a-popconfirm
-								title="确认删除?"
+								title="确认删除该销售订单吗？"
 								ok-text="确认"
 								cancel-text="取消"
-								@confirm="delShopOrder(record.id)"
-								@cancel="cancel"
+								@confirm="delShopOrder(String(record.id))"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button type="link" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
-						<span></span>
 					</template>
 				</template>
 			</a-table>
+
 			<ShopOrderDetailInfo
 				v-model:modelInfo="modelInfo"
+				:is-readonly="isReadonlyMode"
 				@success="handleSuccess"
-			></ShopOrderDetailInfo>
-		</div>
+			/>
+		</section>
 	</div>
 </template>
+
 <script setup lang="ts">
 import type { ModelInfo } from '@/types/modal';
 import { useDictInfo } from '@/composables/useDictInfo';
 import type { PageInfo } from '@/composables/usePagination';
-
-import type { ShopOrderData } from '@/views/finance/shopOrder/config';
-import { columns } from '@/views/finance/shopOrder/config';
+import {
+	columns,
+	DEFAULT_VALID_OPTIONS,
+	type ShopOrderData,
+} from '@/views/finance/shopOrder/config';
 import {
 	getShopOrderPage,
 	deleteShopOrder,
@@ -189,43 +184,31 @@ import { message } from 'ant-design-vue';
 
 const { getDictByType } = useDictInfo('is_valid');
 
-// 字典数据已通过 useDictInfo 自动加载
-const isValidList = computed(() => getDictByType('is_valid'));
+const isValidList = computed(() => {
+	const list = getDictByType('is_valid');
+	return list?.length ? list : DEFAULT_VALID_OPTIONS;
+});
 
-// 使用表格行选择组合式函数（保障 ID 为纯 string）
 const {
 	selectedRowKeys: rowIds,
 	rowSelection,
 	clearSelected,
 } = useRowSelection();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, resetPagination, setTotal } =
 	usePagination({
 		onChange: (p) => getShopOrderListPage(searchInfo.value, p),
 	});
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
-const labelMap: Record<string, { name: string; label: string }> = {
-	saleOrderCode: { name: 'saleOrderCode', label: '订单编码' },
-	saleOrderName: { name: 'saleOrderName', label: '订单名称' },
-	saleAmount: { name: 'saleAmount', label: '总销售金额' },
-	isValid: { name: 'isValid', label: '状态' },
-	saleDate: { name: 'saleDate', label: '销售日期' },
-	description: { name: 'description', label: '描述' },
-	payWay: { name: 'payWay', label: '支付方式' },
-	saleCount: { name: 'saleCount', label: '销售数量' },
-};
-
 const searchInfo = ref<ShopOrderData>({});
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopOrderData[]>([]);
 const modelInfo = ref<ModelInfo>({});
+const isReadonlyMode = ref<boolean>(false);
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
+	query(true);
 };
 
 const query = (resetPage = false): void => {
@@ -254,8 +237,6 @@ const batchDelShopOrder = (): void => {
 	delShopOrder(rowIds.value.join(','));
 };
 
-const cancel = (): void => {};
-
 const getShopOrderListPage = async (
 	param: ShopOrderData,
 	cur: PageInfo,
@@ -268,7 +249,10 @@ const getShopOrderListPage = async (
 			message: messageInfo,
 		} = await getShopOrderPage(param, cur.current, cur.pageSize);
 		if (code === '200') {
-			dataSource.value = data?.records || [];
+			dataSource.value = (data?.records || []).map((item) => ({
+				...item,
+				id: item.id !== undefined ? String(item.id) : undefined,
+			}));
 			setTotal(data?.total || 0);
 		} else {
 			message.error(messageInfo || '查询列表失败！');
@@ -278,14 +262,22 @@ const getShopOrderListPage = async (
 	}
 };
 
-
-//新增和修改弹窗
-const editShopOrder = (type: string, id?: string): void => {
-	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : (id ?? null);
-	modelInfo.value.confirmLoading = true;
-	modelInfo.value.open = true;
+const openOrderDrawer = (
+	type: 'add' | 'update' | 'view',
+	id?: string,
+): void => {
+	isReadonlyMode.value = type === 'view';
+	const titleMap = {
+		add: '新增商店销售订单',
+		update: '编辑商店销售订单',
+		view: '商店销售订单凭证',
+	};
+	modelInfo.value = {
+		title: titleMap[type],
+		id: type === 'add' ? undefined : id !== undefined ? String(id) : undefined,
+		confirmLoading: false,
+		open: true,
+	};
 };
 
 const handleSuccess = (): void => {
@@ -293,11 +285,153 @@ const handleSuccess = (): void => {
 };
 
 onMounted(() => {
-	getShopOrderListPage(searchInfo.value, pagination);
+	query(true);
 });
 </script>
+
 <style lang="scss" scoped>
-.actions-col {
-	text-align: right;
+.shop-order-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 24px 28px;
+	background: #f8fafc;
+	min-height: 100%;
+}
+
+.screen-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 24px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+	.title-block {
+		.eyebrow {
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: #2563eb;
+			background: #eff6ff;
+			padding: 2px 8px;
+			border-radius: 999px;
+			margin-bottom: 6px;
+		}
+
+		h1 {
+			margin: 0 0 4px;
+			font-size: 20px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.subtitle {
+			margin: 0;
+			font-size: 13px;
+			color: #64748b;
+		}
+	}
+}
+
+.filter-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+		gap: 14px;
+		align-items: center;
+
+		:deep(.ant-form-item) {
+			margin-bottom: 0;
+		}
+	}
+
+	.filter-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.table-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.table-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		.table-summary {
+			font-size: 13px;
+			font-weight: 600;
+			color: #334155;
+
+			strong {
+				color: #2563eb;
+			}
+		}
+	}
+}
+
+.mono-code-link {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 12px;
+	font-weight: 600;
+	color: #2563eb;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.amount-chip {
+	font-weight: 700;
+	color: #0f172a;
+	font-variant-numeric: tabular-nums;
+}
+
+.count-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #eff6ff;
+	color: #1d4ed8;
+}
+
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+
+	&.is-valid {
+		background: #dcfce7;
+		color: #15803d;
+	}
+
+	&.is-invalid {
+		background: #f1f5f9;
+		color: #64748b;
+	}
 }
 </style>

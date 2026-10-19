@@ -1,5 +1,5 @@
 <template>
-	<div class="page-info finance-manager-page">
+	<div class="finance-manager-screen finance-manager-page">
 		<!-- 1. 单行紧凑日常记账筛选栏 -->
 		<finance-manager-filter
 			v-model:searchInfo="searchInfo"
@@ -47,64 +47,62 @@
 			</a-button>
 		</div>
 
-		<!-- 3. 操作按钮区 -->
-		<div class="button">
-			<a-space>
-				<a-button
-					v-if="hasPermission('finance:financeManager:add')"
-					type="primary"
-					@click="editFinance('add')"
-				>
-					<template #icon><PlusOutlined /></template>
-					记一笔
-				</a-button>
-
-				<template v-if="hasPermission('finance:financeManager:delete')">
-					<a-popconfirm
-						v-if="selectedRowIds.length"
-						:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
-						ok-text="确认"
-						cancel-text="取消"
-						@confirm="batchDelFinanceManager"
-					>
-						<a-button type="primary" danger>
-							<template #icon><DeleteOutlined /></template>
-							批量删除 ({{ selectedRowIds.length }})
+		<!-- 3. 账单明细表格卡片（内聚操作按钮栏） -->
+		<div class="table-card-shell" ref="tableContainerRef">
+			<finance-manager-table
+				:data-source="dataSource"
+				:columns="columns"
+				:loading="loading"
+				:table-scroll-y="tableScrollY"
+				:row-selection="rowSelection"
+				:selected-row-ids="selectedRowIds"
+				:pagination="pagination"
+				:can-edit-record="canEditRecord"
+				:can-delete-record="canDeleteRecord"
+				:get-category-pill-style="getCategoryPillStyle"
+				:format-amount="formatAmount"
+				:get-from-source-name="getFromSourceName"
+				@edit="editFinance"
+				@delete="delFinance"
+				@batch-delete="batchDelFinanceManager"
+				@clear-selected="clearSelected"
+				@filter-category="filterByCategory"
+				@table-change="handleTableChange"
+				@page-change="onFooterPageChange"
+				@size-change="onFooterSizeChange"
+			>
+				<template #headerActions>
+					<a-space :size="8">
+						<template v-if="hasPermission('finance:financeManager:delete')">
+							<a-popconfirm
+								v-if="selectedRowIds.length"
+								:title="`确认批量删除选中的 ${selectedRowIds.length} 笔账目?`"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="batchDelFinanceManager"
+							>
+								<a-button danger size="small" class="header-batch-del-btn">
+									<template #icon><DeleteOutlined /></template>
+									批量删除 ({{ selectedRowIds.length }})
+								</a-button>
+							</a-popconfirm>
+						</template>
+						<a-button
+							v-if="hasPermission('finance:financeManager:add')"
+							type="primary"
+							class="primary-record-btn"
+							data-testid="btn-add-finance"
+							@click="editFinance('add')"
+						>
+							<template #icon><PlusOutlined /></template>
+							记一笔
 						</a-button>
-					</a-popconfirm>
-					<a-button v-else type="primary" danger disabled>
-						<template #icon><DeleteOutlined /></template>
-						删除
-					</a-button>
+					</a-space>
 				</template>
-			</a-space>
+			</finance-manager-table>
 		</div>
 
-		<!-- 4. 账单明细表格解耦子组件 -->
-		<finance-manager-table
-			:data-source="dataSource"
-			:columns="columns"
-			:loading="loading"
-			:table-scroll-y="tableScrollY"
-			:row-selection="rowSelection"
-			:selected-row-ids="selectedRowIds"
-			:pagination="pagination"
-			:can-edit-record="canEditRecord"
-			:can-delete-record="canDeleteRecord"
-			:get-category-pill-style="getCategoryPillStyle"
-			:format-amount="formatAmount"
-			:get-from-source-name="getFromSourceName"
-			@edit="editFinance"
-			@delete="delFinance"
-			@batch-delete="batchDelFinanceManager"
-			@clear-selected="clearSelected"
-			@filter-category="filterByCategory"
-			@table-change="handleTableChange"
-			@page-change="onFooterPageChange"
-			@size-change="onFooterSizeChange"
-		/>
-
-		<!-- 记账 / 修改明细弹窗 -->
+		<!-- 记账 / 修改明细抽屉 -->
 		<finance-manager-detail
 			v-model:modelInfo="modelInfo"
 			@success="() => query()"
@@ -523,9 +521,9 @@ const tableScrollY = ref<number>(450);
 const updateTableScrollY = () => {
 	if (!tableContainerRef.value) return;
 	const containerHeight = tableContainerRef.value.clientHeight;
-	if (containerHeight > 160) {
-		// 扣除表头(~46px) + 底栏工具条(~48px) + 容器内边距(12px) ≈ 106px
-		tableScrollY.value = Math.max(containerHeight - 106, 160);
+	if (containerHeight > 180) {
+		// 扣除卡片顶栏(~46px) + 表头(~42px) + 底栏工具条(~46px) ≈ 134px
+		tableScrollY.value = Math.max(containerHeight - 134, 160);
 
 		// 若用户尚未手动选择过条数，根据实际容器渲染高度校准最匹配条数阶梯 (10 / 15 / 20)
 		if (!hasUserCustomizedPageSize.value) {
@@ -567,9 +565,30 @@ onUnmounted(() => {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 10px 10px 12px;
+	padding: 12px;
+	background: #f8fafc;
 	box-sizing: border-box;
 	overflow: hidden;
+}
+
+.table-card-shell {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.primary-record-btn {
+	height: 32px;
+	padding: 0 14px;
+	border-radius: 8px;
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(22, 119, 255, 0.2);
+}
+
+.header-batch-del-btn {
+	height: 32px;
+	border-radius: 8px;
 }
 
 :deep(.search) {
@@ -578,16 +597,11 @@ onUnmounted(() => {
 }
 
 .text-income {
-	color: #52c41a !important;
+	color: #059669 !important;
 }
 
 .text-expense {
-	color: #ff4d4f !important;
-}
-
-.button {
-	flex-shrink: 0;
-	margin: 0 0 8px;
+	color: #e11d48 !important;
 }
 
 .linkage-active-banner {
@@ -598,7 +612,7 @@ onUnmounted(() => {
 	background: #eff6ff;
 	border: 1px solid #bfdbfe;
 	padding: 5px 14px;
-	border-radius: 6px;
+	border-radius: 8px;
 	margin-bottom: 8px;
 	font-size: 12px;
 	color: #1e40af;

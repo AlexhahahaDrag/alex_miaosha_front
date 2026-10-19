@@ -9,6 +9,6 @@ export interface resultType {
 	incomeAndExpenses?: string;
 	amount?: number;
 	infoDate?: string;
-	userId?: number;
+	userId?: string;
 	username?: string;
 }

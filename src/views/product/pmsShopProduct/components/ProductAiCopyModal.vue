@@ -8,28 +8,36 @@
 		<a-form layout="vertical" :model="aiCopyReq">
 			<a-row :gutter="16">
 				<a-col :span="12">
-					<a-form-item label="商品名称" required>
+					<a-form-item label="商品名称" name="productName" required>
 						<a-input
+							id="ai-copy-product-name"
 							v-model:value="aiCopyReq.productName"
+							name="productName"
 							data-testid="ai-copy-input-name"
 							placeholder="如：降噪无线蓝牙耳机"
+							allow-clear
 						/>
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-					<a-form-item label="商品品类">
+					<a-form-item label="商品品类" name="categoryName">
 						<a-input
+							id="ai-copy-category-name"
 							v-model:value="aiCopyReq.categoryName"
+							name="categoryName"
 							placeholder="如：数码影音"
+							allow-clear
 						/>
 					</a-form-item>
 				</a-col>
 			</a-row>
 			<a-row :gutter="16">
 				<a-col :span="12">
-					<a-form-item label="商品原价(元)">
+					<a-form-item label="商品原价(元)" name="originalPrice">
 						<a-input-number
+							id="ai-copy-original-price"
 							v-model:value="aiCopyReq.originalPrice"
+							name="originalPrice"
 							:min="0"
 							style="width: 100%"
 							placeholder="如：399"
@@ -37,9 +45,11 @@
 					</a-form-item>
 				</a-col>
 				<a-col :span="12">
-					<a-form-item label="秒杀促销价(元)">
+					<a-form-item label="秒杀促销价(元)" name="seckillPrice">
 						<a-input-number
+							id="ai-copy-seckill-price"
 							v-model:value="aiCopyReq.seckillPrice"
+							name="seckillPrice"
 							:min="0"
 							style="width: 100%"
 							placeholder="如：199"
@@ -47,10 +57,13 @@
 					</a-form-item>
 				</a-col>
 			</a-row>
-			<a-form-item label="商品核心亮点/规格">
+			<a-form-item label="商品核心亮点/规格" name="features">
 				<a-input
+					id="ai-copy-features"
 					v-model:value="aiCopyReq.features"
+					name="features"
 					placeholder="如：主动混合降噪40dB，长续航30小时"
+					allow-clear
 				/>
 			</a-form-item>
 			<a-form-item>
@@ -70,7 +83,11 @@
 			<div class="result-item">
 				<div class="result-header">
 					<span class="result-label">🔥 爆款标题</span>
-					<a-button type="link" size="small" @click="copyText(aiCopyResult.title)">
+					<a-button
+						type="link"
+						size="small"
+						@click="copyText(aiCopyResult.title)"
+					>
 						复制
 					</a-button>
 				</div>

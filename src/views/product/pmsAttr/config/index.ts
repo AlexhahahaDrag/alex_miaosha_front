@@ -1,63 +1,116 @@
 import type { TableColumnsType } from 'ant-design-vue';
 
+export const ATTR_TYPE_OPTIONS = [
+	{ label: '销售属性 (SKU)', value: 0, color: 'blue' },
+	{ label: '基本属性 (SPU)', value: 1, color: 'cyan' },
+	{ label: '销售与基本双重属性', value: 2, color: 'purple' },
+] as const;
+
+export const ENABLE_STATUS_OPTIONS = [
+	{ label: '已启用', value: 1, status: 'enabled' },
+	{ label: '已禁用', value: 0, status: 'disabled' },
+] as const;
+
+export const SEARCH_TYPE_OPTIONS = [
+	{ label: '支持检索', value: 1 },
+	{ label: '无需检索', value: 0 },
+] as const;
+
+export const SHOW_DESC_OPTIONS = [
+	{ label: '快速展示', value: 1 },
+	{ label: '默认隐藏', value: 0 },
+] as const;
+
 export const columns = ref<TableColumnsType>([
 	{
-		title: '属性名',
+		title: '属性名称',
 		dataIndex: 'attrName',
 		key: 'attrName',
+		width: 180,
+		ellipsis: true,
 	},
 	{
-		title: '是否需要检索[0-不需要，1-需要]',
-		dataIndex: 'searchType',
-		key: 'searchType',
+		title: '属性类型',
+		dataIndex: 'attrType',
+		key: 'attrType',
+		width: 160,
+		align: 'center',
+	},
+	{
+		title: '可选值列表',
+		dataIndex: 'valueSelect',
+		key: 'valueSelect',
+		width: 240,
+	},
+	{
+		title: '所属分类 ID',
+		dataIndex: 'catelogId',
+		key: 'catelogId',
+		width: 140,
+		align: 'center',
 	},
 	{
 		title: '属性图标',
 		dataIndex: 'icon',
 		key: 'icon',
+		width: 120,
+		align: 'center',
 	},
 	{
-		title: '可选值列表[用逗号分隔]',
-		dataIndex: 'valueSelect',
-		key: 'valueSelect',
+		title: '检索支持',
+		dataIndex: 'searchType',
+		key: 'searchType',
+		width: 110,
+		align: 'center',
 	},
 	{
-		title: '属性类型[0-销售属性，1-基本属性，2-既是销售属性又是基本属性]',
-		dataIndex: 'attrType',
-		key: 'attrType',
-	},
-	{
-		title: '启用状态[0 - 禁用，1 - 启用]',
-		dataIndex: 'enable',
-		key: 'enable',
-	},
-	{
-		title: '所属分类',
-		dataIndex: 'catelogId',
-		key: 'catelogId',
-	},
-	{
-		title: '快速展示【是否展示在介绍上；0-否 1-是】，在sku中仍然可以调整',
+		title: '详情快展',
 		dataIndex: 'showDesc',
 		key: 'showDesc',
+		width: 110,
+		align: 'center',
+	},
+	{
+		title: '启用状态',
+		dataIndex: 'enable',
+		key: 'enable',
+		width: 110,
+		align: 'center',
 	},
 	{
 		title: '操作',
 		key: 'operation',
 		fixed: 'right',
-		width: '8',
+		width: 160,
+		align: 'center',
 	},
 ]);
 
 export interface PmsAttrData {
+	id?: string;
 	attrName?: string;
 	searchType?: number;
 	icon?: string;
 	valueSelect?: string;
 	attrType?: number;
 	enable?: number;
-	catelogId?: number;
+	catelogId?: string;
 	showDesc?: number;
+}
+
+export type SearchInfo = PmsAttrData;
+export type PmsAttrDetail = PmsAttrData;
+
+export interface DataItem {
+	id?: string;
+	attrName: string;
+	searchType: number;
+	icon: string;
+	valueSelect: string;
+	attrType: number;
+	enable: number;
+	catelogId: string;
+	showDesc: number;
 }
 
 export const labelCol: { span: number } = { span: 5 };

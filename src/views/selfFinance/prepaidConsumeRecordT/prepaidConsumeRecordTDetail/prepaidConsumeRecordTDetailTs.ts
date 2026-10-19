@@ -1,8 +1,8 @@
-﻿import type { Dayjs } from '@/utils/dayjs';
+import type { Dayjs } from '@/utils/dayjs';
 
 export interface PrepaidConsumeRecordTDetail {
-	id?: number;
-	cardId?: number | string;
+	id?: string;
+	cardId?: string;
 	orderNo?: string;
 	amount?: number;
 	balanceAfter?: number;

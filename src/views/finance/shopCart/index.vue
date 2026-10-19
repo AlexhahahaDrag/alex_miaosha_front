@@ -1,177 +1,209 @@
 <template>
-	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['shopId'].name"
-								:label="labelMap['shopId'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.shopId"
-									:placeholder="'请填写' + labelMap['shopId'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['userId'].name"
-								:label="labelMap['userId'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.userId"
-									:placeholder="'请填写' + labelMap['userId'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['customerId'].name"
-								:label="labelMap['customerId'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.customerId"
-									:placeholder="'请填写' + labelMap['customerId'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['isValid'].name"
-								:label="labelMap['isValid'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.isValid"
-									:placeholder="'请填写' + labelMap['isValid'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleNum'].name"
-								:label="labelMap['saleNum'].label"
-							>
-								<a-input
-									v-model:value="searchInfo.saleNum"
-									:placeholder="'请填写' + labelMap['saleNum'].label"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="20" class="actions-col">
-							<a-space>
-								<a-button type="primary" @click="() => query()"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
+	<div class="shop-cart-screen">
+		<header class="screen-header">
+			<div class="title-block">
+				<span class="eyebrow">SHOPPING CART LEDGER</span>
+				<h1>商店购物车明细管理</h1>
+				<p class="subtitle">
+					统一管理门店客户选品加购记录、导购归属人员、加购件数与有效状态
+				</p>
 			</div>
-		</div>
-		<div class="button">
-			<a-space>
-				<a-button type="primary" @click="editShopCart('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelShopCart">
-					删除
-				</a-button>
-			</a-space>
-		</div>
-		<div class="content">
+			<div class="header-actions">
+				<a-space :size="10">
+					<a-button type="primary" @click="openCartDrawer('add')">
+						新增加购
+					</a-button>
+					<a-button
+						danger
+						:disabled="!rowIds.length"
+						@click="batchDelShopCart"
+					>
+						批量删除
+					</a-button>
+				</a-space>
+			</div>
+		</header>
+
+		<section class="filter-card">
+			<a-form :model="searchInfo" class="filter-form">
+				<div class="filter-grid">
+					<a-form-item name="shopId" label="商品 ID">
+						<a-input
+							id="filter-cart-shop-id"
+							v-model:value="searchInfo.shopId"
+							name="shopId"
+							placeholder="请输入商品 ID"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="userId" label="销售人员 ID">
+						<a-input
+							id="filter-cart-user-id"
+							v-model:value="searchInfo.userId"
+							name="userId"
+							placeholder="请输入销售人员 ID"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="customerId" label="客户 ID">
+						<a-input
+							id="filter-cart-customer-id"
+							v-model:value="searchInfo.customerId"
+							name="customerId"
+							placeholder="请输入客户 ID"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="isValid" label="有效状态">
+						<a-select
+							id="filter-cart-is-valid"
+							v-model:value="searchInfo.isValid"
+							placeholder="全部状态"
+							:field-names="{ label: 'typeName', value: 'typeCode' }"
+							:options="isValidList"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<div class="filter-actions">
+						<a-space :size="8">
+							<a-button type="primary" @click="() => query(true)">
+								查询
+							</a-button>
+							<a-button @click="cancelQuery">重置</a-button>
+						</a-space>
+					</div>
+				</div>
+			</a-form>
+		</section>
+
+		<section class="table-card">
+			<div class="table-toolbar">
+				<span class="table-summary">
+					购物车明细列表
+					<template v-if="rowIds.length">
+						· 已勾选 <strong>{{ rowIds.length }}</strong> 项
+					</template>
+				</span>
+			</div>
+
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record) => String(record.id)"
 				:pagination="pagination"
-				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
+					<template v-if="column.key === 'shopId'">
+						<a
+							class="mono-id-link"
+							@click="openCartDrawer('view', record.id)"
+						>
+							{{ record.shopId || '--' }}
+						</a>
+					</template>
+
+					<template v-else-if="column.key === 'userId' || column.key === 'customerId'">
+						<span class="mono-id">{{ record[column.key] || '--' }}</span>
+					</template>
+
+					<template v-else-if="column.key === 'saleNum'">
+						<span class="qty-badge">{{ record.saleNum ?? 0 }} 件</span>
+					</template>
+
+					<template v-else-if="column.key === 'isValid'">
+						<span
+							class="status-pill"
+							:class="record.isValid === '1' ? 'is-valid' : 'is-invalid'"
+						>
+							{{ record.isValid === '1' ? '有效' : '失效' }}
+						</span>
+					</template>
+
+					<template v-else-if="column.key === 'operation'">
+						<a-space :size="4">
 							<a-button
-								type="primary"
+								type="link"
 								size="small"
-								@click="editShopCart('update', record.id)"
+								@click="openCartDrawer('view', record.id)"
+							>
+								查看
+							</a-button>
+							<a-button
+								type="link"
+								size="small"
+								@click="openCartDrawer('update', record.id)"
 							>
 								编辑
 							</a-button>
 							<a-popconfirm
-								title="确认删除?"
+								title="确认删除该购物车记录吗？"
 								ok-text="确认"
 								cancel-text="取消"
-								@confirm="delShopCart(record.id)"
-								@cancel="cancel"
+								@confirm="delShopCart(String(record.id))"
 							>
-								<a-button type="primary" size="small" danger>删除</a-button>
+								<a-button type="link" size="small" danger>删除</a-button>
 							</a-popconfirm>
 						</a-space>
-						<span></span>
 					</template>
 				</template>
 			</a-table>
+
 			<ShopCartDetail
 				v-model:modelInfo="modelInfo"
+				:is-readonly="isReadonlyMode"
 				@success="handleSuccess"
-			></ShopCartDetail>
-		</div>
+			/>
+		</section>
 	</div>
 </template>
+
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
-import type { ShopCartData } from '@/views/finance/shopCart/config';
+import {
+	columns,
+	DEFAULT_VALID_OPTIONS,
+	type ShopCartData,
+} from '@/views/finance/shopCart/config';
 import type { ModelInfo } from '@/types/modal';
-import { columns } from '@/views/finance/shopCart/config';
 import { getShopCartPage, deleteShopCart } from '@/views/finance/shopCart/api';
 import { message } from 'ant-design-vue';
+import { useDictInfo } from '@/composables/useDictInfo';
 
-// 使用表格行选择组合式函数（保障 ID 为纯 string）
+const { getDictByType } = useDictInfo('is_valid');
+
+const isValidList = computed(() => {
+	const list = getDictByType('is_valid');
+	return list?.length ? list : DEFAULT_VALID_OPTIONS;
+});
+
 const {
 	selectedRowKeys: rowIds,
 	rowSelection,
 	clearSelected,
 } = useRowSelection();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, resetPagination, setTotal } =
 	usePagination({
 		onChange: (p) => getShopCartListPage(searchInfo.value, p),
 	});
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
-const labelMap: Record<string, { name: string; label: string }> = {
-	shopId: { name: 'shopId', label: '商品id' },
-	userId: { name: 'userId', label: '人员id' },
-	customerId: { name: 'customerId', label: '客户id' },
-	isValid: { name: 'isValid', label: '是否有效' },
-	saleNum: { name: 'saleNum', label: '数量' },
-};
-
 const searchInfo = ref<ShopCartData>({});
-
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopCartData[]>([]);
 const modelInfo = ref<ModelInfo>({});
+const isReadonlyMode = ref<boolean>(false);
 
 const cancelQuery = (): void => {
 	searchInfo.value = {};
+	query(true);
 };
 
 const query = (resetPage = false): void => {
@@ -200,33 +232,51 @@ const batchDelShopCart = (): void => {
 	delShopCart(rowIds.value.join(','));
 };
 
-const cancel = (): void => {};
-
 const getShopCartListPage = async (
 	param: ShopCartData,
 	cur: PageInfo,
 ): Promise<void> => {
 	loading.value = true;
 	try {
-		const res = await getShopCartPage(param, cur.current, cur.pageSize);
-		if (res.code === '200') {
-			dataSource.value = res.data?.records || [];
-			setTotal(res.data?.total || 0);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getShopCartPage(param, cur.current, cur.pageSize);
+		if (code === '200') {
+			dataSource.value = (data?.records || []).map((item) => ({
+				...item,
+				id: item.id !== undefined ? String(item.id) : undefined,
+				shopId: item.shopId !== undefined ? String(item.shopId) : undefined,
+				userId: item.userId !== undefined ? String(item.userId) : undefined,
+				customerId:
+					item.customerId !== undefined ? String(item.customerId) : undefined,
+			}));
+			setTotal(data?.total || 0);
 		} else {
-			message.error((res && res.message) || '查询列表失败！');
+			message.error(messageInfo || '查询列表失败！');
 		}
 	} finally {
 		loading.value = false;
 	}
 };
 
-//新增和修改弹窗
-const editShopCart = (type: string, id?: string): void => {
-	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : id;
-	modelInfo.value.confirmLoading = true;
-	modelInfo.value.open = true;
+const openCartDrawer = (
+	type: 'add' | 'update' | 'view',
+	id?: string,
+): void => {
+	isReadonlyMode.value = type === 'view';
+	const titleMap = {
+		add: '新增商店购物车记录',
+		update: '编辑商店购物车记录',
+		view: '商店购物车记录详情',
+	};
+	modelInfo.value = {
+		title: titleMap[type],
+		id: type === 'add' ? undefined : id !== undefined ? String(id) : undefined,
+		confirmLoading: false,
+		open: true,
+	};
 };
 
 const handleSuccess = (): void => {
@@ -234,11 +284,153 @@ const handleSuccess = (): void => {
 };
 
 onMounted(() => {
-	getShopCartListPage(searchInfo.value, pagination);
+	query(true);
 });
 </script>
+
 <style lang="scss" scoped>
-.actions-col {
-	text-align: right;
+.shop-cart-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 24px 28px;
+	background: #f8fafc;
+	min-height: 100%;
+}
+
+.screen-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 24px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+	.title-block {
+		.eyebrow {
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: #2563eb;
+			background: #eff6ff;
+			padding: 2px 8px;
+			border-radius: 999px;
+			margin-bottom: 6px;
+		}
+
+		h1 {
+			margin: 0 0 4px;
+			font-size: 20px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.subtitle {
+			margin: 0;
+			font-size: 13px;
+			color: #64748b;
+		}
+	}
+}
+
+.filter-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+		gap: 14px;
+		align-items: center;
+
+		:deep(.ant-form-item) {
+			margin-bottom: 0;
+		}
+	}
+
+	.filter-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.table-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.table-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		.table-summary {
+			font-size: 13px;
+			font-weight: 600;
+			color: #334155;
+
+			strong {
+				color: #2563eb;
+			}
+		}
+	}
+}
+
+.mono-id-link {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 12px;
+	font-weight: 600;
+	color: #2563eb;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.mono-id {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 12px;
+	color: #475569;
+}
+
+.qty-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #eff6ff;
+	color: #1d4ed8;
+}
+
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+
+	&.is-valid {
+		background: #dcfce7;
+		color: #15803d;
+	}
+
+	&.is-invalid {
+		background: #f1f5f9;
+		color: #64748b;
+	}
 }
 </style>

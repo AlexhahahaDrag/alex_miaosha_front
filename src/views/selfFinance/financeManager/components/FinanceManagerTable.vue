@@ -1,6 +1,21 @@
 <template>
-	<div class="content" ref="tableContainerRef">
+	<div class="content finance-table-card" ref="tableContainerRef">
+		<div class="table-card-header">
+			<div class="header-left">
+				<span class="table-title">账单流水明细</span>
+				<span class="table-count-pill">
+					{{ Number(pagination.total || 0).toLocaleString() }} 笔
+				</span>
+				<span v-if="selectedRowIds.length" class="header-selection-tag">
+					已勾选 {{ selectedRowIds.length }} 项
+				</span>
+			</div>
+			<div class="header-right">
+				<slot name="headerActions" />
+			</div>
+		</div>
 		<a-table
+			class="modern-finance-table"
 			:dataSource="dataSource"
 			:columns="columns"
 			:loading="loading"
@@ -13,27 +28,28 @@
 			<template #bodyCell="{ column, record }">
 				<!-- 操作列：轻量链接按钮降噪 -->
 				<template v-if="column.key === 'operation'">
-					<a-space :size="4">
+					<a-space :size="2">
 						<a-button
-							v-if="canEditRecord(record)"
 							type="link"
 							size="small"
-							class="action-link-btn"
-							data-testid="btn-edit-finance"
-							@click="$emit('edit', 'update', record.id)"
-						>
-							编辑
-						</a-button>
-						<a-button
-							v-else
-							type="link"
-							size="small"
-							class="action-link-btn"
+							class="action-link-btn view-link-btn"
 							data-testid="btn-view-finance"
 							@click="$emit('edit', 'view', record.id)"
 						>
 							查看
 						</a-button>
+						<template v-if="canEditRecord(record)">
+							<a-divider type="vertical" />
+							<a-button
+								type="link"
+								size="small"
+								class="action-link-btn"
+								data-testid="btn-edit-finance"
+								@click="$emit('edit', 'update', record.id)"
+							>
+								编辑
+							</a-button>
+						</template>
 						<template v-if="canDeleteRecord(record)">
 							<a-divider type="vertical" />
 							<a-popconfirm
@@ -240,9 +256,64 @@ const handleSizeChange = (current: number, size: number) => {
 	flex-direction: column;
 	position: relative;
 	background: #fff;
-	border-radius: 8px;
+	border-radius: 12px;
+	border: 1px solid #e2e8f0;
+	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 	padding: 0 16px;
 	overflow: hidden;
+
+	.table-card-header {
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 10px 4px;
+		border-bottom: 1px solid #f1f5f9;
+		gap: 12px;
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.table-title {
+				font-size: 14px;
+				font-weight: 700;
+				color: #0f172a;
+			}
+
+			.table-count-pill {
+				display: inline-flex;
+				align-items: center;
+				padding: 1px 8px;
+				border-radius: 999px;
+				background: #f1f5f9;
+				border: 1px solid #e2e8f0;
+				font-size: 11px;
+				font-weight: 600;
+				color: #475569;
+				font-variant-numeric: tabular-nums;
+			}
+
+			.header-selection-tag {
+				display: inline-flex;
+				align-items: center;
+				padding: 1px 8px;
+				border-radius: 999px;
+				background: #eff6ff;
+				border: 1px solid #bfdbfe;
+				font-size: 11px;
+				font-weight: 600;
+				color: #1d4ed8;
+			}
+		}
+
+		.header-right {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+	}
 
 	:deep(.ant-table-wrapper) {
 		flex: 1;
@@ -266,6 +337,20 @@ const handleSizeChange = (current: number, size: number) => {
 					flex: 1;
 					min-height: 0;
 
+					.ant-table-thead > tr > th {
+						background: #f8fafc !important;
+						color: #475569;
+						font-size: 12px;
+						font-weight: 600;
+						padding: 10px 12px;
+						border-bottom: 1px solid #e2e8f0;
+					}
+
+					.ant-table-tbody > tr > td {
+						padding: 9px 12px;
+						border-bottom: 1px solid #f1f5f9;
+					}
+
 					.ant-table-container {
 						height: 100%;
 						display: flex;
@@ -283,13 +368,13 @@ const handleSizeChange = (current: number, size: number) => {
 
 	.table-footer-toolbar {
 		flex-shrink: 0;
-		height: 48px;
+		height: 46px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: 0 4px;
 		background: #fff;
-		border-top: 1px solid #f0f0f0;
+		border-top: 1px solid #f1f5f9;
 		z-index: 10;
 
 		.toolbar-left {
@@ -299,11 +384,12 @@ const handleSizeChange = (current: number, size: number) => {
 
 			.total-text {
 				font-size: 13px;
-				color: #8c8c8c;
+				color: #64748b;
 
 				.total-num {
-					color: #262626;
+					color: #0f172a;
 					font-weight: 600;
+					font-variant-numeric: tabular-nums;
 				}
 			}
 
@@ -311,10 +397,10 @@ const handleSizeChange = (current: number, size: number) => {
 				display: inline-flex;
 				align-items: center;
 				padding: 2px 8px;
-				background: #e6f4ff;
-				border: 1px solid #91caff;
-				border-radius: 4px;
-				color: #0958d9;
+				background: #eff6ff;
+				border: 1px solid #bfdbfe;
+				border-radius: 6px;
+				color: #1d4ed8;
 				font-size: 12px;
 
 				.selection-count {
@@ -329,7 +415,7 @@ const handleSizeChange = (current: number, size: number) => {
 				height: auto;
 
 				&.clear-btn {
-					color: #8c8c8c;
+					color: #64748b;
 					&:hover {
 						color: #1677ff;
 					}
@@ -357,17 +443,24 @@ const handleSizeChange = (current: number, size: number) => {
 	font-variant-numeric: tabular-nums;
 
 	&.amount-income {
-		color: #52c41a;
+		color: #059669;
 	}
 
 	&.amount-expense {
-		color: #ff4d4f;
+		color: #e11d48;
 	}
 }
 
 .action-link-btn {
-	padding: 0 2px;
+	padding: 0 3px;
 	font-size: 13px;
+
+	&.view-link-btn {
+		color: #475569;
+		&:hover {
+			color: #1677ff;
+		}
+	}
 }
 
 .type-tag {
@@ -376,7 +469,7 @@ const handleSizeChange = (current: number, size: number) => {
 }
 
 .info-date-text {
-	color: #595959;
+	color: #475569;
 	font-size: 13px;
 	font-variant-numeric: tabular-nums;
 }
@@ -386,15 +479,15 @@ const handleSizeChange = (current: number, size: number) => {
 	align-items: center;
 	gap: 6px;
 	padding: 2px 8px;
-	background: #fafafa;
-	border: 1px solid #f0f0f0;
-	border-radius: 4px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
 	font-size: 12px;
-	color: #595959;
+	color: #334155;
 
 	.from-source-icon {
-		width: 16px;
-		height: 16px;
+		width: 15px;
+		height: 15px;
 	}
 }
 

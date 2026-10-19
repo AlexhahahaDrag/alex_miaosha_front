@@ -1,171 +1,235 @@
 <template>
-	<div class="page-info">
-		<div class="search">
-			<div class="search-box">
-				<a-form
-					:model="searchInfo"
-					:label-col="labelCol"
-					:wrapper-col="wrapperCol"
-				>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleAmountFrom'].name"
-								:label="labelMap['saleAmountFrom'].label"
-							>
-								<a-input-number
-									v-model:value="searchInfo.saleAmountFrom"
-									:placeholder="'请填写' + labelMap['saleAmountFrom'].label"
-									:formatter="(value) => `${value}`"
-									class="full-width"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleAmountEnd'].name"
-								:label="labelMap['saleAmountEnd'].label"
-							>
-								<a-input-number
-									v-model:value="searchInfo.saleAmountEnd"
-									:placeholder="'请填写' + labelMap['saleAmountEnd'].label"
-									:formatter="(value) => `${value}`"
-									class="full-width"
-									allow-clear
-								/>
-							</a-form-item>
-						</a-col>
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleDateFrom'].name"
-								:label="labelMap['saleDateFrom'].label"
-							>
-								<a-date-picker
-									v-model:value="saleDateFrom"
-									@change="query(true)"
-								/>
-							</a-form-item>
-						</a-col>
-					</a-row>
-					<a-row :gutter="24">
-						<a-col :span="8">
-							<a-form-item
-								:name="labelMap['saleDateEnd'].name"
-								:label="labelMap['saleDateEnd'].label"
-							>
-								<a-date-picker v-model:value="saleDateEnd" @change="initPage" />
-							</a-form-item>
-						</a-col>
-						<a-col :span="20" class="actions-col">
-							<a-space>
-								<a-button type="primary" @click="() => query()"> 查找</a-button>
-								<a-button type="primary" @click="cancelQuery">清空</a-button>
-							</a-space>
-						</a-col>
-					</a-row>
-				</a-form>
+	<div class="shop-finance-screen">
+		<header class="screen-header">
+			<div class="title-block">
+				<span class="eyebrow">SHOP REVENUE LEDGER</span>
+				<h1>商店财务账单管理</h1>
+				<p class="subtitle">
+					统一核算门店商品销售流水、收支方向、支付渠道构成与账期明细对账
+				</p>
 			</div>
-		</div>
-		<div class="button">
-			<a-space>
-				<a-button type="primary" @click="editShopFinance('add')">新增</a-button>
-				<a-button type="primary" danger @click="batchDelShopFinance">
-					删除
-				</a-button>
-			</a-space>
-		</div>
-		<div class="content">
+			<div class="header-actions">
+				<div class="summary-pills">
+					<span class="summary-pill income">
+						本页收入：<strong>¥{{ pageIncomeSum }}</strong>
+					</span>
+					<span class="summary-pill expense">
+						本页支出：<strong>¥{{ pageExpenseSum }}</strong>
+					</span>
+				</div>
+				<a-space :size="10">
+					<a-button type="primary" @click="openFinanceDrawer('add')">
+						新增账单
+					</a-button>
+					<a-button
+						danger
+						:disabled="!selectedRowIds.length"
+						@click="batchDelShopFinance"
+					>
+						批量删除
+					</a-button>
+				</a-space>
+			</div>
+		</header>
+
+		<section class="filter-card">
+			<a-form :model="searchInfo" class="filter-form">
+				<div class="filter-grid">
+					<a-form-item name="saleAmountFrom" label="售价区间(起)">
+						<a-input-number
+							id="filter-sale-amount-from"
+							v-model:value="searchInfo.saleAmountFrom"
+							name="saleAmountFrom"
+							placeholder="最低售价"
+							:min="0"
+							class="full-width"
+						/>
+					</a-form-item>
+
+					<a-form-item name="saleAmountEnd" label="售价区间(止)">
+						<a-input-number
+							id="filter-sale-amount-end"
+							v-model:value="searchInfo.saleAmountEnd"
+							name="saleAmountEnd"
+							placeholder="最高售价"
+							:min="0"
+							class="full-width"
+						/>
+					</a-form-item>
+
+					<a-form-item name="saleDateFrom" label="销售日期(起)">
+						<a-date-picker
+							id="filter-sale-date-from"
+							v-model:value="saleDateFrom"
+							name="saleDateFrom"
+							class="full-width"
+							placeholder="开始日期"
+							@change="() => query(true)"
+						/>
+					</a-form-item>
+
+					<a-form-item name="saleDateEnd" label="销售日期(止)">
+						<a-date-picker
+							id="filter-sale-date-end"
+							v-model:value="saleDateEnd"
+							name="saleDateEnd"
+							class="full-width"
+							placeholder="结束日期"
+							@change="() => query(true)"
+						/>
+					</a-form-item>
+
+					<div class="filter-actions">
+						<a-space :size="8">
+							<a-button type="primary" @click="() => query(true)">
+								查询
+							</a-button>
+							<a-button @click="cancelQuery">重置</a-button>
+						</a-space>
+					</div>
+				</div>
+			</a-form>
+		</section>
+
+		<section class="table-card">
+			<div class="table-toolbar">
+				<span class="table-summary">
+					商店财务流水列表
+					<template v-if="selectedRowIds.length">
+						· 已勾选 <strong>{{ selectedRowIds.length }}</strong> 笔
+					</template>
+				</span>
+			</div>
+
 			<a-table
 				:dataSource="dataSource"
 				:columns="columns"
 				:loading="loading"
-				:row-key="(record) => record.id"
+				:row-key="(record) => String(record.id)"
 				:pagination="pagination"
-				@change="handleTableChange"
 				:scroll="{ x: 'max-content' }"
 				:row-selection="rowSelection"
+				@change="handleTableChange"
 			>
 				<template #bodyCell="{ column, record }">
-					<template v-if="column.key === 'operation'">
-						<a-space>
-							<a-button
-								type="primary"
-								size="small"
-								@click="editShopFinance('update', record.id)"
-							>
-								编辑
-							</a-button>
-							<a-popconfirm
-								title="确认删除?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="delShopFinance(record.id)"
-								@cancel="cancel"
-							>
-								<a-button type="primary" size="small" danger>删除</a-button>
-							</a-popconfirm>
-						</a-space>
-						<span></span>
+					<template v-if="column.key === 'shopName'">
+						<a
+							class="shop-name-link"
+							@click="openFinanceDrawer('view', record.id)"
+						>
+							{{ record.shopName || '--' }}
+						</a>
 					</template>
+
+					<template v-else-if="column.key === 'shopCode'">
+						<span class="mono-code">{{ record.shopCode || '--' }}</span>
+					</template>
+
 					<template v-else-if="column.key === 'saleAmount'">
-						<span>
+						<span
+							class="amount-text"
+							:class="
+								record.incomeAndExpenses === 'income' ?
+									'is-income'
+								:	'is-expense'
+							"
+						>
 							{{ formatAmount(record.saleAmount) }}
 						</span>
 					</template>
+
 					<template v-else-if="column.key === 'isValid'">
-						<a-tag
-							:key="record.isValid"
-							:color="record.isValid === '1' ? '#87d068' : 'grey'"
+						<span
+							class="status-pill"
+							:class="record.isValid === '1' ? 'is-valid' : 'is-invalid'"
 						>
 							{{ record.isValid === '1' ? '有效' : '失效' }}
-						</a-tag>
+						</span>
 					</template>
+
 					<template v-else-if="column.key === 'incomeAndExpenses'">
 						<a-tag
-							:key="record.incomeAndExpenses"
-							:color="record.incomeAndExpenses === 'income' ? 'green' : 'red'"
+							:color="record.incomeAndExpenses === 'income' ? 'success' : 'error'"
 						>
 							{{ record.incomeAndExpenses === 'income' ? '收入' : '支出' }}
 						</a-tag>
 					</template>
+
 					<template v-else-if="column.key === 'saleDate'">
-						<span>
-							{{ formatTime(record.saleDate) }}
+						<span class="date-text">
+							{{ record.saleDate ? formatTime(record.saleDate) : '--' }}
 						</span>
 					</template>
+
 					<template v-else-if="column.key === 'payWay'">
-						<template
-							v-for="(fromSource, index) in fromSourceTransferList"
-							:key="index"
-						>
-							<component
-								v-if="
-									record.payWay &&
-									fromSource.value !== '' &&
-									record.payWay.indexOf(fromSource.value) >= 0 &&
-									iconComponentMap[`finance-${fromSource.value}`]
-								"
-								:is="iconComponentMap[`finance-${fromSource.value}`]"
-								class="pay-way-icon"
-							/>
-						</template>
+						<div class="pay-way-cell">
+							<template
+								v-for="(fromSource, index) in fromSourceTransferList"
+								:key="index"
+							>
+								<span
+									v-if="
+										record.payWay &&
+										fromSource.value !== '' &&
+										record.payWay.indexOf(fromSource.value) >= 0
+									"
+									class="pay-way-badge"
+								>
+									<component
+										v-if="iconComponentMap[`finance-${fromSource.value}`]"
+										:is="iconComponentMap[`finance-${fromSource.value}`]"
+										class="pay-way-icon"
+									/>
+									<span>{{ fromSource.name }}</span>
+								</span>
+							</template>
+							<span v-if="!record.payWay" class="text-muted">--</span>
+						</div>
+					</template>
+
+					<template v-else-if="column.key === 'operation'">
+						<a-space :size="4">
+							<a-button
+								type="link"
+								size="small"
+								@click="openFinanceDrawer('view', record.id)"
+							>
+								查看
+							</a-button>
+							<a-button
+								type="link"
+								size="small"
+								@click="openFinanceDrawer('update', record.id)"
+							>
+								编辑
+							</a-button>
+							<a-popconfirm
+								title="确认删除该商店财务记录吗？"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="delShopFinance(String(record.id))"
+							>
+								<a-button type="link" size="small" danger>删除</a-button>
+							</a-popconfirm>
+						</a-space>
 					</template>
 				</template>
 			</a-table>
+
 			<ShopFinanceDetail
 				v-model:modelInfo="modelInfo"
+				:is-readonly="isReadonlyMode"
 				@success="handleSuccess"
-			></ShopFinanceDetail>
-		</div>
+			/>
+		</section>
 	</div>
 </template>
+
 <script setup lang="ts">
 import type { PageInfo } from '@/composables/usePagination';
 import type { ModelInfo } from '@/types/modal';
 import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
-
 import type { ShopFinanceData } from '@/views/finance/shopFinance/config';
 import {
 	columns,
@@ -179,14 +243,12 @@ import {
 import { message } from 'ant-design-vue';
 import { debounce } from 'lodash-es';
 
-// 使用表格行选择组合式函数（保障 ID 为纯 string）
 const {
 	selectedRowKeys: selectedRowIds,
 	rowSelection,
 	clearSelected,
 } = useRowSelection();
 
-// 使用分页组合式函数，直接绑定查询回调，消除包装函数
 const { pagination, handleTableChange, setTotal, resetPagination } =
 	usePagination({
 		onChange: (paginationInfo) => {
@@ -200,29 +262,34 @@ const { pagination, handleTableChange, setTotal, resetPagination } =
 		},
 	});
 
-const labelCol = ref({ span: 5 });
-const wrapperCol = ref({ span: 19 });
-
-const labelMap: Record<string, { name: string; label: string }> = {
-	shopName: { name: 'shopName', label: '商品名称' },
-	shopCode: { name: 'shopCode', label: '商品编码' },
-	saleAmount: { name: 'saleAmount', label: '售价' },
-	saleAmountFrom: { name: 'saleAmountFrom', label: '售价从' },
-	saleAmountEnd: { name: 'saleAmountEnd', label: '售价到' },
-	isValid: { name: 'isValid', label: '是否有效' },
-	saleDate: { name: 'saleDate', label: '销售日期' },
-	saleDateFrom: { name: 'saleDateFrom', label: '销售日期从' },
-	saleDateEnd: { name: 'saleDateEnd', label: '销售日期到' },
-};
-
 const searchInfo = ref<ShopFinanceData>({});
 const saleDateFrom = ref<string | Dayjs>();
 const saleDateEnd = ref<string | Dayjs>();
 const loading = ref<boolean>(false);
 const dataSource = ref<ShopFinanceData[]>([]);
 const modelInfo = ref<ModelInfo>({});
+const isReadonlyMode = ref<boolean>(false);
+
+const pageIncomeSum = computed(() =>
+	dataSource.value
+		.filter((item) => item.incomeAndExpenses === 'income' && item.isValid !== '0')
+		.reduce((sum, item) => sum + Number(item.saleAmount || 0), 0)
+		.toFixed(2),
+);
+
+const pageExpenseSum = computed(() =>
+	dataSource.value
+		.filter((item) => item.incomeAndExpenses !== 'income' && item.isValid !== '0')
+		.reduce((sum, item) => sum + Number(item.saleAmount || 0), 0)
+		.toFixed(2),
+);
+
+const triggerDebouncedQuery = debounce(() => {
+	query(true);
+}, 300);
 
 const cancelQuery = () => {
+	triggerDebouncedQuery.cancel();
 	searchInfo.value = {};
 	saleDateFrom.value = undefined;
 	saleDateEnd.value = undefined;
@@ -260,8 +327,6 @@ const batchDelShopFinance = (): void => {
 	delShopFinance(selectedRowIds.value.join(','));
 };
 
-const cancel = () => {};
-
 const getShopFinanceListPage = async (
 	param: ShopFinanceData,
 	cur: PageInfo,
@@ -274,7 +339,10 @@ const getShopFinanceListPage = async (
 			message: messageInfo,
 		} = await getShopFinancePage(param, cur.current, cur.pageSize);
 		if (code === '200') {
-			dataSource.value = (data?.records || []) as ShopFinanceData[];
+			dataSource.value = (data?.records || []).map((item) => ({
+				...item,
+				id: item.id !== undefined ? String(item.id) : undefined,
+			}));
 			setTotal(data?.total || 0);
 		} else {
 			message.error(messageInfo || '查询列表失败！');
@@ -284,29 +352,27 @@ const getShopFinanceListPage = async (
 	}
 };
 
-const initPage = () => {
-	pagination.current = 1;
-	pagination.pageSize = 10;
-};
-
-
-//新增和修改弹窗
-const editShopFinance = (type: string, id?: string) => {
-	const isAdd = type === 'add';
-	modelInfo.value.title = isAdd ? '新增明细' : '修改明细';
-	modelInfo.value.id = isAdd ? null : (id ?? null);
-	modelInfo.value.confirmLoading = true;
-	modelInfo.value.open = true;
+const openFinanceDrawer = (
+	type: 'add' | 'update' | 'view',
+	id?: string,
+) => {
+	isReadonlyMode.value = type === 'view';
+	const titleMap = {
+		add: '新增商店财务账单',
+		update: '编辑商店财务账单',
+		view: '商店财务账单凭证',
+	};
+	modelInfo.value = {
+		title: titleMap[type],
+		id: type === 'add' ? undefined : id !== undefined ? String(id) : undefined,
+		confirmLoading: false,
+		open: true,
+	};
 };
 
 const handleSuccess = () => {
 	query(false);
 };
-
-// 查询条件防抖：任意查询条件变化 300ms 后触发查询，并将页码重置为第一页
-const triggerDebouncedQuery = debounce(() => {
-	query(true);
-}, 300);
 
 watch(
 	() => searchInfo.value,
@@ -319,25 +385,224 @@ watch(
 onMounted(() => {
 	query(true);
 });
+
+onBeforeUnmount(() => {
+	triggerDebouncedQuery.cancel();
+});
 </script>
+
 <style lang="scss" scoped>
-.button {
-	padding-left: 10px;
+.shop-finance-screen {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 24px 28px;
+	background: #f8fafc;
+	min-height: 100%;
+}
+
+.screen-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 24px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+	.title-block {
+		.eyebrow {
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: #2563eb;
+			background: #eff6ff;
+			padding: 2px 8px;
+			border-radius: 999px;
+			margin-bottom: 6px;
+		}
+
+		h1 {
+			margin: 0 0 4px;
+			font-size: 20px;
+			font-weight: 700;
+			color: #0f172a;
+		}
+
+		.subtitle {
+			margin: 0;
+			font-size: 13px;
+			color: #64748b;
+		}
+	}
+
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		flex-wrap: wrap;
+
+		.summary-pills {
+			display: flex;
+			gap: 8px;
+
+			.summary-pill {
+				padding: 4px 12px;
+				border-radius: 999px;
+				font-size: 12px;
+				font-weight: 600;
+				font-variant-numeric: tabular-nums;
+
+				&.income {
+					background: #dcfce7;
+					color: #15803d;
+				}
+
+				&.expense {
+					background: #fee2e2;
+					color: #dc2626;
+				}
+			}
+		}
+	}
+}
+
+.filter-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+		gap: 14px;
+		align-items: center;
+
+		:deep(.ant-form-item) {
+			margin-bottom: 0;
+		}
+	}
+
+	.filter-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
+.table-card {
+	padding: 18px 22px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+	.table-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		.table-summary {
+			font-size: 13px;
+			font-weight: 600;
+			color: #334155;
+
+			strong {
+				color: #2563eb;
+			}
+		}
+	}
 }
 
 .full-width {
 	width: 100%;
 }
 
-.actions-col {
-	text-align: right;
+.shop-name-link {
+	font-weight: 600;
+	color: #0f172a;
+	cursor: pointer;
+
+	&:hover {
+		color: #2563eb;
+		text-decoration: underline;
+	}
 }
 
-.pay-way-icon {
-	width: 1.5em;
-	height: 1.5em;
-	font-size: 18px;
-	cursor: pointer;
-	vertical-align: middle;
+.mono-code {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 12px;
+	color: #475569;
+}
+
+.amount-text {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+
+	&.is-income {
+		color: #16a34a;
+	}
+
+	&.is-expense {
+		color: #dc2626;
+	}
+}
+
+.status-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+
+	&.is-valid {
+		background: #dcfce7;
+		color: #15803d;
+	}
+
+	&.is-invalid {
+		background: #f1f5f9;
+		color: #64748b;
+	}
+}
+
+.date-text {
+	font-size: 12px;
+	color: #64748b;
+	font-variant-numeric: tabular-nums;
+}
+
+.pay-way-cell {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	.pay-way-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 2px 8px;
+		border-radius: 999px;
+		background: #f1f5f9;
+		font-size: 12px;
+		font-weight: 600;
+		color: #334155;
+	}
+
+	.pay-way-icon {
+		width: 15px;
+		height: 15px;
+	}
+}
+
+.text-muted {
+	font-size: 12px;
+	color: #94a3b8;
 }
 </style>

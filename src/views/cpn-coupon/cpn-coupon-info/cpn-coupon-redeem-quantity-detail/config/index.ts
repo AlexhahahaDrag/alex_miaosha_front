@@ -1,26 +1,24 @@
 import type { Rule } from 'ant-design-vue/es/form/interface';
 import type { Ref } from 'vue';
 
-type RedeemFormState = {
-	userId?: number;
-	couponId?: number;
+export type RedeemFormState = {
+	userId?: string;
+	couponId?: string;
 	couponName?: string;
 	remainingQuantity?: number;
 	redemptionQuantity?: number;
 	remarks?: string;
 };
 
-const labelMap = {
+export const labelMap = {
 	userId: { name: 'userId', label: '用户ID' },
 	couponName: { name: 'couponName', label: '消费券名称' },
 	remainingQuantity: { name: 'remainingQuantity', label: '剩余数量' },
 	redemptionQuantity: { name: 'redemptionQuantity', label: '核销数量' },
-	remarks: { name: 'remarks', label: '备注' },
+	remarks: { name: 'remarks', label: '核销备注' },
 };
 
-// AI Agent：rules 里需要依赖 formState（remainingQuantity），不能在 config 文件里直接引用组件内变量
-// 这里改成工厂函数，由组件传入 formState（Ref），避免 formState 未定义导致报错
-const createRulesRef = (
+export const createRulesRef = (
 	formState: Ref<RedeemFormState>,
 ): Record<string, Rule[]> => {
 	return {
@@ -43,7 +41,3 @@ const createRulesRef = (
 		],
 	};
 };
-
-export { labelMap, createRulesRef };
-
-export type { RedeemFormState };

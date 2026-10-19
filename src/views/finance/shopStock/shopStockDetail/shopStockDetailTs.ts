@@ -1,14 +1,1 @@
-﻿import type { Dayjs } from '@/utils/dayjs';
-
-export interface ShopStockDetail {
-	id?: number;
-	shopName?: string;
-	shopCode?: string;
-	costAmount?: number;
-	saleAmount?: number;
-	isValid?: string;
-	saleDate?: Dayjs | string;
-	category?: string;
-	purchasePlace?: string;
-	saleNum?: number;
-}
+export type { ShopStockDetail, ShopStockData } from '@/views/finance/shopStock/config';
