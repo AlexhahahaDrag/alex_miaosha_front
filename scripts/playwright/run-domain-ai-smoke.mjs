@@ -256,7 +256,7 @@ async function switchPersona(page, personaKey = 'super_super', baseUrl = 'http:/
 		},
 		{ user: p.user, roleInfo: p.roleInfo, permCtx: p.permCtx, menus: mockMenus },
 	);
-	await page.goto(`${baseUrl}#/home-dashboard`);
+	await page.reload();
 	await page.waitForLoadState('networkidle').catch(() => {});
 }
 

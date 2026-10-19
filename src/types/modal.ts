@@ -9,4 +9,5 @@ export interface ModelInfo {
 	parentId?: string | null;
 	confirmLoading?: boolean;
 	readonly?: boolean;
+	extraData?: any;
 }

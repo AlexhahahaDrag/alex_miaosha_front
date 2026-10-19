@@ -75,7 +75,7 @@
 import type { RbacSummaryItem } from './types';
 
 interface Props {
-	open: boolean;
+	open?: boolean;
 	title: string;
 	subtitle?: string;
 	summaryItems?: RbacSummaryItem[];
@@ -88,6 +88,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+	open: false,
 	summaryItems: () => [],
 	loading: false,
 	errorText: '',

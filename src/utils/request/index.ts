@@ -1,7 +1,7 @@
 import type { Params } from '@/types/global';
 import request, { requestFile } from '@/utils/request/request';
 import type { ResponseBody } from '@/types/api';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
 
 function formatUrl(url: string) {
@@ -43,7 +43,7 @@ export function postData<T = unknown>(
 export function putData<T = unknown>(
 	url: string,
 	params: unknown,
-	config?: AxiosRequestConfig,
+	config?: Record<string, unknown>,
 ): Promise<ResponseBody<T>> {
 	return request.put<Params, ResponseBody<T>>(formatUrl(url), params, {
 		params: config,

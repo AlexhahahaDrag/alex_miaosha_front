@@ -407,7 +407,7 @@ const getProductHisDaysInfo = async (skuId: string, dateStr: string | null) => {
 		message.error(messageInfo || '查询历史价格失败！');
 		return;
 	}
-	const records = (data || []) as ProductHistoryItem[];
+	const records = (Array.isArray(data) ? data : []) as ProductHistoryItem[];
 	const series = records.map((item) => item.price ?? 0);
 	const xAxis = records.map((item) => item.createDate ?? '');
 	dayConfig.value = {

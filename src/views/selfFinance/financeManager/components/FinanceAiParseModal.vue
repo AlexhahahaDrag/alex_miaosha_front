@@ -191,8 +191,8 @@ const handleParse = async () => {
 			text: inputText.value.trim(),
 			belongTo: props.defaultBelongTo,
 		});
-		if (code === 200 || code === '00000') {
-			parsedResult.value = data;
+		if (String(code) === '200' || String(code) === '00000') {
+			parsedResult.value = data || null;
 			message.success('AI 解析完成，请核对预览信息');
 		} else {
 			message.error(msg || '解析失败，请重试');

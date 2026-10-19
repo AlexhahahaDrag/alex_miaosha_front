@@ -6,7 +6,7 @@ import {
 	putData,
 	baseService,
 } from '@/utils/request';
-import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 // ID 安全护城河实现抽到独立纯模块，由 tests/unit/giftNormalize.test.mts 锁契约
 import {
@@ -323,7 +323,7 @@ export function markGiftReturned(
 	// putData 第三参在实现里作为 query 参数透传，此处仅传 receiveRecordId
 	return putData(`${baseUrl(giftApi.record)}/mark-returned`, {}, {
 		receiveRecordId,
-	} as unknown as AxiosRequestConfig);
+	});
 }
 
 /**

@@ -2,14 +2,15 @@ import { message } from 'ant-design-vue';
 import { getDictList } from '@/views/dict/api';
 import type { DictInfo } from '@/views/dict/config';
 
-export function useDictInfo(initialDictTypes?: string) {
+export function useDictInfo(...dictTypes: (string | undefined)[]) {
 	const loading = ref<boolean>(false);
 	const dictMap = ref<Map<string, DictInfo[]>>(new Map());
 
-	const getDictInfoList = async (dictTypes: string) => {
+	const getDictInfoList = async (typesStr: string) => {
+		if (!typesStr || !typesStr.trim()) return;
 		loading.value = true;
 		try {
-			const res = await getDictList(dictTypes);
+			const res = await getDictList(typesStr);
 			const { code, data, message: messageInfo } = res || {};
 			if (code === '200') {
 				// 按 belongTo 分组数据
@@ -48,7 +49,10 @@ export function useDictInfo(initialDictTypes?: string) {
 	};
 
 	// 如果传入了初始字典类型，则自动调用接口
-	getDictInfoList(initialDictTypes || '');
+	const combinedTypes = dictTypes.filter(Boolean).join(',');
+	if (combinedTypes) {
+		getDictInfoList(combinedTypes);
+	}
 
 	return {
 		loading,

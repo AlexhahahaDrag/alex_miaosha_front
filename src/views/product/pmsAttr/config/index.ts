@@ -1,25 +1,26 @@
 import type { TableColumnsType } from 'ant-design-vue';
+import type { DefaultOptionType } from 'ant-design-vue/es/select';
 
-export const ATTR_TYPE_OPTIONS = [
+export const ATTR_TYPE_OPTIONS: (DefaultOptionType & { color?: string })[] = [
 	{ label: '销售属性 (SKU)', value: 0, color: 'blue' },
 	{ label: '基本属性 (SPU)', value: 1, color: 'cyan' },
 	{ label: '销售与基本双重属性', value: 2, color: 'purple' },
-] as const;
+];
 
-export const ENABLE_STATUS_OPTIONS = [
+export const ENABLE_STATUS_OPTIONS: (DefaultOptionType & { status?: string })[] = [
 	{ label: '已启用', value: 1, status: 'enabled' },
 	{ label: '已禁用', value: 0, status: 'disabled' },
-] as const;
+];
 
-export const SEARCH_TYPE_OPTIONS = [
+export const SEARCH_TYPE_OPTIONS: DefaultOptionType[] = [
 	{ label: '支持检索', value: 1 },
 	{ label: '无需检索', value: 0 },
-] as const;
+];
 
-export const SHOW_DESC_OPTIONS = [
+export const SHOW_DESC_OPTIONS: DefaultOptionType[] = [
 	{ label: '快速展示', value: 1 },
 	{ label: '默认隐藏', value: 0 },
-] as const;
+];
 
 export const columns = ref<TableColumnsType>([
 	{
