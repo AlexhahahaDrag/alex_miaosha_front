@@ -33,14 +33,22 @@
 				<a-tag
 					color="blue"
 					class="cursor-pointer"
-					@click="applyExample('昨天中午和同事聚餐微信付了128.5元，备注麦当劳汉堡套餐')"
+					@click="
+						applyExample(
+							'昨天中午和同事聚餐微信付了128.5元，备注麦当劳汉堡套餐',
+						)
+					"
 				>
 					聚餐微信付128.5
 				</a-tag>
 				<a-tag
 					color="green"
 					class="cursor-pointer"
-					@click="applyExample('沃尔玛购物小票\n鲜牛奶 2 18.50\n全麦面包 1 12.00\n纸巾 3 10.00\n支付宝实付 79.00元')"
+					@click="
+						applyExample(
+							'沃尔玛购物小票\n鲜牛奶 2 18.50\n全麦面包 1 12.00\n纸巾 3 10.00\n支付宝实付 79.00元',
+						)
+					"
 				>
 					超市小票明细
 				</a-tag>
@@ -77,14 +85,21 @@
 			</div>
 
 			<!-- 流式分阶段状态与打字机微交互 -->
-			<div v-if="parsing || stageStatus" class="stream-stage-banner mt-3 p-3 rounded border border-blue-200 bg-blue-50/60">
+			<div
+				v-if="parsing || stageStatus"
+				class="stream-stage-banner mt-3 p-3 rounded border border-blue-200 bg-blue-50/60"
+			>
 				<div class="flex justify-between items-center text-xs mb-1.5">
 					<div class="flex items-center gap-1.5 text-blue-700 font-medium">
 						<LoadingOutlined v-if="parsing" spin />
 						<CheckCircleOutlined v-else class="text-green-600" />
-						<span>{{ stageStatus?.message || '正在分析记账语境与语义...' }}</span>
+						<span>{{
+							stageStatus?.message || '正在分析记账语境与语义...'
+						}}</span>
 					</div>
-					<span class="text-blue-600 font-bold">{{ stageStatus?.progress ?? 0 }}%</span>
+					<span class="text-blue-600 font-bold"
+						>{{ stageStatus?.progress ?? 0 }}%</span
+					>
 				</div>
 				<a-progress
 					:percent="stageStatus?.progress ?? 0"
@@ -100,33 +115,63 @@
 				<div class="parsed-card-header flex justify-between items-center">
 					<div class="flex items-center gap-2">
 						<span class="font-bold text-base">解析结果预览</span>
-						<a-tag :color="parsedResult.incomeAndExpenses === 'income' ? 'green' : 'red'">
-							{{ parsedResult.incomeAndExpenses === 'income' ? '收入' : '支出' }}
+						<a-tag
+							:color="
+								parsedResult.incomeAndExpenses === 'income' ? 'green' : 'red'
+							"
+						>
+							{{
+								parsedResult.incomeAndExpenses === 'income' ? '收入' : '支出'
+							}}
 						</a-tag>
 						<a-tag color="cyan">{{ parsedResult.typeName || '未分类' }}</a-tag>
-						<a-tag v-if="parsedResult.fromSourceName" color="blue">{{ parsedResult.fromSourceName }}</a-tag>
+						<a-tag v-if="parsedResult.fromSourceName" color="blue">{{
+							parsedResult.fromSourceName
+						}}</a-tag>
 						<a-tag v-if="parsedResult.prepaidCardName" color="purple">
 							卡: {{ parsedResult.prepaidCardName }}
 						</a-tag>
 					</div>
 					<div class="text-xs text-secondary">
-						引擎: {{ parsedResult.parseEngine === 'AI_DEEPSEEK' ? 'DeepSeek AI' : '本地规则引擎' }}
+						引擎:
+						{{
+							parsedResult.parseEngine === 'AI_DEEPSEEK' ?
+								'DeepSeek AI'
+							:	'本地规则引擎'
+						}}
 					</div>
 				</div>
 
 				<div class="parsed-card-body mt-2 grid grid-cols-2 gap-2 text-sm">
-					<div><strong>金额：</strong><span class="text-red-500 font-bold text-base">¥ {{ parsedResult.amount || '0.00' }}</span></div>
-					<div><strong>账目名称：</strong>{{ parsedResult.name || '未命名' }}</div>
-					<div><strong>发生时间：</strong>{{ parsedResult.infoDate || '当前时间' }}</div>
-					<div><strong>归属人：</strong>{{ parsedResult.belongToName || '默认成员' }}</div>
+					<div>
+						<strong>金额：</strong
+						><span class="text-red-500 font-bold text-base"
+							>¥ {{ parsedResult.amount || '0.00' }}</span
+						>
+					</div>
+					<div>
+						<strong>账目名称：</strong>{{ parsedResult.name || '未命名' }}
+					</div>
+					<div>
+						<strong>发生时间：</strong>{{ parsedResult.infoDate || '当前时间' }}
+					</div>
+					<div>
+						<strong>归属人：</strong
+						>{{ parsedResult.belongToName || '默认成员' }}
+					</div>
 					<div class="col-span-2" v-if="parsedResult.description">
 						<strong>摘要备注：</strong>{{ parsedResult.description }}
 					</div>
 				</div>
 
 				<!-- 购物小票条目清单展示 -->
-				<div v-if="parsedResult.receiptItems && parsedResult.receiptItems.length" class="receipt-items-table mt-3">
-					<div class="text-xs font-bold mb-1">小票提取明细（共 {{ parsedResult.receiptItems.length }} 件商品）：</div>
+				<div
+					v-if="parsedResult.receiptItems && parsedResult.receiptItems.length"
+					class="receipt-items-table mt-3"
+				>
+					<div class="text-xs font-bold mb-1">
+						小票提取明细（共 {{ parsedResult.receiptItems.length }} 件商品）：
+					</div>
 					<table class="w-full text-xs border-collapse">
 						<thead>
 							<tr class="bg-gray-100 text-gray-600">
@@ -249,7 +294,11 @@ const handleParse = async () => {
 	// 若流式因网络或代理未完整返回结果，执行同步降级保底
 	if (!receivedStreamComplete && !parsedResult.value) {
 		try {
-			const { code, data, message: msg } = await parseUniversalFinanceLedger({
+			const {
+				code,
+				data,
+				message: msg,
+			} = await parseUniversalFinanceLedger({
 				scene: scene.value,
 				text: inputText.value.trim(),
 				belongTo: props.defaultBelongTo,

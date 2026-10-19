@@ -89,10 +89,11 @@ export function getBudgetStatus(
 	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<FinanceBudgetStatusVo>> {
-	return getDataOne(
-		baseService.finance + baseBudgetManager + '/status',
-		{ budgetMonth, yearMonth: budgetMonth, belongTo },
-	);
+	return getDataOne(baseService.finance + baseBudgetManager + '/status', {
+		budgetMonth,
+		yearMonth: budgetMonth,
+		belongTo,
+	});
 }
 
 export function saveMonthlyBudget(
@@ -103,25 +104,27 @@ export function saveMonthlyBudget(
 		budgetMonth: params.budgetMonth || params.yearMonth,
 		yearMonth: params.budgetMonth || params.yearMonth,
 	};
-	return postData(
-		baseService.finance + baseBudgetManager + '/save',
-		req,
-	);
+	return postData(baseService.finance + baseBudgetManager + '/save', req);
 }
 
 export function getBudgetCategories(
 	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<string[]>> {
-	return getDataOne(
-		baseService.finance + baseBudgetManager + '/categories',
-		{ budgetMonth, yearMonth: budgetMonth, belongTo },
-	);
+	return getDataOne(baseService.finance + baseBudgetManager + '/categories', {
+		budgetMonth,
+		yearMonth: budgetMonth,
+		belongTo,
+	});
 }
 
 export function recommendBudget(
 	params: import('@/views/selfFinance/financeManager/config').FinanceBudgetAiRecommendReq,
-): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').FinanceBudgetAiRecommendVo>> {
+): Promise<
+	ResponseBody<
+		import('@/views/selfFinance/financeManager/config').FinanceBudgetAiRecommendVo
+	>
+> {
 	return postData(
 		baseService.finance + baseBudgetManager + '/ai/recommend',
 		params,
@@ -130,7 +133,11 @@ export function recommendBudget(
 
 export function parseBudgetCommand(
 	params: import('@/views/selfFinance/financeManager/config').FinanceBudgetAiParseReq,
-): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').FinanceBudgetAiParseVo>> {
+): Promise<
+	ResponseBody<
+		import('@/views/selfFinance/financeManager/config').FinanceBudgetAiParseVo
+	>
+> {
 	return postData(
 		baseService.finance + baseBudgetManager + '/ai/parse',
 		params,
@@ -139,7 +146,11 @@ export function parseBudgetCommand(
 
 export function parseUniversalFinanceLedger(
 	params: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseReq,
-): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo>> {
+): Promise<
+	ResponseBody<
+		import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo
+	>
+> {
 	return postData(
 		baseService.finance + baseFinanceManager + '/ai-parse',
 		params,
@@ -149,8 +160,12 @@ export function parseUniversalFinanceLedger(
 export async function parseUniversalFinanceLedgerStream(
 	params: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseReq,
 	callbacks: {
-		onStage?: (stageVo: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo) => void;
-		onComplete?: (result: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo) => void;
+		onStage?: (
+			stageVo: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo,
+		) => void;
+		onComplete?: (
+			result: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo,
+		) => void;
 		onError?: (err: Error) => void;
 	},
 ): Promise<void> {
@@ -200,7 +215,9 @@ export async function parseUniversalFinanceLedgerStream(
 					const jsonStr = trimmed.substring(5).trim();
 					if (jsonStr) {
 						try {
-							const stageVo = JSON.parse(jsonStr) as import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo;
+							const stageVo = JSON.parse(
+								jsonStr,
+							) as import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo;
 							if (callbacks.onStage) {
 								callbacks.onStage(stageVo);
 							}
@@ -224,4 +241,3 @@ export async function parseUniversalFinanceLedgerStream(
 		}
 	}
 }
-
