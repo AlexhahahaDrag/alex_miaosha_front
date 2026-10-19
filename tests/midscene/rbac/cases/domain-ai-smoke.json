@@ -94,5 +94,17 @@
 		"title": "PC 店铺经营大盘 4 宫格 KPI 卡片与图表网格渲染",
 		"persona": "super_super",
 		"level": "flow"
+	},
+	{
+		"caseId": "AI-FINANCE-PC-LEDGER-001",
+		"title": "PC 自然语言快速记账智能解析与抽屉回填闭环",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "AI-FINANCE-PC-RECEIPT-002",
+		"title": "PC 购物小票清单结构化拆解与条目表格断言",
+		"persona": "super_super",
+		"level": "flow"
 	}
 ]

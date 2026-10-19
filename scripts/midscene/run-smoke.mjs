@@ -1143,6 +1143,99 @@ async function assertMessagePcPublishModal(page, agent, runtime) {
 	await page.locator('.ant-drawer-close').click();
 }
 
+async function assertFinanceAiLedgerSmoke(page, agent, runtime) {
+	await page.goto(`${runtime.baseUrl}/#/finance/financeManager`, { waitUntil: 'domcontentloaded' });
+	const aiBtn = page.getByTestId('btn-finance-ai-parse');
+	await aiBtn.waitFor({ state: 'visible', timeout: 15000 });
+	await aiBtn.click();
+
+	// 断言 AI 智能记账弹窗已弹出
+	const modal = page.getByTestId('modal-finance-ai-parse');
+	await modal.waitFor({ state: 'visible', timeout: 10000 });
+
+	// 填入自然语言流水
+	const textArea = page.getByTestId('input-finance-ai-text');
+	await textArea.waitFor({ state: 'visible', timeout: 5000 });
+	await textArea.fill('昨天中午和同事聚餐微信付了128.5元，备注汉堡套餐');
+
+	// 监听 AI 解析请求响应
+	const parseResponsePromise = page.waitForResponse(
+		(res) => res.url().includes('/finance-manager-info/ai/parse') && res.status() === 200,
+		{ timeout: 20000 },
+	).catch(() => null);
+
+	const doParseBtn = page.getByTestId('btn-do-finance-ai-parse');
+	await doParseBtn.click();
+	await parseResponsePromise;
+
+	// 断言解析卡片已渲染，包含金额与支出
+	const applyBtn = page.getByTestId('btn-apply-finance-ai-result');
+	await applyBtn.waitFor({ state: 'visible', timeout: 10000 });
+	const modalText = await modal.innerText();
+	if (!modalText.includes('128.5')) {
+		throw new Error('AI 智能记账解析未识别出金额 128.5');
+	}
+	if (!modalText.includes('支出')) {
+		throw new Error('AI 智能记账解析未识别出支出方向');
+	}
+
+	// 点击一键填入表单
+	await applyBtn.click();
+	await modal.waitFor({ state: 'hidden', timeout: 5000 });
+
+	// 断言记账明细抽屉已打开且表单金额已回填
+	const amountInput = page.locator('#form_amount');
+	await amountInput.waitFor({ state: 'visible', timeout: 10000 });
+	const filledAmount = await amountInput.inputValue();
+	if (filledAmount !== '128.5' && filledAmount !== '128.50') {
+		throw new Error(`表单金额回填预期 128.5，实际为 ${filledAmount}`);
+	}
+
+	// 点击关闭抽屉，保证状态复原
+	const drawerClose = page.locator('.ant-drawer-close');
+	if (await drawerClose.isVisible().catch(() => false)) {
+		await drawerClose.click();
+	}
+}
+
+async function assertFinanceAiReceiptSmoke(page, agent, runtime) {
+	await page.goto(`${runtime.baseUrl}/#/finance/financeManager`, { waitUntil: 'domcontentloaded' });
+	const aiBtn = page.getByTestId('btn-finance-ai-parse');
+	await aiBtn.waitFor({ state: 'visible', timeout: 15000 });
+	await aiBtn.click();
+
+	const modal = page.getByTestId('modal-finance-ai-parse');
+	await modal.waitFor({ state: 'visible', timeout: 10000 });
+
+	// 填入超市购物小票明细
+	const textArea = page.getByTestId('input-finance-ai-text');
+	await textArea.waitFor({ state: 'visible', timeout: 5000 });
+	await textArea.fill('沃尔玛购物小票\n鲜牛奶 2 18.50\n全麦面包 1 12.00\n纸巾 3 10.00\n支付宝实付 79.00元');
+
+	// 监听 AI 解析请求响应
+	const parseResponsePromise = page.waitForResponse(
+		(res) => res.url().includes('/finance-manager-info/ai/parse') && res.status() === 200,
+		{ timeout: 20000 },
+	).catch(() => null);
+
+	const doParseBtn = page.getByTestId('btn-do-finance-ai-parse');
+	await doParseBtn.click();
+	await parseResponsePromise;
+
+	// 断言小票明细表格已渲染且展示了条目
+	const receiptTable = modal.locator('.receipt-items-table');
+	await receiptTable.waitFor({ state: 'visible', timeout: 10000 });
+	const tableText = await receiptTable.innerText();
+	if (!tableText.includes('鲜牛奶') || !tableText.includes('全麦面包')) {
+		throw new Error('购物小票单品清单未成功拆解展示品名');
+	}
+
+	// 取消关闭弹窗
+	const cancelBtn = modal.locator('.ant-modal-footer .ant-btn').first();
+	await cancelBtn.click();
+	await modal.waitFor({ state: 'hidden', timeout: 5000 });
+}
+
 async function runCase(testCase, runtime, page, agent) {
 	const startedAt = new Date().toISOString();
 	await resetSession(page, runtime);
@@ -1377,6 +1470,12 @@ async function runCase(testCase, runtime, page, agent) {
 			break;
 		case 'MESSAGE-PC-SMOKE-002':
 			await assertMessagePcPublishModal(page, agent, runtime);
+			break;
+		case 'AI-FINANCE-PC-LEDGER-001':
+			await assertFinanceAiLedgerSmoke(page, agent, runtime);
+			break;
+		case 'AI-FINANCE-PC-RECEIPT-002':
+			await assertFinanceAiReceiptSmoke(page, agent, runtime);
 			break;
 		default:
 			throw new Error(`Unsupported caseId=${testCase.caseId}`);
