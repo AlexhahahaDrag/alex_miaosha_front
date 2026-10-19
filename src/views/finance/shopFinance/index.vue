@@ -192,6 +192,7 @@
 							<a-button
 								type="link"
 								size="small"
+								data-testid="btn-view-shop-finance"
 								@click="openFinanceDrawer('view', record.id)"
 							>
 								查看
@@ -199,6 +200,7 @@
 							<a-button
 								type="link"
 								size="small"
+								data-testid="btn-edit-shop-finance"
 								@click="openFinanceDrawer('update', record.id)"
 							>
 								编辑

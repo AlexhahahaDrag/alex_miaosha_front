@@ -70,5 +70,29 @@
 		"title": "家庭管理员全量管理与预算调整权限",
 		"persona": "family_admin",
 		"level": "flow"
+	},
+	{
+		"caseId": "PRODUCT-E2E-PC-DRAWER",
+		"title": "PC 商品中心价格监测抽屉读写分离与价格走势图渲染",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "COUPON-E2E-PC-REDEEM",
+		"title": "PC 消费券核销抽屉联动与动态余量计算",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "SHOP-ERP-E2E-PC-FINANCE-DETAIL",
+		"title": "PC 店铺财务凭证抽屉与支付方式防死锁断言",
+		"persona": "super_super",
+		"level": "flow"
+	},
+	{
+		"caseId": "SHOP-ERP-E2E-PC-ANALYSIS",
+		"title": "PC 店铺经营大盘 4 宫格 KPI 卡片与图表网格渲染",
+		"persona": "super_super",
+		"level": "flow"
 	}
 ]

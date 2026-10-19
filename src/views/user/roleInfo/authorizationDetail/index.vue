@@ -39,7 +39,8 @@
 			</div>
 			<div
 				v-if="aiReasoning"
-				class="mt-2.5 px-3 py-2 rounded-lg bg-white/80 dark:bg-slate-900/80 text-xs text-blue-700 dark:text-blue-300 leading-relaxed border border-blue-100 dark:border-blue-900"
+				class="ai-reasoning-box mt-2.5 px-3 py-2 rounded-lg bg-white/80 dark:bg-slate-900/80 text-xs text-blue-700 dark:text-blue-300 leading-relaxed border border-blue-100 dark:border-blue-900"
+				data-testid="ai-reasoning-box"
 			>
 				<span class="font-semibold">推荐分析：</span>
 				<span>{{ aiReasoning }}</span>

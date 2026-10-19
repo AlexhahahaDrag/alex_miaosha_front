@@ -222,6 +222,7 @@
 							<a-button
 								type="link"
 								size="small"
+								data-testid="btn-view-product"
 								@click="openProductDrawer('view', record.id)"
 							>
 								查看

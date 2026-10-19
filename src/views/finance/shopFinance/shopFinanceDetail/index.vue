@@ -10,7 +10,7 @@
 		@cancel="handleCancel"
 	>
 		<!-- 只读模式：商店账单电子凭证卡 -->
-		<div v-if="isReadonly" class="shop-finance-voucher">
+		<div v-if="isReadonly" class="shop-finance-voucher" data-testid="shop-finance-voucher">
 			<div
 				class="voucher-hero"
 				:class="formState.incomeAndExpenses === 'income' ? 'is-income' : 'is-expense'"

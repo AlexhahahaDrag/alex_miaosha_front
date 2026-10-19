@@ -26,7 +26,7 @@
 			</div>
 		</header>
 
-		<section class="kpi-row-grid">
+		<section class="kpi-row-grid" data-testid="shop-analysis-kpi-grid">
 			<div class="kpi-card primary">
 				<span class="kpi-label">当月商品累计营收</span>
 				<strong class="kpi-value">¥{{ monthTotalRevenue }}</strong>
@@ -53,7 +53,7 @@
 			</div>
 		</section>
 
-		<section class="analysis-charts-grid">
+		<section class="analysis-charts-grid" data-testid="shop-analysis-charts-grid">
 			<div class="chart-panel-card">
 				<div class="panel-header">
 					<div>

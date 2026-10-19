@@ -133,6 +133,24 @@
 			:model="formState"
 			:rules="rulesRef"
 		>
+			<!-- 智能记账辅助栏 -->
+			<div v-if="!formState.id" class="ai-assistant-banner mb-3 p-2 bg-blue-50 border border-blue-200 rounded flex justify-between items-center">
+				<div class="text-xs text-blue-700 flex items-center">
+					<ThunderboltOutlined class="mr-1 text-blue-500" />
+					<span>粘贴账单、小票文本或预付卡流水，AI 自动帮您提取并填表</span>
+				</div>
+				<a-button
+					type="primary"
+					ghost
+					size="small"
+					data-testid="btn-finance-detail-ai-parse"
+					@click="openAiModal"
+				>
+					<template #icon><ThunderboltOutlined /></template>
+					智能记账 (AI识别)
+				</a-button>
+			</div>
+
 			<div class="form-grid-2">
 				<a-form-item name="name" label="账目名称">
 					<a-input
@@ -289,6 +307,13 @@
 			</div>
 		</template>
 	</BaseRbacDrawer>
+
+	<!-- AI 记账弹窗 -->
+	<FinanceAiParseModal
+		v-model:visible="aiModalVisible"
+		:default-belong-to="formState.belongTo"
+		@apply="onApplyAiResult"
+	/>
 </template>
 
 <script lang="ts" setup>
@@ -301,8 +326,11 @@ import {
 	CreditCardOutlined,
 	UserOutlined,
 	ClockCircleOutlined,
+	ThunderboltOutlined,
 } from '@ant-design/icons-vue';
 import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
+import FinanceAiParseModal from '@/views/selfFinance/financeManager/components/FinanceAiParseModal.vue';
+import type { UniversalFinanceAiParseVo } from '@/views/selfFinance/financeManager/config';
 import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 import { useUserStore } from '@/store/modules/user/user';
@@ -347,6 +375,37 @@ const formRef = ref<FormInstance>();
 const currentUser = useUserStore()?.getUserInfo;
 const formState = ref<FinanceManagerData>({});
 const presetCategories = ref<string[]>([]);
+
+const aiModalVisible = ref(false);
+const openAiModal = () => {
+	aiModalVisible.value = true;
+};
+
+const onApplyAiResult = (parsed: UniversalFinanceAiParseVo) => {
+	if (!parsed) return;
+	if (parsed.amount) {
+		formState.value.amount = Number(parsed.amount);
+	}
+	if (parsed.name) {
+		formState.value.name = parsed.name;
+	}
+	if (parsed.incomeAndExpenses) {
+		formState.value.incomeAndExpenses = parsed.incomeAndExpenses;
+	}
+	if (parsed.typeCode) {
+		formState.value.typeCode = parsed.typeCode;
+	}
+	if (parsed.fromSource) {
+		formState.value.fromSource = parsed.fromSource;
+	}
+	if (parsed.belongTo) {
+		formState.value.belongTo = String(parsed.belongTo);
+	}
+	if (parsed.infoDate) {
+		formState.value.infoDate = formatTime(parsed.infoDate);
+	}
+	message.success('已将 AI 识别内容填入表单，请复核后保存');
+};
 
 const isReadonly = computed(() => Boolean(modelInfo.value?.readonly));
 
@@ -492,6 +551,10 @@ const saveFinanceManager = async () => {
 const initDetail = async (modalData: ModelInfo | undefined) => {
 	if (!modalData?.id) {
 		formState.value = createDefaultFormState();
+		if (modalData?.extraData) {
+			onApplyAiResult(modalData.extraData as UniversalFinanceAiParseVo);
+			modalData.extraData = undefined;
+		}
 		return;
 	}
 

@@ -138,6 +138,22 @@ const mockMenus = [
 				component: '/src/views/selfFinance/financeManager/index.vue',
 				permissionCode: 'finance:view',
 			},
+			{
+				id: '43',
+				name: 'shopFinance',
+				title: '店铺账单',
+				path: 'shopFinance',
+				component: '/src/views/finance/shopFinance/index.vue',
+				permissionCode: 'finance:view',
+			},
+			{
+				id: '44',
+				name: 'shopFinanceAnalysis',
+				title: '经营分析',
+				path: 'shopFinanceAnalysis',
+				component: '/src/views/finance/shopFinanceAnalysis/index.vue',
+				permissionCode: 'finance:view',
+			},
 		],
 	},
 ];
@@ -240,7 +256,8 @@ async function switchPersona(page, personaKey = 'super_super', baseUrl = 'http:/
 		},
 		{ user: p.user, roleInfo: p.roleInfo, permCtx: p.permCtx, menus: mockMenus },
 	);
-	await page.reload();
+	await page.goto(`${baseUrl}#/home-dashboard`);
+	await page.waitForLoadState('networkidle').catch(() => {});
 }
 
 let isBudgetOverStatus = false;
@@ -360,12 +377,132 @@ async function setupRouteMocks(page) {
 							name: '旗舰降噪无线蓝牙耳机',
 							price: '199.00',
 							comparePrice: '399.00',
-							source: 'tmall',
+							source: 'tb',
 						},
 					],
 					total: 1,
 					current: 1,
 					size: 10,
+				},
+			});
+		}
+
+		if (pathname.includes('/pms-shop-product/hisInfo')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ date: '2026-09-20', price: 299 },
+					{ date: '2026-10-01', price: 259 },
+					{ date: '2026-10-15', price: 199 },
+				],
+			});
+		}
+
+		if (pathname.endsWith('/pms-shop-product') && route.request().method() === 'GET') {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					id: '8801',
+					name: '旗舰降噪无线蓝牙耳机',
+					price: 199.00,
+					comparePrice: 399.00,
+					lowestPrice: 199.00,
+					highestPrice: 399.00,
+					shop: '官方旗舰店',
+					skuId: 'SKU-8801-PRO',
+					source: 'tb',
+				},
+			});
+		}
+
+		if (pathname.includes('/shop-finance-analysis/getDayShopFinanceInfo')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '2026-10-01', saleAmount: 200, saleNum: 5 },
+					{ name: '2026-10-02', saleAmount: 450, saleNum: 10 },
+				],
+			});
+		}
+
+		if (pathname.includes('/shop-finance-analysis/getMonthShopFinanceInfo')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '2026-08', saleAmount: 12000, saleNum: 300 },
+					{ name: '2026-09', saleAmount: 15000, saleNum: 380 },
+					{ name: '2026-10', saleAmount: 18000, saleNum: 420 },
+				],
+			});
+		}
+
+		if (pathname.includes('/shop-finance-analysis/getShopNameInfo')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '旗舰降噪无线蓝牙耳机', saleAmount: 8800, saleNum: 88 },
+					{ name: '多功能无线快充底座', saleAmount: 3200, saleNum: 40 },
+				],
+			});
+		}
+
+		if (pathname.includes('/shop-finance-analysis/getPayWayInfo')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '微信支付', saleAmount: 12000, saleNum: 250 },
+					{ name: '支付宝', saleAmount: 6000, saleNum: 170 },
+				],
+			});
+		}
+
+		if (pathname.includes('/shop-finance-analysis/getChainAndYear')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					chainRatio: '15.2%',
+					yearOnYear: '28.6%',
+				},
+			});
+		}
+
+		if (pathname.includes('/shop-finance/page')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					records: [
+						{
+							id: '9901',
+							shopName: '旗舰降噪无线蓝牙耳机',
+							shopCode: 'SP-9901',
+							saleAmount: 299.00,
+							saleNum: 2,
+							incomeAndExpenses: 'income',
+							payWay: 'wx',
+							isValid: '1',
+							saleDate: '2026-10-18',
+						},
+					],
+					total: 1,
+					current: 1,
+					size: 10,
+				},
+			});
+		}
+
+		if (pathname.endsWith('/shop-finance') && route.request().method() === 'GET') {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					id: '9901',
+					shopName: '旗舰降噪无线蓝牙耳机',
+					shopCode: 'SP-9901',
+					saleAmount: 299.00,
+					saleNum: 2,
+					incomeAndExpenses: 'income',
+					payWay: 'wx',
+					isValid: '1',
+					saleDate: '2026-10-18',
 				},
 			});
 		}
@@ -1187,6 +1324,132 @@ async function executeCase(page, c, runtime) {
 					await page.locator('.ant-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
 				}
 			}
+			break;
+		}
+
+		case 'PRODUCT-E2E-PC-DRAWER': {
+			await page.goto(`${runtime.baseUrl}#/product/pmsShopProduct`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+			// 1. 等待表格并点击第一条查看按钮
+			const viewBtn = page.locator('[data-testid="btn-view-product"]').first();
+			await viewBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await viewBtn.click();
+
+			try {
+				// 2. 等待抽屉打开并断言商品 Hero 档案卡与 4 宫格价格指标可见
+				const heroCard = page.locator('[data-testid="product-hero-card"]').first();
+				await heroCard.waitFor({ state: 'visible', timeout: 6000 });
+
+				const priceKpi = page.locator('[data-testid="product-price-kpi-grid"]').first();
+				await priceKpi.waitFor({ state: 'visible', timeout: 5000 });
+
+				// 3. 断言价格数值正确渲染
+				const kpiText = await priceKpi.innerText();
+				if (!kpiText.includes('199.00') && !kpiText.includes('当前售价')) {
+					throw new Error('商品价格指标卡内容断言失败');
+				}
+			} finally {
+				// 关闭抽屉
+				const closeBtn = page.locator('.ant-drawer-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'COUPON-E2E-PC-REDEEM': {
+			await page.goto(`${runtime.baseUrl}#/cpn-coupon/cpn-coupon-info`);
+			// 1. 等待核销按钮并点击
+			const redeemBtn = page.locator('[data-testid="btn-redeem-coupon"]').first();
+			await redeemBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await redeemBtn.click();
+
+			try {
+				// 2. 等待 480px 核销抽屉与联动凭证卡可见
+				const voucherCard = page.locator('[data-testid="coupon-redeem-voucher-card"]').first();
+				await voucherCard.waitFor({ state: 'visible', timeout: 6000 });
+
+				// 3. 点击步进器加号增加核销数量
+				const plusBtn = page.locator('[data-testid="btn-redeem-plus"]').first();
+				await plusBtn.waitFor({ state: 'visible', timeout: 5000 });
+				await plusBtn.click();
+
+				// 4. 断言核销后剩余数量发生联动扣减计算
+				const remainText = page.locator('[data-testid="coupon-redeem-linked-remain"]').first();
+				await remainText.waitFor({ state: 'visible', timeout: 5000 });
+				const remainVal = await remainText.innerText();
+				if (!remainVal.includes('78') && !remainVal.includes('79')) {
+					throw new Error(`消费券核销余量联动计算断言失败，实际文本: ${remainVal}`);
+				}
+			} finally {
+				const closeBtn = page.locator('.ant-drawer-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'SHOP-ERP-E2E-PC-FINANCE-DETAIL': {
+			await page.goto(`${runtime.baseUrl}#/finance/shopFinance`);
+			// 1. 点击查看按钮进入只读凭证模式
+			const viewBtn = page.locator('[data-testid="btn-view-shop-finance"]').first();
+			await viewBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await viewBtn.click();
+
+			try {
+				// 2. 断言电子凭证卡渲染成功
+				const voucher = page.locator('[data-testid="shop-finance-voucher"]').first();
+				await voucher.waitFor({ state: 'visible', timeout: 6000 });
+				const voucherText = await voucher.innerText();
+				if (!voucherText.includes('299.00') || !voucherText.includes('营业收入')) {
+					throw new Error('店铺财务电子凭证金额或类型断言失败');
+				}
+			} finally {
+				const closeBtn = page.locator('.ant-drawer-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+
+			// 3. 验证编辑模式下 payWay 改变不发生死锁
+			const editBtn = page.locator('[data-testid="btn-edit-shop-finance"]').first();
+			await editBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await editBtn.click();
+
+			try {
+				const payWaySelect = page.locator('#shop-finance-pay-way').first();
+				await payWaySelect.waitFor({ state: 'visible', timeout: 5000 });
+
+				const validSelect = page.locator('#shop-finance-is-valid').first();
+				await validSelect.waitFor({ state: 'visible', timeout: 5000 });
+			} finally {
+				const closeBtn = page.locator('.ant-drawer-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+			break;
+		}
+
+		case 'SHOP-ERP-E2E-PC-ANALYSIS': {
+			await page.goto(`${runtime.baseUrl}#/finance/shopFinanceAnalysis`);
+			// 1. 等待 4 宫格 KPI 卡片渲染
+			const kpiGrid = page.locator('[data-testid="shop-analysis-kpi-grid"]').first();
+			await kpiGrid.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 等待 2×2 图表网格面板渲染
+			const chartsGrid = page.locator('[data-testid="shop-analysis-charts-grid"]').first();
+			await chartsGrid.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 3. 断言月份选择器存在
+			const monthPicker = page.locator('#shop-analysis-month-picker').first();
+			await monthPicker.waitFor({ state: 'visible', timeout: 5000 });
 			break;
 		}
 

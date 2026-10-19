@@ -136,3 +136,13 @@ export function parseBudgetCommand(
 		params,
 	);
 }
+
+export function parseUniversalFinanceLedger(
+	params: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseReq,
+): Promise<ResponseBody<import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo>> {
+	return postData(
+		baseService.finance + baseFinanceManager + '/ai-parse',
+		params,
+	);
+}
+

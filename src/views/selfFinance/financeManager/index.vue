@@ -89,6 +89,15 @@
 						</template>
 						<a-button
 							v-if="hasPermission('finance:financeManager:add')"
+							type="dashed"
+							data-testid="btn-finance-ai-parse"
+							@click="openAiModal"
+						>
+							<template #icon><ThunderboltOutlined /></template>
+							智能记账
+						</a-button>
+						<a-button
+							v-if="hasPermission('finance:financeManager:add')"
 							type="primary"
 							class="primary-record-btn"
 							data-testid="btn-add-finance"
@@ -101,6 +110,13 @@
 				</template>
 			</finance-manager-table>
 		</div>
+
+		<!-- AI 智能记账弹窗 -->
+		<FinanceAiParseModal
+			v-model:visible="aiModalVisible"
+			:default-belong-to="searchInfo.belongTo"
+			@apply="onApplyAiFromList"
+		/>
 
 		<!-- 记账 / 修改明细抽屉 -->
 		<finance-manager-detail
@@ -143,7 +159,10 @@ import {
 import {
 	PlusOutlined,
 	DeleteOutlined,
+	ThunderboltOutlined,
 } from '@ant-design/icons-vue';
+import FinanceAiParseModal from '@/views/selfFinance/financeManager/components/FinanceAiParseModal.vue';
+import type { UniversalFinanceAiParseVo } from '@/views/selfFinance/financeManager/config';
 import {
 	usePagination,
 	useRowSelection,
@@ -251,6 +270,19 @@ const isFirstSummaryLoaded = ref<boolean>(false);
 const budgetModalVisible = ref<boolean>(false);
 const openBudgetModal = () => {
 	budgetModalVisible.value = true;
+};
+
+// AI 智能记账弹窗控制
+const aiModalVisible = ref<boolean>(false);
+const openAiModal = () => {
+	aiModalVisible.value = true;
+};
+
+const onApplyAiFromList = (parsed: UniversalFinanceAiParseVo) => {
+	if (!parsed) return;
+	editFinance('add');
+	// 将解析结果暂存入 modelInfo 传递给详情表单
+	modelInfo.value.extraData = parsed;
 };
 
 const {

@@ -10,7 +10,7 @@
 		@cancel="onCancel"
 	>
 		<!-- 1. 消费券票面与剩余库存联动预览卡 -->
-		<div class="redeem-voucher-card">
+		<div class="redeem-voucher-card" data-testid="coupon-redeem-voucher-card">
 			<div class="voucher-top">
 				<div class="voucher-title-group">
 					<span class="voucher-icon">
@@ -25,7 +25,7 @@
 				</div>
 				<div class="voucher-remain-box">
 					<span class="remain-label">核销后剩余</span>
-					<span class="remain-value">{{ linkedRemainingQuantity }} 张</span>
+					<span class="remain-value" data-testid="coupon-redeem-linked-remain">{{ linkedRemainingQuantity }} 张</span>
 				</div>
 			</div>
 		</div>
@@ -48,6 +48,7 @@
 					<a-space-compact class="stepper-compact">
 						<a-button
 							class="step-btn"
+							data-testid="btn-redeem-minus"
 							:disabled="isMinusDisabled"
 							@click="onMinusQuantity"
 						>
@@ -56,6 +57,7 @@
 						<a-input-number
 							id="form_redemptionQuantity"
 							name="redemptionQuantity"
+							data-testid="input-redeem-quantity"
 							v-model:value="formState.redemptionQuantity"
 							:min="1"
 							:max="maxRedeemQuantity"
@@ -65,6 +67,7 @@
 						/>
 						<a-button
 							class="step-btn"
+							data-testid="btn-redeem-plus"
 							:disabled="isPlusDisabled"
 							@click="onPlusQuantity"
 						>

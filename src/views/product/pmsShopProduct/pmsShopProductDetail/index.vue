@@ -11,7 +11,7 @@
 	>
 		<!-- 只读模式：商城商品核心档案 + 价格监测看板 + 近三十日走势图 -->
 		<div v-if="isReadonly" class="product-readonly-container">
-			<div class="product-hero-card">
+			<div class="product-hero-card" data-testid="product-hero-card">
 				<div class="hero-media">
 					<a-image
 						v-if="formState.image"
@@ -51,7 +51,7 @@
 				</div>
 			</div>
 
-			<div class="price-kpi-grid">
+			<div class="price-kpi-grid" data-testid="product-price-kpi-grid">
 				<div
 					class="price-kpi-item"
 					:class="{

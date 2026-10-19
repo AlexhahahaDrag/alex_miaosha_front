@@ -217,6 +217,7 @@
 									type="link"
 									size="small"
 									class="op-btn redeem-btn"
+									data-testid="btn-redeem-coupon"
 									@click="onShowRedeemQuantityModal(record)"
 								>
 									核销
