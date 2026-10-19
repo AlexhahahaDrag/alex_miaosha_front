@@ -191,6 +191,13 @@ export interface UniversalFinanceAiParseVo {
 	reasoning?: string;
 }
 
+export interface UniversalFinanceAiStageVo {
+	stage: 'SCENE_ANALYSIS' | 'EXTRACTING_AMOUNT' | 'STRUCTURING_ITEMS' | 'MATCHING_ENTITIES' | 'COMPLETE' | 'ERROR';
+	progress: number;
+	message: string;
+	partialData?: UniversalFinanceAiParseVo;
+}
+
 export const fromSourceTransferList = [
 	{ value: 'xj', label: 'cash', name: '现金' },
 	{ value: 'yhk', label: 'card', name: '银行卡' },

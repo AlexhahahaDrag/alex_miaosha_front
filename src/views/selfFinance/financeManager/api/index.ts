@@ -146,3 +146,82 @@ export function parseUniversalFinanceLedger(
 	);
 }
 
+export async function parseUniversalFinanceLedgerStream(
+	params: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseReq,
+	callbacks: {
+		onStage?: (stageVo: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo) => void;
+		onComplete?: (result: import('@/views/selfFinance/financeManager/config').UniversalFinanceAiParseVo) => void;
+		onError?: (err: Error) => void;
+	},
+): Promise<void> {
+	const apiPrefix = import.meta.env.VITE_APP_API_PREFIX;
+	const rawUrl = baseService.finance + baseFinanceManager + '/ai-parse-stream';
+	const url = rawUrl
+		.replace(/^\/(api\/am-[^/]+)\/(.*)/, `/$1/${apiPrefix}/$2`)
+		.replace(/\/+/g, '/');
+
+	const { useUserStore } = await import('@/store/modules/user/user');
+	const userStore = useUserStore();
+	const token = userStore.getToken;
+
+	try {
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(token ? { Authorization: token } : {}),
+			},
+			body: JSON.stringify(params),
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		if (!response.body) {
+			throw new Error('ReadableStream not supported in this browser.');
+		}
+
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder('utf-8');
+		let buffer = '';
+
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split('\n');
+			buffer = lines.pop() || '';
+
+			for (const line of lines) {
+				const trimmed = line.trim();
+				if (trimmed.startsWith('data:')) {
+					const jsonStr = trimmed.substring(5).trim();
+					if (jsonStr) {
+						try {
+							const stageVo = JSON.parse(jsonStr) as import('@/views/selfFinance/financeManager/config').UniversalFinanceAiStageVo;
+							if (callbacks.onStage) {
+								callbacks.onStage(stageVo);
+							}
+							if (stageVo.stage === 'COMPLETE' && stageVo.partialData) {
+								if (callbacks.onComplete) {
+									callbacks.onComplete(stageVo.partialData);
+								}
+							}
+						} catch (e) {
+							// 忽略心跳或非 JSON 载荷
+						}
+					}
+				}
+			}
+		}
+	} catch (err: any) {
+		if (callbacks.onError) {
+			callbacks.onError(err instanceof Error ? err : new Error(String(err)));
+		} else {
+			throw err;
+		}
+	}
+}
+

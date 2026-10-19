@@ -76,6 +76,25 @@
 				</a-button>
 			</div>
 
+			<!-- 流式分阶段状态与打字机微交互 -->
+			<div v-if="parsing || stageStatus" class="stream-stage-banner mt-3 p-3 rounded border border-blue-200 bg-blue-50/60">
+				<div class="flex justify-between items-center text-xs mb-1.5">
+					<div class="flex items-center gap-1.5 text-blue-700 font-medium">
+						<LoadingOutlined v-if="parsing" spin />
+						<CheckCircleOutlined v-else class="text-green-600" />
+						<span>{{ stageStatus?.message || '正在分析记账语境与语义...' }}</span>
+					</div>
+					<span class="text-blue-600 font-bold">{{ stageStatus?.progress ?? 0 }}%</span>
+				</div>
+				<a-progress
+					:percent="stageStatus?.progress ?? 0"
+					:status="parsing ? 'active' : 'normal'"
+					:stroke-color="{ '0%': '#3b82f6', '100%': '#10b981' }"
+					:show-info="false"
+					size="small"
+				/>
+			</div>
+
 			<!-- 解析结果卡片 -->
 			<div v-if="parsedResult" class="parsed-card mt-3">
 				<div class="parsed-card-header flex justify-between items-center">
@@ -147,10 +166,14 @@
 <script setup lang="ts">
 import { ThunderboltOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import { parseUniversalFinanceLedger } from '@/views/selfFinance/financeManager/api';
+import {
+	parseUniversalFinanceLedger,
+	parseUniversalFinanceLedgerStream,
+} from '@/views/selfFinance/financeManager/api';
 import type {
 	UniversalFinanceAiParseReq,
 	UniversalFinanceAiParseVo,
+	UniversalFinanceAiStageVo,
 } from '@/views/selfFinance/financeManager/config';
 
 const props = defineProps<{
@@ -166,6 +189,7 @@ const emit = defineEmits<{
 const scene = ref<UniversalFinanceAiParseReq['scene']>('AUTO_DETECT');
 const inputText = ref('');
 const parsing = ref(false);
+const stageStatus = ref<UniversalFinanceAiStageVo | null>(null);
 const parsedResult = ref<UniversalFinanceAiParseVo | null>(null);
 
 const applyExample = (ex: string) => {
@@ -185,23 +209,68 @@ const handleParse = async () => {
 		return;
 	}
 	parsing.value = true;
+	parsedResult.value = null;
+	stageStatus.value = {
+		stage: 'SCENE_ANALYSIS',
+		progress: 10,
+		message: '建立流式连接中...',
+	};
+
+	let receivedStreamComplete = false;
+
 	try {
-		const { code, data, message: msg } = await parseUniversalFinanceLedger({
-			scene: scene.value,
-			text: inputText.value.trim(),
-			belongTo: props.defaultBelongTo,
-		});
-		if (String(code) === '200' || String(code) === '00000') {
-			parsedResult.value = data || null;
-			message.success('AI 解析完成，请核对预览信息');
-		} else {
-			message.error(msg || '解析失败，请重试');
-		}
+		await parseUniversalFinanceLedgerStream(
+			{
+				scene: scene.value,
+				text: inputText.value.trim(),
+				belongTo: props.defaultBelongTo,
+			},
+			{
+				onStage: (stageVo) => {
+					stageStatus.value = stageVo;
+					if (stageVo.partialData) {
+						parsedResult.value = stageVo.partialData;
+					}
+				},
+				onComplete: (result) => {
+					receivedStreamComplete = true;
+					parsedResult.value = result;
+					message.success('AI 解析完成，请核对预览信息');
+				},
+				onError: (err) => {
+					console.warn('SSE stream error, fallback to synchronous parse:', err);
+				},
+			},
+		);
 	} catch (e: any) {
-		message.error(e.message || '网络异常，解析失败');
-	} finally {
-		parsing.value = false;
+		console.warn('Stream failed, executing sync fallback:', e);
 	}
+
+	// 若流式因网络或代理未完整返回结果，执行同步降级保底
+	if (!receivedStreamComplete && !parsedResult.value) {
+		try {
+			const { code, data, message: msg } = await parseUniversalFinanceLedger({
+				scene: scene.value,
+				text: inputText.value.trim(),
+				belongTo: props.defaultBelongTo,
+			});
+			if (String(code) === '200' || String(code) === '00000') {
+				parsedResult.value = data || null;
+				stageStatus.value = {
+					stage: 'COMPLETE',
+					progress: 100,
+					message: '解析已完成',
+				};
+				message.success('AI 解析完成，请核对预览信息');
+			} else {
+				message.error(msg || '解析失败，请重试');
+			}
+		} catch (e: any) {
+			message.error(e.message || '网络异常，解析失败');
+		}
+	}
+
+	parsing.value = false;
 };
 
 const handleApply = () => {
@@ -214,6 +283,7 @@ const handleClose = () => {
 	emit('update:visible', false);
 	inputText.value = '';
 	parsedResult.value = null;
+	stageStatus.value = null;
 	scene.value = 'AUTO_DETECT';
 };
 </script>
