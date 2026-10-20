@@ -48,6 +48,9 @@ describe('PC Message Center Config & ID Safety', () => {
 		expect(resolvePcMessageJumpRoute({ msgType: 'COUPON_EXPIRE', bizType: 'COUPON' })).toBe(
 			'/cpn-coupon/cpn-coupon-info',
 		);
+		expect(resolvePcMessageJumpRoute({ msgType: 'GIFT_RETURN', bizType: 'GIFT_RETURN' })).toBe(
+			'/finance/gift/analysis',
+		);
 		expect(resolvePcMessageJumpRoute({ msgType: 'CARD_EXPIRE', bizType: 'ACCOUNT_RECORD' })).toBe(
 			'/selfFinance/accountRecordInfo',
 		);

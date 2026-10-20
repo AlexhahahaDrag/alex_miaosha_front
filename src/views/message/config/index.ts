@@ -1,12 +1,13 @@
-export type MessageType = 'ALL' | 'GIFT_EVENT' | 'COUPON_EXPIRE' | 'CARD_EXPIRE' | 'SYSTEM';
+export type MessageType = 'ALL' | 'GIFT_EVENT' | 'GIFT_RETURN' | 'COUPON_EXPIRE' | 'CARD_EXPIRE' | 'SYSTEM';
 
-export type MessageSubType = 'WELCOME' | 'ANNOUNCE' | 'D_DAY' | 'D_MINUS_1' | 'D_MINUS_3';
+export type MessageSubType = 'WELCOME' | 'ANNOUNCE' | 'D_DAY' | 'D_MINUS_1' | 'D_MINUS_3' | 'IMBALANCE' | 'EVENT_RETURN';
 
 export type MessagePriority = 'HIGH' | 'MEDIUM' | 'NORMAL';
 
 export type MessageBizType =
 	| 'SYSTEM'
 	| 'GIFT_EVENT'
+	| 'GIFT_RETURN'
 	| 'COUPON'
 	| 'ACCOUNT_RECORD'
 	| 'PREPAID_CARD';
@@ -63,6 +64,12 @@ export interface MessageTagMeta {
  * 解析 PC 端消息卡片标签文案与 Ant Design Tag 颜色
  */
 export const resolvePcMessageTagMeta = (item: SysMessageInfoData): MessageTagMeta => {
+	if (item.msgType === 'GIFT_RETURN' || item.bizType === 'GIFT_RETURN') {
+		return {
+			text: item.subType === 'EVENT_RETURN' ? '重大喜事回礼' : '礼金盈余待回',
+			color: 'gold',
+		};
+	}
 	if (item.subType === 'D_DAY' || item.priority === 'HIGH') {
 		return {
 			text: item.msgType === 'GIFT_EVENT' ? '今日举行' : '今日到期',
@@ -97,6 +104,9 @@ export const resolvePcMessageTagMeta = (item: SysMessageInfoData): MessageTagMet
  * 解析 PC 端点击消息后的目标跳转路由
  */
 export const resolvePcMessageJumpRoute = (item: SysMessageInfoData): string => {
+	if (item.bizType === 'GIFT_RETURN' || item.msgType === 'GIFT_RETURN') {
+		return '/finance/gift/analysis';
+	}
 	if (item.bizType === 'ACCOUNT_RECORD') {
 		return '/selfFinance/accountRecordInfo';
 	}
