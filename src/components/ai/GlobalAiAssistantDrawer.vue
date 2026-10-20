@@ -76,6 +76,40 @@
 								{{ msg.content }}
 								<span v-if="msg.streaming" class="streaming-cursor" />
 							</div>
+
+							<!-- 智能结构化入账卡片 (若识别为记账指令) -->
+							<div
+								v-if="msg.structuredRecord"
+								class="structured-record-card mt-2.5 p-2.5 bg-blue-50/70 rounded-lg border border-blue-200/60"
+								data-testid="ai-structured-record-card"
+							>
+								<div class="flex justify-between items-center mb-1.5">
+									<span class="text-xs font-semibold text-blue-800 flex items-center gap-1">
+										🧾 识别记账意向
+									</span>
+									<a-tag :color="msg.structuredRecord.incomeAndExpenses === 'income' ? 'green' : 'orange'" size="small">
+										{{ msg.structuredRecord.incomeAndExpenses === 'income' ? '收入' : '支出' }}
+									</a-tag>
+								</div>
+								<div class="text-xs text-gray-700 space-y-1">
+									<div>名称：<strong class="font-medium text-gray-900">{{ msg.structuredRecord.name }}</strong></div>
+									<div>金额：<span class="text-red-500 font-bold">¥{{ Number(msg.structuredRecord.amount || 0).toFixed(2) }}</span></div>
+									<div v-if="msg.structuredRecord.typeCode">分类：<span class="text-gray-600">{{ msg.structuredRecord.typeCode }}</span></div>
+								</div>
+								<div class="mt-2 flex justify-end">
+									<a-button
+										type="primary"
+										size="small"
+										:loading="msg.recordSaving"
+										:disabled="msg.recordSaved"
+										data-testid="btn-confirm-ai-record"
+										@click="handleSaveRecord(msg)"
+									>
+										{{ msg.recordSaved ? '已入账 ✓' : '一键确认入账' }}
+									</a-button>
+								</div>
+							</div>
+
 							<div
 								v-if="msg.meta"
 								class="message-footer mt-1.5 text-xs text-gray-400 flex gap-2"
@@ -142,11 +176,16 @@ import {
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { chatAiStream } from '@/api/ai';
+import { addFinanceManger } from '@/views/selfFinance/financeManager/api';
+import { extractRecordFromText, type StructuredRecord } from './extractRecord';
 
 interface ChatMessage {
 	role: 'user' | 'assistant';
 	content: string;
 	streaming?: boolean;
+	structuredRecord?: StructuredRecord | null;
+	recordSaving?: boolean;
+	recordSaved?: boolean;
 	meta?: {
 		engine?: string;
 		costMs?: number;
@@ -205,11 +244,17 @@ const sendMessage = async () => {
 	loading.value = true;
 	await scrollToBottom();
 
+	// 识别是否包含记账意图并解析结构化卡片
+	const structured = extractRecordFromText(text);
+
 	// 创建 AI 占位消息并开启流式
 	const assistantMessage = reactive<ChatMessage>({
 		role: 'assistant',
 		content: '',
 		streaming: true,
+		structuredRecord: structured,
+		recordSaving: false,
+		recordSaved: false,
 		meta: {},
 	});
 	messages.value.push(assistantMessage);
@@ -258,6 +303,30 @@ const sendMessage = async () => {
 		loading.value = false;
 		const errText = e instanceof Error ? e.message : '网络异常';
 		message.error(errText);
+	}
+};
+
+const handleSaveRecord = async (msg: ChatMessage) => {
+	if (!msg.structuredRecord || msg.recordSaved) return;
+	msg.recordSaving = true;
+	try {
+		const { code, message: errMsg } = await addFinanceManger({
+			name: msg.structuredRecord.name,
+			amount: msg.structuredRecord.amount,
+			incomeAndExpenses: msg.structuredRecord.incomeAndExpenses,
+			typeCode: msg.structuredRecord.typeCode || '日常',
+		});
+		if (code === '200' || code === '00000') {
+			msg.recordSaved = true;
+			message.success('已成功入账！');
+		} else {
+			message.warning(errMsg || '入账失败');
+		}
+	} catch (e: unknown) {
+		const text = e instanceof Error ? e.message : '网络异常，入账失败';
+		message.error(text);
+	} finally {
+		msg.recordSaving = false;
 	}
 };
 

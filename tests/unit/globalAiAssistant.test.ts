@@ -6,6 +6,7 @@ vi.mock('@/utils/request', () => ({
 }));
 
 import { chatAiStream } from '@/api/ai';
+import { extractRecordFromText } from '@/components/ai/extractRecord';
 
 describe('Global AI Assistant Stream Client Test', () => {
 	beforeEach(() => {
@@ -102,5 +103,21 @@ describe('Global AI Assistant Stream Client Test', () => {
 
 		expect(errorCaptured.code).toBe('STREAM_ERROR');
 		expect(errorCaptured.message).toContain('HTTP error 502');
+	});
+
+	it('extractRecordFromText 应准确解析自然语言口语化记账意图与金额', () => {
+		const res1 = extractRecordFromText('今天中午吃麦当劳花了38.5元');
+		expect(res1).not.toBeNull();
+		expect(res1?.amount).toBe(38.5);
+		expect(res1?.incomeAndExpenses).toBe('expense');
+		expect(res1?.typeCode).toBe('餐饮美食');
+
+		const res2 = extractRecordFromText('收到公司年终奖金8800元');
+		expect(res2).not.toBeNull();
+		expect(res2?.amount).toBe(8800);
+		expect(res2?.incomeAndExpenses).toBe('income');
+
+		const res3 = extractRecordFromText('今天天气真好适合出去玩');
+		expect(res3).toBeNull();
 	});
 });
