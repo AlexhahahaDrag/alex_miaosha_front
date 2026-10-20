@@ -71,9 +71,15 @@
 <script setup lang="ts">
 import { DeleteOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
+import {
+	getSysMessagePage,
+	markSysMessageRead,
+	deleteSysMessages,
+} from '@/views/message/api';
 
 interface TodoItem {
 	id: string;
+	messageId?: string;
 	text: string;
 	done: boolean;
 	dueDate: string;
@@ -81,46 +87,93 @@ interface TodoItem {
 	tagColor?: string;
 }
 
-const newTodoText = ref('');
+const LOCAL_STORAGE_KEY = 'alex_user_custom_todos';
 
-const todoItems = ref<TodoItem[]>([
-	{
-		id: '1',
-		text: '参加表哥婚礼答谢宴并送礼金 ¥1,000',
-		done: false,
-		dueDate: '本周六 12:00',
-		tag: '礼尚往来',
-		tagColor: 'volcano',
-	},
-	{
-		id: '2',
-		text: '核对上周末李总乔迁之喜随礼回单',
-		done: false,
-		dueDate: '今天下午',
-		tag: '人情档案',
-		tagColor: 'cyan',
-	},
-	{
-		id: '3',
-		text: '关注今晚 20:00 热门秒杀活动预热',
-		done: false,
-		dueDate: '今晚 20:00',
-		tag: '爆款秒杀',
-		tagColor: 'orange',
-	},
-	{
-		id: '4',
-		text: '修改并强化个人账户登录密码',
-		done: true,
-		dueDate: '已完成',
-		tag: '账户安全',
-		tagColor: 'green',
-	},
-]);
+const loadLocalTodos = (): TodoItem[] => {
+	try {
+		const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+		if (raw) {
+			const parsed = JSON.parse(raw);
+			if (Array.isArray(parsed) && parsed.length > 0) {
+				return parsed;
+			}
+		}
+	} catch {
+		// 忽略读取异常
+	}
+	return [
+		{
+			id: 'local-1',
+			text: '核对上周末亲友人情往来礼金回单',
+			done: false,
+			dueDate: '近期',
+			tag: '人情档案',
+			tagColor: 'cyan',
+		},
+		{
+			id: 'local-2',
+			text: '定期修改并强化个人账户登录密码',
+			done: true,
+			dueDate: '已完成',
+			tag: '账户安全',
+			tagColor: 'green',
+		},
+	];
+};
+
+const saveLocalTodos = (items: TodoItem[]) => {
+	try {
+		const locals = items.filter((item) => !item.messageId);
+		localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(locals));
+	} catch {
+		// 忽略写异常
+	}
+};
+
+const newTodoText = ref('');
+const todoItems = ref<TodoItem[]>(loadLocalTodos());
 
 const activeTodoCount = computed(
 	() => todoItems.value.filter((item) => !item.done).length,
 );
+
+const fetchMessageReminders = async () => {
+	try {
+		const { code, data } = await getSysMessagePage(
+			{ pageNum: 1, pageSize: 5 },
+			{ readStatus: 0 },
+		);
+		if ((code === '200' || code === '00000') && data && Array.isArray(data.records)) {
+			const reminders: TodoItem[] = data.records.map((msg) => {
+				const tag =
+					msg.msgType === 'GIFT_EVENT'
+						? '礼金事件'
+						: msg.msgType === 'GIFT_RETURN'
+							? '回礼提醒'
+							: '系统提醒';
+				const tagColor =
+					msg.msgType === 'GIFT_EVENT'
+						? 'volcano'
+						: msg.msgType === 'GIFT_RETURN'
+							? 'purple'
+							: 'blue';
+				return {
+					id: `msg-${msg.id}`,
+					messageId: msg.id ? String(msg.id) : undefined,
+					text: msg.title || '系统待办通知',
+					done: false,
+					dueDate: msg.createTime ? msg.createTime.substring(5, 10) : '临期',
+					tag,
+					tagColor,
+				};
+			});
+			const localItems = todoItems.value.filter((i) => !i.messageId);
+			todoItems.value = [...reminders, ...localItems];
+		}
+	} catch (e) {
+		console.warn('获取系统待办提醒异常', e);
+	}
+};
 
 const handleAddTodo = () => {
 	const trimmed = newTodoText.value.trim();
@@ -128,28 +181,55 @@ const handleAddTodo = () => {
 		message.warning('请输入待办内容！');
 		return;
 	}
-	todoItems.value.unshift({
-		id: String(Date.now()),
+	const newItem: TodoItem = {
+		id: `local-${Date.now()}`,
 		text: trimmed,
 		done: false,
 		dueDate: '近期',
 		tag: '日常待办',
 		tagColor: 'blue',
-	});
+	};
+	todoItems.value.unshift(newItem);
+	saveLocalTodos(todoItems.value);
 	newTodoText.value = '';
 	message.success('成功添加待办事项！');
 };
 
-const handleStatusChange = (item: TodoItem) => {
+const handleStatusChange = async (item: TodoItem) => {
 	if (item.done) {
 		message.success(`已完成：${item.text}`);
+		if (item.messageId) {
+			try {
+				await markSysMessageRead(item.messageId);
+			} catch (e) {
+				console.warn('标记系统消息已读失败', e);
+			}
+		} else {
+			saveLocalTodos(todoItems.value);
+		}
+	} else {
+		saveLocalTodos(todoItems.value);
 	}
 };
 
-const handleDelete = (id: string) => {
+const handleDelete = async (id: string) => {
+	const target = todoItems.value.find((i) => i.id === id);
 	todoItems.value = todoItems.value.filter((i) => i.id !== id);
+	if (target?.messageId) {
+		try {
+			await deleteSysMessages(target.messageId);
+		} catch (e) {
+			console.warn('删除系统消息待办失败', e);
+		}
+	} else {
+		saveLocalTodos(todoItems.value);
+	}
 	message.success('已删除待办项');
 };
+
+onMounted(() => {
+	void fetchMessageReminders();
+});
 </script>
 
 <style scoped lang="scss">

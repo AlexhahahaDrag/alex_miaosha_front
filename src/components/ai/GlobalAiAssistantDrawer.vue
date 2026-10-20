@@ -333,6 +333,22 @@ const handleSaveRecord = async (msg: ChatMessage) => {
 const clearMessages = () => {
 	messages.value = [];
 };
+
+const handleOpenDrawerEvent = (e: Event) => {
+	visible.value = true;
+	const customEvent = e as CustomEvent<{ prompt?: string }>;
+	if (customEvent.detail?.prompt) {
+		inputContent.value = customEvent.detail.prompt;
+	}
+};
+
+onMounted(() => {
+	window.addEventListener('open-global-ai-drawer', handleOpenDrawerEvent);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('open-global-ai-drawer', handleOpenDrawerEvent);
+});
 </script>
 
 <style scoped>

@@ -119,6 +119,12 @@ import WelcomeHeader from '@/views/home-dashboard/components/common/WelcomeHeade
 import QuickActionGrid from '@/views/home-dashboard/components/common/QuickActionGrid.vue';
 import PersonalTodoCard from '@/views/home-dashboard/components/user/PersonalTodoCard.vue';
 import { USER_ACTIONS } from '@/views/home-dashboard/config';
+import { getDashboardCache, setDashboardCache } from '@/views/home-dashboard/config/dashboardCache';
+import {
+	getGiftAnalysisOverview,
+	getGiftAnalysisTrend,
+} from '@/views/finance/gift/api';
+import type { GiftAmountTrend } from '@/views/finance/gift/config';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	ProfileOutlined,
@@ -131,10 +137,13 @@ import {
 	HeartOutlined,
 } from '@ant-design/icons-vue';
 
+const CACHE_KEY_STATS = 'user_dashboard_stats';
+const CACHE_KEY_TREND = 'user_dashboard_trend';
+
 const personalStats = ref({
-	recordCount: 38,
-	receivedAmount: 32600,
-	sentAmount: 24800,
+	recordCount: 0,
+	receivedAmount: 0,
+	sentAmount: 0,
 });
 
 const netBalance = computed(
@@ -148,11 +157,65 @@ const onChartResize = () => {
 	chartInstance?.resize();
 };
 
+const fetchPersonalStats = async () => {
+	const cached = getDashboardCache<typeof personalStats.value>(CACHE_KEY_STATS);
+	if (cached) {
+		personalStats.value = cached;
+		return;
+	}
+	try {
+		const { code, data } = await getGiftAnalysisOverview();
+		if ((code === '200' || code === '00000') && data) {
+			const recordCount = Number(data.recordCount || 0);
+			const receivedAmount = Number(data.receiveAmount || 0);
+			const sentAmount = Number((data.giveAmount || 0) + (data.returnAmount || 0));
+			personalStats.value = {
+				recordCount,
+				receivedAmount,
+				sentAmount,
+			};
+			setDashboardCache(CACHE_KEY_STATS, personalStats.value);
+		}
+	} catch (e) {
+		console.warn('获取用户礼金看板概览异常，保持安全兜底', e);
+	}
+};
+
+const fetchTrendData = async (): Promise<GiftAmountTrend[]> => {
+	const cached = getDashboardCache<GiftAmountTrend[]>(CACHE_KEY_TREND);
+	if (cached) {
+		return cached;
+	}
+	try {
+		const { code, data } = await getGiftAnalysisTrend({ period: 'month' });
+		if ((code === '200' || code === '00000') && Array.isArray(data)) {
+			setDashboardCache(CACHE_KEY_TREND, data);
+			return data;
+		}
+	} catch (e) {
+		console.warn('获取礼金走势异常，保持安全兜底', e);
+	}
+	return [];
+};
+
 const initChart = async () => {
 	if (!chartContainer.value || chartInstance) return;
 
 	const echarts = await loadEcharts();
 	if (!chartContainer.value || chartInstance) return;
+
+	const trendList = await fetchTrendData();
+	const hasTrend = trendList.length > 0;
+
+	const xData = hasTrend
+		? trendList.map((item) => item.label || '')
+		: ['4月', '5月', '6月', '7月', '8月', '9月'];
+	const receiveSeries = hasTrend
+		? trendList.map((item) => Number(item.receiveAmount || 0))
+		: [0, 0, 0, 0, 0, 0];
+	const giveSeries = hasTrend
+		? trendList.map((item) => Number(item.giveAmount || 0))
+		: [0, 0, 0, 0, 0, 0];
 
 	chartInstance = echarts.init(chartContainer.value);
 
@@ -174,7 +237,7 @@ const initChart = async () => {
 		},
 		xAxis: {
 			type: 'category',
-			data: ['4月', '5月', '6月', '7月', '8月', '9月'],
+			data: xData,
 		},
 		yAxis: {
 			type: 'value',
@@ -185,7 +248,7 @@ const initChart = async () => {
 				name: '收受礼金 (元)',
 				type: 'bar',
 				barWidth: 16,
-				data: [3000, 12000, 2000, 5000, 4600, 6000],
+				data: receiveSeries,
 				itemStyle: {
 					color: '#52c41a',
 					borderRadius: [4, 4, 0, 0],
@@ -195,7 +258,7 @@ const initChart = async () => {
 				name: '随礼支出 (元)',
 				type: 'bar',
 				barWidth: 16,
-				data: [2000, 4500, 3200, 6000, 3100, 6000],
+				data: giveSeries,
 				itemStyle: {
 					color: '#fa8c16',
 					borderRadius: [4, 4, 0, 0],
@@ -215,6 +278,7 @@ const disposeChart = () => {
 };
 
 onMounted(() => {
+	void fetchPersonalStats();
 	void initChart();
 });
 

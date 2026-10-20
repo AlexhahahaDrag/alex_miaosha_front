@@ -46,6 +46,7 @@ import {
 	ContactsOutlined,
 	ShoppingOutlined,
 	RightOutlined,
+	RobotOutlined,
 } from '@ant-design/icons-vue';
 
 defineProps<{
@@ -67,9 +68,18 @@ const iconMap: Record<string, Component> = {
 	PlusCircleOutlined,
 	ContactsOutlined,
 	ShoppingOutlined,
+	RobotOutlined,
 };
 
 const handleNavigate = (path: string) => {
+	if (path === 'AI_ASSISTANT') {
+		window.dispatchEvent(
+			new CustomEvent('open-global-ai-drawer', {
+				detail: { prompt: '我要记一笔日常账目' },
+			}),
+		);
+		return;
+	}
 	if (path) {
 		router.push(path);
 	}

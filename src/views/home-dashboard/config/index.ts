@@ -184,6 +184,14 @@ export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
 /** 普通用户快捷入口 */
 export const USER_ACTIONS: QuickActionItem[] = [
 	{
+		title: 'AI 智能记账',
+		icon: 'RobotOutlined',
+		path: 'AI_ASSISTANT',
+		color: '#2563eb',
+		desc: '对话式自然语言极速入账',
+		testId: 'dash-user-action-ai-assistant',
+	},
+	{
 		title: '随礼记一笔',
 		icon: 'PlusCircleOutlined',
 		path: '/finance/gift/record',
