@@ -163,6 +163,106 @@
 					<ranking-list :rows="personRankingRows" />
 				</section>
 			</div>
+
+			<!-- 亲友互赠收支平衡矩阵 -->
+			<section
+				class="panel balance-matrix-panel"
+				data-testid="gift-balance-matrix-section"
+			>
+				<div class="panel-head">
+					<div class="panel-head-title">
+						<h3>亲友人情互赠平衡矩阵 (收送对账)</h3>
+						<span class="sub-tip">自动核算双向礼金流向、礼金盈余/借出与失衡预警</span>
+					</div>
+					<a-space>
+						<a-select
+							v-model:value="matrixRelationFilter"
+							placeholder="关系圈层"
+							style="width: 120px"
+							@change="loadBalanceMatrix"
+						>
+							<a-select-option value="all">全部圈子</a-select-option>
+							<a-select-option value="relatives">亲属圈</a-select-option>
+							<a-select-option value="colleague">同事情</a-select-option>
+							<a-select-option value="friend">好友圈</a-select-option>
+							<a-select-option value="classmate">同学情</a-select-option>
+						</a-select>
+						<a-input-search
+							v-model:value="matrixSearchKey"
+							placeholder="搜索亲友姓名"
+							style="width: 150px"
+							@search="loadBalanceMatrix"
+						/>
+						<a-button @click="loadBalanceMatrix">刷新矩阵</a-button>
+					</a-space>
+				</div>
+
+				<a-table
+					:data-source="balanceMatrixRows"
+					:columns="balanceColumns"
+					:pagination="{ pageSize: 6 }"
+					row-key="personId"
+					size="middle"
+					class="matrix-table"
+					data-testid="gift-balance-matrix-table"
+				>
+					<template #bodyCell="{ column, record }">
+						<template v-if="column.key === 'personName'">
+							<span class="font-medium">{{ record.personName }}</span>
+							<a-tag
+								v-if="record.relationTypeName"
+								class="ml-1"
+								size="small"
+							>
+								{{ record.relationTypeName }}
+							</a-tag>
+						</template>
+						<template v-else-if="column.key === 'totalReceiveAmount'">
+							<span class="text-green font-mono">¥{{ (record.totalReceiveAmount || 0).toFixed(2) }}</span>
+						</template>
+						<template v-else-if="column.key === 'totalGiveAmount'">
+							<span class="text-orange font-mono">¥{{ (record.totalGiveAmount || 0).toFixed(2) }}</span>
+						</template>
+						<template v-else-if="column.key === 'netBalance'">
+							<span :class="record.netBalance >= 0 ? 'text-green font-bold' : 'text-orange font-bold'">
+								{{ record.netBalance >= 0 ? '+' : '' }}¥{{ (record.netBalance || 0).toFixed(2) }}
+							</span>
+						</template>
+						<template v-else-if="column.key === 'balanceStatus'">
+							<a-tag :color="record.balanceStatus === 'SURPLUS' ? 'green' : record.balanceStatus === 'DEFICIT' ? 'orange' : 'default'">
+								{{ record.balanceStatus === 'SURPLUS' ? '礼金盈余 (多收)' : record.balanceStatus === 'DEFICIT' ? '礼金借出 (多送)' : '基本持平' }}
+							</a-tag>
+							<a-tooltip
+								v-if="record.isImbalancedAlert"
+								:title="record.alertReason || '该亲友长期大额礼金未回礼，建议关注维护关系'"
+							>
+								<a-tag
+									color="error"
+									class="cursor-pointer"
+								>
+									⚠️ 失衡预警
+								</a-tag>
+							</a-tooltip>
+						</template>
+						<template v-else-if="column.key === 'action'">
+							<a-button
+								type="link"
+								size="small"
+								data-testid="btn-calc-return-gift"
+								@click="openCalculator(record)"
+							>
+								AI 测算回礼
+							</a-button>
+						</template>
+					</template>
+				</a-table>
+			</section>
+
+			<!-- AI 智能回礼测算抽屉 -->
+			<gift-return-calculator-drawer
+				v-model:open="calculatorOpen"
+				:person="selectedPerson"
+			/>
 		</div>
 	</a-spin>
 </template>
@@ -178,13 +278,16 @@ import {
 	getGiftAnalysisPersonRanking,
 	getGiftAnalysisRelationDistribution,
 	getGiftAnalysisTrend,
+	getGiftBalanceMatrix,
 } from '@/views/finance/gift/api';
 import type {
 	GiftAmountTrend,
 	GiftRankingItem,
 	GiftRecordSummary,
 	GiftRelationDistribution,
+	GiftPersonBalance,
 } from '@/views/finance/gift/config';
+import GiftReturnCalculatorDrawer from './components/GiftReturnCalculatorDrawer.vue';
 import { useGiftRelationOptions } from '@/composables/useGiftRelationOptions';
 import { money } from '@/views/finance/gift/config';
 
@@ -246,6 +349,40 @@ const trendRows = ref<GiftAmountTrend[]>([]);
 const relationRows = ref<GiftRelationDistribution[]>([]);
 const eventRanking = ref<GiftRankingItem[]>([]);
 const personRanking = ref<GiftRankingItem[]>([]);
+const balanceMatrixRows = ref<GiftPersonBalance[]>([]);
+const matrixRelationFilter = ref<string>('all');
+const matrixSearchKey = ref<string>('');
+const calculatorOpen = ref<boolean>(false);
+const selectedPerson = ref<GiftPersonBalance | null>(null);
+
+const balanceColumns = [
+	{ title: '亲友姓名', dataIndex: 'personName', key: 'personName' },
+	{ title: 'TA 送我总额', dataIndex: 'totalReceiveAmount', key: 'totalReceiveAmount', align: 'right' as const },
+	{ title: '我送 TA 总额', dataIndex: 'totalGiveAmount', key: 'totalGiveAmount', align: 'right' as const },
+	{ title: '人情净差', dataIndex: 'netBalance', key: 'netBalance', align: 'right' as const },
+	{ title: '平衡状态', dataIndex: 'balanceStatus', key: 'balanceStatus' },
+	{ title: '最近互动', dataIndex: 'latestRecordTime', key: 'latestRecordTime' },
+	{ title: '操作', key: 'action', align: 'center' as const, width: 120 },
+];
+
+const loadBalanceMatrix = async () => {
+	try {
+		const { code, data } = await getGiftBalanceMatrix({
+			relationType: matrixRelationFilter.value !== 'all' ? matrixRelationFilter.value : undefined,
+			searchKey: matrixSearchKey.value ? matrixSearchKey.value.trim() : undefined,
+		});
+		if (code === '200' || code === '00000') {
+			balanceMatrixRows.value = data || [];
+		}
+	} catch (e) {
+		console.warn('Failed to load balance matrix:', e);
+	}
+};
+
+const openCalculator = (person: any) => {
+	selectedPerson.value = person as GiftPersonBalance;
+	calculatorOpen.value = true;
+};
 
 const chartRows = computed(() => {
 	// 无数据时直接返回空数组走空态展示，严禁渲染硬编码假数据误导用户
@@ -345,6 +482,7 @@ const loadData = async () => {
 			eventRanking.value = eventRes.data || [];
 		if (assertOk(personRes.code, personRes.message))
 			personRanking.value = personRes.data || [];
+		await loadBalanceMatrix();
 	} finally {
 		loading.value = false;
 	}
@@ -703,5 +841,63 @@ watch([period, analysisType], () => {
 	padding: 36px 0;
 	color: #94a3b8;
 	text-align: center;
+}
+
+.balance-matrix-panel {
+	margin-top: 18px;
+
+	.panel-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 14px;
+
+		.panel-head-title {
+			display: flex;
+			align-items: baseline;
+			gap: 10px;
+
+			h3 {
+				margin: 0;
+				font-size: 16px;
+				font-weight: 700;
+				color: #0f172a;
+			}
+
+			.sub-tip {
+				font-size: 12px;
+				color: #64748b;
+			}
+		}
+	}
+
+	.matrix-table {
+		background: #ffffff;
+		border-radius: 8px;
+	}
+}
+
+.font-medium {
+	font-weight: 600;
+}
+
+.font-bold {
+	font-weight: 700;
+}
+
+.font-mono {
+	font-family: monospace;
+}
+
+.text-green {
+	color: #16a34a;
+}
+
+.text-orange {
+	color: #ea580c;
+}
+
+.cursor-pointer {
+	cursor: pointer;
 }
 </style>

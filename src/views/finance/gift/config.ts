@@ -623,3 +623,40 @@ export function money(value?: number | string) {
 	const amount = Number(value || 0);
 	return `¥${amount.toFixed(2)}`;
 }
+
+
+/** 亲友互赠收支平衡矩阵实体 */
+export interface GiftPersonBalance {
+	personId: string;
+	personName: string;
+	relationType?: string;
+	relationTypeName?: string;
+	totalReceiveAmount: number;
+	totalGiveAmount: number;
+	netBalance: number;
+	balanceStatus: 'SURPLUS' | 'DEFICIT' | 'BALANCED';
+	recordCount?: number;
+	latestRecordTime?: string;
+	isImbalancedAlert?: boolean;
+	alertReason?: string;
+}
+
+/** AI 智能回礼档位测算请求 */
+export interface GiftReturnRecommendationReq {
+	personId: string;
+	eventType: string;
+	cityTier?: string;
+}
+
+/** AI 智能回礼档位测算响应 */
+export interface GiftReturnRecommendationVo {
+	personName: string;
+	relationTypeName?: string;
+	historicalBaseAmount: number;
+	minDecentAmount: number;
+	recommendedAmount: number;
+	generousAmount: number;
+	auspiciousTierList?: number[];
+	ruleSummary: string;
+	blessingWords: string;
+}

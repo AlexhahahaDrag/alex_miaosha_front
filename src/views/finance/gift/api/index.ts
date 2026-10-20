@@ -378,3 +378,23 @@ export function getGiftAnalysisPersonRanking(): Promise<
 > {
 	return getDataOne(`${baseUrl(giftApi.analysis)}/person-ranking`);
 }
+
+
+export function getGiftBalanceMatrix(params?: {
+	relationType?: string;
+	searchKey?: string;
+}): Promise<ResponseBody<import('../config').GiftPersonBalance[]>> {
+	return getDataOne<import('../config').GiftPersonBalance[]>(
+		`${baseUrl(giftApi.analysis)}/balance-matrix`,
+		params,
+	).then(normalizeGiftResponse);
+}
+
+export function recommendReturnGift(
+	data: import('../config').GiftReturnRecommendationReq,
+): Promise<ResponseBody<import('../config').GiftReturnRecommendationVo>> {
+	return postData<import('../config').GiftReturnRecommendationVo>(
+		`${baseUrl(giftApi.analysis)}/ai/recommend-return-gift`,
+		normalizeGiftIds(data),
+	).then(normalizeGiftResponse);
+}
