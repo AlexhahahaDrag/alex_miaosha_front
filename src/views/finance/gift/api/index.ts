@@ -398,3 +398,17 @@ export function recommendReturnGift(
 		normalizeGiftIds(data),
 	).then(normalizeGiftResponse);
 }
+
+/** 导出亲友互赠平衡矩阵与人情汇总 Excel */
+export function exportGiftBalanceMatrix(params?: {
+	relationType?: string;
+	searchKey?: string;
+}): Promise<AxiosResponse<Blob>> {
+	return postDownloadFile(
+		`${baseUrl(giftApi.analysis)}/export-matrix`,
+		null,
+		{
+			params: params ? normalizeGiftIds(params) : undefined,
+		},
+	);
+}

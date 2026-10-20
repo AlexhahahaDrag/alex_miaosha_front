@@ -194,6 +194,14 @@
 							@search="loadBalanceMatrix"
 						/>
 						<a-button @click="loadBalanceMatrix">刷新矩阵</a-button>
+						<a-button
+							v-if="hasPermission('gift:export')"
+							:loading="exportingMatrix"
+							data-testid="gift-balance-matrix-export"
+							@click="exportMatrix"
+						>
+							导出对账单
+						</a-button>
 					</a-space>
 				</div>
 
@@ -279,6 +287,7 @@ import {
 	getGiftAnalysisRelationDistribution,
 	getGiftAnalysisTrend,
 	getGiftBalanceMatrix,
+	exportGiftBalanceMatrix,
 } from '@/views/finance/gift/api';
 import type {
 	GiftAmountTrend,
@@ -352,6 +361,7 @@ const personRanking = ref<GiftRankingItem[]>([]);
 const balanceMatrixRows = ref<GiftPersonBalance[]>([]);
 const matrixRelationFilter = ref<string>('all');
 const matrixSearchKey = ref<string>('');
+const exportingMatrix = ref<boolean>(false);
 const calculatorOpen = ref<boolean>(false);
 const selectedPerson = ref<GiftPersonBalance | null>(null);
 
@@ -376,6 +386,40 @@ const loadBalanceMatrix = async () => {
 		}
 	} catch (e) {
 		console.warn('Failed to load balance matrix:', e);
+	}
+};
+
+const exportMatrix = async () => {
+	if (exportingMatrix.value) return;
+	exportingMatrix.value = true;
+	try {
+		const response = await exportGiftBalanceMatrix({
+			relationType: matrixRelationFilter.value !== 'all' ? matrixRelationFilter.value : undefined,
+			searchKey: matrixSearchKey.value ? matrixSearchKey.value.trim() : undefined,
+		});
+		const blob = new Blob([response.data], {
+			type: String(
+				response.headers?.['content-type'] ||
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			),
+		});
+		const disposition = String(response.headers?.['content-disposition'] || '');
+		const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+		const fallbackMatch = disposition.match(/filename="?([^";]+)"?/i);
+		const rawName = utf8Match ? utf8Match[1] : fallbackMatch ? fallbackMatch[1] : '';
+		const fileName =
+			rawName ? decodeURIComponent(rawName) : `人情往来互赠平衡对账单_${Date.now()}.xlsx`;
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = fileName;
+		link.click();
+		URL.revokeObjectURL(url);
+		message.success('导出对账单成功');
+	} catch {
+		message.error('导出失败，请稍后重试');
+	} finally {
+		exportingMatrix.value = false;
 	}
 };
 

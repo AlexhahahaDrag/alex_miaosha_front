@@ -123,4 +123,27 @@ describe('人情往来智能洞察报告与互赠收支平衡矩阵契约测试'
 			expect(mockVo.blessingWords).toBeTruthy();
 		});
 	});
+
+	describe('4. 导出亲友互赠平衡对账单文件名与参数安全性', () => {
+		it('导出参数中的 personId 应保证被 string 化', () => {
+			const query = {
+				relationType: 'friend',
+				searchKey: '王五',
+				personId: 987654321012345678n as any,
+			};
+			const normalized = normalizeGiftIds(query);
+			expect(typeof normalized.personId).toBe('string');
+			expect(normalized.personId).toBe('987654321012345678');
+		});
+
+		it('从 Content-Disposition 响应头能正确解析出 utf-8 中文文件名', () => {
+			const header = "attachment; filename=gift_balance_matrix.xlsx; filename*=UTF-8''%E4%BA%BA%E6%83%85%E5%BE%80%E6%9D%A5%E4%BA%92%E8%B5%A0%E5%B9%B3%E8%A1%A1%E5%AF%B9%E8%B4%A6%E5%8D%95_1710000000.xlsx";
+			const utf8Match = header.match(/filename\*=UTF-8''([^;]+)/i);
+			const fallbackMatch = header.match(/filename="?([^";]+)"?/i);
+			const rawFileName = utf8Match ? utf8Match[1] : fallbackMatch ? fallbackMatch[1] : '';
+			const fileName = decodeURIComponent(rawFileName);
+			expect(fileName).toContain('人情往来');
+			expect(fileName.endsWith('.xlsx')).toBe(true);
+		});
+	});
 });
