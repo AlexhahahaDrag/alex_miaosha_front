@@ -4,12 +4,14 @@
 		title="AI 智能回礼档位测算器"
 		:width="540"
 		class="gift-return-calculator-drawer"
+		root-class-name="gift-return-calculator-drawer-root"
 		data-testid="drawer-gift-return-calculator"
 		@close="onClose"
 	>
 		<div
 			v-if="person"
 			class="calculator-container"
+			data-testid="calculator-drawer-content"
 		>
 			<!-- 亲友基本档案与往来画像 -->
 			<div class="person-profile-card">

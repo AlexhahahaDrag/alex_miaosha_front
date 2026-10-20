@@ -131,6 +131,14 @@ const mockMenus = [
 				permissionCode: 'gift:view',
 			},
 			{
+				id: '45',
+				name: 'giftAnalysis',
+				title: '统计报表',
+				path: 'gift/analysis',
+				component: '/src/views/finance/gift/analysis/index.vue',
+				permissionCode: 'gift:view',
+			},
+			{
 				id: '42',
 				name: 'financeManager',
 				title: '收支明细',
@@ -651,6 +659,38 @@ async function setupRouteMocks(page) {
 			});
 		}
 
+		if (pathname.includes('/gift-analysis/overview')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					receiveAmount: 1800,
+					giveAmount: 800,
+					netAmount: 1000,
+					count: 2,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/relation-distribution')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '大学同学', relationType: 'classmate', amount: 800, count: 1 },
+					{ name: '同事', relationType: 'colleague', amount: 1000, count: 1 },
+				],
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/event-ranking')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{ name: '结婚典礼', eventName: '结婚典礼', amount: 1200, count: 1, percent: 60 },
+					{ name: '乔迁新居', eventName: '乔迁新居', amount: 600, count: 1, percent: 40 },
+				],
+			});
+		}
+
 		if (pathname.includes('/gift-analysis/trend')) {
 			return fulfillEncrypted(route, {
 				code: '200',
@@ -662,6 +702,68 @@ async function setupRouteMocks(page) {
 					{ label: '2026-09', giveAmount: 500, receiveAmount: 1500 },
 					{ label: '2026-10', giveAmount: 800, receiveAmount: 1800 },
 				],
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/balance-matrix')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: [
+					{
+						personId: '30001',
+						personName: '王五',
+						relationType: 'classmate',
+						relationTypeName: '大学同学',
+						totalReceiveAmount: 2000,
+						totalGiveAmount: 800,
+						netBalance: 1200,
+						balanceStatus: 'SURPLUS',
+						isImbalancedAlert: true,
+						alertReason: '收礼达2000元超半年未回礼，建议关注维护关系',
+					},
+					{
+						personId: '30002',
+						personName: '赵六',
+						relationType: 'colleague',
+						relationTypeName: '同事',
+						totalReceiveAmount: 500,
+						totalGiveAmount: 1000,
+						netBalance: -500,
+						balanceStatus: 'DEFICIT',
+						isImbalancedAlert: false,
+						alertReason: '',
+					},
+				],
+			});
+		}
+
+		if (pathname.includes('/gift-analysis/export-matrix')) {
+			return route.fulfill({
+				status: 200,
+				contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				headers: {
+					'Content-Disposition': "attachment; filename*=UTF-8''%E4%BA%B2%E5%8F%8B%E4%BA%92%E8%B5%A0%E5%B9%B3%E8%A1%A1%E7%9F%A9%E9%98%B5_20261020.xlsx",
+				},
+				body: Buffer.from('mock-excel-binary-data'),
+			});
+		}
+
+		if (
+			pathname.includes('/gift-analysis/ai/recommend-return-gift') ||
+			pathname.includes('/ai-copilot/gift-return-recommendation')
+		) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					personId: '30001',
+					personName: '王五',
+					historicalBaseAmount: 2000,
+					minDecentAmount: 1200,
+					recommendedAmount: 1600,
+					generousAmount: 2000,
+					ruleSummary: '结合历史收礼基准 ¥2000 与结婚事由加权推算，推荐平衡档 ¥1600。',
+					blessingWords: '良辰美景，鸳鸯比翼！愿你们相知相伴，岁岁常欢愉！',
+				},
 			});
 		}
 
@@ -1453,6 +1555,76 @@ async function executeCase(page, c, runtime) {
 			break;
 		}
 
+		case 'GIFT-E2E-PC-BALANCE-MATRIX': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/analysis`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+
+			// 1. 断言亲友互赠平衡矩阵区块与表格渲染
+			const matrixSection = page.locator('[data-testid="gift-balance-matrix-section"]').first();
+			await matrixSection.waitFor({ state: 'visible', timeout: 10000 });
+
+			const matrixTable = page.locator('[data-testid="gift-balance-matrix-table"]').first();
+			await matrixTable.waitFor({ state: 'visible', timeout: 8000 });
+
+			// 2. 验证表格包含失衡亲友数据 (王五)
+			const personRow = page.locator('tr:has-text("王五")').first();
+			await personRow.waitFor({ state: 'visible', timeout: 5000 });
+			const rowText = await personRow.innerText();
+			if (!rowText.includes('失衡预警') && !rowText.includes('礼金盈余')) {
+				throw new Error(`亲友王五互赠行未包含预警或状态徽标，实际文本: ${rowText}`);
+			}
+
+			// 3. 调起 AI 测算回礼抽屉
+			const calcBtn = personRow.locator('[data-testid="btn-calc-return-gift"]').first();
+			await calcBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await calcBtn.click();
+
+			try {
+				// 4. 等待回礼测算抽屉展开并点击智能测算按钮
+				const drawer = page.locator('.ant-drawer-open, [data-testid="drawer-gift-return-calculator"], [data-testid="calculator-drawer-content"]').first();
+				await drawer.waitFor({ state: 'visible', timeout: 8000 });
+
+				const doCalcBtn = page.locator('[data-testid="btn-do-gift-calc"]').first();
+				await doCalcBtn.waitFor({ state: 'visible', timeout: 5000 });
+				await doCalcBtn.click();
+
+				// 5. 断言三档推荐卡片与吉利金额
+				const resultPanel = page.locator('[data-testid="calc-result-panel"]').first();
+				await resultPanel.waitFor({ state: 'visible', timeout: 8000 });
+
+				const resultText = await resultPanel.innerText();
+				if (!resultText.includes('1600') || !resultText.includes('推荐平衡档')) {
+					throw new Error(`AI 回礼测算结果未显示推荐平衡档 1600，实际为: ${resultText}`);
+				}
+
+				// 6. 验证一键复制贺词按钮
+				const copyBlessingBtn = page.locator('[data-testid="btn-copy-blessing"]').first();
+				await copyBlessingBtn.waitFor({ state: 'visible', timeout: 5000 });
+				await copyBlessingBtn.click();
+			} finally {
+				// 关闭测算抽屉
+				const closeBtn = page.locator('.ant-drawer-close').first();
+				if ((await closeBtn.count()) && (await closeBtn.isVisible())) {
+					await closeBtn.click();
+					await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+				}
+			}
+
+			// 7. 测试导出对账单 Excel 接口触发
+			const exportBtn = page.locator('[data-testid="gift-balance-matrix-export"]').first();
+			await exportBtn.waitFor({ state: 'visible', timeout: 5000 });
+
+			const [downloadReq] = await Promise.all([
+				page.waitForRequest((req) => req.url().includes('/gift-analysis/export-matrix')),
+				exportBtn.click(),
+			]);
+
+			if (!downloadReq) {
+				throw new Error('导出对账单请求未成功发出');
+			}
+			break;
+		}
+
 		default:
 			throw new Error(`Unsupported case ID: ${c.caseId}`);
 	}
@@ -1463,7 +1635,9 @@ async function main() {
 	ensureDir(screenshotDir);
 	ensureDir(logDir);
 
-	const cases = loadCases();
+	const allCases = loadCases();
+	const targetCaseId = process.env.CASE_ID || process.argv.find((a) => a.startsWith('--case='))?.split('=')[1];
+	const cases = targetCaseId ? allCases.filter((c) => c.caseId === targetCaseId) : allCases;
 	const server = await startViteServerIfNeed(3100);
 
 	let browser;

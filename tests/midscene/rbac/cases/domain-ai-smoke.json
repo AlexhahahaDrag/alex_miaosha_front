@@ -106,5 +106,11 @@
 		"title": "PC 购物小票清单结构化拆解与条目表格断言",
 		"persona": "super_super",
 		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-E2E-PC-BALANCE-MATRIX",
+		"title": "PC 亲友互赠平衡矩阵渲染、AI测算回礼与对账单导出闭环",
+		"persona": "super_super",
+		"level": "flow"
 	}
 ]
