@@ -89,63 +89,44 @@
 			</section>
 
 			<div class="main-grid">
-				<section class="panel trend-panel">
+				<section class="panel trend-panel" data-testid="gift-analysis-trend-panel">
 					<div class="panel-head">
-						<h3>{{ period === 'year' ? '年度趋势' : '月度趋势' }}</h3>
+						<div class="panel-head-title">
+							<h3>{{ period === 'year' ? '年度收支与顺逆差走势' : '月度收支与顺逆差走势' }}</h3>
+							<span class="sub-tip">折线呈现人情收支净差额态势 (收礼 - 随礼)</span>
+						</div>
 					</div>
 					<div
-						v-if="chartRows.length === 0"
+						v-if="trendRows.length === 0"
 						class="empty-state"
 						data-testid="gift-analysis-trend-empty"
 					>
 						暂无趋势数据
 					</div>
-					<div v-else class="bar-chart" data-testid="gift-analysis-trend-chart">
-						<div v-for="item in chartRows" :key="item.label" class="bar-group">
-							<div class="bar-stage">
-								<div
-									class="bar bar-income"
-									:style="{ height: `${item.receiveHeight}%` }"
-								/>
-								<div
-									class="bar bar-expense"
-									:style="{ height: `${item.giveHeight}%` }"
-								/>
-							</div>
-							<div class="bar-label">{{ item.label }}</div>
-						</div>
-					</div>
-					<div class="legend-row">
-						<span><i class="legend-dot legend-income" />收礼</span>
-						<span><i class="legend-dot legend-expense" />随礼</span>
-					</div>
+					<div
+						v-else
+						ref="trendChartRef"
+						class="echarts-trend-box"
+						data-testid="gift-analysis-trend-chart"
+					/>
 				</section>
 
-				<section class="panel relation-panel">
+				<section class="panel relation-panel" data-testid="gift-analysis-relation-panel">
 					<div class="panel-head">
-						<h3>关系分布</h3>
+						<div class="panel-head-title">
+							<h3>亲友圈层亲密度分布</h3>
+							<span class="sub-tip">点击扇区可联动过滤下方平衡矩阵</span>
+						</div>
 					</div>
 					<div v-if="relationRows.length === 0" class="empty-state">
 						暂无分布数据
 					</div>
-					<div v-else class="relation-list">
-						<div
-							v-for="item in relationRows"
-							:key="item.relationType"
-							class="relation-item"
-						>
-							<div class="relation-row">
-								<span>{{ relationLabel(item.relationType) }}</span>
-								<strong>{{ item.count || 0 }} 人</strong>
-							</div>
-							<div class="rank-track">
-								<div
-									class="rank-progress"
-									:style="{ width: `${relationPercent(item.count)}%` }"
-								/>
-							</div>
-						</div>
-					</div>
+					<div
+						v-else
+						ref="relationChartRef"
+						class="echarts-relation-box"
+						data-testid="gift-analysis-relation-chart"
+					/>
 				</section>
 			</div>
 
@@ -253,18 +234,35 @@
 							</a-tooltip>
 						</template>
 						<template v-else-if="column.key === 'action'">
-							<a-button
-								type="link"
-								size="small"
-								data-testid="btn-calc-return-gift"
-								@click="openCalculator(record)"
-							>
-								AI 测算回礼
-							</a-button>
+							<a-space size="small">
+								<a-button
+									type="link"
+									size="small"
+									data-testid="btn-view-person-detail"
+									@click="openPersonDetail(record)"
+								>
+									往来明细
+								</a-button>
+								<a-button
+									type="link"
+									size="small"
+									data-testid="btn-calc-return-gift"
+									@click="openCalculator(record)"
+								>
+									AI 测算回礼
+								</a-button>
+							</a-space>
 						</template>
 					</template>
 				</a-table>
 			</section>
+
+			<!-- 亲友往来流水明细时间轴抽屉 -->
+			<gift-person-detail-drawer
+				v-model:open="personDetailOpen"
+				:person="selectedPersonForDetail"
+				@open-calculator="openCalculatorFromDrawer"
+			/>
 
 			<!-- AI 智能回礼测算抽屉 -->
 			<gift-return-calculator-drawer
@@ -280,6 +278,8 @@ import { message } from 'ant-design-vue';
 import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
 import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';
 import { usePermission } from '@/composables/usePermission';
+import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
+import GiftPersonDetailDrawer from './components/GiftPersonDetailDrawer.vue';
 import {
 	getGiftAnalysisEventRanking,
 	getGiftAnalysisOverview,
@@ -423,33 +423,219 @@ const exportMatrix = async () => {
 	}
 };
 
+const personDetailOpen = ref(false);
+const selectedPersonForDetail = ref<GiftPersonBalance | null>(null);
+
+const openPersonDetail = (person: any) => {
+	selectedPersonForDetail.value = person as GiftPersonBalance;
+	personDetailOpen.value = true;
+};
+
+const openCalculatorFromDrawer = (person: GiftPersonBalance) => {
+	personDetailOpen.value = false;
+	openCalculator(person);
+};
+
 const openCalculator = (person: any) => {
 	selectedPerson.value = person as GiftPersonBalance;
 	calculatorOpen.value = true;
 };
 
-const chartRows = computed(() => {
-	// 无数据时直接返回空数组走空态展示，严禁渲染硬编码假数据误导用户
+const trendChartRef = ref<HTMLElement>();
+const relationChartRef = ref<HTMLElement>();
+let trendChartInstance: EChartsType | null = null;
+let relationChartInstance: EChartsType | null = null;
+
+const renderTrendChart = async () => {
+	if (!trendChartRef.value) return;
+	const echarts = await loadEcharts();
+	if (!trendChartRef.value) return;
+
+	if (!trendChartInstance) {
+		trendChartInstance = echarts.init(trendChartRef.value);
+	}
+
 	const source = trendRows.value;
 	if (source.length === 0) {
-		return [];
+		trendChartInstance.clear();
+		return;
 	}
-	const maxAmount = Math.max(
-		1,
-		...source.flatMap((item) => [
-			Number(item.receiveAmount || 0),
-			Number(item.giveAmount || 0),
-		]),
+
+	const xData = source.map((item) => item.label || '-');
+	const receiveSeries = source.map((item) => Number(item.receiveAmount || 0));
+	const giveSeries = source.map((item) => Number(item.giveAmount || 0));
+	const gapSeries = source.map(
+		(item) => Number(item.receiveAmount || 0) - Number(item.giveAmount || 0),
 	);
-	return source.slice(-6).map((item) => ({
-		label: item.label || '-',
-		receiveHeight: Math.max(
-			8,
-			(Number(item.receiveAmount || 0) / maxAmount) * 100,
-		),
-		giveHeight: Math.max(8, (Number(item.giveAmount || 0) / maxAmount) * 100),
+
+	const option = {
+		tooltip: {
+			trigger: 'axis',
+			axisPointer: { type: 'cross' },
+			formatter: (params: any) => {
+				if (!Array.isArray(params) || params.length === 0) return '';
+				const date = params[0].axisValue;
+				let str = `<div style="font-weight:600;margin-bottom:4px;">${date}</div>`;
+				params.forEach((p: any) => {
+					const val =
+						typeof p.value === 'number' ? p.value.toLocaleString() : p.value;
+					str += `<div style="display:flex;justify-content:space-between;gap:12px;font-size:12px;">
+						<span>${p.marker} ${p.seriesName}</span>
+						<strong>¥${val}</strong>
+					</div>`;
+				});
+				return str;
+			},
+		},
+		legend: {
+			data: ['收礼金额 (元)', '随礼支出 (元)', '人情顺逆差 (元)'],
+			top: 0,
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			top: '42px',
+			outerBoundsMode: 'same',
+		},
+		xAxis: {
+			type: 'category',
+			data: xData,
+			axisLabel: { interval: 0, rotate: xData.length > 8 ? 25 : 0 },
+		},
+		yAxis: [
+			{
+				type: 'value',
+				name: '金额 (元)',
+				splitLine: { lineStyle: { type: 'dashed' } },
+			},
+			{
+				type: 'value',
+				name: '顺逆差',
+				splitLine: { show: false },
+			},
+		],
+		series: [
+			{
+				name: '收礼金额 (元)',
+				type: 'bar',
+				barWidth: 16,
+				data: receiveSeries,
+				itemStyle: {
+					color: '#52c41a',
+					borderRadius: [4, 4, 0, 0],
+				},
+			},
+			{
+				name: '随礼支出 (元)',
+				type: 'bar',
+				barWidth: 16,
+				data: giveSeries,
+				itemStyle: {
+					color: '#fa8c16',
+					borderRadius: [4, 4, 0, 0],
+				},
+			},
+			{
+				name: '人情顺逆差 (元)',
+				type: 'line',
+				yAxisIndex: 1,
+				smooth: true,
+				data: gapSeries,
+				itemStyle: { color: '#1890ff' },
+				lineStyle: { width: 3 },
+				symbolSize: 6,
+			},
+		],
+	};
+
+	trendChartInstance.setOption(option, true);
+};
+
+const renderRelationChart = async () => {
+	if (!relationChartRef.value) return;
+	const echarts = await loadEcharts();
+	if (!relationChartRef.value) return;
+
+	if (!relationChartInstance) {
+		relationChartInstance = echarts.init(relationChartRef.value);
+		relationChartInstance.on('click', (params: any) => {
+			if (params?.data?.rawType) {
+				matrixRelationFilter.value = params.data.rawType;
+				void loadBalanceMatrix();
+				message.info(`已联动筛选「${params.name}」圈层亲友对账`);
+			}
+		});
+	}
+
+	const source = relationRows.value;
+	if (source.length === 0) {
+		relationChartInstance.clear();
+		return;
+	}
+
+	const pieData = source.map((item) => ({
+		name: relationLabel(item.relationType),
+		value: Number(item.count || 0),
+		rawType: item.relationType,
 	}));
-});
+
+	const option = {
+		tooltip: {
+			trigger: 'item',
+			formatter: '{b}: <strong>{c} 人</strong> ({d}%)',
+		},
+		legend: {
+			orient: 'vertical',
+			right: '5%',
+			top: 'middle',
+		},
+		series: [
+			{
+				name: '圈层分布',
+				type: 'pie',
+				radius: ['45%', '72%'],
+				center: ['40%', '50%'],
+				avoidLabelOverlap: false,
+				itemStyle: {
+					borderRadius: 6,
+					borderColor: '#fff',
+					borderWidth: 2,
+				},
+				label: {
+					show: false,
+					position: 'center',
+				},
+				emphasis: {
+					label: {
+						show: true,
+						fontSize: 14,
+						fontWeight: 'bold',
+					},
+				},
+				labelLine: {
+					show: false,
+				},
+				data: pieData,
+			},
+		],
+	};
+
+	relationChartInstance.setOption(option, true);
+};
+
+const handleWindowResize = () => {
+	trendChartInstance?.resize();
+	relationChartInstance?.resize();
+};
+
+const disposeCharts = () => {
+	window.removeEventListener('resize', handleWindowResize);
+	trendChartInstance?.dispose();
+	relationChartInstance?.dispose();
+	trendChartInstance = null;
+	relationChartInstance = null;
+};
 
 const toRankingRows = (rows: GiftRankingItem[]) => {
 	const maxAmount = Math.max(
@@ -527,14 +713,22 @@ const loadData = async () => {
 		if (assertOk(personRes.code, personRes.message))
 			personRanking.value = personRes.data || [];
 		await loadBalanceMatrix();
+		await nextTick();
+		void renderTrendChart();
+		void renderRelationChart();
 	} finally {
 		loading.value = false;
 	}
 };
 
 onMounted(async () => {
+	window.addEventListener('resize', handleWindowResize);
 	await loadRelationOptions();
 	loadData();
+});
+
+onUnmounted(() => {
+	disposeCharts();
 });
 
 // 筛选条件变化即刷新（保留"刷新"按钮作显式重查入口）
@@ -544,6 +738,12 @@ watch([period, analysisType], () => {
 </script>
 
 <style scoped lang="less">
+.echarts-trend-box,
+.echarts-relation-box {
+	height: 280px;
+	width: 100%;
+}
+
 .gift-screen {
 	min-height: 100%;
 	padding: 18px;
