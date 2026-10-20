@@ -1,6 +1,6 @@
-export type MessageType = 'ALL' | 'GIFT_EVENT' | 'GIFT_RETURN' | 'COUPON_EXPIRE' | 'CARD_EXPIRE' | 'SYSTEM';
+export type MessageType = 'ALL' | 'GIFT_EVENT' | 'GIFT_RETURN' | 'BUDGET' | 'COUPON_EXPIRE' | 'CARD_EXPIRE' | 'SYSTEM';
 
-export type MessageSubType = 'WELCOME' | 'ANNOUNCE' | 'D_DAY' | 'D_MINUS_1' | 'D_MINUS_3' | 'IMBALANCE' | 'EVENT_RETURN';
+export type MessageSubType = 'WELCOME' | 'ANNOUNCE' | 'D_DAY' | 'D_MINUS_1' | 'D_MINUS_3' | 'IMBALANCE' | 'EVENT_RETURN' | 'BUDGET_OVER' | 'BUDGET_WARN';
 
 export type MessagePriority = 'HIGH' | 'MEDIUM' | 'NORMAL';
 
@@ -8,6 +8,7 @@ export type MessageBizType =
 	| 'SYSTEM'
 	| 'GIFT_EVENT'
 	| 'GIFT_RETURN'
+	| 'BUDGET'
 	| 'COUPON'
 	| 'ACCOUNT_RECORD'
 	| 'PREPAID_CARD';
@@ -64,6 +65,12 @@ export interface MessageTagMeta {
  * 解析 PC 端消息卡片标签文案与 Ant Design Tag 颜色
  */
 export const resolvePcMessageTagMeta = (item: SysMessageInfoData): MessageTagMeta => {
+	if (item.msgType === 'BUDGET' || item.bizType === 'BUDGET') {
+		return {
+			text: item.subType === 'BUDGET_OVER' ? '预算超支' : '预算预警',
+			color: item.subType === 'BUDGET_OVER' ? 'error' : 'warning',
+		};
+	}
 	if (item.msgType === 'GIFT_RETURN' || item.bizType === 'GIFT_RETURN') {
 		return {
 			text: item.subType === 'EVENT_RETURN' ? '重大喜事回礼' : '礼金盈余待回',
@@ -104,6 +111,9 @@ export const resolvePcMessageTagMeta = (item: SysMessageInfoData): MessageTagMet
  * 解析 PC 端点击消息后的目标跳转路由
  */
 export const resolvePcMessageJumpRoute = (item: SysMessageInfoData): string => {
+	if (item.bizType === 'BUDGET' || item.msgType === 'BUDGET') {
+		return '/finance/financeManager';
+	}
 	if (item.bizType === 'GIFT_RETURN' || item.msgType === 'GIFT_RETURN') {
 		return '/finance/gift/analysis';
 	}

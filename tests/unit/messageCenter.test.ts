@@ -58,6 +58,20 @@ describe('PC Message Center Config & ID Safety', () => {
 			'/selfFinance/prepaidCardInfoT',
 		);
 		expect(resolvePcMessageJumpRoute({ msgType: 'SYSTEM', bizType: 'SYSTEM' })).toBe('');
+		expect(resolvePcMessageJumpRoute({ msgType: 'BUDGET', bizType: 'BUDGET' })).toBe(
+			'/finance/financeManager',
+		);
+	});
+
+	it('resolvePcMessageTagMeta 应正确解析零花钱预算超支与预警 Tag', () => {
+		expect(resolvePcMessageTagMeta({ msgType: 'BUDGET', subType: 'BUDGET_OVER' })).toEqual({
+			text: '预算超支',
+			color: 'error',
+		});
+		expect(resolvePcMessageTagMeta({ msgType: 'BUDGET', subType: 'BUDGET_WARN' })).toEqual({
+			text: '预算预警',
+			color: 'warning',
+		});
 	});
 
 	it('MESSAGE_CATEGORY_TABS 应包含 5 个核心分类', () => {
