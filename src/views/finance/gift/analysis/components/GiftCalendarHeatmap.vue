@@ -140,7 +140,6 @@ const renderChart = async () => {
 			position: 'top',
 			formatter: (p: any) => {
 				const d = p.data[0];
-				const v = p.data[1];
 				const found = (props.dailyData || []).find((item) => item.date === d);
 				if (!found || (found.receive === 0 && found.give === 0)) {
 					return `<div style="font-size:12px;padding:2px"><strong>${d}</strong><br/>暂无人情往来记录</div>`;

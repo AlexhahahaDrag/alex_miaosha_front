@@ -138,6 +138,34 @@ export const resolvePcMessageJumpRoute = (item: SysMessageInfoData): string => {
 	return '';
 };
 
+export interface UserNoticeConfigData {
+	id?: string;
+	userId?: string;
+	noticeCode: string;
+	noticeName?: string;
+	noticeDesc?: string;
+	internalEnabled: boolean;
+	wechatEnabled: boolean;
+}
+
+export interface NoticeBizMeta {
+	code: string;
+	icon: string;
+	badgeClass: string;
+	color: string;
+}
+
+export const NOTICE_BIZ_META_MAP: Record<string, NoticeBizMeta> = {
+	GLOBAL: { code: 'GLOBAL', icon: '⚡', badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300', color: 'blue' },
+	GIFT_EVENT: { code: 'GIFT_EVENT', icon: '🎁', badgeClass: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300', color: 'orange' },
+	GIFT_RETURN: { code: 'GIFT_RETURN', icon: '🧧', badgeClass: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300', color: 'red' },
+	COUPON: { code: 'COUPON', icon: '🎟️', badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300', color: 'amber' },
+	PREPAID_CARD: { code: 'PREPAID_CARD', icon: '💳', badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300', color: 'green' },
+	BUDGET_OVER: { code: 'BUDGET_OVER', icon: '⚠️', badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300', color: 'rose' },
+	FINANCE_REPORT: { code: 'FINANCE_REPORT', icon: '📊', badgeClass: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300', color: 'indigo' },
+	SYSTEM: { code: 'SYSTEM', icon: '🔔', badgeClass: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300', color: 'slate' },
+};
+
 const ID_KEY_PATTERN = /(^id$|Id$)/;
 
 /**

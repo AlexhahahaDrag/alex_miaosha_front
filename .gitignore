@@ -40,7 +40,9 @@ qodana.yaml
 .codex/
 graphify-out/
 midscene_run/
+reports
 reports/
+screenshots
 screenshots/
 .superpowers
 .mybatis/

@@ -140,8 +140,9 @@ const activeTodoCount = computed(
 const fetchMessageReminders = async () => {
 	try {
 		const { code, data } = await getSysMessagePage(
-			{ pageNum: 1, pageSize: 5 },
 			{ readStatus: 0 },
+			1,
+			5,
 		);
 		if ((code === '200' || code === '00000') && data && Array.isArray(data.records)) {
 			const reminders: TodoItem[] = data.records.map((msg) => {

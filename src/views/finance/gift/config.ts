@@ -56,6 +56,7 @@ export interface GiftPersonProfile {
 
 export interface GiftPersonQuery {
 	keyword?: string;
+	personId?: GiftId;
 	relationType?: string;
 	personScope?: GiftPersonScope;
 	relationGrade?: string;
@@ -93,6 +94,7 @@ export interface GiftEventSummary {
 
 export interface GiftEventQuery {
 	keyword?: string;
+	personId?: GiftId;
 	eventType?: string;
 	eventStatus?: string;
 	eventTimeStart?: string;
@@ -121,6 +123,9 @@ export interface GiftRecordInfo {
 	handlerName?: string;
 	eventType?: string;
 	eventOptionId?: GiftId;
+	eventDate?: string;
+	relationTypeName?: string;
+	relationType?: string;
 }
 
 export interface GiftRecordSummary {
@@ -133,6 +138,7 @@ export interface GiftRecordSummary {
 
 export interface GiftRecordQuery {
 	keyword?: string;
+	personId?: GiftId;
 	eventId?: GiftId;
 	giverPersonId?: GiftId;
 	receiverPersonId?: GiftId;

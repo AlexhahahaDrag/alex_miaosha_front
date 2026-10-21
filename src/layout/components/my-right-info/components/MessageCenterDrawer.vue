@@ -11,6 +11,14 @@
 			<a-space :size="8">
 				<a-button
 					size="small"
+					data-testid="pc-message-btn-notice-config"
+					@click="noticeConfigDrawerVisible = true"
+				>
+					<template #icon><setting-outlined /></template>
+					通知设置
+				</a-button>
+				<a-button
+					size="small"
 					type="primary"
 					ghost
 					:disabled="summary.unreadTotal <= 0"
@@ -226,6 +234,10 @@
 			</a-form>
 		</a-modal>
 	</a-drawer>
+
+	<UserNoticeConfigDrawer
+		v-model:open="noticeConfigDrawerVisible"
+	/>
 </template>
 
 <script setup lang="ts">
@@ -234,7 +246,9 @@ import {
 	CheckOutlined,
 	PlusOutlined,
 	RightOutlined,
+	SettingOutlined,
 } from '@ant-design/icons-vue';
+import UserNoticeConfigDrawer from '@/views/message/components/UserNoticeConfigDrawer.vue';
 import {
 	deleteSysMessages,
 	getSysMessagePage,
@@ -272,6 +286,7 @@ const drawerVisible = computed({
 const activeTab = ref<MessageType>('ALL');
 const keyword = ref<string>('');
 const onlyUnread = ref<boolean>(false);
+const noticeConfigDrawerVisible = ref<boolean>(false);
 
 const loading = ref<boolean>(false);
 const messageList = ref<SysMessageInfoData[]>([]);

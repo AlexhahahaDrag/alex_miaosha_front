@@ -90,7 +90,7 @@
 
 			<!-- 视图透视切换 -->
 			<div class="perspective-nav" data-testid="analysis-perspective-nav">
-				<a-radio-group v-model:value="currentPerspective" button-style="solid" size="middle">
+				<a-radio-group v-model:value="currentPerspective" button-style="solid" size="default">
 					<a-radio-button value="trend">
 						📊 收支走势与圈层分布
 					</a-radio-button>
@@ -737,13 +737,6 @@ const aiOverview = computed(
 	() => ({ ...overview.value }) as Record<string, unknown>,
 );
 
-const relationPercent = (count?: number) => {
-	const maxCount = Math.max(
-		1,
-		...relationRows.value.map((item) => Number(item.count || 0)),
-	);
-	return Math.max(18, (Number(count || 0) / maxCount) * 100);
-};
 
 const assertOk = (code: string, msg?: string) => {
 	if (code !== '200') {

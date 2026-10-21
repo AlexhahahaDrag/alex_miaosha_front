@@ -4,6 +4,7 @@ import {
 	normalizeMessageIds,
 	type SysMessageInfoData,
 	type SysMessageSummaryData,
+	type UserNoticeConfigData,
 } from '@/views/message/config';
 
 export { normalizeMessageIds };
@@ -50,3 +51,13 @@ export const publishSysMessage = (
 
 export const deleteSysMessages = (ids: string): Promise<ResponseBody<boolean>> =>
 	deleteData<boolean>(baseUrl(), { ids });
+
+const noticeConfigBaseUrl = () => `${baseService.finance}/user-notice-config`;
+
+export const getMyNoticeConfigs = (): Promise<ResponseBody<UserNoticeConfigData[]>> =>
+	wrapNormalize(getDataOne<UserNoticeConfigData[]>(`${noticeConfigBaseUrl()}/my-configs`));
+
+export const saveMyNoticeConfig = (
+	data: Partial<UserNoticeConfigData>,
+): Promise<ResponseBody<boolean>> =>
+	putData<boolean>(`${noticeConfigBaseUrl()}/save-my-config`, normalizeMessageIds(data));
