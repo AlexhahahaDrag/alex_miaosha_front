@@ -1,10 +1,11 @@
 <template>
 	<a-drawer
-		:visible="open"
+		:open="open"
 		:title="drawerTitle"
 		placement="right"
 		:width="540"
 		class="gift-person-detail-drawer"
+		root-class-name="gift-person-detail-drawer-root"
 		data-testid="drawer-gift-person-detail"
 		@close="handleClose"
 	>
@@ -19,7 +20,7 @@
 			</a-button>
 		</template>
 
-		<div v-if="person" class="drawer-body-wrap">
+		<div v-if="person" class="drawer-body-wrap" data-testid="drawer-gift-person-detail-body">
 			<!-- 人情对账卡片概览 -->
 			<div class="person-balance-overview">
 				<div class="overview-header-row">

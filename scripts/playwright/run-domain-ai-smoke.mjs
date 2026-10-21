@@ -1625,6 +1625,58 @@ async function executeCase(page, c, runtime) {
 			break;
 		}
 
+		case 'GIFT-E2E-PC-VISUAL-PERSPECTIVES': {
+			await page.goto(`${runtime.baseUrl}#/finance/gift/analysis`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+
+			// 1. 断言视角导航栏渲染
+			const nav = page.locator('[data-testid="analysis-perspective-nav"]').first();
+			await nav.waitFor({ state: 'visible', timeout: 10000 });
+
+			// 2. 切换至年度日历热力图视角
+			const calendarTab = nav.locator('.ant-radio-button-wrapper:has-text("年度人情日历热力图")').first();
+			await calendarTab.waitFor({ state: 'visible', timeout: 5000 });
+			await calendarTab.click();
+
+			const heatmapComp = page.locator('[data-testid="gift-calendar-heatmap"]').first();
+			await heatmapComp.waitFor({ state: 'visible', timeout: 8000 });
+
+			// 3. 切换至亲友社交人脉力导向图视角
+			const graphTab = nav.locator('.ant-radio-button-wrapper:has-text("亲友社交人脉力导向图")').first();
+			await graphTab.waitFor({ state: 'visible', timeout: 5000 });
+			await graphTab.click();
+
+			const graphComp = page.locator('[data-testid="gift-relationship-graph"]').first();
+			await graphComp.waitFor({ state: 'visible', timeout: 8000 });
+
+			// 4. 穿透明细抽屉：点击平衡矩阵中的王五查看往来明细
+			const detailBtn = page.locator('[data-testid="btn-view-person-detail"]').first();
+			await detailBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await detailBtn.click();
+
+			const detailDrawer = page.locator('.gift-person-detail-drawer, [data-testid="drawer-gift-person-detail"], [data-testid="drawer-gift-person-detail-body"]').first();
+			await detailDrawer.waitFor({ state: 'visible', timeout: 8000 });
+
+			// 5. 验证抽屉内具备往来统计及 AI 测算快捷按钮
+			const drawerAiBtn = detailDrawer.locator('[data-testid="btn-drawer-ai-calc"]').first();
+			await drawerAiBtn.waitFor({ state: 'visible', timeout: 5000 });
+
+			// 6. 关闭明细抽屉并切回趋势主视图
+			const closeBtn = detailDrawer.locator('.ant-drawer-close').first();
+			if (await closeBtn.isVisible().catch(() => false)) {
+				await closeBtn.click();
+				await detailDrawer.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+			}
+
+			const trendTab = nav.locator('.ant-radio-button-wrapper:has-text("收支走势与圈层分布")').first();
+			await trendTab.waitFor({ state: 'visible', timeout: 5000 });
+			await trendTab.click();
+
+			const trendPanel = page.locator('[data-testid="gift-analysis-trend-panel"]').first();
+			await trendPanel.waitFor({ state: 'visible', timeout: 5000 });
+			break;
+		}
+
 		default:
 			throw new Error(`Unsupported case ID: ${c.caseId}`);
 	}

@@ -1,5 +1,5 @@
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart, PieChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart, HeatmapChart, GraphChart } from 'echarts/charts';
 import {
 	TitleComponent,
 	TooltipComponent,
@@ -7,6 +7,8 @@ import {
 	LegendComponent,
 	DatasetComponent,
 	TransformComponent,
+	CalendarComponent,
+	VisualMapComponent,
 } from 'echarts/components';
 import { LabelLayout, UniversalTransition, LegacyGridContainLabel } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -19,9 +21,13 @@ echarts.use([
 	LegendComponent,
 	DatasetComponent,
 	TransformComponent,
+	CalendarComponent,
+	VisualMapComponent,
 	BarChart,
 	LineChart,
 	PieChart,
+	HeatmapChart,
+	GraphChart,
 	LabelLayout,
 	UniversalTransition,
 	LegacyGridContainLabel,

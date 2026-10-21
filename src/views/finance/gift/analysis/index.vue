@@ -157,7 +157,7 @@
 			<!-- 视点 3: 亲友社交人脉力导向图 -->
 			<div v-show="currentPerspective === 'graph'">
 				<gift-relationship-graph
-					:balance-list="matrixList"
+					:balance-list="balanceMatrixRows"
 					@select-person="openPersonDetail"
 				/>
 			</div>

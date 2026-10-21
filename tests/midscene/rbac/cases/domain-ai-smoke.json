@@ -112,5 +112,11 @@
 		"title": "PC 亲友互赠平衡矩阵渲染、AI测算回礼与对账单导出闭环",
 		"persona": "super_super",
 		"level": "flow"
+	},
+	{
+		"caseId": "GIFT-E2E-PC-VISUAL-PERSPECTIVES",
+		"title": "PC 礼尚往来大盘多视角切换（热力图/人脉力导向图）与穿透明细抽屉断言",
+		"persona": "super_super",
+		"level": "flow"
 	}
 ]
