@@ -5,11 +5,10 @@
 		:width="1060"
 		:footer="null"
 		wrap-class-name="gift-registry-print-modal-wrap"
-		data-testid="modal-gift-registry-print"
 		@cancel="handleClose"
 	>
 		<!-- 顶部交互控制工具栏（屏幕可见，打印时自动隐藏） -->
-		<div class="print-toolbar no-print">
+		<div class="print-toolbar no-print" data-testid="modal-gift-registry-print">
 			<a-space :size="16">
 				<a-radio-group v-model:value="printStyle" button-style="solid">
 					<a-radio-button value="traditional">
@@ -241,6 +240,8 @@ watch(
 );
 
 const handlePrint = () => {
+	// 挂载探针供 E2E 视觉回归及无头环境捕获打印触发
+	(window as any).__giftPrintInvoked = ((window as any).__giftPrintInvoked || 0) + 1;
 	window.print();
 };
 

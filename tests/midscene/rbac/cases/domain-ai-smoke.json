@@ -1,122 +1,128 @@
 [
-	{
-		"caseId": "AI-COUPON-001",
-		"title": "优惠券新增弹窗 AI 营销策划与自动回填",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-PRODUCT-001",
-		"title": "商品秒杀营销文案 AI 生成与一键应用",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-ROLE-001",
-		"title": "角色权限配置抽屉 AI 智能推荐与 Diff 高亮",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-GIFT-PC-001",
-		"title": "PC 端自然语言快速记礼与抽屉表单回填",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "GIFT-E2E-PC-DASHBOARD",
-		"title": "PC 礼尚往来驾驶舱指标与解耦多卡片渲染",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "GIFT-E2E-PC-FLOW-RETURN",
-		"title": "PC 收礼标记已回与回礼状态机关联闭环",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "GIFT-E2E-PC-FORM-LINKAGE",
-		"title": "PC 解耦表单抽屉多字段联动与大额精度录入",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-BUDGET-001",
-		"title": "零花钱预算 AI 智能测算与三档推荐采纳",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-BUDGET-002",
-		"title": "零花钱预算自然语言口语化指令解析与回填",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "BUDGET-E2E-STATUS-OVER",
-		"title": "零花钱预算超支状态机判定与超支负数展示",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "RBAC-PC-MEMBER-OWNER-PROTECT",
-		"title": "普通家庭成员属主保护与预算只读浏览",
-		"persona": "family_member",
-		"level": "flow"
-	},
-	{
-		"caseId": "RBAC-PC-ADMIN-FULL-MANAGE",
-		"title": "家庭管理员全量管理与预算调整权限",
-		"persona": "family_admin",
-		"level": "flow"
-	},
-	{
-		"caseId": "PRODUCT-E2E-PC-DRAWER",
-		"title": "PC 商品中心价格监测抽屉读写分离与价格走势图渲染",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "COUPON-E2E-PC-REDEEM",
-		"title": "PC 消费券核销抽屉联动与动态余量计算",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "SHOP-ERP-E2E-PC-FINANCE-DETAIL",
-		"title": "PC 店铺财务凭证抽屉与支付方式防死锁断言",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "SHOP-ERP-E2E-PC-ANALYSIS",
-		"title": "PC 店铺经营大盘 4 宫格 KPI 卡片与图表网格渲染",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-FINANCE-PC-LEDGER-001",
-		"title": "PC 自然语言快速记账智能解析与抽屉回填闭环",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "AI-FINANCE-PC-RECEIPT-002",
-		"title": "PC 购物小票清单结构化拆解与条目表格断言",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "GIFT-E2E-PC-BALANCE-MATRIX",
-		"title": "PC 亲友互赠平衡矩阵渲染、AI测算回礼与对账单导出闭环",
-		"persona": "super_super",
-		"level": "flow"
-	},
-	{
-		"caseId": "GIFT-E2E-PC-VISUAL-PERSPECTIVES",
-		"title": "PC 礼尚往来大盘多视角切换（热力图/人脉力导向图）与穿透明细抽屉断言",
-		"persona": "super_super",
-		"level": "flow"
-	}
+    {
+        "caseId":  "AI-COUPON-001",
+        "title":  "优惠券新增弹窗 AI 营销策划与自动回填",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-PRODUCT-001",
+        "title":  "商品秒杀营销文案 AI 生成与一键应用",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-ROLE-001",
+        "title":  "角色权限配置抽屉 AI 智能推荐与 Diff 高亮",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-GIFT-PC-001",
+        "title":  "PC 端自然语言快速记礼与抽屉表单回填",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-DASHBOARD",
+        "title":  "PC 礼尚往来驾驶舱指标与解耦多卡片渲染",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-FLOW-RETURN",
+        "title":  "PC 收礼标记已回与回礼状态机关联闭环",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-FORM-LINKAGE",
+        "title":  "PC 解耦表单抽屉多字段联动与大额精度录入",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-BUDGET-001",
+        "title":  "零花钱预算 AI 智能测算与三档推荐采纳",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-BUDGET-002",
+        "title":  "零花钱预算自然语言口语化指令解析与回填",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "BUDGET-E2E-STATUS-OVER",
+        "title":  "零花钱预算超支状态机判定与超支负数展示",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "RBAC-PC-MEMBER-OWNER-PROTECT",
+        "title":  "普通家庭成员属主保护与预算只读浏览",
+        "persona":  "family_member",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "RBAC-PC-ADMIN-FULL-MANAGE",
+        "title":  "家庭管理员全量管理与预算调整权限",
+        "persona":  "family_admin",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "PRODUCT-E2E-PC-DRAWER",
+        "title":  "PC 商品中心价格监测抽屉读写分离与价格走势图渲染",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "COUPON-E2E-PC-REDEEM",
+        "title":  "PC 消费券核销抽屉联动与动态余量计算",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "SHOP-ERP-E2E-PC-FINANCE-DETAIL",
+        "title":  "PC 店铺财务凭证抽屉与支付方式防死锁断言",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "SHOP-ERP-E2E-PC-ANALYSIS",
+        "title":  "PC 店铺经营大盘 4 宫格 KPI 卡片与图表网格渲染",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-FINANCE-PC-LEDGER-001",
+        "title":  "PC 自然语言快速记账智能解析与抽屉回填闭环",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "AI-FINANCE-PC-RECEIPT-002",
+        "title":  "PC 购物小票清单结构化拆解与条目表格断言",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-BALANCE-MATRIX",
+        "title":  "PC 亲友互赠平衡矩阵渲染、AI测算回礼与对账单导出闭环",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-VISUAL-PERSPECTIVES",
+        "title":  "PC 礼尚往来大盘多视角切换（热力图/人脉力导向图）与穿透明细抽屉断言",
+        "persona":  "super_super",
+        "level":  "flow"
+    },
+    {
+        "caseId":  "GIFT-E2E-PC-REGISTRY-PRINT",
+        "title":  "PC 办宴人情礼簿高保真纸质打印预览、风格切换与大额高亮验收",
+        "persona":  "super_super",
+        "level":  "flow"
+    }
 ]

@@ -139,6 +139,14 @@ const mockMenus = [
 				permissionCode: 'gift:view',
 			},
 			{
+				id: '46',
+				name: 'giftEvent',
+				title: '办宴事件',
+				path: 'gift/event',
+				component: '/src/views/finance/gift/event/index.vue',
+				permissionCode: 'gift:view',
+			},
+			{
 				id: '42',
 				name: 'financeManager',
 				title: '收支明细',
@@ -784,6 +792,43 @@ async function setupRouteMocks(page) {
 					personCount: 15,
 					pendingReturnCount: 3,
 					pendingReturnAmount: 1200,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-event-info') && (pathname.includes('/business-page') || pathname.includes('/page'))) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					records: [
+						{
+							id: '88801',
+							eventName: '李府千金满月弥月志庆',
+							eventType: '满月周岁',
+							eventTime: '2026-10-22 12:00:00',
+							hostPersonName: '李建国',
+							receiveAmount: 2600,
+							giveAmount: 0,
+							eventStatus: '进行中',
+						},
+					],
+					total: 1,
+					size: 10,
+					current: 1,
+					pages: 1,
+				},
+			});
+		}
+
+		if (pathname.includes('/gift-event-info') && pathname.includes('/summary')) {
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					totalEvents: 1,
+					ongoingEvents: 1,
+					completedEvents: 0,
+					totalReceiveAmount: 2600,
+					totalGiveAmount: 0,
 				},
 			});
 		}
@@ -1674,6 +1719,55 @@ async function executeCase(page, c, runtime) {
 
 			const trendPanel = page.locator('[data-testid="gift-analysis-trend-panel"]').first();
 			await trendPanel.waitFor({ state: 'visible', timeout: 5000 });
+			break;
+		}
+
+		case 'GIFT-E2E-PC-REGISTRY-PRINT': {
+			await page.addInitScript(() => {
+				window.__giftPrintInvoked = 0;
+				window.print = () => {
+					window.__giftPrintInvoked = (window.__giftPrintInvoked || 0) + 1;
+				};
+			});
+
+			await page.goto(`${runtime.baseUrl}#/finance/gift/event`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+
+			const printBtn = page.locator('[data-testid="btn-print-registry"]').first();
+			await printBtn.waitFor({ state: 'visible', timeout: 10000 });
+			await printBtn.click();
+
+			const modal = page.locator('[data-testid="modal-gift-registry-print"], .gift-registry-print-modal-wrap').first();
+			await modal.waitFor({ state: 'visible', timeout: 8000 });
+
+			const paper = page.locator('[data-testid="registry-paper-content"]').first();
+			await paper.waitFor({ state: 'visible', timeout: 5000 });
+			const paperClass = await paper.getAttribute('class');
+			if (!paperClass.includes('traditional')) {
+				throw new Error(`Expected paper container to have traditional class, got: ${paperClass}`);
+			}
+
+			const largeRow = paper.locator('.large-amount-row').first();
+			await largeRow.waitFor({ state: 'visible', timeout: 5000 });
+
+			const modernRadio = page.locator('.ant-radio-button-wrapper:has-text("现代精简对账")').first();
+			await modernRadio.waitFor({ state: 'visible', timeout: 5000 });
+			await modernRadio.click();
+
+			const modernPaperClass = await paper.getAttribute('class');
+			if (!modernPaperClass.includes('modern')) {
+				throw new Error(`Expected paper container to switch to modern class, got: ${modernPaperClass}`);
+			}
+
+			const doPrintBtn = page.locator('[data-testid="btn-do-print"]').first();
+			await doPrintBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await doPrintBtn.click();
+
+			const invokedCount = await page.evaluate(() => window.__giftPrintInvoked || 0);
+			if (invokedCount < 1) {
+				throw new Error(`Expected window.print to be invoked, but count was ${invokedCount}`);
+			}
+			console.log(`[E2E] Gift registry print verified: window.print count=${invokedCount}`);
 			break;
 		}
 
