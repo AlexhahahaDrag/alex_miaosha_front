@@ -197,6 +197,15 @@
 							<template v-else-if="column.key === 'operation'">
 								<a-space>
 									<a-button
+										size="small"
+										type="link"
+										data-testid="btn-print-registry"
+										@click="handleOpenPrintModal(record)"
+									>
+										<template #icon><printer-outlined /></template>
+										礼簿打印
+									</a-button>
+									<a-button
 										v-if="hasPermission('gift:edit')"
 										size="small"
 										type="link"
@@ -242,6 +251,12 @@
 			:record="currentEditingRecord"
 			@success="handleEventSuccess"
 		/>
+
+		<!-- 传统纸质礼簿台账高保真打印预览 Modal -->
+		<gift-registry-print-modal
+			v-model:open="printModalVisible"
+			:event-info="currentPrintEvent"
+		/>
 	</div>
 </template>
 
@@ -249,7 +264,8 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { debounce } from 'lodash-es';
 import { message } from 'ant-design-vue';
-import { DownOutlined } from '@ant-design/icons-vue';
+import { DownOutlined, PrinterOutlined } from '@ant-design/icons-vue';
+import GiftRegistryPrintModal from './components/GiftRegistryPrintModal.vue';
 import { useGiftEventTypeOptions } from '@/composables/useGiftEventTypeOptions';
 import { usePermission } from '@/composables/usePermission';
 import type { PageInfo } from '@/composables/usePagination';
@@ -286,6 +302,13 @@ const loading = ref<boolean>(false);
 const { hasPermission } = usePermission();
 const drawerOpen = ref<boolean>(false);
 const currentEditingRecord = ref<GiftEventBusinessInfo | null>(null);
+const printModalVisible = ref<boolean>(false);
+const currentPrintEvent = ref<GiftEventBusinessInfo | null>(null);
+
+const handleOpenPrintModal = (record: GiftEventBusinessInfo) => {
+	currentPrintEvent.value = record;
+	printModalVisible.value = true;
+};
 const searchExpanded = ref<boolean>(false);
 const tableSize = ref<'small' | 'middle'>('middle');
 const searchInfo = ref<GiftEventQuery>({});
