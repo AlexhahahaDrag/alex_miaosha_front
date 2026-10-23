@@ -1,3 +1,4 @@
+import type { MaybeRefOrGetter } from 'vue';
 import { getGiftEventTypeOptions } from '@/views/finance/gift/api';
 import {
 	FALLBACK_GIFT_EVENT_OPTIONS,
@@ -39,14 +40,16 @@ export function useGiftEventTypeOptions() {
 		presetOptions.value.filter((x) => x.status !== 0).slice(0, 3),
 	);
 
-	const isPresetEventType = (eventType?: string) =>
-		matchPresetEventType(eventType, presetOptions.value);
+	const isPresetEventType = (eventType?: MaybeRefOrGetter<string | undefined>) =>
+		matchPresetEventType(toValue(eventType), presetOptions.value);
 
-	const eventLabel = (eventType?: string) =>
-		resolveEventLabel(eventType, presetOptions.value, customOptions.value);
+	const eventLabel = (eventType?: MaybeRefOrGetter<string | undefined>) =>
+		resolveEventLabel(toValue(eventType), presetOptions.value, customOptions.value);
 
-	const resolveFilterEventType = (presetId: string) =>
-		resolveEventPresetCode(presetId, presetOptions.value);
+	const resolveFilterEventType = (presetId: MaybeRefOrGetter<string | undefined>) => {
+		const val = toValue(presetId);
+		return val ? resolveEventPresetCode(val, presetOptions.value) : undefined;
+	};
 
 	const mapEventTypeToFormFields = (
 		data: GiftEventInfo = {},
@@ -102,9 +105,9 @@ export function useGiftEventTypeOptions() {
 		eventLabel,
 		resolveFilterEventType,
 		mapEventTypeToFormFields,
-		findEventTypeOptionId: (eventType?: string) =>
+		findEventTypeOptionId: (eventType?: MaybeRefOrGetter<string | undefined>) =>
 			findEventTypeOptionId(
-				eventType,
+				toValue(eventType),
 				presetOptions.value,
 				customOptions.value,
 			),

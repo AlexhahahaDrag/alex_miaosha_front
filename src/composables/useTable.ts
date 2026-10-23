@@ -1,10 +1,9 @@
 import { message } from 'ant-design-vue';
-
 import type { PageInfo } from './usePagination';
 
 export interface TableConfig<T = unknown, P = unknown> {
 	// 数据加载函数
-	loadData: (
+	loadData?: (
 		params: P,
 		pagination: PageInfo,
 	) => Promise<{
@@ -26,10 +25,10 @@ export interface TableConfig<T = unknown, P = unknown> {
 }
 
 export const useTable = <T = unknown, P = unknown>(
-	config: TableConfig<T, P>,
+	config: TableConfig<T, P> = {},
 ) => {
 	const {
-		// loadData,
+		loadData,
 		initialSearchParams = {},
 		paginationConfig = {},
 		autoLoad = true,
@@ -58,40 +57,41 @@ export const useTable = <T = unknown, P = unknown>(
 	const loading = ref<boolean>(false);
 	const searchParams = ref<P>(initialSearchParams as P);
 
-	// 行选择
-	const selectedRowKeys = ref<(string | number)[]>([]);
+	// 行选择（强制保持为 string 保证雪花 ID 安全）
+	const selectedRowKeys = ref<string[]>([]);
 	const selectedRows = ref<T[]>([]);
 
 	// 行选择配置
 	const rowSelection = reactive({
 		checkStrictly: false,
 		selectedRowKeys: selectedRowKeys,
-		onChange: (keys: (string | number)[]) => {
-			selectedRowKeys.value = keys;
+		onChange: (keys: (string | number)[], rows?: T[]) => {
+			selectedRowKeys.value = keys.map(String);
+			if (rows) {
+				selectedRows.value = rows;
+			}
 		},
-		onSelect: (record: T, selected: boolean, selectedRows: T[]) => {
-			console.log(record, selected, selectedRows);
+		onSelect: (record: T, selected: boolean, selectedRowsList: T[]) => {
+			console.log(record, selected, selectedRowsList);
 		},
-		onSelectAll: (selected: boolean, selectedRows: T[], changeRows: T[]) => {
-			console.log(selected, selectedRows, changeRows);
+		onSelectAll: (selected: boolean, selectedRowsList: T[], changeRows: T[]) => {
+			console.log(selected, selectedRowsList, changeRows);
 		},
 	});
 
 	// 加载数据
 	const loadTableData = async () => {
+		if (!loadData) return;
 		loading.value = true;
 		try {
-			// const {
-			// 	code,
-			// 	data,
-			// 	message: messageInfo,
-			// } = await loadData(searchParams.value, pagination);
-			// if (code === '200') {
-			// 	dataSource.value = data.records;
-			// 	pagination.total = data.total;
-			// } else {
-			// 	message.error(messageInfo || '查询数据失败！');
-			// }
+			const res = await loadData(searchParams.value as P, pagination);
+			const { code, data, message: messageInfo } = res || {};
+			if (code === '200' && data) {
+				dataSource.value = data.records;
+				pagination.total = data.total;
+			} else if (messageInfo) {
+				message.error(messageInfo);
+			}
 		} catch (error: unknown) {
 			console.error('加载数据时发生错误:', error);
 			message.error('加载数据时发生错误');
@@ -104,7 +104,7 @@ export const useTable = <T = unknown, P = unknown>(
 	const handleTableChange = (paginationInfo: PageInfo) => {
 		pagination.current = paginationInfo.current;
 		pagination.pageSize = paginationInfo.pageSize;
-		loadTableData();
+		void loadTableData();
 	};
 
 	// 搜索
@@ -113,19 +113,19 @@ export const useTable = <T = unknown, P = unknown>(
 			searchParams.value = { ...searchParams.value, ...params };
 		}
 		pagination.current = 1;
-		loadTableData();
+		void loadTableData();
 	};
 
 	// 重置搜索
 	const resetSearch = () => {
-		searchParams.value = initialSearchParams;
+		searchParams.value = initialSearchParams as P;
 		pagination.current = 1;
-		loadTableData();
+		void loadTableData();
 	};
 
 	// 刷新数据
 	const refresh = () => {
-		loadTableData();
+		void loadTableData();
 	};
 
 	// 重置分页
@@ -158,8 +158,8 @@ export const useTable = <T = unknown, P = unknown>(
 	};
 
 	// 更新分页配置
-	const updatePagination = (config: Partial<PageInfo>) => {
-		Object.assign(pagination, config);
+	const updatePagination = (configUpdate: Partial<PageInfo>) => {
+		Object.assign(pagination, configUpdate);
 	};
 
 	// 清空选择
@@ -179,9 +179,9 @@ export const useTable = <T = unknown, P = unknown>(
 	};
 
 	// 自动加载数据
-	if (autoLoad) {
+	if (autoLoad && loadData) {
 		onMounted(() => {
-			loadTableData();
+			void loadTableData();
 		});
 	}
 

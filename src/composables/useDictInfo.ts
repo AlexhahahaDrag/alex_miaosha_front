@@ -1,8 +1,9 @@
 import { message } from 'ant-design-vue';
+import type { MaybeRefOrGetter } from 'vue';
 import { getDictList } from '@/views/dict/api';
 import type { DictInfo } from '@/views/dict/config';
 
-export function useDictInfo(...dictTypes: (string | undefined)[]) {
+export function useDictInfo(...dictTypes: (MaybeRefOrGetter<string | undefined>)[]) {
 	const loading = ref<boolean>(false);
 	const dictMap = ref<Map<string, DictInfo[]>>(new Map());
 
@@ -48,10 +49,17 @@ export function useDictInfo(...dictTypes: (string | undefined)[]) {
 		return dictMap.value.has(type);
 	};
 
-	// 如果传入了初始字典类型，则自动调用接口
-	const combinedTypes = dictTypes.filter(Boolean).join(',');
-	if (combinedTypes) {
-		getDictInfoList(combinedTypes);
+	// 多态解包：计算合并后的字典类型字符串
+	const resolveTypes = () => dictTypes.map(toValue).filter(Boolean).join(',');
+
+	// 监听动态传入的 Ref / Getter，并自动拉取
+	if (dictTypes.length > 0) {
+		watchEffect(() => {
+			const combinedTypes = resolveTypes();
+			if (combinedTypes) {
+				void getDictInfoList(combinedTypes);
+			}
+		});
 	}
 
 	return {
