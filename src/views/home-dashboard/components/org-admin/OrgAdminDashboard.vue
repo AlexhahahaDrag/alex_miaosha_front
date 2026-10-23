@@ -50,6 +50,7 @@ import OrgAdminKpiRow from '@/views/home-dashboard/components/org-admin/OrgAdmin
 import OrgAdminChartCard from '@/views/home-dashboard/components/org-admin/OrgAdminChartCard.vue';
 import { loadEcharts } from '@/utils/echarts/loadEcharts';
 import { ORG_ADMIN_ACTIONS, FAMILY_ADMIN_ACTIONS } from '@/views/home-dashboard/config';
+import { getOrgAdminDashboard } from '@/views/home-dashboard/api';
 
 // 遵循首页异步加载契约并规避 TS6133 未使用警告
 void loadEcharts;
@@ -113,123 +114,139 @@ const cachedCategoryData = ref<any[]>([]);
 const cachedMonthExpenseList = ref<any[]>([]);
 
 const loadDashboardMetrics = async () => {
-	if (isFamilyContext.value) {
+	// 如果是机构管理员，优先拉取后端机构大盘真实指标
+	if (!isFamilyContext.value) {
 		try {
-			// 1. 获取人员统计
-			const { code: personCode, data: personData } =
-				await getGiftPersonSummary();
-			if (personCode === '200' && personData) {
-				familyStats.value.memberCount = personData.personCount ?? 0;
-			}
-
-			// 2. 本月起止时间范围 (发生日期口径: 当月1日 00:00:00 至 当月末日 23:59:59)
-			const [monthStartDay, monthEndDay] = getMonthRange();
-			const startOfMonth = `${monthStartDay} 00:00:00`;
-			const endOfMonth = `${monthEndDay} 23:59:59`;
-			const currentMonth = formatMonth();
-
-			// 按发生日期 (event_time) 统计本月人情事由场数
-			const { code: eventCode, data: eventData } = await getGiftEventPage(
-				{
-					eventTimeStart: startOfMonth,
-					eventTimeEnd: endOfMonth,
-				},
-				1,
-				1,
-			);
-			if (eventCode === '200' && eventData) {
-				familyStats.value.monthEventCount = eventData.total ?? 0;
-				familyStats.value.eventCount = eventData.total ?? 0;
-			}
-
-			// 3. 获取按发生日期 (pay_time) 统计的本月礼尚往来流转
-			const { code: monthCode, data: monthData } = await getGiftRecordSummary({
-				payTimeStart: startOfMonth,
-				payTimeEnd: endOfMonth,
-			});
-			if (monthCode === '200' && monthData) {
-				familyStats.value.giftIncome = Number(monthData.receiveAmount) || 0;
-				familyStats.value.giftExpense = Number(monthData.giveAmount) || 0;
-			}
-
-			// 4. 获取本月个人/家庭日常财务汇总
-			const { code: finCode, data: finData } = await getFinanceSummary({
-				infoDateStart: monthStartDay,
-				infoDateEnd: monthEndDay,
-			});
-			if (finCode === '200' && finData) {
-				familyStats.value.dailyExpense = Number(finData.totalExpense) || 0;
-				familyStats.value.dailyIncome = Number(finData.totalIncome) || 0;
-				familyStats.value.dailyCount = Number(finData.totalCount) || 0;
-			}
-
-			// 5. 核算综合总账
-			const totalExp =
-				familyStats.value.dailyExpense + familyStats.value.giftExpense;
-			const totalInc =
-				familyStats.value.dailyIncome + familyStats.value.giftIncome;
-			const net = totalInc - totalExp;
-			familyStats.value.totalExpense = totalExp;
-			familyStats.value.totalIncome = totalInc;
-			familyStats.value.netBalance = net;
-			familyStats.value.savingsRate =
-				totalInc > 0 && net > 0 ? Math.round((net / totalInc) * 100) : 0;
-
-			// 6. 获取人情趋势数据
-			const { code: trendCode, data: trendData } = await getGiftAnalysisTrend({
-				period: 'month',
-			});
-			if (trendCode === '200' && Array.isArray(trendData)) {
-				cachedTrendData.value = trendData;
-			}
-
-			// 7. 获取日常消费月度走势明细
-			try {
-				const { code: mExpCode, data: mExpData } = await getMonthExpense(
-					null,
-					currentMonth,
-				);
-				if (mExpCode === '200' && Array.isArray(mExpData)) {
-					cachedMonthExpenseList.value = mExpData;
+			const { code, data } = await getOrgAdminDashboard();
+			if ((code === '200' || code === '00000') && data) {
+				if (data.memberCount != null) {
+					orgStats.value.memberCount = data.memberCount;
 				}
-			} catch (e) {
-				console.warn('获取日常月度走势降级：', e);
-			}
-
-			// 8. 获取本月日常消费分类结构
-			try {
-				const { code: catCode, data: catData } = await getIncomeAndExpense(
-					null,
-					currentMonth,
-					'expense',
-				);
-				if (catCode === '200' && Array.isArray(catData)) {
-					cachedCategoryData.value = catData;
+				if (data.monthExpense != null) {
+					orgStats.value.monthlySales = Number(data.monthIncome || orgStats.value.monthlySales);
 				}
-			} catch (e) {
-				console.warn('获取日常消费分类结构降级：', e);
 			}
-
-			// 9. 获取个人/家庭财务余额与同比环比走势
-			try {
-				const { code: balCode, data: balData } = await getBalance(
-					null,
-					currentMonth,
-				);
-				if (balCode === '200' && balData) {
-					familyStats.value.expenseMomTrend = balData.expenseMomTrend || '';
-					familyStats.value.expenseYoyTrend = balData.expenseYoyTrend || '';
-					familyStats.value.incomeMomTrend = balData.incomeMomTrend || '';
-					familyStats.value.incomeYoyTrend = balData.incomeYoyTrend || '';
-					familyStats.value.balanceMomTrend = balData.momTrend || '';
-					familyStats.value.balanceYoyTrend = balData.yoyTrend || '';
-				}
-			} catch (e) {
-				console.warn('获取财务同比环比趋势降级：', e);
-			}
-		} catch (error) {
-			console.error('加载家庭人情与财务统计指标异常：', error);
+		} catch (e) {
+			console.warn('获取机构大盘真实数据降级：', e);
 		}
+		return;
+	}
+
+	try {
+		// 1. 获取人员统计
+		const { code: personCode, data: personData } =
+			await getGiftPersonSummary();
+		if (personCode === '200' && personData) {
+			familyStats.value.memberCount = personData.personCount ?? 0;
+		}
+
+		// 2. 本月起止时间范围 (发生日期口径: 当月1日 00:00:00 至 当月末日 23:59:59)
+		const [monthStartDay, monthEndDay] = getMonthRange();
+		const startOfMonth = `${monthStartDay} 00:00:00`;
+		const endOfMonth = `${monthEndDay} 23:59:59`;
+		const currentMonth = formatMonth();
+
+		// 按发生日期 (event_time) 统计本月人情事由场数
+		const { code: eventCode, data: eventData } = await getGiftEventPage(
+			{
+				eventTimeStart: startOfMonth,
+				eventTimeEnd: endOfMonth,
+			},
+			1,
+			1,
+		);
+		if (eventCode === '200' && eventData) {
+			familyStats.value.monthEventCount = eventData.total ?? 0;
+			familyStats.value.eventCount = eventData.total ?? 0;
+		}
+
+		// 3. 获取按发生日期 (pay_time) 统计的本月礼尚往来流转
+		const { code: monthCode, data: monthData } = await getGiftRecordSummary({
+			payTimeStart: startOfMonth,
+			payTimeEnd: endOfMonth,
+		});
+		if (monthCode === '200' && monthData) {
+			familyStats.value.giftIncome = Number(monthData.receiveAmount) || 0;
+			familyStats.value.giftExpense = Number(monthData.giveAmount) || 0;
+		}
+
+		// 4. 获取本月个人/家庭日常财务汇总
+		const { code: finCode, data: finData } = await getFinanceSummary({
+			infoDateStart: monthStartDay,
+			infoDateEnd: monthEndDay,
+		});
+		if (finCode === '200' && finData) {
+			familyStats.value.dailyExpense = Number(finData.totalExpense) || 0;
+			familyStats.value.dailyIncome = Number(finData.totalIncome) || 0;
+			familyStats.value.dailyCount = Number(finData.totalCount) || 0;
+		}
+
+		// 5. 核算综合总账
+		const totalExp =
+			familyStats.value.dailyExpense + familyStats.value.giftExpense;
+		const totalInc =
+			familyStats.value.dailyIncome + familyStats.value.giftIncome;
+		const net = totalInc - totalExp;
+		familyStats.value.totalExpense = totalExp;
+		familyStats.value.totalIncome = totalInc;
+		familyStats.value.netBalance = net;
+		familyStats.value.savingsRate =
+			totalInc > 0 && net > 0 ? Math.round((net / totalInc) * 100) : 0;
+
+		// 6. 获取人情趋势数据
+		const { code: trendCode, data: trendData } = await getGiftAnalysisTrend({
+			period: 'month',
+		});
+		if (trendCode === '200' && Array.isArray(trendData)) {
+			cachedTrendData.value = trendData;
+		}
+
+		// 7. 获取日常消费月度走势明细
+		try {
+			const { code: mExpCode, data: mExpData } = await getMonthExpense(
+				null,
+				currentMonth,
+			);
+			if (mExpCode === '200' && Array.isArray(mExpData)) {
+				cachedMonthExpenseList.value = mExpData;
+			}
+		} catch (e) {
+			console.warn('获取日常月度走势降级：', e);
+		}
+
+		// 8. 获取本月日常消费分类结构
+		try {
+			const { code: catCode, data: catData } = await getIncomeAndExpense(
+				null,
+				currentMonth,
+				'expense',
+			);
+			if (catCode === '200' && Array.isArray(catData)) {
+				cachedCategoryData.value = catData;
+			}
+		} catch (e) {
+			console.warn('获取日常消费分类结构降级：', e);
+		}
+
+		// 9. 获取个人/家庭财务余额与同比环比走势
+		try {
+			const { code: balCode, data: balData } = await getBalance(
+				null,
+				currentMonth,
+			);
+			if (balCode === '200' && balData) {
+				familyStats.value.expenseMomTrend = balData.expenseMomTrend || '';
+				familyStats.value.expenseYoyTrend = balData.expenseYoyTrend || '';
+				familyStats.value.incomeMomTrend = balData.incomeMomTrend || '';
+				familyStats.value.incomeYoyTrend = balData.incomeYoyTrend || '';
+				familyStats.value.balanceMomTrend = balData.momTrend || '';
+				familyStats.value.balanceYoyTrend = balData.yoyTrend || '';
+			}
+		} catch (e) {
+			console.warn('获取财务同比环比趋势降级：', e);
+		}
+	} catch (error) {
+		console.error('加载家庭人情与财务统计指标异常：', error);
 	}
 };
 

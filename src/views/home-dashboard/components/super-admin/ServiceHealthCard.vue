@@ -27,7 +27,10 @@
 			>
 				<div class="service-meta">
 					<div class="service-title-line">
-						<span class="status-indicator online"></span>
+						<span
+							class="status-indicator"
+							:class="svc.status === 'UP' ? 'online' : svc.status === 'DEGRADED' ? 'warning' : 'offline'"
+						></span>
 						<span class="service-name">{{ svc.name }}</span>
 						<a-tag color="purple" class="service-port">:{{ svc.port }}</a-tag>
 					</div>
@@ -37,7 +40,12 @@
 					<span class="latency-text">
 						<span class="latency-val">{{ svc.latency }}</span> ms
 					</span>
-					<a-tag color="success" class="status-tag">NORMAL</a-tag>
+					<a-tag
+						:color="svc.status === 'UP' ? 'success' : svc.status === 'DEGRADED' ? 'warning' : 'error'"
+						class="status-tag"
+					>
+						{{ svc.status }}
+					</a-tag>
 				</div>
 			</div>
 		</div>
@@ -45,25 +53,97 @@
 </template>
 
 <script setup lang="ts">
-import { MICRO_SERVICES, type MicroServiceNode } from '@/views/home-dashboard/config';
+import {
+	getMicroServicesHealth,
+	type MicroServiceHealthData,
+} from '@/views/home-dashboard/api';
 import { SyncOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 
-const serviceList = ref<MicroServiceNode[]>([...MICRO_SERVICES]);
+const defaultNodes: MicroServiceHealthData[] = [
+	{
+		serviceId: 'alex-gateway',
+		name: 'Spring Cloud 统一网关',
+		port: 30001,
+		desc: '路由转发、统一鉴权、分布式限流',
+		status: 'UP',
+		latency: 15,
+		lastCheckTime: '',
+	},
+	{
+		serviceId: 'alex-user-dev',
+		name: '用户权限微服务',
+		port: 30006,
+		desc: '用户认证、RBAC、机构管理、权限上下文',
+		status: 'UP',
+		latency: 1,
+		lastCheckTime: '',
+	},
+	{
+		serviceId: 'alex-product-dev',
+		name: '商品库存微服务',
+		port: 30007,
+		desc: '商品中心、SPU/SKU、类目管理、秒杀库存',
+		status: 'UP',
+		latency: 18,
+		lastCheckTime: '',
+	},
+	{
+		serviceId: 'alex-finance-dev',
+		name: '财务礼金微服务',
+		port: 30008,
+		desc: '人情记账、个人财务、消费卡券、预算分析',
+		status: 'UP',
+		latency: 22,
+		lastCheckTime: '',
+	},
+	{
+		serviceId: 'alex-oss-dev',
+		name: 'OSS 存储微服务',
+		port: 30009,
+		desc: '分布式文件上传、头像直链、凭证安全',
+		status: 'UP',
+		latency: 12,
+		lastCheckTime: '',
+	},
+	{
+		serviceId: 'alex-ai-dev',
+		name: 'AI 智能分析微服务',
+		port: 30010,
+		desc: 'DeepSeek 大模型多路由、流式 SSE 记账',
+		status: 'UP',
+		latency: 28,
+		lastCheckTime: '',
+	},
+];
+
+const serviceList = ref<MicroServiceHealthData[]>([...defaultNodes]);
 const refreshing = ref<boolean>(false);
 
-const handleRefresh = () => {
+const fetchHealthProbes = async (showNotice = false) => {
 	refreshing.value = true;
-	setTimeout(() => {
-		// 模拟探针心跳波动
-		serviceList.value = serviceList.value.map((s) => ({
-			...s,
-			latency: Math.floor(Math.random() * 25) + 12,
-		}));
+	try {
+		const { code, data } = await getMicroServicesHealth();
+		if ((code === '200' || code === '00000') && Array.isArray(data) && data.length > 0) {
+			serviceList.value = data;
+			if (showNotice) {
+				message.success('微服务集群心跳探测完成，数据已同步最新状态！');
+			}
+		}
+	} catch (e) {
+		console.warn('探测微服务集群在线状态异常，保持基准节点', e);
+	} finally {
 		refreshing.value = false;
-		message.success('微服务集群心跳探测正常，全部节点在线！');
-	}, 600);
+	}
 };
+
+const handleRefresh = () => {
+	void fetchHealthProbes(true);
+};
+
+onMounted(() => {
+	void fetchHealthProbes(false);
+});
 </script>
 
 <style scoped lang="scss">
@@ -100,9 +180,9 @@ const handleRefresh = () => {
 		transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
 		&:hover {
-			background: #ffffff;
-			border-color: #bfdbfe; /* Tailwind border-blue-200 */
-			box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
+			background: #f1f5f9; /* Tailwind bg-slate-100 */
+			border-color: #e2e8f0;
+			transform: translateX(2px);
 		}
 
 		.service-meta {
@@ -112,22 +192,44 @@ const handleRefresh = () => {
 				gap: 8px;
 				margin-bottom: 4px;
 
+				.status-indicator {
+					width: 8px;
+					height: 8px;
+					border-radius: 50%;
+
+					&.online {
+						background: #10b981; /* Tailwind emerald-500 */
+						box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+					}
+
+					&.warning {
+						background: #f59e0b; /* Tailwind amber-500 */
+						box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+					}
+
+					&.offline {
+						background: #ef4444; /* Tailwind red-500 */
+						box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+					}
+				}
+
 				.service-name {
 					font-size: 14px;
-					font-weight: 700;
-					color: #0f172a; /* Tailwind slate-900 */
+					font-weight: 600;
+					color: #0f172a;
 				}
 
 				.service-port {
-					font-size: 12px;
-					padding: 0 6px;
-					font-family: monospace;
+					font-size: 11px;
+					padding: 0 4px;
+					border-radius: 4px;
+					line-height: 18px;
 				}
 			}
 
 			.service-desc {
 				font-size: 12px;
-				color: #8c8c8c;
+				color: #64748b;
 			}
 		}
 
@@ -138,31 +240,21 @@ const handleRefresh = () => {
 
 			.latency-text {
 				font-size: 12px;
-				color: #8c8c8c;
+				color: #64748b;
 
 				.latency-val {
 					font-weight: 600;
-					color: #52c41a;
+					color: #0f172a;
 				}
 			}
 
 			.status-tag {
 				font-size: 11px;
-				font-weight: bold;
-				margin: 0;
+				font-weight: 600;
+				border-radius: 6px;
+				padding: 0 8px;
+				line-height: 20px;
 			}
-		}
-	}
-
-	.status-indicator {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		display: inline-block;
-
-		&.online {
-			background: #52c41a;
-			box-shadow: 0 0 8px rgba(82, 196, 26, 0.6);
 		}
 	}
 }

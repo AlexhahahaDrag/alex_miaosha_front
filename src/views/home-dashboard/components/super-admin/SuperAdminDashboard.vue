@@ -98,23 +98,28 @@
 						data-testid="dash-super-chart-card"
 					>
 						<template #extra>
-							<a-radio-group v-model:value="trendRange" size="small" button-style="solid">
-								<a-radio-button value="7d">近7天</a-radio-button>
-								<a-radio-button value="30d">近30天</a-radio-button>
+							<a-radio-group
+								v-model:value="trendRange"
+								size="small"
+								button-style="solid"
+								data-testid="dash-super-trend-range"
+							>
+								<a-radio-button value="7d">近 7 天</a-radio-button>
+								<a-radio-button value="30d">近 30 天</a-radio-button>
 							</a-radio-group>
 						</template>
 						<div ref="chartContainer" class="chart-container-box"></div>
 					</a-card>
 
-					<!-- 系统安全审计流 -->
+					<!-- 系统安全与重要操作时间线 -->
 					<SystemAuditTimeline />
 				</a-col>
 
-				<!-- 右侧控制与运维 -->
+				<!-- 右侧辅助面板 -->
 				<a-col :xs="24" :lg="8">
-					<!-- 超管专属高频入口 -->
+					<!-- 快捷功能九宫格 -->
 					<QuickActionGrid
-						title="系统级全局管理通道"
+						title="超管常用特权功能"
 						:actions="SUPER_ADMIN_ACTIONS"
 					/>
 
@@ -132,6 +137,14 @@ import QuickActionGrid from '@/views/home-dashboard/components/common/QuickActio
 import ServiceHealthCard from '@/views/home-dashboard/components/super-admin/ServiceHealthCard.vue';
 import SystemAuditTimeline from '@/views/home-dashboard/components/super-admin/SystemAuditTimeline.vue';
 import { SUPER_ADMIN_ACTIONS } from '@/views/home-dashboard/config';
+import {
+	getSuperAdminDashboard,
+	type SuperAdminDashboardData,
+} from '@/views/home-dashboard/api';
+import {
+	getDashboardCache,
+	setDashboardCache,
+} from '@/views/home-dashboard/config/dashboardCache';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	TeamOutlined,
@@ -142,20 +155,43 @@ import {
 	CheckCircleOutlined,
 } from '@ant-design/icons-vue';
 
+const CACHE_KEY_SUPER_STATS = 'super_dashboard_stats';
+
 const trendRange = ref<'7d' | '30d'>('7d');
 const chartContainer = ref<HTMLElement>();
 let chartInstance: EChartsType | null = null;
 
-// 超管大盘数据
-const statsData = ref({
+// 超管大盘数据（真数据驱动，默认稳健兜底值）
+const statsData = ref<SuperAdminDashboardData>({
 	totalUsers: 12480,
 	activeOrgs: 86,
 	totalTurnover: 842600,
 	clusterQps: 3420,
+	serviceNodes: [],
+	trendDates: ['10-17', '10-18', '10-19', '10-20', '10-21', '10-22', '10-23'],
+	trendQps: [2150, 2480, 2820, 3110, 2980, 3320, 3420],
+	trendOrders: [128, 156, 182, 215, 198, 264, 286],
 });
 
 const onChartResize = () => {
 	chartInstance?.resize();
+};
+
+const fetchSuperDashboardData = async () => {
+	const cached = getDashboardCache<SuperAdminDashboardData>(CACHE_KEY_SUPER_STATS);
+	if (cached) {
+		statsData.value = cached;
+		return;
+	}
+	try {
+		const { code, data } = await getSuperAdminDashboard();
+		if ((code === '200' || code === '00000') && data) {
+			statsData.value = data;
+			setDashboardCache(CACHE_KEY_SUPER_STATS, data);
+		}
+	} catch (e) {
+		console.warn('获取超级管理员大盘数据异常，保持安全兜底', e);
+	}
 };
 
 const initChart = async () => {
@@ -164,7 +200,22 @@ const initChart = async () => {
 	const echarts = await loadEcharts();
 	if (!chartContainer.value || chartInstance) return;
 
+	await fetchSuperDashboardData();
+
 	chartInstance = echarts.init(chartContainer.value);
+
+	const xData =
+		statsData.value.trendDates && statsData.value.trendDates.length > 0
+			? statsData.value.trendDates
+			: ['10-17', '10-18', '10-19', '10-20', '10-21', '10-22', '10-23'];
+	const qpsData =
+		statsData.value.trendQps && statsData.value.trendQps.length > 0
+			? statsData.value.trendQps
+			: [2150, 2480, 2820, 3110, 2980, 3320, 3420];
+	const ordersData =
+		statsData.value.trendOrders && statsData.value.trendOrders.length > 0
+			? statsData.value.trendOrders
+			: [128, 156, 182, 215, 198, 264, 286];
 
 	const option = {
 		tooltip: {
@@ -185,7 +236,7 @@ const initChart = async () => {
 		xAxis: {
 			type: 'category',
 			boundaryGap: false,
-			data: ['09-16', '09-17', '09-18', '09-19', '09-20', '09-21', '09-22'],
+			data: xData,
 		},
 		yAxis: [
 			{
@@ -207,7 +258,7 @@ const initChart = async () => {
 				type: 'line',
 				smooth: true,
 				yAxisIndex: 0,
-				data: [1800, 2200, 2400, 2900, 3100, 3250, 3420],
+				data: qpsData,
 				itemStyle: { color: '#722ed1' },
 				areaStyle: {
 					color: {
@@ -228,7 +279,7 @@ const initChart = async () => {
 				type: 'line',
 				smooth: true,
 				yAxisIndex: 1,
-				data: [420, 560, 610, 780, 890, 1120, 1340],
+				data: ordersData,
 				itemStyle: { color: '#1890ff' },
 			},
 		],
@@ -257,13 +308,25 @@ watch(trendRange, () => {
 			],
 		});
 	} else {
+		const xData =
+			statsData.value.trendDates && statsData.value.trendDates.length > 0
+				? statsData.value.trendDates
+				: ['10-17', '10-18', '10-19', '10-20', '10-21', '10-22', '10-23'];
+		const qpsData =
+			statsData.value.trendQps && statsData.value.trendQps.length > 0
+				? statsData.value.trendQps
+				: [2150, 2480, 2820, 3110, 2980, 3320, 3420];
+		const ordersData =
+			statsData.value.trendOrders && statsData.value.trendOrders.length > 0
+				? statsData.value.trendOrders
+				: [128, 156, 182, 215, 198, 264, 286];
 		chartInstance.setOption({
 			xAxis: {
-				data: ['09-16', '09-17', '09-18', '09-19', '09-20', '09-21', '09-22'],
+				data: xData,
 			},
 			series: [
-				{ data: [1800, 2200, 2400, 2900, 3100, 3250, 3420] },
-				{ data: [420, 560, 610, 780, 890, 1120, 1340] },
+				{ data: qpsData },
+				{ data: ordersData },
 			],
 		});
 	}
@@ -304,37 +367,33 @@ onUnmounted(() => {
 			}
 
 			.kpi-icon-badge {
-				width: 50px;
-				height: 50px;
+				width: 54px;
+				height: 54px;
 				border-radius: 14px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 22px;
+				font-size: 24px;
 				flex-shrink: 0;
 
 				&.blue {
-					background: #eff6ff;
-					color: #2563eb;
-					border: 1px solid #dbeafe;
+					background: #eff6ff; /* Tailwind bg-blue-50 */
+					color: #3b82f6; /* Tailwind text-blue-500 */
 				}
 
 				&.cyan {
-					background: #ecfdf5;
-					color: #059669;
-					border: 1px solid #a7f3d0;
+					background: #ecfeff; /* Tailwind bg-cyan-50 */
+					color: #06b6d4; /* Tailwind text-cyan-500 */
 				}
 
 				&.purple {
-					background: #faf5ff;
-					color: #9333ea;
-					border: 1px solid #f3e8ff;
+					background: #faf5ff; /* Tailwind bg-purple-50 */
+					color: #a855f7; /* Tailwind text-purple-500 */
 				}
 
 				&.green {
-					background: #ecfdf5;
-					color: #047857;
-					border: 1px solid #a7f3d0;
+					background: #f0fdf4; /* Tailwind bg-green-50 */
+					color: #22c55e; /* Tailwind text-green-500 */
 				}
 			}
 
@@ -343,83 +402,78 @@ onUnmounted(() => {
 
 				.kpi-title {
 					font-size: 13px;
+					color: #64748b; /* Tailwind text-slate-500 */
 					font-weight: 500;
-					color: #64748b; /* Tailwind slate-500 */
-					margin-bottom: 6px;
+					margin-bottom: 4px;
 				}
 
 				.kpi-value-row {
 					display: flex;
 					align-items: baseline;
 					gap: 4px;
-					margin-bottom: 6px;
 
 					.kpi-currency {
 						font-size: 16px;
-						font-weight: 700;
+						font-weight: 600;
 						color: #0f172a;
 					}
 
 					.kpi-number {
-						font-size: 26px;
-						font-weight: 800;
-						color: #0f172a; /* Tailwind slate-900 */
+						font-size: 24px;
+						font-weight: 700;
+						color: #0f172a; /* Tailwind text-slate-900 */
+						line-height: 1.2;
 						letter-spacing: -0.5px;
 					}
 
 					.kpi-unit {
-						font-size: 12px;
-						font-weight: 500;
+						font-size: 13px;
 						color: #64748b;
+						font-weight: 500;
 					}
 				}
 
 				.kpi-trend {
-					font-size: 12px;
-					display: inline-flex;
+					display: flex;
 					align-items: center;
 					gap: 4px;
-					padding: 2px 8px;
-					border-radius: 9999px;
-					width: fit-content;
+					margin-top: 6px;
+					font-size: 12px;
 
 					&.up {
-						background: #ecfdf5;
-						color: #047857;
-						border: 1px solid rgba(167, 243, 208, 0.8);
-						font-weight: 500;
+						color: #10b981; /* Tailwind text-emerald-500 */
+						font-weight: 600;
 					}
 
 					&.stable {
-						background: #eff6ff;
-						color: #1d4ed8;
-						border: 1px solid rgba(191, 219, 254, 0.8);
-						font-weight: 500;
+						color: #64748b; /* Tailwind text-slate-500 */
 					}
 				}
 			}
 		}
 	}
 
-	.chart-card {
-		border-radius: 16px; /* Tailwind rounded-2xl */
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-		margin-bottom: 20px;
-		background: #ffffff;
+	.main-dashboard-grid {
+		.chart-card {
+			border-radius: 16px; /* Tailwind rounded-2xl */
+			border: 1px solid #e2e8f0; /* Tailwind border-slate-200 */
+			box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+			margin-bottom: 20px;
+			background: #ffffff;
 
-		:deep(.ant-card-head) {
-			border-bottom: 1px solid #f1f5f9;
-			font-weight: 700;
-			color: #0f172a;
-			font-size: 15px;
-			letter-spacing: -0.2px;
-			padding: 0 20px;
-		}
+			:deep(.ant-card-head) {
+				border-bottom: 1px solid #f1f5f9;
+				font-weight: 700;
+				color: #0f172a;
+				font-size: 15px;
+				letter-spacing: -0.2px;
+				padding: 0 20px;
+			}
 
-		.chart-container-box {
-			height: 320px;
-			width: 100%;
+			.chart-container-box {
+				width: 100%;
+				height: 320px;
+			}
 		}
 	}
 }
