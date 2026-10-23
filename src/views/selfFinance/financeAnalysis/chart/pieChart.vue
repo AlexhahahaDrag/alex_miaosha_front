@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { Empty } from 'ant-design-vue';
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;

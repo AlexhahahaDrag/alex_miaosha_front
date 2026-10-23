@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { updateGiftEventTypeOption } from '@/views/finance/gift/api';
 import type { GiftEventTypeOptionItem } from '@/views/finance/gift/config';

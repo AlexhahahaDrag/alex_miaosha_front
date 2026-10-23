@@ -105,7 +105,6 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance } from 'vue';
 import type { UnwrapRef } from 'vue';
 import type { FormInstance } from 'ant-design-vue';
 import type { LoginParams } from '@/views/login/config';

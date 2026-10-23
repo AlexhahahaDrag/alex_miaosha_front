@@ -36,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { BarChartOutlined } from '@ant-design/icons-vue';
 import GiftEmptyState from '@/views/finance/gift/gift-dashboard/components/GiftEmptyState.vue';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';

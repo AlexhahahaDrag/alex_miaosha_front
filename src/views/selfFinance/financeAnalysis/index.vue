@@ -124,7 +124,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { ReloadOutlined } from '@ant-design/icons-vue';
 import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';

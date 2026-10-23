@@ -61,7 +61,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { formatDate } from '@/utils/dayjs';
 import type { GiftEventInfo } from '@/views/finance/gift/config';
 import GiftEventSelectorModal from '@/views/finance/gift/components/gift-event-selector-modal/index.vue';

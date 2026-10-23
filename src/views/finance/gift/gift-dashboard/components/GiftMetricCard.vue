@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick, type Component } from 'vue';
+import type { Component } from 'vue';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons-vue';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import type { TrendDirection } from '@/views/finance/gift/gift-dashboard/utils/metrics';

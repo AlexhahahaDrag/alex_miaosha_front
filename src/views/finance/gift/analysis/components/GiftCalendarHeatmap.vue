@@ -39,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 
 export interface DailyHeatmapItem {
