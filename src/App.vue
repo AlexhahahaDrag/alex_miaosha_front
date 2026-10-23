@@ -9,12 +9,14 @@
 import '@/utils/dayjs';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { theme } from 'ant-design-vue';
+import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/store/modules/theme';
 import GlobalAiAssistantDrawer from '@/components/ai/GlobalAiAssistantDrawer.vue';
 
 document.title = import.meta.env.VITE_APP_TITLE || '默认标题';
 
 const themeStore = useThemeStore();
+const { primaryColor, isDark } = storeToRefs(themeStore);
 
 onMounted(() => {
 	themeStore.initTheme();
@@ -22,8 +24,8 @@ onMounted(() => {
 
 const antdTheme = computed(() => ({
 	token: {
-		colorPrimary: themeStore.primaryColor,
+		colorPrimary: primaryColor.value,
 	},
-	algorithm: themeStore.isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+	algorithm: isDark.value ? theme.darkAlgorithm : theme.defaultAlgorithm,
 }));
 </script>

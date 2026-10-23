@@ -1,9 +1,10 @@
+import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/modules/user/user';
 import { buildPermissionSet, canAccessPermission, isSuperAdmin as judgeSuperAdmin } from '@/utils/permission';
 
 export const usePermission = () => {
 	const userStore = useUserStore();
-	const context = computed(() => userStore.getPermissionContext);
+	const { getPermissionContext: context } = storeToRefs(userStore);
 	const permissionSet = computed(() => buildPermissionSet(context.value));
 
 	const hasPermission = (permissionCode?: string) =>

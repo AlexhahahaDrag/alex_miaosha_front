@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/modules/user/user';
 import { loadEcharts } from '@/utils/echarts/loadEcharts';
 import {
@@ -63,11 +64,12 @@ onMounted(() => {
 });
 
 const userStore = useUserStore();
+const { getPermissionContext, getRoleInfo } = storeToRefs(userStore);
 
 // 计算当前登录用户的物理真实身份
 const actualRoleType = computed<DashboardRoleType>(() => {
-	const permContext = userStore.getPermissionContext;
-	const currentRole = userStore.getRoleInfo;
+	const permContext = getPermissionContext.value;
+	const currentRole = getRoleInfo.value;
 	return resolveDashboardRole(
 		permContext,
 		currentRole?.roleCode,

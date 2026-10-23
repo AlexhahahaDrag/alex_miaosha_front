@@ -47,13 +47,14 @@
 import { routes as globalRoutes } from '@/router';
 import { algorithm } from '@/utils/algorithm';
 import { useTabsStore } from '@/store/modules/tabs';
+import { storeToRefs } from 'pinia';
 import MyNavbar from './components/my-navbar/index.vue';
 import MyRightInfo from './components/my-right-info/index.vue';
 import MyTabs from './components/my-tabs/index.vue';
 
 const router = useRouter();
 const tabsStore = useTabsStore();
-const isFullscreen = computed(() => tabsStore.getIsContentFullscreen);
+const { getIsContentFullscreen: isFullscreen } = storeToRefs(tabsStore);
 
 const isRouterAlive = ref(true);
 const reloadRouteView = () => {

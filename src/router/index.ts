@@ -178,7 +178,8 @@ const addRouter = async () => {
 			const superAdmin = isSuperAdmin(permissionContext || userStore.getRoleInfo);
 			const permissionSet = buildPermissionSet(permissionContext);
 
-			userStore.getMenuInfo.forEach((item: MenuInfoData) => {
+			const clonedMenus: MenuInfoData[] = structuredClone(toRaw(userStore.getMenuInfo));
+			clonedMenus.forEach((item: MenuInfoData) => {
 				if (judgeMenuPermission(item, permissionSet, superAdmin)) {
 					const newRoute = buildRouteRecord(item, permissionSet, superAdmin);
 					router.addRoute('home', newRoute);
