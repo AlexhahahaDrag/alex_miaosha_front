@@ -7,8 +7,22 @@
 					<p>从趋势、关系、事由和亲友维度分析人情往来表现。</p>
 				</div>
 				<a-space>
-					<a-button v-if="hasPermission('gift:export')">导出报表</a-button>
-					<a-button v-if="hasPermission('gift:export')" class="light-action">
+					<a-button
+						v-if="hasPermission('gift:export')"
+						:loading="exportingMatrix"
+						data-testid="btn-export-gift-analysis-report"
+						@click="exportMatrix"
+					>
+						<template #icon><DownloadOutlined /></template>
+						导出报表
+					</a-button>
+					<a-button
+						v-if="hasPermission('gift:export')"
+						class="light-action"
+						data-testid="btn-print-gift-analysis-report"
+						@click="handlePrintReport"
+					>
+						<template #icon><PrinterOutlined /></template>
 						打印
 					</a-button>
 				</a-space>
@@ -498,6 +512,11 @@ const exportMatrix = async () => {
 
 const personDetailOpen = ref(false);
 const selectedPersonForDetail = ref<GiftPersonBalance | null>(null);
+
+
+const handlePrintReport = () => {
+	window.print();
+};
 
 const openPersonDetail = (person: any) => {
 	selectedPersonForDetail.value = person as GiftPersonBalance;
@@ -1220,4 +1239,43 @@ watch(currentPerspective, () => {
 .cursor-pointer {
 	cursor: pointer;
 }
+
+@media print {
+	.screen-header .ant-space,
+	.filter-panel,
+	.perspective-nav,
+	.ai-insight-mount,
+	.ant-layout-sider,
+	.header,
+	.tabs-view {
+		display: none !important;
+	}
+
+	body,
+	.gift-screen {
+		background: #ffffff !important;
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+
+	.metric-grid {
+		display: grid !important;
+		grid-template-columns: repeat(4, 1fr) !important;
+		gap: 12px !important;
+		page-break-inside: avoid;
+	}
+
+	.metric-card {
+		box-shadow: none !important;
+		border: 1px solid #e2e8f0 !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	.ranking-grid,
+	.matrix-panel {
+		page-break-inside: avoid;
+	}
+}
+
 </style>
