@@ -281,9 +281,8 @@ const openAiModal = () => {
 
 const onApplyAiFromList = (parsed: UniversalFinanceAiParseVo) => {
 	if (!parsed) return;
-	editFinance('add');
-	// 将解析结果暂存入 modelInfo 传递给详情表单
 	modelInfo.value.extraData = parsed;
+	editFinance('add');
 };
 
 const {

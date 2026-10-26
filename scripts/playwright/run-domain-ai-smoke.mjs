@@ -930,6 +930,52 @@ async function setupRouteMocks(page) {
 			});
 		}
 
+		
+		if (pathname.includes('/finance-info/ai-parse')) {
+			const body = JSON.parse(route.request().postData() || '{}');
+			const text = body.text || '';
+			const isReceipt = text.includes('小票') || text.includes('面包') || text.includes('牛奶');
+			
+			if (isReceipt) {
+				return fulfillEncrypted(route, {
+					code: '200',
+					data: {
+						amount: 79.0,
+						name: '沃尔玛超市购物',
+						typeName: '超市日用',
+						typeCode: '日用',
+						incomeAndExpenses: 'expense',
+						fromSource: 'alipay',
+						fromSourceName: '支付宝',
+						belongTo: '1',
+						belongToName: '超级管理员',
+						parseEngine: 'AI_DEEPSEEK',
+						receiptItems: [
+							{ itemName: '鲜牛奶', unitPrice: 9.25, quantity: 2, subtotal: 18.5 },
+							{ itemName: '全麦面包', unitPrice: 12.0, quantity: 1, subtotal: 12.0 },
+							{ itemName: '纸巾', unitPrice: 3.33, quantity: 3, subtotal: 10.0 },
+						],
+					},
+				});
+			}
+
+			return fulfillEncrypted(route, {
+				code: '200',
+				data: {
+					amount: 128.5,
+					name: '麦当劳汉堡套餐',
+					typeName: '餐饮美食',
+					typeCode: '餐饮',
+					incomeAndExpenses: 'expense',
+					fromSource: 'wx',
+					fromSourceName: '微信支付',
+					belongTo: '1',
+					belongToName: '超级管理员',
+					parseEngine: 'AI_DEEPSEEK',
+				},
+			});
+		}
+
 		if (pathname.includes('/finance-budget/ai/parse') || pathname.includes('/finance-budget/ai-parse')) {
 			return fulfillEncrypted(route, {
 				code: '200',
@@ -1597,6 +1643,82 @@ async function executeCase(page, c, runtime) {
 			// 3. 断言月份选择器存在
 			const monthPicker = page.locator('#shop-analysis-month-picker').first();
 			await monthPicker.waitFor({ state: 'visible', timeout: 5000 });
+			break;
+		}
+
+		
+		case 'AI-FINANCE-PC-LEDGER-001': {
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+
+			const aiBtn = page.locator('[data-testid="btn-finance-ai-parse"]').first();
+			await aiBtn.waitFor({ state: 'visible', timeout: 8000 });
+			await aiBtn.click();
+
+			const modal = page.locator('[data-testid="modal-finance-ai-parse"]').first();
+			await modal.waitFor({ state: 'visible', timeout: 5000 });
+
+			const exampleTag = modal.locator('.ant-tag:has-text("聚餐微信付128.5")').first();
+			await exampleTag.waitFor({ state: 'visible', timeout: 3000 });
+			await exampleTag.click();
+
+			const doParseBtn = modal.locator('[data-testid="btn-do-finance-ai-parse"]').first();
+			await doParseBtn.waitFor({ state: 'visible', timeout: 3000 });
+			await doParseBtn.click();
+
+			const parsedCard = modal.locator('.parsed-card').first();
+			await parsedCard.waitFor({ state: 'visible', timeout: 8000 });
+
+			const applyBtn = page.locator('[data-testid="btn-apply-finance-ai-result"]').first();
+			await applyBtn.waitFor({ state: 'visible', timeout: 5000 });
+			await applyBtn.click();
+
+			const amountInput = page.locator('#form_amount').first();
+			await amountInput.waitFor({ state: 'visible', timeout: 5000 });
+			const val = await amountInput.inputValue();
+			if (!val || val === '0') {
+				throw new Error(`Expected form_amount to be filled with parsed amount, got: ${val}`);
+			}
+			console.log(`[E2E] AI-FINANCE-PC-LEDGER-001 verified, amount=${val}`);
+			const closeDrawerBtn = page.locator('.ant-drawer-close').first();
+			if ((await closeDrawerBtn.count()) && (await closeDrawerBtn.isVisible())) {
+				await closeDrawerBtn.click();
+				await page.locator('.ant-drawer').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+			}
+			break;
+		}
+
+		case 'AI-FINANCE-PC-RECEIPT-002': {
+			await page.goto(`${runtime.baseUrl}#/finance/financeManager`);
+			await page.waitForLoadState('networkidle').catch(() => {});
+
+			const aiBtn = page.locator('[data-testid="btn-finance-ai-parse"]').first();
+			await aiBtn.waitFor({ state: 'visible', timeout: 8000 });
+			await aiBtn.click();
+
+			const modal = page.locator('[data-testid="modal-finance-ai-parse"]').first();
+			await modal.waitFor({ state: 'visible', timeout: 5000 });
+
+			const receiptExampleTag = modal.locator('.ant-tag:has-text("超市小票明细")').first();
+			await receiptExampleTag.waitFor({ state: 'visible', timeout: 3000 });
+			await receiptExampleTag.click();
+
+			const doParseBtn = modal.locator('[data-testid="btn-do-finance-ai-parse"]').first();
+			await doParseBtn.click();
+
+			const receiptTable = modal.locator('.receipt-items-table').first();
+			await receiptTable.waitFor({ state: 'visible', timeout: 8000 });
+
+			const rows = receiptTable.locator('tbody tr');
+			const count = await rows.count();
+			if (count < 1) {
+				throw new Error(`Expected receipt items rows >= 1, got: ${count}`);
+			}
+			console.log(`[E2E] AI-FINANCE-PC-RECEIPT-002 verified, receipt item count=${count}`);
+			const modalClose = modal.locator('.ant-modal-close').first();
+			if ((await modalClose.count()) && (await modalClose.isVisible())) {
+				await modalClose.click();
+			}
 			break;
 		}
 

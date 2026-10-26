@@ -14,7 +14,7 @@
 						<div class="kpi-content">
 							<div class="kpi-title">全平台用户总量</div>
 							<div class="kpi-value-row">
-								<span class="kpi-number">{{ statsData.totalUsers.toLocaleString() }}</span>
+								<span class="kpi-number">{{ (statsData.totalUsers ?? 0).toLocaleString() }}</span>
 								<span class="kpi-unit">人</span>
 							</div>
 							<div class="kpi-trend up">

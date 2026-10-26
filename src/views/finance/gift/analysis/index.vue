@@ -320,6 +320,7 @@
 </template>
 
 <script setup lang="ts">
+import { DownloadOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import GiftAiInsightPanel from '@/views/finance/gift/ai/GiftAiInsightPanel.vue';
 import { hasMeaningfulOverview } from '@/views/finance/gift/ai/hasMeaningfulOverview';

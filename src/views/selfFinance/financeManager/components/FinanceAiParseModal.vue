@@ -1,14 +1,14 @@
 <template>
 	<a-modal
-		:visible="visible"
+		:open="visible"
 		title="AI 智能记账 (多场景快速解析)"
 		:width="680"
 		:confirm-loading="parsing"
 		:destroy-on-close="true"
-		data-testid="modal-finance-ai-parse"
+		wrap-class-name="modal-finance-ai-parse-wrap"
 		@cancel="handleClose"
 	>
-		<div class="ai-parse-modal-body">
+		<div class="ai-parse-modal-body" data-testid="modal-finance-ai-parse">
 			<a-alert
 				type="info"
 				show-icon
@@ -209,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ThunderboltOutlined } from '@ant-design/icons-vue';
+import { ThunderboltOutlined, LoadingOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import {
 	parseUniversalFinanceLedger,
