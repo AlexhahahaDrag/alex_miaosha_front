@@ -8,7 +8,7 @@
 			:width="232"
 		>
 			<div class="app-logo" @click="goHome">
-				<div class="app-logo-mark">A</div>
+				<img src="/logo.svg" alt="Alex Platform" class="app-logo-img" />
 				<div v-if="!collapsed" class="app-logo-text">
 					<strong>Alex Platform</strong>
 					<span>Management Console</span>
@@ -132,6 +132,19 @@ onUnmounted(() => {
 	padding: 0 16px;
 	cursor: pointer;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.app-logo-img {
+	width: 34px;
+	height: 34px;
+	border-radius: 8px;
+	object-fit: contain;
+	flex-shrink: 0;
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.app-logo:hover .app-logo-img {
+	transform: scale(1.08);
 }
 
 .app-logo-mark {

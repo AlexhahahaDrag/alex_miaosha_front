@@ -9,7 +9,7 @@
 		></component>
 
 		<header class="login-brand-header">
-			<div class="login-logo">A</div>
+			<img src="/logo.svg" alt="Alex Platform" class="login-logo-img" />
 			<div class="login-brand-text">
 				<h1>Alex Platform</h1>
 				<p>Enterprise Management System</p>
@@ -248,6 +248,19 @@ const particlesLoaded = (container: unknown) => {
 	gap: 16px;
 	margin-bottom: 32px;
 	z-index: 10;
+
+	.login-logo-img {
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		object-fit: contain;
+		box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.35);
+		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.login-brand-header:hover .login-logo-img {
+		transform: scale(1.06) rotate(-2deg);
+	}
 
 	.login-logo {
 		width: 44px;

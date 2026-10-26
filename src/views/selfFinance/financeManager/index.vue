@@ -403,6 +403,7 @@ const filterByCategory = (cat?: string) => {
 		label: `账目分类：${cat}`,
 	};
 	query(true);
+	scrollToTable();
 };
 
 const drillDownCategory = (cat: string) => {
