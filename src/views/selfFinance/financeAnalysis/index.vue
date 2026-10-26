@@ -267,7 +267,7 @@ const savingsRateText = computed(() => {
 	const income = (monthIncomeSum.value || new BigNumber(0)).toNumber();
 	const expense = (monthExpenseSum.value || new BigNumber(0)).toNumber();
 	if (income <= 0) {
-		return '0.0%';
+		return expense > 0 ? '超支赤字' : '0.0%';
 	}
 	const rate = ((income - expense) / income) * 100;
 	return `${rate.toFixed(1)}%`;
@@ -276,7 +276,9 @@ const savingsRateText = computed(() => {
 const savingsRateClass = computed(() => {
 	const income = (monthIncomeSum.value || new BigNumber(0)).toNumber();
 	const expense = (monthExpenseSum.value || new BigNumber(0)).toNumber();
-	if (income <= 0) return 'text-muted';
+	if (income <= 0) {
+		return expense > 0 ? 'text-danger' : 'text-muted';
+	}
 	const rate = ((income - expense) / income) * 100;
 	if (rate >= 50) return 'text-green';
 	if (rate >= 0) return 'text-blue';

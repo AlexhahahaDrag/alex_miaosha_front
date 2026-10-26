@@ -81,7 +81,8 @@
 						@click="$emit('filter-category', record.typeCode)"
 						:title="`点击仅筛选【${record.typeCode}】`"
 					>
-						{{ record.typeCode }}
+						<span class="pill-emoji">{{ getCategoryEmoji(record.typeCode) }}</span>
+						<span class="pill-name">{{ record.typeCode }}</span>
 					</span>
 					<span v-else class="text-slate-300">-</span>
 				</template>
@@ -96,9 +97,9 @@
 								: 'amount-expense',
 						]"
 					>
-						{{ record.incomeAndExpenses === 'income' ? '+' : '-' }}¥{{
-							formatAmount(record.amount)
-						}}
+						<span class="direction-symbol">{{ record.incomeAndExpenses === 'income' ? '+' : '-' }}</span>
+						<span class="currency-symbol">¥</span>
+						<span class="amount-number">{{ formatAmount(record.amount) }}</span>
 					</span>
 				</template>
 
@@ -208,6 +209,39 @@ import { DeleteOutlined } from '@ant-design/icons-vue';
 import { formatTime } from '@/utils/dayjs';
 import { iconComponentMap } from '@/config/icons';
 import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
+
+
+const categoryEmojiMap: Record<string, string> = {
+	餐饮: '🍱',
+	日常交通: '🚗',
+	交通: '🚗',
+	打车: '🚕',
+	日用百货: '🛒',
+	日用: '🛒',
+	超市: '🏪',
+	水费: '💧',
+	电费: '⚡',
+	燃气费: '🔥',
+	零食: '🍿',
+	饮品: '☕',
+	咖啡: '☕',
+	工资: '💰',
+	奖金: '🧧',
+	礼金: '🎁',
+	房租: '🏠',
+	医疗: '💊',
+	娱乐: '🎮',
+};
+
+const getCategoryEmoji = (name?: string): string => {
+	if (!name) return '🏷️';
+	for (const [key, emoji] of Object.entries(categoryEmojiMap)) {
+		if (name.includes(key)) {
+			return emoji;
+		}
+	}
+	return '🏷️';
+};
 
 defineProps<{
 	dataSource: FinanceManagerData[];
@@ -435,12 +469,28 @@ const handleSizeChange = (current: number, size: number) => {
 }
 
 .amount-text {
+	display: inline-flex;
+	align-items: baseline;
 	font-weight: 600;
 	font-size: 14px;
-	font-family:
-		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-		Arial, sans-serif;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.01em;
+
+	.direction-symbol {
+		font-size: 13px;
+		margin-right: 1px;
+	}
+
+	.currency-symbol {
+		font-size: 11px;
+		margin-right: 1px;
+		opacity: 0.85;
+	}
+
+	.amount-number {
+		font-size: 14px;
+	}
 
 	&.amount-income {
 		color: #059669;
@@ -492,12 +542,25 @@ const handleSizeChange = (current: number, size: number) => {
 }
 
 .category-pill {
-	transition: all 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	cursor: pointer;
+
+	.pill-emoji {
+		font-size: 11px;
+		line-height: 1;
+	}
+
+	.pill-name {
+		line-height: 1.2;
+	}
+
 	&:hover {
-		opacity: 0.85;
+		opacity: 0.9;
 		transform: translateY(-1px);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 	}
 }
 </style>

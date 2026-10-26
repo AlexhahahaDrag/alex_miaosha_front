@@ -44,8 +44,7 @@ const props = defineProps({
 const hasData = computed(() => {
 	const hasIncome = props.incomeData && props.incomeData.some((v) => Number(v) > 0);
 	const hasExpense = props.expenseData && props.expenseData.some((v) => Number(v) > 0);
-	const hasXAxis = props.config?.xAxis && props.config.xAxis.length > 0;
-	return Boolean(hasIncome || hasExpense || hasXAxis);
+	return Boolean(hasIncome || hasExpense);
 });
 
 const options = computed(() => {
