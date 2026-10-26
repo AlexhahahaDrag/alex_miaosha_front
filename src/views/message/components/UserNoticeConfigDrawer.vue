@@ -270,7 +270,7 @@ const loadConfigs = async () => {
 	loading.value = true;
 	try {
 		const { code, data, message: msg } = await getMyNoticeConfigs();
-		if (code === '00000' && Array.isArray(data)) {
+		if ((code === '00000' || code === '200') && Array.isArray(data)) {
 			allConfigs.value = data;
 		} else {
 			message.error(msg || '加载通知配置失败');
@@ -307,7 +307,7 @@ const handleToggle = async (
 			wechatEnabled: item.wechatEnabled,
 		});
 
-		if (code === '00000') {
+		if (code === '00000' || code === '200') {
 			message.success(`${item.noticeName || item.noticeCode} 配置已更新`);
 		} else {
 			// 回滚

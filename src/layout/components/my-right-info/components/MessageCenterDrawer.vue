@@ -41,7 +41,7 @@
 		</template>
 
 		<!-- 分类标签栏 -->
-		<div class="drawer-filter-header">
+		<div class="drawer-filter-header" data-testid="pc-message-drawer">
 			<a-tabs
 				v-model:activeKey="activeTab"
 				size="small"
