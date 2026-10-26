@@ -23,6 +23,7 @@
 			:budget-spent-label="budgetSpentLabel"
 			:budget-direction-label="budgetDirectionLabel"
 			:progress-stroke-color="progressStrokeColor"
+			:budget-daily-guide="budgetDailyGuide"
 			@filter-category="filterByCategory"
 			@open-budget-modal="openBudgetModal"
 			@drill-down-budget-month="drillDownBudgetMonth"
@@ -296,6 +297,7 @@ const {
 	effectiveDaysInfo,
 	dailyExpenseAvg,
 	topExpenseCategories,
+	budgetDailyGuide,
 	getEffectiveBudgetBelongTo,
 	loadBudgetStatus,
 } = useFinanceSummary(searchInfo, dataSource, summaryData as any);
@@ -384,6 +386,13 @@ const getCategoryPillStyle = (name?: string) => {
 		cursor: 'pointer',
 		transition: 'all 0.15s ease',
 	};
+};
+
+
+const scrollToTable = () => {
+	nextTick(() => {
+		tableContainerRef.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	});
 };
 
 const filterByCategory = (cat?: string) => {

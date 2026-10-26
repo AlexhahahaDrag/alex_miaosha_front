@@ -214,6 +214,37 @@ export function useFinanceSummary(
 		return sorted.slice(0, 3);
 	});
 
+	// 本月剩余天数与建议日均支出控制线
+	const budgetDailyGuide = computed(() => {
+		const status = budgetStatus.value;
+		if (!status || !status.budgetAmount || Number(status.budgetAmount) <= 0) {
+			return null;
+		}
+		const today = nowDayjs().startOf('day');
+		const endOfMonth = nowDayjs().endOf('month').startOf('day');
+		// 仅在当前月生效
+		if (currentMonthStr.value !== today.format('YYYY-MM')) {
+			return null;
+		}
+		const remainingDays = Math.max(1, endOfMonth.diff(today, 'day') + 1);
+		const remainingAmount = Number(status.remainingAmount) || 0;
+		if (remainingAmount <= 0) {
+			return {
+				remainingDays,
+				suggestedDaily: 0,
+				isOver: true,
+				label: `本月剩余 ${remainingDays} 天 · 已超支`,
+			};
+		}
+		const suggestedDaily = Number((remainingAmount / remainingDays).toFixed(2));
+		return {
+			remainingDays,
+			suggestedDaily,
+			isOver: false,
+			label: `剩余 ${remainingDays} 天 · 建议日均 ≤ ¥${suggestedDaily}`,
+		};
+	});
+
 	return {
 		currentMonthStr,
 		budgetStatus,
@@ -226,6 +257,7 @@ export function useFinanceSummary(
 		effectiveDaysInfo,
 		dailyExpenseAvg,
 		topExpenseCategories,
+		budgetDailyGuide,
 		getEffectiveBudgetBelongTo,
 		loadBudgetStatus,
 	};

@@ -128,6 +128,8 @@
 			v-else
 			ref="formRef"
 			name="financeForm"
+			@keydown.ctrl.enter.prevent="handleSaveShortcut"
+			@keydown.meta.enter.prevent="handleSaveShortcut"
 			layout="vertical"
 			class="modern-form"
 			:model="formState"
@@ -186,20 +188,19 @@
 					/>
 					<div
 						v-if="presetCategories.length"
-						class="flex flex-wrap gap-1.5 pt-0.5"
+						class="preset-category-chips flex flex-wrap gap-1.5 pt-1"
 					>
 						<span
 							v-for="cat in presetCategories"
 							:key="cat"
 							:class="[
-								'cursor-pointer px-2.5 py-0.5 rounded-md border border-solid text-xs transition-all select-none',
-								formState.typeCode === cat ?
-									'bg-blue-50 border-blue-500 text-blue-600 font-semibold shadow-xs'
-								:	'bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/40',
+								'category-chip-pill',
+								formState.typeCode === cat ? 'is-selected' : '',
 							]"
-							@click="formState.typeCode = cat"
+							@click="toggleCategoryChip(cat)"
 						>
-							{{ cat }}
+							<span class="chip-emoji">{{ getCategoryEmoji(cat) }}</span>
+							<span class="chip-name">{{ cat }}</span>
 						</span>
 					</div>
 				</div>
@@ -292,7 +293,7 @@
 						:loading="loading"
 						@click="handleSaveAndContinue"
 					>
-						保存并再记一笔
+						保存并再记一笔 (Ctrl+↵)
 					</a-button>
 					<a-button
 						v-if="!isReadonly"
@@ -478,6 +479,58 @@ const createDefaultFormState = (): FinanceManagerData => ({
 	infoDate: nowDayjs(),
 	belongTo: String(currentUser?.id ?? 2),
 });
+
+
+const categoryEmojiMap: Record<string, string> = {
+	餐饮: '🍱',
+	日常交通: '🚗',
+	交通: '🚗',
+	打车: '🚕',
+	日用百货: '🛒',
+	日用: '🛒',
+	超市: '🏪',
+	水费: '💧',
+	电费: '⚡',
+	燃气费: '🔥',
+	零食: '🍿',
+	饮品: '☕',
+	咖啡: '☕',
+	工资: '💰',
+	奖金: '🧧',
+	礼金: '🎁',
+	房租: '🏠',
+	医疗: '💊',
+	娱乐: '🎮',
+};
+
+const getCategoryEmoji = (name: string): string => {
+	for (const [key, emoji] of Object.entries(categoryEmojiMap)) {
+		if (name.includes(key)) {
+			return emoji;
+		}
+	}
+	return '🏷️';
+};
+
+const toggleCategoryChip = (cat: string) => {
+	if (formState.value.typeCode === cat) {
+		formState.value.typeCode = '';
+	} else {
+		formState.value.typeCode = cat;
+		if (!formState.value.name || formState.value.name.trim() === '') {
+			formState.value.name = cat;
+		}
+	}
+};
+
+const handleSaveShortcut = () => {
+	if (isReadonly.value) return;
+	if (formState.value.id) {
+		handleOk();
+	} else {
+		handleSaveAndContinue();
+	}
+};
 
 const handleOk = () => {
 	if (isReadonly.value) {
@@ -817,6 +870,41 @@ const emit = defineEmits(['success']);
 			width: 15px;
 			height: 15px;
 		}
+	}
+}
+
+
+.category-chip-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 14px;
+	border: 1px solid #e2e8f0;
+	background: #f8fafc;
+	font-size: 12px;
+	color: #475569;
+	cursor: pointer;
+	user-select: none;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+	.chip-emoji {
+		font-size: 13px;
+	}
+
+	&:hover {
+		border-color: #93c5fd;
+		background: #eff6ff;
+		color: #1d4ed8;
+		transform: translateY(-1px);
+	}
+
+	&.is-selected {
+		border-color: #3b82f6;
+		background: #dbeafe;
+		color: #1d4ed8;
+		font-weight: 600;
+		box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
 	}
 }
 

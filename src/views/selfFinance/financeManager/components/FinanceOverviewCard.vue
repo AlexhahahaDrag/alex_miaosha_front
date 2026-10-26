@@ -168,6 +168,16 @@
 								formatAmount(Math.abs(budgetStatus?.remainingAmount || 0))
 							}}
 						</span>
+						<span
+							v-if="budgetDailyGuide"
+							:class="[
+								'budget-guide-tag',
+								budgetDailyGuide.isOver ? 'guide-over' : 'guide-safe',
+							]"
+							:title="budgetDailyGuide.label"
+						>
+							{{ budgetDailyGuide.label }}
+						</span>
 					</div>
 
 					<div class="budget-sub-stats">
@@ -281,6 +291,7 @@ defineProps<{
 	budgetSpentLabel: string;
 	budgetDirectionLabel: string;
 	progressStrokeColor: string;
+	budgetDailyGuide?: { remainingDays: number; suggestedDaily: number; isOver: boolean; label: string } | null;
 }>();
 
 defineEmits<{
@@ -469,7 +480,32 @@ defineEmits<{
 				}
 			}
 
-			.budget-sub-stats {
+			
+				.budget-guide-tag {
+					display: inline-flex;
+					align-items: center;
+					font-size: 11px;
+					padding: 1px 7px;
+					border-radius: 10px;
+					line-height: 1.4;
+					margin-left: 6px;
+					white-space: nowrap;
+
+					&.guide-safe {
+						background: #f6ffed;
+						color: #389e0d;
+						border: 1px solid #b7eb8f;
+					}
+
+					&.guide-over {
+						background: #fff1f0;
+						color: #cf1322;
+						border: 1px solid #ffa39e;
+						animation: pulseGlow 1.5s infinite;
+					}
+				}
+
+				.budget-sub-stats {
 				display: inline-flex;
 				align-items: baseline;
 				gap: 4px;
@@ -682,3 +718,12 @@ defineEmits<{
 	color: #ff4d4f !important;
 }
 </style>
+
+@keyframes pulseGlow {
+	0%, 100% {
+		box-shadow: 0 0 0 0 rgba(207, 19, 34, 0.4);
+	}
+	50% {
+		box-shadow: 0 0 6px 2px rgba(207, 19, 34, 0.2);
+	}
+}
