@@ -214,7 +214,8 @@ const loadEventRecords = async () => {
 				eventId: String(props.eventInfo.id),
 				direction: 'RECEIVE',
 			},
-			{ pageSize: 1000 },
+			1,
+			1000,
 		);
 		if (code === '200' && data?.records) {
 			records.value = data.records;

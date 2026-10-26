@@ -56,8 +56,9 @@ describe('PC 端 Pinia 消费规范与深拷贝防污染契约测试 (vuejs-skil
 			// 设置权限上下文
 			userStore.setPermissionContext({
 				roleList: [{ id: '1', roleCode: 'admin', roleName: '机构管理员' }],
-				menuTree: [],
+				buttonPermissionCodes: [],
 				permissionCodes: ['user:add'],
+				superAdmin: false,
 			});
 
 			expect(permissionContext.value?.permissionCodes).toContain('user:add');

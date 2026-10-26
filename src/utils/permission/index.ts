@@ -1,6 +1,7 @@
 import type { OrgInfoData } from '@/views/user/orgInfo/config';
 
 export interface PermissionRole {
+	id?: string;
 	roleCode?: string;
 	roleName?: string;
 	permissionList?: Array<{ permissionCode?: string }>;

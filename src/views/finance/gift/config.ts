@@ -121,6 +121,7 @@ export interface GiftRecordInfo {
 	personName?: string;
 	paymentMethod?: string;
 	handlerName?: string;
+	transactorPersonName?: string;
 	eventType?: string;
 	eventOptionId?: GiftId;
 	eventDate?: string;
