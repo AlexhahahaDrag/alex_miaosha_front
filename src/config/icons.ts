@@ -71,8 +71,15 @@ export const iconComponentMap: Record<string, any> = {
 	'finance-hb': IconHb,
 	'finance-bt': IconBt,
 	'finance-hf': IconHf,
+	// 话费衍生渠道图标精确映射（仅作用于获取图标）
+	'finance-hfw': IconHf,
+	'finance-hfm': IconHf,
+	'finance-hfmj': IconHf,
 	'finance-rqf': IconRqf,
 	'finance-sf': IconSf,
 	'finance-df': IconDf,
+	// 电费衍生渠道图标精确映射（仅作用于获取图标）
+	'finance-dfw': IconDf,
+	'finance-dfm': IconDf,
 	'finance-jd': IconJingdong,
 };

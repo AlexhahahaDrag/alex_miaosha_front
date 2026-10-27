@@ -318,7 +318,7 @@
 								<a-button
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+									class="table-action-btn view-action-btn"
 									data-testid="rbac-role-row-view"
 									@click="openRoleDrawer('view', record.id)"
 								>
@@ -330,7 +330,7 @@
 									v-permission="'role:edit'"
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400"
+									class="table-action-btn edit-action-btn"
 									data-testid="rbac-role-row-edit"
 									@click="openRoleDrawer('update', record.id)"
 								>
@@ -342,7 +342,7 @@
 									v-permission="'role:auth'"
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400"
+									class="table-action-btn auth-action-btn"
 									data-testid="rbac-role-row-authorize"
 									@click="roleAuthorizationInfo(String(record.id))"
 								>
@@ -354,7 +354,7 @@
 									v-permission="'role:auth'"
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-teal-600 hover:text-teal-800 dark:text-teal-400"
+									class="table-action-btn member-action-btn"
 									data-testid="rbac-role-row-users"
 									@click="roleUserAssignmentInfo(String(record.id))"
 								>
@@ -373,7 +373,7 @@
 											type="link"
 											size="small"
 											danger
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-rose-500 hover:text-rose-700 dark:text-rose-400"
+											class="table-action-btn delete-action-btn"
 											data-testid="rbac-role-row-delete"
 										>
 											<template #icon><DeleteOutlined /></template>

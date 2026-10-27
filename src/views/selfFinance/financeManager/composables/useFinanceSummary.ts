@@ -174,17 +174,26 @@ export function useFinanceSummary(
 		return Number((totalExp / days).toFixed(2));
 	});
 
-	// Top 3 支出分类结构统计
+	// Top 3 支出分类结构统计（默认剔除内部转账流水，保持与后端收支汇总口径一致）
 	const topExpenseCategories = computed<TopExpenseCategoryItem[]>(() => {
 		const records = dataSource.value || [];
 		const expenseMap = new Map<string, number>();
 		let totalExpenseInList = 0;
+
+		const isExplicitTransferQuery =
+			searchInfo.value.typeCode === '转账' ||
+			searchInfo.value.typeCode === '内部转账';
 
 		for (const item of records) {
 			const isExpense =
 				item.incomeAndExpenses === 'expense' ||
 				(!item.incomeAndExpenses && (Number(item.amount) || 0) < 0);
 			if (isExpense && item.typeCode) {
+				const isTransfer =
+					item.typeCode === '转账' || item.typeCode === '内部转账';
+				if (isTransfer && !isExplicitTransferQuery) {
+					continue;
+				}
 				const amt = Math.abs(Number(item.amount) || 0);
 				if (amt > 0) {
 					expenseMap.set(

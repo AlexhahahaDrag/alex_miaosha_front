@@ -279,7 +279,7 @@
 								<a-button
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+									class="table-action-btn view-action-btn"
 									data-testid="rbac-org-row-view"
 									@click="viewOrgInfo(record.id)"
 								>
@@ -291,7 +291,7 @@
 									v-permission="'org:edit'"
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400"
+									class="table-action-btn edit-action-btn"
 									data-testid="rbac-org-row-edit"
 									@click="editOrgInfo('update', record.id)"
 								>
@@ -302,7 +302,7 @@
 								<a-button
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400"
+									class="table-action-btn member-action-btn"
 									data-testid="rbac-org-row-members"
 									@click="handleOpenMembers(record)"
 								>
@@ -321,7 +321,7 @@
 											type="link"
 											size="small"
 											danger
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-rose-500 hover:text-rose-700 dark:text-rose-400"
+											class="table-action-btn delete-action-btn"
 											data-testid="rbac-org-row-delete"
 										>
 											<template #icon><DeleteOutlined /></template>

@@ -27,7 +27,6 @@ export const columns: TableColumnsType = [
 	{
 		title: '支付方式',
 		dataIndex: 'fromSource',
-		align: 'center',
 		key: 'fromSource',
 		width: 130,
 	},

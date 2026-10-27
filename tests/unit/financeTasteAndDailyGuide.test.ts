@@ -106,4 +106,51 @@ describe('Finance Taste-Skill & BudgetDailyGuide Contract Test', () => {
 			expect(guide.label).toContain('已超支');
 		}
 	});
+it('主要支出 topExpenseCategories 应默认剔除转账流水，仅汇总纯日常消费分类', () => {
+		const searchInfo = ref<FinanceManagerData>({});
+		const dataSource = ref<FinanceManagerData[]>([
+			{ typeCode: '转账', amount: 188.63, incomeAndExpenses: 'expense' },
+			{ typeCode: '内部转账', amount: 430.87, incomeAndExpenses: 'expense' },
+			{ typeCode: '美食', amount: 60, incomeAndExpenses: 'expense' },
+			{ typeCode: '耳机', amount: 40, incomeAndExpenses: 'expense' },
+		]);
+		const summaryData = ref<any>({ totalExpense: 100 });
+
+		const { topExpenseCategories } = useFinanceSummary(
+			searchInfo,
+			dataSource,
+			summaryData,
+		);
+
+		const categories = topExpenseCategories.value;
+		expect(categories.length).toBe(2);
+		expect(categories.find((c) => c.name === '转账')).toBeUndefined();
+		expect(categories.find((c) => c.name === '内部转账')).toBeUndefined();
+		expect(categories[0].name).toBe('美食');
+		expect(categories[0].amount).toBe(60);
+		expect(categories[0].percent).toBe(60);
+		expect(categories[1].name).toBe('耳机');
+		expect(categories[1].amount).toBe(40);
+		expect(categories[1].percent).toBe(40);
+	});
+
+	it('当用户显式查询【转账】时，topExpenseCategories 允许统计转账类别', () => {
+		const searchInfo = ref<FinanceManagerData>({ typeCode: '转账' });
+		const dataSource = ref<FinanceManagerData[]>([
+			{ typeCode: '转账', amount: 500, incomeAndExpenses: 'expense' },
+			{ typeCode: '美食', amount: 100, incomeAndExpenses: 'expense' },
+		]);
+		const summaryData = ref<any>({ totalExpense: 600 });
+
+		const { topExpenseCategories } = useFinanceSummary(
+			searchInfo,
+			dataSource,
+			summaryData,
+		);
+
+		const categories = topExpenseCategories.value;
+		expect(categories.find((c) => c.name === '转账')).toBeDefined();
+		expect(categories[0].name).toBe('转账');
+		expect(categories[0].amount).toBe(500);
+	});
 });

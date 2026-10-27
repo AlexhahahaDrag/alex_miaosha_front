@@ -447,7 +447,7 @@
 											type="link"
 											size="small"
 											data-testid="rbac-menu-row-view"
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-slate-600 bg-slate-100/80 hover:bg-slate-200/80 dark:text-slate-300 dark:bg-slate-800"
+											class="table-action-btn view-action-btn"
 											@click="viewMenuInfo(String(record.id))"
 										>
 											<template #icon><EyeOutlined /></template>
@@ -459,7 +459,7 @@
 											type="link"
 											size="small"
 											data-testid="rbac-menu-row-add-child"
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-indigo-600 bg-indigo-50/70 hover:bg-indigo-100 dark:text-indigo-400 dark:bg-indigo-950/50"
+											class="table-action-btn auth-action-btn"
 											@click="handleAddChild(record)"
 										>
 											<template #icon><PlusOutlined /></template>
@@ -471,7 +471,7 @@
 											type="link"
 											size="small"
 											data-testid="rbac-menu-row-edit"
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-blue-600 bg-blue-50/70 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-950/50"
+											class="table-action-btn edit-action-btn"
 											@click="editMenuInfo('update', String(record.id))"
 										>
 											<template #icon><EditOutlined /></template>
@@ -490,7 +490,7 @@
 													size="small"
 													danger
 													data-testid="rbac-menu-row-delete"
-													class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 py-0.5 rounded-md text-rose-500 bg-rose-50/70 hover:bg-rose-100 dark:text-rose-400 dark:bg-rose-950/50"
+													class="table-action-btn delete-action-btn"
 												>
 													<template #icon><DeleteOutlined /></template>
 													删除

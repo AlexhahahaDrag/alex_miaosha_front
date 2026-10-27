@@ -81,3 +81,123 @@ html.dark {
 	font-size: 18px;
 	cursor: pointer;
 }
+
+/* 通用表格操作按钮微质感动效规范 (Hover背景 + 文字与SVG同步平滑放大) */
+.ant-btn.table-action-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	height: 24px;
+	padding: 2px 7px !important;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	cursor: pointer;
+
+	.anticon {
+		font-size: 13px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	&:hover {
+		transform: scale(1.08);
+
+		.anticon {
+			transform: scale(1.15);
+		}
+	}
+
+	&:active {
+		transform: scale(0.96);
+	}
+
+	&.view-action-btn {
+		color: #475569;
+		&:hover {
+			color: #0f172a !important;
+			background-color: #f1f5f9 !important;
+		}
+	}
+
+	&.edit-action-btn {
+		color: #2563eb;
+		&:hover {
+			color: #1d4ed8 !important;
+			background-color: #eff6ff !important;
+		}
+	}
+
+	&.delete-action-btn {
+		color: #e11d48;
+		&:hover {
+			color: #be123c !important;
+			background-color: #fff1f2 !important;
+		}
+	}
+
+	&.member-action-btn {
+		color: #0d9488;
+		&:hover {
+			color: #0f766e !important;
+			background-color: #f0fdf4 !important;
+		}
+	}
+
+	&.auth-action-btn {
+		color: #7c3aed;
+		&:hover {
+			color: #6d28d9 !important;
+			background-color: #f5f3ff !important;
+		}
+	}
+}
+
+html.dark {
+	.ant-btn.table-action-btn {
+		&.view-action-btn {
+			color: #94a3b8;
+			&:hover {
+				color: #f8fafc !important;
+				background-color: #334155 !important;
+			}
+		}
+
+		&.edit-action-btn {
+			color: #60a5fa;
+			&:hover {
+				color: #93c5fd !important;
+				background-color: rgba(30, 58, 138, 0.45) !important;
+			}
+		}
+
+		&.delete-action-btn {
+			color: #fb7185;
+			&:hover {
+				color: #fda4af !important;
+				background-color: rgba(136, 19, 55, 0.45) !important;
+			}
+		}
+
+		&.member-action-btn {
+			color: #2dd4bf;
+			&:hover {
+				color: #5eead4 !important;
+				background-color: rgba(19, 78, 74, 0.45) !important;
+			}
+		}
+
+		&.auth-action-btn {
+			color: #a78bfa;
+			&:hover {
+				color: #c4b5fd !important;
+				background-color: rgba(76, 29, 149, 0.45) !important;
+			}
+		}
+	}
+}
+

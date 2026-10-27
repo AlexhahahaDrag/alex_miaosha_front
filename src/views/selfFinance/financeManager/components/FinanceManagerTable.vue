@@ -134,8 +134,8 @@
 				<template v-else-if="column.key === 'fromSource'">
 					<div class="from-source-pill">
 						<component
-							v-if="iconComponentMap[`finance-${record.fromSource}`]"
-							:is="iconComponentMap[`finance-${record.fromSource}`]"
+							v-if="getFinanceIconComponent(record.fromSource)"
+							:is="getFinanceIconComponent(record.fromSource)"
 							class="from-source-icon"
 						/>
 						<span>{{ getFromSourceName(record.fromSource) }}</span>
@@ -231,6 +231,21 @@ const categoryEmojiMap: Record<string, string> = {
 	房租: '🏠',
 	医疗: '💊',
 	娱乐: '🎮',
+};
+
+// 仅在获取支付方式图标时使用的映射（避免使用 includes 模糊匹配产生误判）
+const financeSourceIconMap: Record<string, string> = {
+	hfw: 'hf',
+	hfm: 'hf',
+	hfmj: 'hf',
+	dfw: 'df',
+	dfm: 'df',
+};
+
+const getFinanceIconComponent = (source?: string) => {
+	if (!source) return null;
+	const iconKey = financeSourceIconMap[source] || source;
+	return iconComponentMap[`finance-${iconKey}`] || null;
 };
 
 const getCategoryEmoji = (name?: string): string => {
@@ -534,10 +549,12 @@ const handleSizeChange = (current: number, size: number) => {
 	border-radius: 6px;
 	font-size: 12px;
 	color: #334155;
+	min-width: 76px;
 
 	.from-source-icon {
 		width: 15px;
 		height: 15px;
+		flex-shrink: 0;
 	}
 }
 

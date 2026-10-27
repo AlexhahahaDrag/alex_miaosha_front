@@ -345,7 +345,7 @@
 								<a-button
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+									class="table-action-btn view-action-btn"
 									data-testid="rbac-user-row-view"
 									@click="viewUser(String(record.id))"
 								>
@@ -357,7 +357,7 @@
 									v-permission="'user:edit'"
 									type="link"
 									size="small"
-									class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-blue-600 hover:text-blue-800 dark:text-blue-400"
+									class="table-action-btn edit-action-btn"
 									data-testid="rbac-user-row-edit"
 									@click="editUser('update', String(record.id))"
 								>
@@ -379,7 +379,7 @@
 											type="link"
 											size="small"
 											danger
-											class="inline-flex items-center gap-0.5 text-xs font-medium !px-1.5 text-rose-500 hover:text-rose-700 dark:text-rose-400"
+											class="table-action-btn delete-action-btn"
 											data-testid="rbac-user-row-delete"
 										>
 											<template #icon><DeleteOutlined /></template>
