@@ -337,11 +337,30 @@ const fetchSummary = async (queryParam: FinanceManagerData) => {
 	}
 };
 
-// 获取支付方式展示名称
+// 获取支付方式展示名称（支持后端动态字典、静态映射与智能前缀降级）
 const getFromSourceName = (source?: string) => {
 	if (!source) return '-';
 	const matched = fromSourceTransferList.find((item) => item.value === source);
-	return matched ? matched.name : source;
+	if (matched) return matched.name;
+
+	// 常见公共事业与渠道前缀智能降级
+	if (source.startsWith('hf')) {
+		const suffix = source.replace('hf', '');
+		return suffix ? `话费 (${suffix === 'w' ? '我' : suffix === 'm' ? '妈' : suffix})` : '话费';
+	}
+	if (source.startsWith('df')) {
+		const suffix = source.replace('df', '');
+		return suffix ? `电费 (${suffix === 'w' ? '我' : suffix === 'm' ? '妈' : suffix})` : '电费';
+	}
+	if (source.startsWith('sf')) return '水费';
+	if (source.startsWith('rqf')) return '燃气费';
+	if (source.startsWith('wx')) return '微信支付';
+	if (source.startsWith('zfb')) return '支付宝';
+	if (source.startsWith('yhk')) return '银行卡';
+	if (source.startsWith('hb')) return '花呗';
+	if (source.startsWith('bt')) return '京东白条';
+
+	return source;
 };
 
 // 预算/分类穿透联动筛选状态

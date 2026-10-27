@@ -26,53 +26,35 @@
 			:row-selection="rowSelection"
 		>
 			<template #bodyCell="{ column, record }">
-				<!-- 操作列：轻量链接按钮降噪 -->
-				<template v-if="column.key === 'operation'">
-					<a-space :size="2">
-						<a-button
-							type="link"
-							size="small"
-							class="action-link-btn view-link-btn"
-							data-testid="btn-view-finance"
-							@click="$emit('edit', 'view', record.id)"
-						>
-							查看
-						</a-button>
-						<template v-if="canEditRecord(record)">
-							<a-divider type="vertical" />
-							<a-button
-								type="link"
-								size="small"
-								class="action-link-btn"
-								data-testid="btn-edit-finance"
-								@click="$emit('edit', 'update', record.id)"
-							>
-								编辑
-							</a-button>
-						</template>
-						<template v-if="canDeleteRecord(record)">
-							<a-divider type="vertical" />
-							<a-popconfirm
-								title="确认删除该笔账目?"
-								ok-text="确认"
-								cancel-text="取消"
-								@confirm="$emit('delete', record.id)"
-							>
-								<a-button
-									type="link"
-									size="small"
-									danger
-									class="action-link-btn"
-									data-testid="btn-delete-finance"
-								>
-									删除
-								</a-button>
-							</a-popconfirm>
-						</template>
-					</a-space>
+				<!-- 1. 复合列：账目名称 + 状态呼吸点 + 归属人与时间 -->
+				<template v-if="column.key === 'name'">
+					<div class="compound-name-cell">
+						<div class="primary-row">
+							<span
+								:class="[
+									'status-indicator-dot',
+									record.isValid === '1' ? 'status-dot-active' : 'status-dot-inactive',
+								]"
+								:title="record.isValid === '1' ? '状态：有效' : '状态：失效'"
+							/>
+							<span class="cell-name-text" :title="record.name || '未命名账目'">
+								{{ record.name || '未命名账目' }}
+							</span>
+						</div>
+						<div class="secondary-row">
+							<span v-if="record.belongToName" class="cell-belong-pill">
+								<UserOutlined class="belong-icon" />
+								{{ record.belongToName }}
+							</span>
+							<span v-if="record.belongToName && record.infoDate" class="sub-sep">·</span>
+							<span v-if="record.infoDate" class="cell-date-text">
+								{{ formatTime(record.infoDate) }}
+							</span>
+						</div>
+					</div>
 				</template>
 
-				<!-- 类别列：语义化彩色胶囊 -->
+				<!-- 2. 类别列：语义化彩色胶囊 -->
 				<template v-else-if="column.key === 'typeCode'">
 					<span
 						v-if="record.typeCode"
@@ -87,11 +69,24 @@
 					<span v-else class="text-slate-300">-</span>
 				</template>
 
-				<!-- 金额列：等宽、红绿收支色彩区分 -->
+				<!-- 3. 支付方式列：图标徽章与品牌胶囊 -->
+				<template v-else-if="column.key === 'fromSource'">
+					<div class="from-source-pill">
+						<component
+							v-if="getFinanceIconComponent(record.fromSource)"
+							:is="getFinanceIconComponent(record.fromSource)"
+							class="from-source-icon"
+						/>
+						<CreditCardOutlined v-else class="from-source-icon from-source-fallback-icon" />
+						<span class="from-source-name">{{ getFromSourceName(record.fromSource) }}</span>
+					</div>
+				</template>
+
+				<!-- 4. 金额列：等宽、靠右对齐、正负红绿自解释 -->
 				<template v-else-if="column.key === 'amount'">
-					<span
+					<div
 						:class="[
-							'amount-text',
+							'amount-container',
 							record.incomeAndExpenses === 'income'
 								? 'amount-income'
 								: 'amount-expense',
@@ -100,45 +95,52 @@
 						<span class="direction-symbol">{{ record.incomeAndExpenses === 'income' ? '+' : '-' }}</span>
 						<span class="currency-symbol">¥</span>
 						<span class="amount-number">{{ formatAmount(record.amount) }}</span>
-					</span>
+					</div>
 				</template>
 
-				<!-- 状态列：圆点 Badge 风格 -->
-				<template v-else-if="column.key === 'isValid'">
-					<a-badge
-						:status="record.isValid === '1' ? 'success' : 'default'"
-						:text="record.isValid === '1' ? '有效' : '失效'"
-					/>
-				</template>
-
-				<!-- 收支类型列 -->
-				<template v-else-if="column.key === 'incomeAndExpenses'">
-					<a-tag
-						:color="
-							record.incomeAndExpenses === 'income' ? 'success' : 'error'
-						"
-						class="type-tag"
-					>
-						{{ record.incomeAndExpenses === 'income' ? '收入' : '支出' }}
-					</a-tag>
-				</template>
-
-				<!-- 业务时间列 -->
-				<template v-else-if="column.key === 'infoDate'">
-					<span class="info-date-text">
-						{{ record.infoDate ? formatTime(record.infoDate) : '-' }}
-					</span>
-				</template>
-
-				<!-- 支付方式列：图标胶囊 -->
-				<template v-else-if="column.key === 'fromSource'">
-					<div class="from-source-pill">
-						<component
-							v-if="getFinanceIconComponent(record.fromSource)"
-							:is="getFinanceIconComponent(record.fromSource)"
-							class="from-source-icon"
-						/>
-						<span>{{ getFromSourceName(record.fromSource) }}</span>
+				<!-- 5. 操作列：Taste-Skill 磁吸微胶囊按钮 -->
+				<template v-else-if="column.key === 'operation'">
+					<div class="table-actions-group">
+						<button
+							type="button"
+							class="table-action-btn view-action-btn"
+							data-testid="btn-view-finance"
+							@click="$emit('edit', 'view', record.id)"
+							title="查看明细"
+						>
+							<EyeOutlined class="action-btn-icon" />
+							<span>查看</span>
+						</button>
+						<template v-if="canEditRecord(record)">
+							<button
+								type="button"
+								class="table-action-btn edit-action-btn"
+								data-testid="btn-edit-finance"
+								@click="$emit('edit', 'update', record.id)"
+								title="编辑账目"
+							>
+								<EditOutlined class="action-btn-icon" />
+								<span>编辑</span>
+							</button>
+						</template>
+						<template v-if="canDeleteRecord(record)">
+							<a-popconfirm
+								title="确认删除该笔账目?"
+								ok-text="确认"
+								cancel-text="取消"
+								@confirm="$emit('delete', record.id)"
+							>
+								<button
+									type="button"
+									class="table-action-btn delete-action-btn"
+									data-testid="btn-delete-finance"
+									title="删除账目"
+								>
+									<DeleteOutlined class="action-btn-icon" />
+									<span>删除</span>
+								</button>
+							</a-popconfirm>
+						</template>
 					</div>
 				</template>
 			</template>
@@ -205,7 +207,13 @@
 </template>
 
 <script setup lang="ts">
-import { DeleteOutlined } from '@ant-design/icons-vue';
+import {
+	DeleteOutlined,
+	UserOutlined,
+	CreditCardOutlined,
+	EyeOutlined,
+	EditOutlined,
+} from '@ant-design/icons-vue';
 import { formatTime } from '@/utils/dayjs';
 import { iconComponentMap } from '@/config/icons';
 import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
@@ -483,14 +491,97 @@ const handleSizeChange = (current: number, size: number) => {
 	}
 }
 
-.amount-text {
-	display: inline-flex;
+/* 复合主列：名称 + 状态微圆点 + 归属人与时间 (Taste-Skill VISUAL_DENSITY=8) */
+.compound-name-cell {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 2px 0;
+
+	.primary-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		.status-indicator-dot {
+			width: 7px;
+			height: 7px;
+			border-radius: 999px;
+			flex-shrink: 0;
+			transition: all 0.2s ease;
+
+			&.status-dot-active {
+				background: #10b981;
+				box-shadow: 0 0 0 2px #d1fae5;
+			}
+
+			&.status-dot-inactive {
+				background: #cbd5e1;
+				box-shadow: 0 0 0 2px #f1f5f9;
+			}
+		}
+
+		.cell-name-text {
+			font-size: 13.5px;
+			font-weight: 600;
+			color: #0f172a;
+			line-height: 1.3;
+			letter-spacing: -0.01em;
+			transition: color 0.15s ease;
+
+			&:hover {
+				color: #2563eb;
+			}
+		}
+	}
+
+	.secondary-row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 11.5px;
+		color: #94a3b8;
+		padding-left: 15px;
+
+		.cell-belong-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 3px;
+			padding: 1px 6px;
+			background: #f1f5f9;
+			border: 1px solid #e2e8f0;
+			border-radius: 4px;
+			color: #475569;
+			font-weight: 500;
+			line-height: 1.2;
+
+			.belong-icon {
+				font-size: 10px;
+				color: #64748b;
+			}
+		}
+
+		.sub-sep {
+			color: #cbd5e1;
+		}
+
+		.cell-date-text {
+			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+			font-variant-numeric: tabular-nums;
+			color: #64748b;
+		}
+	}
+}
+
+/* 金额列：等宽、靠右对齐、收支自解释 */
+.amount-container {
+	display: flex;
 	align-items: baseline;
-	font-weight: 600;
-	font-size: 14px;
-	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	justify-content: flex-end;
+	font-weight: 700;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 	font-variant-numeric: tabular-nums;
-	letter-spacing: -0.01em;
+	letter-spacing: -0.02em;
 
 	.direction-symbol {
 		font-size: 13px;
@@ -498,13 +589,13 @@ const handleSizeChange = (current: number, size: number) => {
 	}
 
 	.currency-symbol {
-		font-size: 11px;
-		margin-right: 1px;
+		font-size: 12px;
+		margin-right: 1.5px;
 		opacity: 0.85;
 	}
 
 	.amount-number {
-		font-size: 14px;
+		font-size: 15px;
 	}
 
 	&.amount-income {
@@ -516,45 +607,100 @@ const handleSizeChange = (current: number, size: number) => {
 	}
 }
 
-.action-link-btn {
-	padding: 0 3px;
-	font-size: 13px;
-
-	&.view-link-btn {
-		color: #475569;
-		&:hover {
-			color: #1677ff;
-		}
-	}
-}
-
-.type-tag {
-	border-radius: 4px;
-	font-size: 12px;
-}
-
-.info-date-text {
-	color: #475569;
-	font-size: 13px;
-	font-variant-numeric: tabular-nums;
-}
-
+/* 支付渠道微胶囊 */
 .from-source-pill {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 2px 8px;
+	padding: 2.5px 8px;
 	background: #f8fafc;
 	border: 1px solid #e2e8f0;
 	border-radius: 6px;
 	font-size: 12px;
 	color: #334155;
-	min-width: 76px;
+	font-weight: 500;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
 	.from-source-icon {
-		width: 15px;
-		height: 15px;
+		width: 14px;
+		height: 14px;
 		flex-shrink: 0;
+	}
+
+	.from-source-fallback-icon {
+		font-size: 13px;
+		color: #64748b;
+	}
+
+	.from-source-name {
+		white-space: nowrap;
+	}
+}
+
+/* 操作列磁吸微胶囊按钮 (Taste-Skill 微交互规范) */
+.table-actions-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+
+	.table-action-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		padding: 2px 7px;
+		border-radius: 6px;
+		border: 1px solid transparent;
+		background: transparent;
+		cursor: pointer;
+		font-size: 12px;
+		font-weight: 500;
+		line-height: 1.4;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		outline: none;
+
+		.action-btn-icon {
+			font-size: 11px;
+			transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		&:hover {
+			transform: scale(1.08);
+
+			.action-btn-icon {
+				transform: scale(1.15);
+			}
+		}
+
+		&:active {
+			transform: scale(0.96);
+		}
+
+		&.view-action-btn {
+			color: #475569;
+			&:hover {
+				background: #f1f5f9;
+				border-color: #e2e8f0;
+				color: #0f172a;
+			}
+		}
+
+		&.edit-action-btn {
+			color: #2563eb;
+			&:hover {
+				background: #eff6ff;
+				border-color: #bfdbfe;
+				color: #1d4ed8;
+			}
+		}
+
+		&.delete-action-btn {
+			color: #e11d48;
+			&:hover {
+				background: #fff1f2;
+				border-color: #fecdd3;
+				color: #be123c;
+			}
+		}
 	}
 }
 
@@ -562,6 +708,10 @@ const handleSizeChange = (current: number, size: number) => {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
 	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	cursor: pointer;
 
@@ -575,9 +725,8 @@ const handleSizeChange = (current: number, size: number) => {
 	}
 
 	&:hover {
-		opacity: 0.9;
 		transform: translateY(-1px);
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 }
 </style>

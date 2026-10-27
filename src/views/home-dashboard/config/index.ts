@@ -164,7 +164,7 @@ export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
 		testId: 'dash-family-action-event',
 	},
 	{
-		title: '家庭财务分析',
+		title: '家庭收支分析',
 		icon: 'PieChartOutlined',
 		path: '/finance/financeAnalysis',
 		color: '#722ed1',

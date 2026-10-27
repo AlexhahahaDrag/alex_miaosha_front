@@ -331,15 +331,16 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .search {
-	margin-bottom: 16px;
+	margin-bottom: 10px;
 }
 
 .search-box {
-	background: #fff;
-	padding: 14px 18px;
-	border-radius: 8px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	border: 1px solid #f0f0f0;
+	background: #ffffff;
+	padding: 10px 16px;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+	border: 1px solid #e2e8f0;
+	transition: all 0.2s ease;
 }
 
 .filter-main-row {
@@ -354,17 +355,43 @@ onUnmounted(() => {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: 10px;
 	flex: 1;
 	min-width: 320px;
 }
 
 .type-radio-group {
+	background: #f1f5f9;
+	padding: 2px;
+	border-radius: 8px;
+	border: 1px solid #e2e8f0;
+	display: inline-flex;
+
 	:deep(.ant-radio-button-wrapper) {
-		height: 32px;
-		line-height: 30px;
-		padding: 0 14px;
-		font-size: 13px;
+		height: 28px;
+		line-height: 26px;
+		padding: 0 12px;
+		font-size: 12.5px;
+		border: none !important;
+		background: transparent !important;
+		color: #64748b;
+		border-radius: 6px;
+		transition: all 0.15s ease;
+
+		&::before {
+			display: none !important;
+		}
+
+		&:hover {
+			color: #0f172a;
+		}
+
+		&.ant-radio-button-wrapper-checked {
+			background: #ffffff !important;
+			color: #2563eb !important;
+			font-weight: 600;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+		}
 	}
 }
 
@@ -373,7 +400,8 @@ onUnmounted(() => {
 	align-items: center;
 	background: #f1f5f9;
 	padding: 2px;
-	border-radius: 6px;
+	border-radius: 8px;
+	border: 1px solid #e2e8f0;
 	gap: 2px;
 	height: 32px;
 	box-sizing: border-box;
@@ -384,22 +412,22 @@ onUnmounted(() => {
 	background: transparent;
 	font-size: 12px;
 	color: #64748b;
-	padding: 4px 10px;
-	border-radius: 4px;
+	padding: 3px 10px;
+	border-radius: 6px;
 	cursor: pointer;
-	line-height: 1.2;
+	line-height: 1.3;
 	transition: all 0.15s ease;
 
 	&:hover {
-		color: #1e293b;
-		background: rgba(255, 255, 255, 0.6);
+		color: #0f172a;
+		background: rgba(255, 255, 255, 0.7);
 	}
 
 	&.active {
-		color: #1677ff;
+		color: #2563eb;
 		background: #ffffff;
 		font-weight: 600;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 	}
 }
 

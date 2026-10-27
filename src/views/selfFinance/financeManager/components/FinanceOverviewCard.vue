@@ -1,6 +1,6 @@
 <template>
-	<!-- 一体化概览面板（账单统计与月度预算并排，节省纵向空间） -->
-	<div class="finance-overview-card">
+	<!-- 现代 SaaS 双子概览面板 (Grid 响应式独立卡片) -->
+	<div class="finance-overview-grid">
 		<!-- 左侧：账单收支统计 -->
 		<div class="overview-section bill-stats-section">
 			<a-skeleton
@@ -107,9 +107,6 @@
 				</div>
 			</a-skeleton>
 		</div>
-
-		<!-- 中间细垂直分割线 -->
-		<div class="overview-divider"></div>
 
 		<!-- 右侧：零花钱月度预算 -->
 		<div class="overview-section budget-section">
@@ -303,32 +300,33 @@ defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-.finance-overview-card {
+.finance-overview-grid {
 	flex-shrink: 0;
-	background: #fff;
-	padding: 8px 16px;
-	border-radius: 8px;
-	margin: 0 0 8px;
-	border: 1px solid #f0f0f0;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-	display: flex;
-	align-items: center;
-	gap: 16px;
-	min-height: 72px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin: 0 0 10px;
 
-	.overview-divider {
-		width: 1px;
-		align-self: stretch;
-		background: #f0f0f0;
-		flex-shrink: 0;
-		margin: 2px 0;
+	@media (max-width: 1024px) {
+		grid-template-columns: 1fr;
 	}
 
 	.overview-section {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: space-between;
 		min-width: 0;
+		background: #ffffff;
+		padding: 10px 16px;
+		border-radius: 12px;
+		border: 1px solid #e2e8f0;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+		&:hover {
+			border-color: #cbd5e1;
+			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+		}
 
 		:deep(.ant-skeleton) {
 			.ant-skeleton-title {
@@ -342,14 +340,6 @@ defineEmits<{
 					margin: 4px 0 0;
 				}
 			}
-		}
-
-		&.bill-stats-section {
-			flex: 1.1;
-		}
-
-		&.budget-section {
-			flex: 0.9;
 		}
 
 		.section-header {
@@ -435,10 +425,12 @@ defineEmits<{
 				}
 
 				.value {
-					font-size: 16px;
-					font-weight: 700;
+					font-size: 18px;
+					font-weight: 800;
 					line-height: 1.1;
+					font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 					font-variant-numeric: tabular-nums;
+					letter-spacing: -0.02em;
 				}
 
 				&.expense .value {
@@ -473,10 +465,12 @@ defineEmits<{
 				}
 
 				.stat-val {
-					font-size: 16px;
-					font-weight: 700;
+					font-size: 18px;
+					font-weight: 800;
 					line-height: 1.1;
+					font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 					font-variant-numeric: tabular-nums;
+					letter-spacing: -0.02em;
 				}
 			}
 
