@@ -1,41 +1,54 @@
 <template>
-	<!-- 现代 SaaS 双子概览面板 (Grid 响应式独立卡片) -->
-	<div class="finance-overview-grid">
+	<!-- 现代 SaaS 双子概览面板 (Tailwind Soft UI 响应式独立卡片) -->
+	<div
+		class="finance-overview-grid shrink-0 grid grid-cols-1 lg:grid-cols-2 gap-3 mb-2.5"
+	>
 		<!-- 左侧：账单收支统计 -->
-		<div class="overview-section bill-stats-section">
+		<div
+			class="overview-section bill-stats-section flex flex-col justify-between min-w-0 bg-white px-4 py-3 rounded-2xl border-0 shadow-sm shadow-slate-200/60 hover:shadow-md hover:shadow-slate-200/70 transition-all duration-200"
+		>
 			<a-skeleton
 				:loading="!isFirstSummaryLoaded"
 				active
 				:title="{ width: '38%' }"
 				:paragraph="{ rows: 2, width: ['80%', '60%'] }"
 			>
-				<div class="section-header">
-					<span class="summary-tag-title">
-						<CalendarOutlined class="summary-title-icon" />
+				<div class="flex items-center justify-between mb-1.5 leading-none">
+					<span
+						class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500"
+					>
+						<span
+							class="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center"
+						>
+							<CalendarOutlined class="text-[11px]" />
+						</span>
 						<span>{{ summaryTitle }}</span>
 					</span>
-					<span class="record-total-badge">
+					<span class="text-xs text-slate-400">
 						共
-						<strong>{{ summaryData.totalCount ?? paginationTotal ?? 0 }}</strong>
+						<strong class="text-slate-900 font-semibold font-mono">{{
+							summaryData.totalCount ?? paginationTotal ?? 0
+						}}</strong>
 						笔账单
 					</span>
 				</div>
 
-				<div class="stats-metrics-group">
+				<div class="flex items-baseline gap-5 mb-1.5 flex-wrap">
 					<!-- 全部 或 支出模式：展示支出 -->
 					<div
 						v-if="
 							!searchInfo.incomeAndExpenses ||
 							searchInfo.incomeAndExpenses === 'expense'
 						"
-						class="stat-metric expense"
+						class="inline-flex items-baseline gap-1.5"
 					>
-						<span class="label">{{
+						<span class="text-xs text-slate-400">{{
 							searchInfo.incomeAndExpenses === 'expense' ?
 								'支出合计'
 							:	'总支出'
 						}}</span>
-						<span class="value"
+						<span
+							class="text-lg font-extrabold leading-tight font-mono tabular-nums tracking-tight text-rose-600"
 							>-¥{{ formatAmount(summaryData.totalExpense || 0) }}</span
 						>
 					</div>
@@ -46,25 +59,29 @@
 							!searchInfo.incomeAndExpenses ||
 							searchInfo.incomeAndExpenses === 'income'
 						"
-						class="stat-metric income"
+						class="inline-flex items-baseline gap-1.5"
 					>
-						<span class="label">{{
+						<span class="text-xs text-slate-400">{{
 							searchInfo.incomeAndExpenses === 'income' ? '收入合计' : '总收入'
 						}}</span>
-						<span class="value"
+						<span
+							class="text-lg font-extrabold leading-tight font-mono tabular-nums tracking-tight text-emerald-600"
 							>+¥{{ formatAmount(summaryData.totalIncome || 0) }}</span
 						>
 					</div>
 
 					<!-- 仅在全部模式下展示结余 -->
-					<div v-if="!searchInfo.incomeAndExpenses" class="stat-metric balance">
-						<span class="label">净结余</span>
+					<div
+						v-if="!searchInfo.incomeAndExpenses"
+						class="inline-flex items-baseline gap-1.5"
+					>
+						<span class="text-xs text-slate-400">净结余</span>
 						<span
 							:class="[
-								'value',
+								'text-lg font-bold leading-tight font-mono tabular-nums tracking-tight',
 								(summaryData.totalBalance || 0) >= 0 ?
-									'text-income'
-								:	'text-expense',
+									'text-emerald-600'
+								:	'text-rose-600',
 							]"
 						>
 							{{ (summaryData.totalBalance || 0) >= 0 ? '+' : '-' }}¥{{
@@ -75,32 +92,38 @@
 				</div>
 
 				<!-- 微洞察行：日均支出 + Top 3 支出大头微标签 -->
-				<div class="stats-insights-row">
+				<div class="flex items-center gap-3 min-h-[20px] leading-none">
 					<div
-						class="insight-item daily-avg"
+						class="inline-flex items-center gap-1 text-xs text-slate-400"
 						:title="`基于${effectiveDaysInfo.label}计算`"
 					>
-						<span class="insight-label">日均支出:</span>
-						<span class="insight-val">
+						<span class="shrink-0">日均支出:</span>
+						<span class="text-slate-700 font-semibold font-mono tabular-nums">
 							¥{{ formatAmount(dailyExpenseAvg) }}
-							<span class="insight-unit">/天</span>
+							<span class="text-[10px] text-slate-400 font-normal">/天</span>
 						</span>
 					</div>
 
 					<div
 						v-if="topExpenseCategories.length > 0"
-						class="insight-item top-categories"
+						class="inline-flex items-center gap-1.5 text-xs text-slate-400 flex-1 min-w-0 overflow-hidden"
 					>
-						<span class="insight-label">主要支出:</span>
-						<div class="insight-tags-wrap">
+						<span class="shrink-0">主要支出:</span>
+						<div
+							class="inline-flex items-center gap-1.5 min-w-0 overflow-hidden whitespace-nowrap"
+						>
 							<span
 								v-for="cat in topExpenseCategories"
 								:key="cat.name"
-								class="insight-top-tag"
+								class="inline-flex items-center gap-1 text-[11px] leading-4 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white cursor-pointer transition-all duration-150 shrink-0 font-medium group"
 								:title="`点击筛选【${cat.name}】，本期支出 ¥${formatAmount(cat.amount)} (${cat.percent}%)`"
 								@click="$emit('filter-category', cat.name)"
 							>
-								{{ cat.name }} <span class="tag-pct">{{ cat.percent }}%</span>
+								<span>{{ cat.name }}</span>
+								<span
+									class="text-[10px] text-rose-500 group-hover:text-white font-mono"
+									>{{ cat.percent }}%</span
+								>
 							</span>
 						</div>
 					</div>
@@ -109,55 +132,62 @@
 		</div>
 
 		<!-- 右侧：零花钱月度预算 -->
-		<div class="overview-section budget-section">
+		<div
+			class="overview-section budget-section flex flex-col justify-between min-w-0 bg-white px-4 py-3 rounded-2xl border-0 shadow-sm shadow-slate-200/60 hover:shadow-md hover:shadow-slate-200/70 transition-all duration-200"
+		>
 			<a-skeleton
 				:loading="!isFirstBudgetLoaded"
 				active
 				:title="{ width: '42%' }"
 				:paragraph="{ rows: 2, width: ['80%', '60%'] }"
 			>
-				<div class="section-header">
-					<div class="budget-title-line">
-						<WalletOutlined class="budget-icon" />
-						<span class="budget-title">{{ currentMonthStr }} 零花钱预算</span>
-						<a-tag
+				<div class="flex items-center justify-between mb-1.5 leading-none">
+					<div class="inline-flex items-center gap-1.5">
+						<span
+							class="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center"
+						>
+							<WalletOutlined class="text-[11px]" />
+						</span>
+						<span class="text-xs font-medium text-slate-500"
+							>{{ currentMonthStr }} 零花钱预算</span
+						>
+						<span
 							v-if="budgetStatus?.isInherited"
-							color="processing"
-							class="budget-tag"
+							class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-500/10 text-indigo-600"
 						>
 							继承自上月
-						</a-tag>
-						<a-tag
+						</span>
+						<span
 							v-if="budgetStatus?.isOverBudget"
-							color="error"
-							class="budget-tag"
+							class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-500/10 text-rose-600"
 							data-testid="budget-over-tag"
 						>
 							已超支
-						</a-tag>
+						</span>
 					</div>
-					<a-button
-						type="link"
-						size="small"
-						class="budget-setting-btn"
+					<button
+						type="button"
+						class="inline-flex items-center gap-1 border-0 bg-transparent p-0 text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer transition-colors"
 						data-testid="btn-open-budget-modal"
 						@click="$emit('open-budget-modal')"
 					>
-						<template #icon><SettingOutlined /></template>
-						调整预算
-					</a-button>
+						<SettingOutlined class="text-[11px]" />
+						<span>调整预算</span>
+					</button>
 				</div>
 
 				<!-- 主金额行：剩余可用 + 上限/已用 -->
-				<div class="budget-metrics-group">
-					<div class="budget-stat-item">
-						<span class="stat-label">{{
+				<div class="flex items-baseline justify-between mb-1.5 gap-2">
+					<div class="inline-flex items-baseline gap-1.5 flex-wrap">
+						<span class="text-xs text-slate-400">{{
 							budgetStatus?.isOverBudget ? '超支金额:' : '剩余可用:'
 						}}</span>
 						<span
 							:class="[
-								'stat-val',
-								budgetStatus?.isOverBudget ? 'text-expense' : 'text-income',
+								'text-lg font-extrabold leading-tight font-mono tabular-nums tracking-tight',
+								budgetStatus?.isOverBudget ?
+									'text-rose-600'
+								:	'text-emerald-600',
 							]"
 							data-testid="budget-remaining-value"
 						>
@@ -168,8 +198,10 @@
 						<span
 							v-if="budgetDailyGuide"
 							:class="[
-								'budget-guide-tag',
-								budgetDailyGuide.isOver ? 'guide-over' : 'guide-safe',
+								'inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-full leading-snug ml-1 whitespace-nowrap',
+								budgetDailyGuide.isOver ?
+									'bg-rose-500/10 text-rose-600 animate-pulse'
+								:	'bg-emerald-500/10 text-emerald-600',
 							]"
 							:title="budgetDailyGuide.label"
 						>
@@ -177,29 +209,31 @@
 						</span>
 					</div>
 
-					<div class="budget-sub-stats">
-						<span class="sub-stat"
-							>上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span
-						>
-						<span class="sub-sep">/</span>
+					<div
+						class="inline-flex items-baseline gap-1 text-xs text-slate-400 font-mono tabular-nums shrink-0"
+					>
+						<span>上限 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
+						<span class="text-slate-300">/</span>
 						<span
-							class="sub-stat clickable-sub-stat"
+							class="cursor-pointer hover:text-indigo-600 hover:underline transition-colors"
 							@click="$emit('drill-down-budget-month')"
 							title="点击联动查看当月已计入明细"
 						>
 							{{ budgetSpentLabel }}
 							{{ Number(budgetStatus?.actualExpense || 0) < 0 ? '-' : '' }}¥{{
-								formatAmount(Math.abs(Number(budgetStatus?.actualExpense || 0)))
+								formatAmount(
+									Math.abs(Number(budgetStatus?.actualExpense || 0)),
+								)
 							}}
-							<span class="drill-icon">↗</span>
+							<span class="text-[10px] ml-0.5 opacity-70">↗</span>
 						</span>
 					</div>
 				</div>
 
 				<!-- 微洞察行：进度条 + 计入分类微标签 -->
-				<div class="budget-insights-row">
+				<div class="flex items-center gap-3 min-h-[20px] leading-none">
 					<div
-						class="budget-progress-wrap"
+						class="budget-progress-wrap w-40 shrink-0"
 						:title="`预算使用率: ${budgetStatus?.usagePercent || 0}%`"
 					>
 						<a-progress
@@ -209,33 +243,34 @@
 							:stroke-color="progressStrokeColor"
 							:format="() => `${budgetStatus?.usagePercent || 0}%`"
 							size="small"
-							class="budget-progress"
 						/>
 					</div>
 
 					<div
-						class="budget-category-hints"
+						class="inline-flex items-center gap-1.5 text-xs min-w-0 overflow-hidden whitespace-nowrap"
 						:title="
 							budgetStatus?.categoryNames?.length ?
 								budgetStatus.categoryNames.join('、')
 							:	budgetDirectionLabel
 						"
 					>
-						<span class="hint-label">计入:</span>
+						<span class="text-slate-400 text-xs shrink-0">计入:</span>
 						<template v-if="budgetStatus?.categoryNames?.length">
-							<a-tag
+							<span
 								v-for="cat in budgetStatus.categoryNames.slice(0, 3)"
 								:key="cat"
-								class="cat-pill clickable-cat-pill"
+								class="inline-flex items-center text-[11px] leading-4 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-500/10 hover:text-indigo-600 cursor-pointer transition-all duration-150 font-medium"
 								@click="$emit('drill-down-category', cat)"
 								:title="`点击仅查看本月【${cat}】账目`"
 							>
 								{{ cat }}
-							</a-tag>
+							</span>
 							<span
 								v-if="budgetStatus.categoryNames.length > 3"
-								class="cat-pill-more clickable-cat-more"
-								@click="$emit('drill-down-category', budgetStatus.categoryNames[3])"
+								class="text-[11px] text-slate-400 hover:text-indigo-600 cursor-pointer shrink-0 font-mono"
+								@click="
+									$emit('drill-down-category', budgetStatus.categoryNames[3])
+								"
 								:title="`点击仅查看本月【${budgetStatus.categoryNames[3]}】账目`"
 							>
 								+{{ budgetStatus.categoryNames.length - 3 }}
@@ -243,7 +278,7 @@
 						</template>
 						<span
 							v-else
-							class="cat-pill-all clickable-cat-pill"
+							class="text-slate-500 text-xs hover:text-indigo-600 cursor-pointer transition-colors"
 							@click="$emit('drill-down-budget-month')"
 							title="点击查看当月全部预算收支明细"
 						>
@@ -288,7 +323,12 @@ defineProps<{
 	budgetSpentLabel: string;
 	budgetDirectionLabel: string;
 	progressStrokeColor: string;
-	budgetDailyGuide?: { remainingDays: number; suggestedDaily: number; isOver: boolean; label: string } | null;
+	budgetDailyGuide?: {
+		remainingDays: number;
+		suggestedDaily: number;
+		isOver: boolean;
+		label: string;
+	} | null;
 }>();
 
 defineEmits<{
@@ -300,424 +340,43 @@ defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-.finance-overview-grid {
-	flex-shrink: 0;
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 12px;
-	margin: 0 0 10px;
-
-	@media (max-width: 1024px) {
-		grid-template-columns: 1fr;
+.overview-section {
+	:deep(.ant-skeleton) {
+		.ant-skeleton-title {
+			margin: 2px 0 8px;
+			height: 14px;
+		}
+		.ant-skeleton-paragraph {
+			margin: 0;
+			> li {
+				height: 12px;
+				margin: 4px 0 0;
+			}
+		}
 	}
+}
 
-	.overview-section {
+.budget-progress-wrap {
+	:deep(.ant-progress) {
 		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		min-width: 0;
-		background: #ffffff;
-		padding: 10px 16px;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		align-items: center;
+		margin: 0;
 
-		&:hover {
-			border-color: #cbd5e1;
-			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+		.ant-progress-outer {
+			flex: 1;
+			margin-inline-end: 0;
+			padding-inline-end: 0;
 		}
 
-		:deep(.ant-skeleton) {
-			.ant-skeleton-title {
-				margin: 2px 0 8px;
-				height: 14px;
-			}
-			.ant-skeleton-paragraph {
-				margin: 0;
-				> li {
-					height: 12px;
-					margin: 4px 0 0;
-				}
-			}
-		}
-
-		.section-header {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			margin-bottom: 4px;
-			line-height: 1;
-
-			.summary-tag-title {
-				display: inline-flex;
-				align-items: center;
-				gap: 4px;
-				font-size: 11px;
-				font-weight: 600;
-				color: #8c8c8c;
-				letter-spacing: 0.3px;
-
-				.summary-title-icon {
-					font-size: 12px;
-					color: #1677ff;
-				}
-			}
-
-			.record-total-badge {
-				font-size: 11px;
-				color: #8c8c8c;
-
-				strong {
-					color: #262626;
-					font-weight: 600;
-				}
-			}
-
-			.budget-title-line {
-				display: inline-flex;
-				align-items: center;
-				gap: 4px;
-
-				.budget-icon {
-					font-size: 12px;
-					color: #722ed1;
-				}
-
-				.budget-title {
-					font-size: 11px;
-					font-weight: 600;
-					color: #8c8c8c;
-					letter-spacing: 0.3px;
-				}
-
-				.budget-tag {
-					font-size: 10px;
-					line-height: 14px;
-					padding: 0 4px;
-					margin: 0;
-				}
-			}
-
-			.budget-setting-btn {
-				padding: 0;
-				height: auto;
-				font-size: 11px;
-				line-height: 1;
-			}
-		}
-
-		.stats-metrics-group {
-			display: flex;
-			align-items: baseline;
-			gap: 16px;
-			margin-bottom: 4px;
-			flex-wrap: wrap;
-
-			.stat-metric {
-				display: inline-flex;
-				align-items: baseline;
-				gap: 4px;
-
-				.label {
-					font-size: 11px;
-					color: #8c8c8c;
-				}
-
-				.value {
-					font-size: 18px;
-					font-weight: 800;
-					line-height: 1.1;
-					font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-					font-variant-numeric: tabular-nums;
-					letter-spacing: -0.02em;
-				}
-
-				&.expense .value {
-					color: #ff4d4f;
-				}
-
-				&.income .value {
-					color: #52c41a;
-				}
-
-				&.balance .value {
-					font-weight: 600;
-				}
-			}
-		}
-
-		.budget-metrics-group {
-			display: flex;
-			align-items: baseline;
-			justify-content: space-between;
-			margin-bottom: 4px;
-			gap: 8px;
-
-			.budget-stat-item {
-				display: inline-flex;
-				align-items: baseline;
-				gap: 4px;
-
-				.stat-label {
-					font-size: 11px;
-					color: #8c8c8c;
-				}
-
-				.stat-val {
-					font-size: 18px;
-					font-weight: 800;
-					line-height: 1.1;
-					font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-					font-variant-numeric: tabular-nums;
-					letter-spacing: -0.02em;
-				}
-			}
-
-			
-				.budget-guide-tag {
-					display: inline-flex;
-					align-items: center;
-					font-size: 11px;
-					padding: 1px 7px;
-					border-radius: 10px;
-					line-height: 1.4;
-					margin-left: 6px;
-					white-space: nowrap;
-
-					&.guide-safe {
-						background: #f6ffed;
-						color: #389e0d;
-						border: 1px solid #b7eb8f;
-					}
-
-					&.guide-over {
-						background: #fff1f0;
-						color: #cf1322;
-						border: 1px solid #ffa39e;
-						animation: pulseGlow 1.5s infinite;
-					}
-				}
-
-				.budget-sub-stats {
-				display: inline-flex;
-				align-items: baseline;
-				gap: 4px;
-				font-size: 11px;
-				color: #8c8c8c;
-
-				.sub-sep {
-					color: #d9d9d9;
-				}
-
-				.clickable-sub-stat {
-					cursor: pointer;
-					transition: color 0.2s ease;
-
-					&:hover {
-						color: #1677ff;
-						text-decoration: underline;
-					}
-
-					.drill-icon {
-						font-size: 10px;
-						margin-left: 1px;
-					}
-				}
-			}
-		}
-
-		.stats-insights-row,
-		.budget-insights-row {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			min-height: 20px;
-			line-height: 1;
-		}
-
-		.insight-item {
-			display: inline-flex;
-			align-items: center;
-			gap: 4px;
-			font-size: 11px;
-			color: #8c8c8c;
-
-			.insight-label {
-				color: #8c8c8c;
-				flex-shrink: 0;
-			}
-
-			.insight-val {
-				color: #595959;
-				font-weight: 600;
-				font-variant-numeric: tabular-nums;
-
-				.insight-unit {
-					font-size: 10px;
-					color: #bfbfbf;
-					font-weight: normal;
-				}
-			}
-
-			&.top-categories {
-				flex: 1;
-				min-width: 0;
-				overflow: hidden;
-
-				.insight-tags-wrap {
-					display: inline-flex;
-					align-items: center;
-					gap: 4px;
-					min-width: 0;
-					overflow: hidden;
-					white-space: nowrap;
-					text-overflow: ellipsis;
-				}
-
-				.insight-top-tag {
-					display: inline-flex;
-					align-items: center;
-					gap: 2px;
-					font-size: 11px;
-					line-height: 16px;
-					padding: 0 5px;
-					border-radius: 10px;
-					background: #fff1f0;
-					border: 1px solid #ffccc7;
-					color: #cf1322;
-					cursor: pointer;
-					transition: all 0.2s ease;
-					flex-shrink: 0;
-
-					.tag-pct {
-						font-size: 10px;
-						color: #ff4d4f;
-					}
-
-					&:hover {
-						background: #ff4d4f;
-						border-color: #ff4d4f;
-						color: #fff;
-
-						.tag-pct {
-							color: #fff;
-						}
-					}
-				}
-			}
-		}
-
-		.budget-progress-wrap {
-			width: 160px;
+		.ant-progress-text {
+			width: auto;
+			margin-inline-start: 8px;
 			flex-shrink: 0;
-
-			:deep(.ant-progress) {
-				display: flex;
-				align-items: center;
-				margin: 0;
-
-				.ant-progress-outer {
-					flex: 1;
-					margin-inline-end: 0 !important;
-					padding-inline-end: 0 !important;
-				}
-
-				.ant-progress-text {
-					width: auto !important;
-					margin-inline-start: 8px !important;
-					flex-shrink: 0;
-					text-align: right;
-					font-variant-numeric: tabular-nums;
-				}
-			}
-		}
-
-		.budget-category-hints {
-			display: inline-flex;
-			align-items: center;
-			gap: 4px;
-			font-size: 12px;
-			min-width: 0;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-
-			.hint-label {
-				color: #8c8c8c;
-				font-size: 11px;
-				flex-shrink: 0;
-			}
-
-			.cat-pill {
-				font-size: 11px;
-				line-height: 16px;
-				padding: 0 5px;
-				margin: 0;
-				border-radius: 10px;
-				background: #fafafa;
-				border: 1px solid #e8e8e8;
-				color: #595959;
-				cursor: pointer;
-				transition: all 0.2s ease;
-
-				&:hover {
-					background: #e6f4ff;
-					border-color: #91caff;
-					color: #1677ff;
-				}
-			}
-
-			.cat-pill-more {
-				font-size: 11px;
-				color: #8c8c8c;
-				cursor: pointer;
-				flex-shrink: 0;
-
-				&:hover {
-					color: #1677ff;
-				}
-			}
-
-			.cat-pill-all {
-				color: #8c8c8c;
-				font-size: 11px;
-				cursor: pointer;
-
-				&:hover {
-					color: #1677ff;
-				}
-			}
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+			color: #64748b;
+			font-size: 11px;
 		}
 	}
-}
-
-@media (max-width: 1300px) {
-	.finance-overview-card {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 8px;
-
-		.overview-divider {
-			display: none;
-		}
-	}
-}
-
-.text-income {
-	color: #52c41a !important;
-}
-
-.text-expense {
-	color: #ff4d4f !important;
 }
 </style>
-
-@keyframes pulseGlow {
-	0%, 100% {
-		box-shadow: 0 0 0 0 rgba(207, 19, 34, 0.4);
-	}
-	50% {
-		box-shadow: 0 0 6px 2px rgba(207, 19, 34, 0.2);
-	}
-}

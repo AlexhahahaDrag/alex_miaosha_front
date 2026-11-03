@@ -120,7 +120,7 @@
 		</a-spin>
 
 		<!-- 底部操作按钮 -->
-		<template #footer>
+		<template v-if="!formInitializing" #footer>
 			<div style="display: flex; gap: 8px; justify-content: flex-end">
 				<a-button @click="open = false">取消</a-button>
 				<a-button

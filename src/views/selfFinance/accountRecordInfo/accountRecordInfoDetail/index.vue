@@ -4,14 +4,25 @@
 		:title="modelInfo?.title || '账户记录详情'"
 		:subtitle="drawerSubtitle"
 		width="560px"
-		:confirm-loading="loading"
+		:loading="detailLoading || loading"
+		:show-footer="!detailLoading"
 		:readonly="isReadonly"
 		ok-text="保存"
 		@ok="handleOk"
 		@cancel="handleCancel"
 	>
+		<!-- 数据加载中骨架屏状态 -->
+		<div v-if="detailLoading" class="detail-skeleton-view space-y-4 py-2">
+			<div class="skeleton-hero-card p-5 rounded-2xl border border-slate-100 bg-slate-50/70">
+				<a-skeleton active avatar :paragraph="{ rows: 2 }" />
+			</div>
+			<div class="skeleton-section-card p-5 rounded-2xl border border-slate-100 bg-white shadow-sm">
+				<a-skeleton active :paragraph="{ rows: 3 }" />
+			</div>
+		</div>
+
 		<!-- 只读模式：账户资产凭证阅读卡片 -->
-		<div v-if="isReadonly" class="detail-readonly-view">
+		<div v-else-if="isReadonly" class="detail-readonly-view">
 			<div class="account-hero-card">
 				<div class="hero-left">
 					<div class="hero-icon-box">
@@ -186,6 +197,7 @@ const { getDictByType } = useDictInfo('account_type');
 const accountTypeList = computed(() => getDictByType('account_type'));
 
 const loading = ref<boolean>(false);
+const detailLoading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
@@ -194,12 +206,13 @@ const formState = ref<AccountRecordInfo>({});
 const emit = defineEmits(['success']);
 
 const isReadonly = computed(() => Boolean(modelInfo.value?.readonly));
+const isEdit = computed(() => Boolean(modelInfo.value?.id || formState.value?.id));
 
 const drawerSubtitle = computed(() => {
 	if (isReadonly.value) {
 		return '查看个人卡券或账户记录的面额、有效期与到期提醒状态';
 	}
-	return formState.value?.id ?
+	return isEdit.value ?
 			'更新账户面额、关联账号或有效期信息'
 		:	'新增需要跟踪有效期的个人卡券或账户资产记录';
 });
@@ -259,18 +272,28 @@ const saveAccountRecordInfoManager = async () => {
 
 const init = async () => {
 	if (modelInfo.value?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getAccountRecordInfoDetail(String(modelInfo.value.id));
-		if (code === '200') {
-			formState.value = data || {};
-			formState.value.avliDate = formatDayjs(formState.value.avliDate);
-		} else {
-			message.error(messageInfo || '查询失败！');
+		detailLoading.value = true;
+		formState.value = {};
+		try {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getAccountRecordInfoDetail(String(modelInfo.value.id));
+			if (code === '200') {
+				formState.value = data || {};
+				formState.value.avliDate = formatDayjs(formState.value.avliDate);
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
+		} catch (e) {
+			console.warn('获取账户记录详情失败:', e);
+			message.error('获取账户记录详情失败！');
+		} finally {
+			detailLoading.value = false;
 		}
 	} else {
+		detailLoading.value = false;
 		formState.value = {
 			name: '',
 			amount: undefined,

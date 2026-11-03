@@ -4,34 +4,58 @@
 		:title="modelInfo?.title || '记账明细'"
 		:subtitle="drawerSubtitle"
 		width="560px"
-		:confirm-loading="loading"
+		:loading="detailLoading || loading"
+		:show-footer="!detailLoading"
 		ok-text="保存"
 		@ok="handleOk"
 		@cancel="handleCancel"
 	>
-		<!-- 只读模式：账单电子凭证卡片 -->
-		<div v-if="isReadonly" class="detail-readonly-view">
+		<!-- 数据加载中骨架屏状态 -->
+		<div v-if="detailLoading" class="space-y-3.5 py-1">
+			<div class="p-5 rounded-2xl bg-slate-50/80 border-0">
+				<a-skeleton active avatar :paragraph="{ rows: 2 }" />
+			</div>
+			<div class="p-5 rounded-2xl bg-slate-50/80 border-0">
+				<a-skeleton active :paragraph="{ rows: 4 }" />
+			</div>
+		</div>
+
+		<!-- 只读模式：账单电子凭证卡片 (Tailwind Soft UI) -->
+		<div v-else-if="isReadonly" class="flex flex-col gap-4">
 			<div
-				class="voucher-hero-card"
-				:class="
-					formState.incomeAndExpenses === 'income' ? 'is-income' : 'is-expense'
-				"
+				:class="[
+					'p-5 rounded-2xl border-0 transition-all',
+					formState.incomeAndExpenses === 'income' ?
+						'bg-emerald-500/[0.07]'
+					:	'bg-rose-500/[0.07]',
+				]"
 			>
-				<div class="hero-top-row">
-					<div class="hero-title-group">
-						<div class="hero-icon-box">
+				<div class="flex items-center justify-between gap-4 flex-wrap">
+					<div class="flex items-center gap-3.5 min-w-0">
+						<div
+							:class="[
+								'w-11 h-11 rounded-2xl bg-white shadow-2xs flex items-center justify-center text-xl shrink-0',
+								formState.incomeAndExpenses === 'income' ?
+									'text-emerald-600'
+								:	'text-rose-600',
+							]"
+						>
 							<WalletOutlined />
 						</div>
-						<div class="hero-meta">
-							<h3 class="hero-title">{{ formState.name || '未命名账目' }}</h3>
-							<div class="hero-badges">
+						<div class="flex flex-col gap-1.5 min-w-0">
+							<h3
+								class="m-0 text-base font-bold text-slate-900 leading-snug truncate"
+							>
+								{{ formState.name || '未命名账目' }}
+							</h3>
+							<div class="flex items-center gap-2 flex-wrap">
 								<span
-									class="direction-pill"
-									:class="
+									:class="[
+										'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold',
 										formState.incomeAndExpenses === 'income' ?
-											'pill-income'
-										:	'pill-expense'
-									"
+											'bg-emerald-500/15 text-emerald-700'
+										:	'bg-rose-500/15 text-rose-700',
+									]"
 								>
 									{{
 										formState.incomeAndExpenses === 'income' ?
@@ -40,28 +64,35 @@
 									}}
 								</span>
 								<span
-									class="status-pill"
-									:class="
+									:class="[
+										'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold',
 										String(formState.isValid) === '1' ?
-											'is-valid'
-										:	'is-invalid'
-									"
+											'bg-emerald-500/10 text-emerald-600'
+										:	'bg-slate-200/80 text-slate-500',
+									]"
 								>
-									<span class="status-dot"></span>
+									<span
+										:class="[
+											'w-1.5 h-1.5 rounded-full',
+											String(formState.isValid) === '1' ?
+												'bg-emerald-500'
+											:	'bg-slate-400',
+										]"
+									></span>
 									{{ String(formState.isValid) === '1' ? '有效账单' : '已失效' }}
 								</span>
 							</div>
 						</div>
 					</div>
-					<div class="hero-amount-block">
-						<span class="amount-label">账单金额</span>
+					<div class="flex flex-col items-end gap-0.5">
+						<span class="text-[11px] text-slate-400 font-medium">账单金额</span>
 						<span
-							class="amount-value"
-							:class="
+							:class="[
+								'text-2xl font-extrabold font-mono tabular-nums tracking-tight',
 								formState.incomeAndExpenses === 'income' ?
 									'text-emerald-600'
-								:	'text-rose-600'
-							"
+								:	'text-rose-600',
+							]"
 						>
 							{{ formState.incomeAndExpenses === 'income' ? '+' : '-' }}¥{{
 								formatAmount(formState.amount || 0)
@@ -71,51 +102,72 @@
 				</div>
 			</div>
 
-			<div class="detail-section-card">
-				<div class="section-header">
-					<FileTextOutlined class="section-icon" />
+			<div class="p-4 rounded-2xl bg-slate-50/80 border-0 space-y-3">
+				<div class="flex items-center gap-2 text-xs font-semibold text-slate-500 px-1">
+					<span
+						class="w-5 h-5 rounded-full bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center"
+					>
+						<FileTextOutlined class="text-[11px]" />
+					</span>
 					<span>交易凭证详情</span>
 				</div>
-				<div class="detail-grid">
-					<div class="detail-cell">
-						<span class="cell-label">
-							<TagOutlined class="mr-1" />账目类别
+				<div class="grid grid-cols-2 gap-3">
+					<div class="flex flex-col gap-1.5 p-3 rounded-xl bg-white shadow-2xs">
+						<span class="text-xs text-slate-400 flex items-center gap-1">
+							<TagOutlined />账目类别
 						</span>
-						<span class="cell-value">
-							<span v-if="formState.typeCode" class="category-badge">
-								{{ formState.typeCode }}
+						<div class="flex items-center min-h-[24px]">
+							<span
+								v-if="formState.typeCode"
+								class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
+								:style="getCategoryPillStyle(formState.typeCode)"
+							>
+								<span class="text-[11px] leading-none">{{
+									getCategoryEmoji(formState.typeCode)
+								}}</span>
+								<span>{{ formState.typeCode }}</span>
 							</span>
-							<span v-else class="text-slate-400">未分类</span>
-						</span>
+							<span v-else class="text-xs text-slate-400">未分类</span>
+						</div>
 					</div>
-					<div class="detail-cell">
-						<span class="cell-label">
-							<CreditCardOutlined class="mr-1" />支付方式
+					<div class="flex flex-col gap-1.5 p-3 rounded-xl bg-white shadow-2xs">
+						<span class="text-xs text-slate-400 flex items-center gap-1">
+							<CreditCardOutlined />支付方式
 						</span>
-						<span class="cell-value">
-							<span class="source-badge">
+						<div class="flex items-center min-h-[24px]">
+							<span
+								class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-100/90 rounded-full text-xs font-medium text-slate-700"
+							>
 								<component
-									v-if="iconComponentMap[`finance-${formState.fromSource}`]"
-									:is="iconComponentMap[`finance-${formState.fromSource}`]"
-									class="source-icon"
+									v-if="getFinanceIconComponent(formState.fromSource)"
+									:is="getFinanceIconComponent(formState.fromSource)"
+									class="w-3.5 h-3.5 shrink-0"
+								/>
+								<CreditCardOutlined
+									v-else
+									class="text-[13px] text-slate-400 shrink-0"
 								/>
 								<span>{{ resolvedFromSourceName }}</span>
 							</span>
-						</span>
+						</div>
 					</div>
-					<div class="detail-cell">
-						<span class="cell-label">
-							<UserOutlined class="mr-1" />归属成员
+					<div class="flex flex-col gap-1.5 p-3 rounded-xl bg-white shadow-2xs">
+						<span class="text-xs text-slate-400 flex items-center gap-1">
+							<UserOutlined />归属成员
 						</span>
-						<span class="cell-value font-semibold text-slate-800">
+						<span
+							class="text-xs font-semibold text-slate-800 flex items-center min-h-[24px]"
+						>
 							{{ resolvedBelongToName }}
 						</span>
 					</div>
-					<div class="detail-cell">
-						<span class="cell-label">
-							<ClockCircleOutlined class="mr-1" />业务时间
+					<div class="flex flex-col gap-1.5 p-3 rounded-xl bg-white shadow-2xs">
+						<span class="text-xs text-slate-400 flex items-center gap-1">
+							<ClockCircleOutlined />业务时间
 						</span>
-						<span class="cell-value font-mono text-slate-700">
+						<span
+							class="text-xs font-mono tabular-nums text-slate-700 flex items-center min-h-[24px]"
+						>
 							{{ formattedInfoDate }}
 						</span>
 					</div>
@@ -123,188 +175,332 @@
 			</div>
 		</div>
 
-		<!-- 新增/编辑模式：现代垂直表单 -->
+		<!-- 新增/编辑模式：Tailwind Soft UI 分组卡片表单 -->
 		<a-form
 			v-else
 			ref="formRef"
 			name="financeForm"
-			@keydown.ctrl.enter.prevent="handleSaveShortcut"
-			@keydown.meta.enter.prevent="handleSaveShortcut"
 			layout="vertical"
-			class="modern-form"
+			class="modern-soft-form space-y-3.5"
 			:model="formState"
 			:rules="rulesRef"
 		>
 			<!-- 智能记账辅助栏 -->
-			<div v-if="!formState.id" class="ai-assistant-banner mb-3 p-2 bg-blue-50 border border-blue-200 rounded flex justify-between items-center">
-				<div class="text-xs text-blue-700 flex items-center">
-					<ThunderboltOutlined class="mr-1 text-blue-500" />
+			<div
+				v-if="!isEdit"
+				class="p-3 bg-indigo-500/[0.08] rounded-2xl flex justify-between items-center gap-3"
+			>
+				<div class="text-xs text-indigo-700 flex items-center gap-1.5 font-medium">
+					<span
+						class="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-600 inline-flex items-center justify-center shrink-0"
+					>
+						<ThunderboltOutlined />
+					</span>
 					<span>粘贴账单、小票文本或预付卡流水，AI 自动帮您提取并填表</span>
 				</div>
-				<a-button
-					type="primary"
-					ghost
-					size="small"
+				<button
+					type="button"
 					data-testid="btn-finance-detail-ai-parse"
+					class="shrink-0 inline-flex items-center gap-1 h-7 px-3 rounded-xl border-0 bg-indigo-500 text-white hover:bg-indigo-600 text-xs font-medium shadow-xs shadow-indigo-500/20 cursor-pointer transition-all duration-150"
 					@click="openAiModal"
 				>
-					<template #icon><ThunderboltOutlined /></template>
-					智能记账 (AI识别)
-				</a-button>
+					<ThunderboltOutlined />
+					<span>智能记账 (AI识别)</span>
+				</button>
 			</div>
 
-			<div class="form-grid-2">
-				<a-form-item name="name" label="账目名称">
-					<a-input
-						id="form_name"
-						name="name"
-						v-model:value="formState.name"
-						placeholder="如：午餐、地铁打卡、电费"
-						allow-clear
-					/>
-				</a-form-item>
-
-				<a-form-item name="amount" label="账单金额">
-					<a-input
-						id="form_amount"
-						name="amount"
-						v-model:value="formState.amount"
-						type="number"
-						placeholder="请填写金额"
-						prefix="￥"
-						suffix="RMB"
-					/>
-				</a-form-item>
-			</div>
-
-			<a-form-item name="typeCode" label="账目类别">
-				<div class="space-y-2">
-					<a-input
-						id="form_typeCode"
-						name="typeCode"
-						v-model:value="formState.typeCode"
-						placeholder="填写或点击下方常用类别胶囊"
-						allow-clear
-					/>
-					<div
-						v-if="presetCategories.length"
-						class="preset-category-chips flex flex-wrap gap-1.5 pt-1"
+			<!-- 卡片 1：核心收支方向、金额与账目名称 -->
+			<div class="bg-slate-50/80 rounded-2xl p-4 space-y-3">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<a-form-item
+						name="incomeAndExpenses"
+						label="收支类型"
+						class="!mb-0"
 					>
-						<span
+						<div
+							id="form_incomeAndExpenses"
+							class="grid grid-cols-2 gap-1 p-1 bg-slate-200/60 rounded-xl h-9 box-border"
+						>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									formState.incomeAndExpenses !== 'income' ?
+										'bg-white text-rose-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="selectDirection('expense')"
+							>
+								<span
+									class="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block"
+								></span>
+								<span>支出</span>
+							</button>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									formState.incomeAndExpenses === 'income' ?
+										'bg-white text-emerald-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="selectDirection('income')"
+							>
+								<span
+									class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"
+								></span>
+								<span>收入</span>
+							</button>
+						</div>
+					</a-form-item>
+
+					<a-form-item name="isValid" label="有效状态" class="!mb-0">
+						<div
+							id="form_isValid"
+							class="grid grid-cols-2 gap-1 p-1 bg-slate-200/60 rounded-xl h-9 box-border"
+						>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									String(formState.isValid ?? '1') === '1' ?
+										'bg-white text-emerald-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="selectValidStatus('1')"
+							>
+								<span
+									class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"
+								></span>
+								<span>有效</span>
+							</button>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									String(formState.isValid ?? '1') === '0' ?
+										'bg-white text-slate-700 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="selectValidStatus('0')"
+							>
+								<span
+									class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"
+								></span>
+								<span>失效</span>
+							</button>
+						</div>
+					</a-form-item>
+				</div>
+
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<a-form-item name="name" label="账目名称" class="!mb-0">
+						<a-input
+							id="form_name"
+							name="name"
+							v-model:value="formState.name"
+							placeholder="如：午餐、地铁打卡、电费"
+							class="!rounded-xl"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="amount" label="账单金额" class="!mb-0">
+						<a-input
+							id="form_amount"
+							name="amount"
+							v-model:value="formState.amount"
+							type="number"
+							placeholder="0.00"
+							class="!rounded-xl font-mono font-semibold"
+						>
+							<template #prefix>
+								<span
+									:class="[
+										'font-mono font-bold',
+										formState.incomeAndExpenses === 'income' ?
+											'text-emerald-600'
+										:	'text-rose-600',
+									]"
+									>¥</span
+								>
+							</template>
+							<template #suffix>
+								<span class="text-[11px] font-mono text-slate-400">RMB</span>
+							</template>
+						</a-input>
+					</a-form-item>
+				</div>
+			</div>
+
+			<!-- 卡片 2：分类胶囊池与支付方式 -->
+			<div class="bg-slate-50/80 rounded-2xl p-4 space-y-3">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<a-form-item name="typeCode" label="账目类别" class="!mb-0">
+						<a-input
+							id="form_typeCode"
+							name="typeCode"
+							v-model:value="formState.typeCode"
+							placeholder="填写或点击下方常用类别"
+							class="!rounded-xl"
+							allow-clear
+						/>
+					</a-form-item>
+
+					<a-form-item name="fromSource" label="支付方式" class="!mb-0">
+						<a-select
+							id="form_fromSource"
+							name="fromSource"
+							v-model:value="formState.fromSource"
+							placeholder="请选择支付来源"
+							:allowClear="true"
+						>
+							<a-select-option
+								v-for="item in fromSourceList"
+								:key="item.typeCode"
+								:value="item.typeCode"
+								:label="item.typeName"
+							>
+								<span class="inline-flex items-center gap-2">
+									<component
+										v-if="getFinanceIconComponent(item.typeCode)"
+										:is="getFinanceIconComponent(item.typeCode)"
+										class="w-4 h-4 shrink-0"
+									/>
+									<CreditCardOutlined
+										v-else
+										class="text-[13px] text-slate-400 shrink-0"
+									/>
+									<span>{{ item.typeName }}</span>
+								</span>
+							</a-select-option>
+						</a-select>
+					</a-form-item>
+				</div>
+
+				<!-- 无框 Soft UI 快捷分类胶囊池 -->
+				<div v-if="presetCategories.length" class="pt-0.5">
+					<div class="text-[11px] text-slate-400 mb-2 flex items-center justify-between">
+						<span>快捷分类标签（点击即选）</span>
+					</div>
+					<div class="flex flex-wrap gap-1.5">
+						<button
 							v-for="cat in presetCategories"
 							:key="cat"
+							type="button"
 							:class="[
-								'category-chip-pill',
-								formState.typeCode === cat ? 'is-selected' : '',
+								'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border-0 cursor-pointer select-none transition-all duration-150',
+								formState.typeCode === cat ?
+									'bg-indigo-500 text-white font-semibold shadow-sm shadow-indigo-500/25 -translate-y-0.5'
+								:	'bg-white text-slate-600 shadow-2xs hover:bg-indigo-500/10 hover:text-indigo-600 hover:-translate-y-0.5',
 							]"
 							@click="toggleCategoryChip(cat)"
 						>
-							<span class="chip-emoji">{{ getCategoryEmoji(cat) }}</span>
-							<span class="chip-name">{{ cat }}</span>
+							<span class="text-xs leading-none">{{
+								getCategoryEmoji(cat)
+							}}</span>
+							<span class="leading-tight">{{ cat }}</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 卡片 3：业务时间与归属成员 -->
+			<div class="bg-slate-50/80 rounded-2xl p-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<a-form-item name="infoDate" label="业务时间" class="!mb-0">
+						<a-date-picker
+							id="form_infoDate"
+							name="infoDate"
+							v-model:value="formState.infoDate"
+							show-time
+							class="w-full !rounded-xl"
+							:format="dataTimeFormat"
+							:getPopupContainer="
+								(triggerNode: HTMLElement) => {
+									return triggerNode.parentNode as HTMLElement;
+								}
+							"
+						/>
+					</a-form-item>
+
+					<a-form-item name="belongTo" label="归属成员" class="!mb-0">
+						<a-select
+							id="form_belongTo"
+							name="belongTo"
+							v-model:value="formState.belongTo"
+							:field-names="{ label: 'nickName', value: 'id' }"
+							:options="userList"
+							placeholder="请选择归属人"
+						/>
+					</a-form-item>
+				</div>
+			</div>
+
+			<!-- 卡片 4：票据凭证与附件 (若存在) -->
+			<div v-if="attachedFiles.length > 0" class="bg-slate-50/80 rounded-2xl p-4">
+				<div
+					class="text-xs font-semibold text-slate-700 mb-2 flex items-center justify-between"
+				>
+					<span class="flex items-center gap-1.5">
+						<PaperClipOutlined />关联凭证与小票 ({{ attachedFiles.length }})
+					</span>
+				</div>
+				<div class="flex flex-wrap gap-2">
+					<div
+						v-for="(file, idx) in attachedFiles"
+						:key="idx"
+						class="flex items-center gap-2 p-1.5 px-2.5 rounded-xl border border-slate-200 bg-white text-xs shadow-2xs"
+					>
+						<PaperClipOutlined class="text-indigo-500" />
+						<a
+							:href="file.preUrl || file.url"
+							target="_blank"
+							class="text-indigo-600 hover:underline max-w-[200px] truncate"
+						>
+							{{ file.name || '小票凭证' }}
+						</a>
+						<span
+							class="cursor-pointer text-slate-400 hover:text-rose-500 font-bold ml-1 text-sm"
+							title="移除凭证"
+							@click="attachedFiles.splice(idx, 1)"
+						>
+							×
 						</span>
 					</div>
 				</div>
-			</a-form-item>
-
-			<div class="form-grid-2">
-				<a-form-item name="fromSource" label="支付方式">
-					<a-select
-						id="form_fromSource"
-						name="fromSource"
-						v-model:value="formState.fromSource"
-						placeholder="请选择支付来源"
-						:field-names="{ label: 'typeName', value: 'typeCode' }"
-						:options="fromSourceList"
-						:allowClear="true"
-					/>
-				</a-form-item>
-
-				<a-form-item name="incomeAndExpenses" label="收支类型">
-					<a-select
-						id="form_incomeAndExpenses"
-						name="incomeAndExpenses"
-						v-model:value="formState.incomeAndExpenses"
-						placeholder="请选择收支类型"
-						:field-names="{ label: 'typeName', value: 'typeCode' }"
-						:options="incomeAndExpensesList"
-						:allowClear="true"
-					/>
-				</a-form-item>
-			</div>
-
-			<div class="form-grid-2">
-				<a-form-item name="infoDate" label="业务时间">
-					<a-date-picker
-						id="form_infoDate"
-						name="infoDate"
-						v-model:value="formState.infoDate"
-						show-time
-						class="w-full"
-						:format="dataTimeFormat"
-						:getPopupContainer="
-							(triggerNode: HTMLElement) => {
-								return triggerNode.parentNode as HTMLElement;
-							}
-						"
-					/>
-				</a-form-item>
-
-				<a-form-item name="belongTo" label="归属成员">
-					<a-select
-						id="form_belongTo"
-						name="belongTo"
-						v-model:value="formState.belongTo"
-						:field-names="{ label: 'nickName', value: 'id' }"
-						:options="userList"
-						placeholder="请选择归属人"
-					/>
-				</a-form-item>
-			</div>
-
-			<div class="form-grid-2">
-				<a-form-item name="isValid" label="有效状态">
-					<a-select
-						id="form_isValid"
-						name="isValid"
-						v-model:value="formState.isValid"
-						placeholder="请选择有效状态"
-						:field-names="{ label: 'typeName', value: 'typeCode' }"
-						:options="validList"
-						:allowClear="true"
-					/>
-				</a-form-item>
 			</div>
 		</a-form>
 
 		<template #footer>
-			<div class="flex items-center justify-between w-full">
-				<div class="text-xs text-slate-400">
-					<span v-if="!formState.id && !isReadonly">
-						💡 支持连续记录多笔账目
-					</span>
-				</div>
-				<a-space :size="10">
-					<a-button class="drawer-btn" @click="handleCancel">
+			<div class="flex items-center justify-end w-full">
+				<div class="flex items-center gap-2.5">
+					<button
+						type="button"
+						class="h-9 px-4 rounded-xl border-0 bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 text-xs font-medium cursor-pointer transition-all duration-200"
+						@click="handleCancel"
+					>
 						{{ isReadonly ? '关闭' : '取消' }}
-					</a-button>
-					<a-button
-						v-if="!formState.id && !isReadonly"
-						class="drawer-btn"
-						:loading="loading"
+					</button>
+					<button
+						v-if="!isEdit && !isReadonly"
+						type="button"
+						:disabled="loading"
+						class="h-9 px-4 rounded-xl border-0 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/15 disabled:opacity-50 text-xs font-medium cursor-pointer transition-all duration-200"
 						@click="handleSaveAndContinue"
 					>
 						保存并再记一笔 (Ctrl+↵)
-					</a-button>
-					<a-button
+					</button>
+					<button
 						v-if="!isReadonly"
-						type="primary"
-						class="drawer-btn drawer-btn-primary"
-						:loading="loading"
+						type="button"
+						:disabled="loading"
+						class="h-9 px-5 rounded-xl border-0 bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50 text-xs font-medium shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 cursor-pointer transition-all duration-200"
 						@click="handleOk"
 					>
 						保存
-					</a-button>
-				</a-space>
+					</button>
+				</div>
 			</div>
 		</template>
 	</BaseRbacDrawer>
@@ -328,25 +524,28 @@ import {
 	UserOutlined,
 	ClockCircleOutlined,
 	ThunderboltOutlined,
+	PaperClipOutlined,
 } from '@ant-design/icons-vue';
 import BaseRbacDrawer from '@/components/rbac/BaseRbacDrawer.vue';
 import FinanceAiParseModal from '@/views/selfFinance/financeManager/components/FinanceAiParseModal.vue';
-import type { UniversalFinanceAiParseVo } from '@/views/selfFinance/financeManager/config';
+import {
+	type UniversalFinanceAiParseVo,
+	type FinanceManagerData,
+	rulesRef,
+	fromSourceTransferList,
+	getCategoryEmoji,
+	getCategoryPillStyle,
+} from '@/views/selfFinance/financeManager/config';
 import { iconComponentMap } from '@/config/icons';
 import { formatAmount } from '@/utils/amountInfo';
 import { useUserStore } from '@/store/modules/user/user';
 import type { ModelInfo } from '@/types/modal';
-import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
 import {
 	getFinanceMangerDetail,
 	addFinanceManger,
 	editFinanceManger,
 	getBudgetCategories,
 } from '@/views/selfFinance/financeManager/api';
-import {
-	rulesRef,
-	fromSourceTransferList,
-} from '@/views/selfFinance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
 import {
@@ -360,22 +559,37 @@ import type { ResponseBody } from '@/types/api';
 
 const modelInfo = defineModel<ModelInfo>('modelInfo', { default: () => ({}) });
 
-const { getDictByType } = useDictInfo('pay_way,income_expense_type,is_valid');
+const { getDictByType } = useDictInfo('pay_way');
 
 const fromSourceList = computed(() => getDictByType('pay_way'));
-const incomeAndExpensesList = computed(() =>
-	getDictByType('income_expense_type'),
-);
-const validList = computed(() => getDictByType('is_valid'));
+
+const financeSourceIconMap: Record<string, string> = {
+	hfw: 'hf',
+	hfm: 'hf',
+	hfmj: 'hf',
+	dfw: 'df',
+	dfm: 'df',
+};
+
+const getFinanceIconComponent = (source?: string | number) => {
+	if (!source) return null;
+	const key = String(source);
+	const iconKey = financeSourceIconMap[key] || key;
+	return iconComponentMap[`finance-${iconKey}`] || null;
+};
 
 const { userList } = useUserInfo();
 
 const loading = ref<boolean>(false);
+const detailLoading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 
 const currentUser = useUserStore()?.getUserInfo;
 const formState = ref<FinanceManagerData>({});
 const presetCategories = ref<string[]>([]);
+const attachedFiles = ref<
+	Array<{ id?: string; name?: string; url?: string; preUrl?: string }>
+>([]);
 
 const aiModalVisible = ref(false);
 const openAiModal = () => {
@@ -405,16 +619,22 @@ const onApplyAiResult = (parsed: UniversalFinanceAiParseVo) => {
 	if (parsed.infoDate) {
 		formState.value.infoDate = formatTime(parsed.infoDate);
 	}
+	if (parsed.attachments && parsed.attachments.length) {
+		attachedFiles.value = [...parsed.attachments];
+	}
 	message.success('已将 AI 识别内容填入表单，请复核后保存');
 };
 
 const isReadonly = computed(() => Boolean(modelInfo.value?.readonly));
+const isEdit = computed(() =>
+	Boolean(modelInfo.value?.id || formState.value?.id),
+);
 
 const drawerSubtitle = computed(() => {
 	if (isReadonly.value) {
 		return '查看账单收支金额、分类标签与归属成员等电子凭证信息';
 	}
-	return formState.value?.id ?
+	return isEdit.value ?
 			'修改账单收支金额、分类或支付渠道信息'
 		:	'快速录入日常消费或收入流水，支持连续记账';
 });
@@ -480,36 +700,14 @@ const createDefaultFormState = (): FinanceManagerData => ({
 	belongTo: String(currentUser?.id ?? 2),
 });
 
-
-const categoryEmojiMap: Record<string, string> = {
-	餐饮: '🍱',
-	日常交通: '🚗',
-	交通: '🚗',
-	打车: '🚕',
-	日用百货: '🛒',
-	日用: '🛒',
-	超市: '🏪',
-	水费: '💧',
-	电费: '⚡',
-	燃气费: '🔥',
-	零食: '🍿',
-	饮品: '☕',
-	咖啡: '☕',
-	工资: '💰',
-	奖金: '🧧',
-	礼金: '🎁',
-	房租: '🏠',
-	医疗: '💊',
-	娱乐: '🎮',
+const selectDirection = (dir: 'expense' | 'income') => {
+	formState.value.incomeAndExpenses = dir;
+	void formRef.value?.validateFields(['incomeAndExpenses']);
 };
 
-const getCategoryEmoji = (name: string): string => {
-	for (const [key, emoji] of Object.entries(categoryEmojiMap)) {
-		if (name.includes(key)) {
-			return emoji;
-		}
-	}
-	return '🏷️';
+const selectValidStatus = (status: '1' | '0') => {
+	formState.value.isValid = status;
+	void formRef.value?.validateFields(['isValid']);
 };
 
 const toggleCategoryChip = (cat: string) => {
@@ -521,16 +719,36 @@ const toggleCategoryChip = (cat: string) => {
 			formState.value.name = cat;
 		}
 	}
+	void formRef.value?.validateFields(['typeCode']);
 };
 
 const handleSaveShortcut = () => {
-	if (isReadonly.value) return;
-	if (formState.value.id) {
+	if (isReadonly.value || loading.value || detailLoading.value) return;
+	if (isEdit.value) {
 		handleOk();
 	} else {
-		handleSaveAndContinue();
+		void handleSaveAndContinue();
 	}
 };
+
+const handleGlobalKeydown = (e: KeyboardEvent) => {
+	if (!modelInfo.value.open || isReadonly.value || aiModalVisible.value) {
+		return;
+	}
+	if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+		e.preventDefault();
+		e.stopPropagation();
+		handleSaveShortcut();
+	}
+};
+
+onMounted(() => {
+	window.addEventListener('keydown', handleGlobalKeydown, true);
+});
+
+onUnmounted(() => {
+	window.removeEventListener('keydown', handleGlobalKeydown, true);
+});
 
 const handleOk = () => {
 	if (isReadonly.value) {
@@ -564,6 +782,7 @@ const handleSaveAndContinue = async () => {
 				typeCode: '',
 				infoDate: nowDayjs(),
 			};
+			void nextTick(() => formRef.value?.clearValidate());
 		} else {
 			message.error(messageInfo || '保存失败！');
 		}
@@ -602,31 +821,44 @@ const saveFinanceManager = async () => {
 };
 
 const initDetail = async (modalData: ModelInfo | undefined) => {
+	attachedFiles.value = [];
 	if (!modalData?.id) {
+		detailLoading.value = false;
 		formState.value = createDefaultFormState();
 		if (modalData?.extraData) {
 			onApplyAiResult(modalData.extraData as UniversalFinanceAiParseVo);
 			modalData.extraData = undefined;
 		}
+		void nextTick(() => formRef.value?.clearValidate());
 		return;
 	}
 
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getFinanceMangerDetail(String(modalData.id));
+	detailLoading.value = true;
+	formState.value = {};
+	try {
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = await getFinanceMangerDetail(String(modalData.id));
 
-	if (code !== '200') {
-		message.error(messageInfo || '查询失败！');
-		return;
+		if (code !== '200') {
+			message.error(messageInfo || '查询失败！');
+			return;
+		}
+
+		const detailData = data || {};
+		formState.value = {
+			...detailData,
+			infoDate: formatDayjs(detailData.infoDate),
+		};
+		void nextTick(() => formRef.value?.clearValidate());
+	} catch (e) {
+		console.warn('获取账单明细失败:', e);
+		message.error('获取账单明细失败！');
+	} finally {
+		detailLoading.value = false;
 	}
-
-	const detailData = data || {};
-	formState.value = {
-		...detailData,
-		infoDate: formatDayjs(detailData.infoDate),
-	};
 };
 
 watch(
@@ -643,300 +875,19 @@ const emit = defineEmits(['success']);
 </script>
 
 <style lang="scss" scoped>
-.detail-readonly-view {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-
-	.voucher-hero-card {
-		padding: 18px 20px;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-
-		&.is-income {
-			border-color: #a7f3d0;
-			background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 65%);
-		}
-
-		&.is-expense {
-			border-color: #fecdd3;
-			background: linear-gradient(135deg, #fff1f2 0%, #ffffff 65%);
-		}
-
-		.hero-top-row {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 16px;
-			flex-wrap: wrap;
-		}
-
-		.hero-title-group {
-			display: flex;
-			align-items: center;
-			gap: 14px;
-			min-width: 0;
-		}
-
-		.hero-icon-box {
-			width: 44px;
-			height: 44px;
-			border-radius: 12px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: #ffffff;
-			border: 1px solid #e2e8f0;
-			color: #2563eb;
-			font-size: 20px;
-			flex-shrink: 0;
-			box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-		}
-
-		.hero-meta {
-			display: flex;
-			flex-direction: column;
-			gap: 6px;
-			min-width: 0;
-
-			.hero-title {
-				margin: 0;
-				font-size: 16px;
-				font-weight: 700;
-				color: #0f172a;
-				line-height: 1.3;
-			}
-
-			.hero-badges {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				flex-wrap: wrap;
-			}
-		}
-
-		.direction-pill {
-			display: inline-flex;
-			align-items: center;
-			padding: 2px 8px;
-			border-radius: 6px;
-			font-size: 11px;
-			font-weight: 600;
-
-			&.pill-income {
-				background: #d1fae5;
-				color: #047857;
-			}
-
-			&.pill-expense {
-				background: #ffe4e6;
-				color: #be123c;
-			}
-		}
-
-		.status-pill {
-			display: inline-flex;
-			align-items: center;
-			gap: 5px;
-			padding: 2px 8px;
-			border-radius: 999px;
-			font-size: 11px;
-			font-weight: 600;
-
-			.status-dot {
-				width: 6px;
-				height: 6px;
-				border-radius: 50%;
-			}
-
-			&.is-valid {
-				background: #f0fdf4;
-				color: #15803d;
-				border: 1px solid #bbf7d0;
-				.status-dot {
-					background: #22c55e;
-				}
-			}
-
-			&.is-invalid {
-				background: #f1f5f9;
-				color: #64748b;
-				border: 1px solid #cbd5e1;
-				.status-dot {
-					background: #94a3b8;
-				}
-			}
-		}
-
-		.hero-amount-block {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-			gap: 2px;
-
-			.amount-label {
-				font-size: 11px;
-				color: #64748b;
-				font-weight: 500;
-			}
-
-			.amount-value {
-				font-size: 22px;
-				font-weight: 800;
-				font-variant-numeric: tabular-nums;
-				letter-spacing: -0.02em;
-			}
-		}
-	}
-
-	.detail-section-card {
-		padding: 16px 18px;
-		border-radius: 12px;
-		border: 1px solid #e2e8f0;
-		background: #ffffff;
-
-		.section-header {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			font-size: 13px;
-			font-weight: 600;
-			color: #334155;
-			margin-bottom: 14px;
-			padding-bottom: 10px;
-			border-bottom: 1px solid #f1f5f9;
-
-			.section-icon {
-				color: #3b82f6;
-			}
-		}
-
-		.detail-grid {
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 14px;
-
-			.detail-cell {
-				display: flex;
-				flex-direction: column;
-				gap: 6px;
-				padding: 10px 12px;
-				border-radius: 8px;
-				background: #f8fafc;
-				border: 1px solid #f1f5f9;
-
-				.cell-label {
-					font-size: 12px;
-					color: #64748b;
-				}
-
-				.cell-value {
-					font-size: 13px;
-					color: #1e293b;
-					display: flex;
-					align-items: center;
-				}
-			}
-		}
-	}
-
-	.category-badge {
-		display: inline-flex;
-		align-items: center;
-		padding: 2px 10px;
-		border-radius: 999px;
-		background: #eff6ff;
-		border: 1px solid #bfdbfe;
-		color: #1d4ed8;
-		font-size: 12px;
-		font-weight: 600;
-	}
-
-	.source-badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		padding: 2px 8px;
-		background: #ffffff;
-		border: 1px solid #e2e8f0;
-		border-radius: 6px;
-		font-size: 12px;
-		font-weight: 500;
-		color: #334155;
-
-		.source-icon {
-			width: 15px;
-			height: 15px;
-		}
-	}
-}
-
-
-.category-chip-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	padding: 3px 10px;
-	border-radius: 14px;
-	border: 1px solid #e2e8f0;
-	background: #f8fafc;
-	font-size: 12px;
-	color: #475569;
-	cursor: pointer;
-	user-select: none;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-	.chip-emoji {
-		font-size: 13px;
-	}
-
-	&:hover {
-		border-color: #93c5fd;
-		background: #eff6ff;
-		color: #1d4ed8;
-		transform: translateY(-1px);
-	}
-
-	&.is-selected {
-		border-color: #3b82f6;
-		background: #dbeafe;
-		color: #1d4ed8;
-		font-weight: 600;
-		box-shadow: 0 1px 3px rgba(59, 130, 246, 0.25);
-	}
-}
-
-.modern-form {
-	.form-grid-2 {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0 16px;
-	}
-
+.modern-soft-form {
 	:deep(.ant-form-item-label > label) {
-		font-size: 13px;
+		font-size: 12px;
 		font-weight: 600;
-		color: #334155;
+		color: #475569;
 	}
 
 	:deep(.ant-input),
 	:deep(.ant-input-affix-wrapper),
 	:deep(.ant-select-selector),
 	:deep(.ant-picker) {
-		border-radius: 8px;
-	}
-}
-
-.drawer-btn {
-	min-width: 84px;
-	height: 36px;
-	border-radius: 8px;
-	font-weight: 500;
-
-	&.drawer-btn-primary {
-		box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+		border-radius: 12px !important;
+		border-color: rgba(226, 232, 240, 0.9) !important;
 	}
 }
 </style>

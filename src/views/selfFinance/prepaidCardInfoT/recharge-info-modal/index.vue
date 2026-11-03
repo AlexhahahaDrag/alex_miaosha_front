@@ -4,7 +4,7 @@
 		:title="drawerTitle"
 		:subtitle="drawerSubtitle"
 		width="480px"
-		:confirm-loading="submitting"
+		:loading="submitting"
 		:ok-text="isConsumeMode ? '确认扣款' : '确认充值'"
 		@ok="confirmRecharge"
 		@cancel="cancelRecharge"

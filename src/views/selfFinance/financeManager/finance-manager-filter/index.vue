@@ -1,14 +1,16 @@
 <template>
-	<div class="search">
-		<div class="search-box">
+	<div class="search shrink-0 mb-2.5">
+		<div
+			class="search-box bg-white px-4 py-2.5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 transition-all duration-200"
+		>
 			<!-- 主筛选栏：单行紧凑布局 -->
-			<div class="filter-main-row">
-				<div class="filter-left-group">
+			<div class="flex items-center justify-between flex-wrap gap-3">
+				<div class="flex items-center flex-wrap gap-2.5 flex-1 min-w-[320px]">
 					<!-- 收支类型快捷切换（全部/支出/收入） -->
 					<a-radio-group
 						v-model:value="selectedType"
 						button-style="solid"
-						class="type-radio-group"
+						class="type-radio-group bg-slate-100/90 p-0.5 rounded-xl border-0 inline-flex"
 						@change="handleFastFilterChange"
 					>
 						<a-radio-button value="">全部</a-radio-button>
@@ -17,14 +19,18 @@
 					</a-radio-group>
 
 					<!-- 周期快捷 Pill 胶囊 -->
-					<div class="period-pills-group">
+					<div
+						class="inline-flex items-center bg-slate-100/90 p-0.5 rounded-xl border-0 gap-0.5 h-8 box-border"
+					>
 						<button
 							v-for="p in periodPresets"
 							:key="p.key"
 							type="button"
 							:class="[
-								'period-pill-btn',
-								{ active: currentPeriodKey === p.key },
+								'border-0 text-xs px-2.5 py-1 rounded-lg cursor-pointer leading-snug transition-all duration-150',
+								currentPeriodKey === p.key ?
+									'bg-white text-indigo-600 font-semibold shadow-2xs'
+								:	'bg-transparent text-slate-500 hover:text-slate-900 hover:bg-white/60',
 							]"
 							@click="selectPeriod(p.key)"
 						>
@@ -35,7 +41,7 @@
 					<!-- 业务时间范围（带常用预设） -->
 					<a-range-picker
 						v-model:value="dateRange"
-						class="date-range-picker"
+						class="w-[250px] !rounded-xl !border-slate-200/80"
 						:presets="rangePresets"
 						:placeholder="['开始日期', '结束日期']"
 						@change="handleDateRangeChange"
@@ -45,79 +51,111 @@
 					<a-input
 						v-model:value="searchInfo.name"
 						placeholder="搜索账目名称..."
-						class="quick-search-input"
+						class="w-[200px] !rounded-xl !border-slate-200/80"
 						allow-clear
 						@pressEnter="handleQuery"
 						@change="handleSearchChange"
 					>
 						<template #prefix>
-							<SearchOutlined class="search-prefix-icon" />
+							<SearchOutlined class="text-slate-400" />
 						</template>
 					</a-input>
 				</div>
 
 				<!-- 操作按钮组 -->
-				<div class="filter-right-group">
-					<a-space>
-						<a-button type="primary" @click="handleQuery">查询</a-button>
-						<a-button @click="handleCancelQuery">重置</a-button>
-						<a-button
-							type="link"
-							class="expand-btn"
-							@click="isExpanded = !isExpanded"
-						>
-							<span>{{ isExpanded ? '收起筛选' : '更多筛选' }}</span>
-							<component :is="isExpanded ? UpOutlined : DownOutlined" />
-						</a-button>
-					</a-space>
+				<div class="flex items-center justify-end gap-2">
+					<button
+						type="button"
+						class="h-8 px-4 rounded-xl border-0 bg-indigo-500 text-white hover:bg-indigo-600 text-xs font-medium shadow-sm shadow-indigo-500/20 cursor-pointer transition-all duration-200"
+						@click="handleQuery"
+					>
+						查询
+					</button>
+					<button
+						type="button"
+						class="h-8 px-3.5 rounded-xl border-0 bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 text-xs font-medium cursor-pointer transition-all duration-200"
+						@click="handleCancelQuery"
+					>
+						重置
+					</button>
+					<button
+						type="button"
+						class="inline-flex items-center gap-1 h-8 px-2 border-0 bg-transparent text-xs font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer transition-colors"
+						@click="isExpanded = !isExpanded"
+					>
+						<span>{{ isExpanded ? '收起筛选' : '更多筛选' }}</span>
+						<component
+							:is="isExpanded ? UpOutlined : DownOutlined"
+							class="text-[11px]"
+						/>
+					</button>
 				</div>
 			</div>
 
-			<!-- 展开的高级筛选条件 -->
-			<div v-show="isExpanded" class="filter-expand-row">
-				<a-divider style="margin: 12px 0" />
-				<a-row :gutter="16" align="middle">
-					<a-col :xs="24" :sm="12" :md="8" :lg="6">
-						<div class="expand-item">
-							<span class="expand-label">账目类别</span>
-							<a-input
-								v-model:value="searchInfo.typeCode"
-								placeholder="如：餐饮、日用、工资"
-								allow-clear
-								@change="handleSearchChange"
-								@pressEnter="handleQuery"
-							/>
-						</div>
-					</a-col>
-					<a-col :xs="24" :sm="12" :md="8" :lg="6">
-						<div class="expand-item">
-							<span class="expand-label">支付方式</span>
-							<a-select
-								v-model:value="searchInfo.fromSource"
-								placeholder="选择支付方式"
-								:field-names="{ label: 'typeName', value: 'typeCode' }"
-								:options="fromSourceList"
-								allow-clear
-								class="expand-select"
-								@change="handleSearchChange"
-							/>
-						</div>
-					</a-col>
-					<a-col :xs="24" :sm="12" :md="8" :lg="6">
-						<div class="expand-item">
-							<span class="expand-label">归属成员</span>
-							<a-select
-								v-model:value="searchInfo.belongTo"
-								placeholder="选择归属成员"
-								:field-names="{ label: 'nickName', value: 'id' }"
-								:options="userList"
-								allow-clear
-								class="expand-select"
-								@change="handleSearchChange"
-							/>
-						</div>
-					</a-col>
-				</a-row>
+			<!-- 展开的高级筛选条件 (Tailwind Soft UI 柔和托底，彻底消除 preflight:false 下的四边默认框) -->
+			<div
+				v-show="isExpanded"
+				class="mt-2.5 p-3 rounded-xl bg-slate-50/80 border-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+			>
+				<div class="flex items-center gap-2">
+					<span class="shrink-0 text-xs font-medium text-slate-500 w-14 text-right">
+						账目类别
+					</span>
+					<a-input
+						v-model:value="searchInfo.typeCode"
+						placeholder="如：餐饮、日用、工资"
+						class="flex-1 !rounded-xl !border-slate-200/80"
+						allow-clear
+						@change="handleSearchChange"
+						@pressEnter="handleQuery"
+					/>
+				</div>
+				<div class="flex items-center gap-2">
+					<span class="shrink-0 text-xs font-medium text-slate-500 w-14 text-right">
+						支付方式
+					</span>
+					<a-select
+						v-model:value="searchInfo.fromSource"
+						placeholder="选择支付方式"
+						allow-clear
+						class="flex-1"
+						@change="handleSearchChange"
+					>
+						<a-select-option
+							v-for="item in fromSourceList"
+							:key="item.typeCode"
+							:value="item.typeCode"
+							:label="item.typeName"
+						>
+							<span class="inline-flex items-center gap-2">
+								<component
+									v-if="getFinanceIconComponent(item.typeCode)"
+									:is="getFinanceIconComponent(item.typeCode)"
+									class="w-4 h-4 shrink-0"
+								/>
+								<CreditCardOutlined
+									v-else
+									class="text-[13px] text-slate-400 shrink-0"
+								/>
+								<span>{{ item.typeName }}</span>
+							</span>
+						</a-select-option>
+					</a-select>
+				</div>
+				<div class="flex items-center gap-2">
+					<span class="shrink-0 text-xs font-medium text-slate-500 w-14 text-right">
+						归属成员
+					</span>
+					<a-select
+						v-model:value="searchInfo.belongTo"
+						placeholder="选择归属成员"
+						:field-names="{ label: 'nickName', value: 'id' }"
+						:options="userList"
+						allow-clear
+						class="flex-1"
+						@change="handleSearchChange"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -127,6 +165,7 @@
 import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
 import { useUserInfo } from '@/composables/useUserInfo';
 import { useDictInfo } from '@/composables/useDictInfo';
+import { iconComponentMap } from '@/config/icons';
 import { debounce } from 'lodash-es';
 import {
 	formatDayjs,
@@ -138,6 +177,7 @@ import {
 	SearchOutlined,
 	DownOutlined,
 	UpOutlined,
+	CreditCardOutlined,
 } from '@ant-design/icons-vue';
 
 // 组合式函数
@@ -145,6 +185,21 @@ const { userList } = useUserInfo();
 const { getDictByType } = useDictInfo('pay_way');
 
 const fromSourceList = computed(() => getDictByType('pay_way'));
+
+const financeSourceIconMap: Record<string, string> = {
+	hfw: 'hf',
+	hfm: 'hf',
+	hfmj: 'hf',
+	dfw: 'df',
+	dfm: 'df',
+};
+
+const getFinanceIconComponent = (source?: string | number) => {
+	if (!source) return null;
+	const sourceKey = String(source);
+	const iconKey = financeSourceIconMap[sourceKey] || sourceKey;
+	return iconComponentMap[`finance-${iconKey}`] || null;
+};
 
 // Props
 interface Props {
@@ -205,15 +260,24 @@ const currentPeriodKey = computed(() => {
 	if (
 		start &&
 		end &&
-		formatDayjs(start).isSame(nowDayjs().subtract(1, 'month').startOf('month'), 'day') &&
-		formatDayjs(end).isSame(nowDayjs().subtract(1, 'month').endOf('month'), 'day')
+		formatDayjs(start).isSame(
+			nowDayjs().subtract(1, 'month').startOf('month'),
+			'day',
+		) &&
+		formatDayjs(end).isSame(
+			nowDayjs().subtract(1, 'month').endOf('month'),
+			'day',
+		)
 	) {
 		return 'lastMonth';
 	}
 	if (
 		start &&
 		end &&
-		formatDayjs(start).isSame(nowDayjs().subtract(29, 'day').startOf('day'), 'day') &&
+		formatDayjs(start).isSame(
+			nowDayjs().subtract(29, 'day').startOf('day'),
+			'day',
+		) &&
 		formatDayjs(end).isSame(nowDayjs().endOf('day'), 'day')
 	) {
 		return 'last30Days';
@@ -266,7 +330,10 @@ const rangePresets = ref([
 	},
 	{
 		label: '今年',
-		value: [nowDayjs().startOf('year'), nowDayjs().endOf('year')] as [Dayjs, Dayjs],
+		value: [
+			nowDayjs().startOf('year'),
+			nowDayjs().endOf('year'),
+		] as [Dayjs, Dayjs],
 	},
 ]);
 
@@ -317,9 +384,12 @@ const handleQuery = () => {
 
 const handleCancelQuery = () => {
 	debouncedQuery.cancel();
-	dateRange.value = undefined;
+	const [s, e] = getMonthRangeDayjs();
+	dateRange.value = [s, e];
 	searchInfo.value = {
 		incomeAndExpenses: '',
+		infoDateStart: s,
+		infoDateEnd: e,
 	};
 	emit('cancelQuery');
 };
@@ -330,52 +400,23 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.search {
-	margin-bottom: 10px;
-}
-
 .search-box {
-	background: #ffffff;
-	padding: 10px 16px;
-	border-radius: 12px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-	border: 1px solid #e2e8f0;
-	transition: all 0.2s ease;
-}
-
-.filter-main-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	gap: 12px;
-}
-
-.filter-left-group {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 10px;
-	flex: 1;
-	min-width: 320px;
+	:deep(.ant-select-selector) {
+		border-radius: 12px !important;
+		border-color: rgba(226, 232, 240, 0.9) !important;
+	}
 }
 
 .type-radio-group {
-	background: #f1f5f9;
-	padding: 2px;
-	border-radius: 8px;
-	border: 1px solid #e2e8f0;
-	display: inline-flex;
-
 	:deep(.ant-radio-button-wrapper) {
 		height: 28px;
-		line-height: 26px;
+		line-height: 28px;
 		padding: 0 12px;
-		font-size: 12.5px;
+		font-size: 12px;
 		border: none !important;
 		background: transparent !important;
 		color: #64748b;
-		border-radius: 6px;
+		border-radius: 8px;
 		transition: all 0.15s ease;
 
 		&::before {
@@ -388,95 +429,10 @@ onUnmounted(() => {
 
 		&.ant-radio-button-wrapper-checked {
 			background: #ffffff !important;
-			color: #2563eb !important;
+			color: #4f46e5 !important;
 			font-weight: 600;
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 		}
-	}
-}
-
-.period-pills-group {
-	display: inline-flex;
-	align-items: center;
-	background: #f1f5f9;
-	padding: 2px;
-	border-radius: 8px;
-	border: 1px solid #e2e8f0;
-	gap: 2px;
-	height: 32px;
-	box-sizing: border-box;
-}
-
-.period-pill-btn {
-	border: none;
-	background: transparent;
-	font-size: 12px;
-	color: #64748b;
-	padding: 3px 10px;
-	border-radius: 6px;
-	cursor: pointer;
-	line-height: 1.3;
-	transition: all 0.15s ease;
-
-	&:hover {
-		color: #0f172a;
-		background: rgba(255, 255, 255, 0.7);
-	}
-
-	&.active {
-		color: #2563eb;
-		background: #ffffff;
-		font-weight: 600;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-	}
-}
-
-.date-range-picker {
-	width: 260px;
-}
-
-.quick-search-input {
-	width: 200px;
-}
-
-.search-prefix-icon {
-	color: #bfbfbf;
-}
-
-.filter-right-group {
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-}
-
-.expand-btn {
-	padding: 0 4px;
-	font-size: 13px;
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.filter-expand-row {
-	margin-top: 4px;
-}
-
-.expand-item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 8px;
-
-	.expand-label {
-		flex-shrink: 0;
-		font-size: 13px;
-		color: #595959;
-		width: 60px;
-		text-align: right;
-	}
-
-	.expand-select {
-		width: 100%;
 	}
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
-	<div class="finance-manager-screen finance-manager-page">
+	<div
+		class="finance-manager-screen finance-manager-page flex flex-col h-full p-3 bg-slate-50 box-border overflow-hidden"
+	>
 		<!-- 1. 单行紧凑日常记账筛选栏 -->
 		<finance-manager-filter
 			v-model:searchInfo="searchInfo"
@@ -31,25 +33,34 @@
 		/>
 
 		<!-- 联动筛选指示栏 -->
-		<div v-if="activeLinkageFilter" class="linkage-active-banner">
-			<div class="banner-content">
-				<span class="banner-dot"></span>
-				<span class="banner-text">
-					已联动过滤：<strong>{{ activeLinkageFilter.label }}</strong>
+		<div
+			v-if="activeLinkageFilter"
+			class="linkage-active-banner shrink-0 flex items-center justify-between bg-indigo-500/10 px-3.5 py-1.5 rounded-xl mb-2.5 text-xs text-indigo-700"
+		>
+			<div class="flex items-center gap-2">
+				<span
+					class="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block ring-2 ring-indigo-500/25"
+				></span>
+				<span>
+					已联动过滤：<strong class="font-semibold">{{
+						activeLinkageFilter.label
+					}}</strong>
 				</span>
 			</div>
-			<a-button
-				type="link"
-				size="small"
-				class="banner-close-btn"
+			<button
+				type="button"
+				class="border-0 bg-transparent p-0 text-xs font-medium text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors"
 				@click="clearLinkageFilter"
 			>
 				清除联动，查看全量
-			</a-button>
+			</button>
 		</div>
 
 		<!-- 3. 账单明细表格卡片（内聚操作按钮栏） -->
-		<div class="table-card-shell" ref="tableContainerRef">
+		<div
+			class="table-card-shell flex-1 min-h-0 flex flex-col"
+			ref="tableContainerRef"
+		>
 			<finance-manager-table
 				:data-source="dataSource"
 				:columns="columns"
@@ -73,7 +84,7 @@
 				@size-change="onFooterSizeChange"
 			>
 				<template #headerActions>
-					<a-space :size="8">
+					<div class="flex items-center gap-2">
 						<template v-if="hasPermission('finance:financeManager:delete')">
 							<a-popconfirm
 								v-if="selectedRowIds.length"
@@ -82,32 +93,36 @@
 								cancel-text="取消"
 								@confirm="batchDelFinanceManager"
 							>
-								<a-button danger size="small" class="header-batch-del-btn">
-									<template #icon><DeleteOutlined /></template>
-									批量删除 ({{ selectedRowIds.length }})
-								</a-button>
+								<button
+									type="button"
+									class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border-0 bg-rose-500/10 text-rose-600 hover:bg-rose-500/15 text-xs font-medium cursor-pointer transition-all duration-200"
+								>
+									<DeleteOutlined />
+									<span>批量删除 ({{ selectedRowIds.length }})</span>
+								</button>
 							</a-popconfirm>
 						</template>
-						<a-button
+						<button
 							v-if="hasPermission('finance:financeManager:add')"
-							type="dashed"
+							type="button"
 							data-testid="btn-finance-ai-parse"
+							class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border-0 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/15 text-xs font-medium cursor-pointer transition-all duration-200"
 							@click="openAiModal"
 						>
-							<template #icon><ThunderboltOutlined /></template>
-							智能记账
-						</a-button>
-						<a-button
+							<ThunderboltOutlined />
+							<span>智能记账</span>
+						</button>
+						<button
 							v-if="hasPermission('finance:financeManager:add')"
-							type="primary"
-							class="primary-record-btn"
+							type="button"
 							data-testid="btn-add-finance"
+							class="primary-record-btn inline-flex items-center gap-1.5 h-8 px-4 rounded-xl border-0 bg-indigo-500 text-white hover:bg-indigo-600 text-xs font-medium shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 hover:-translate-y-0.5 cursor-pointer transition-all duration-200"
 							@click="editFinance('add')"
 						>
-							<template #icon><PlusOutlined /></template>
-							记一笔
-						</a-button>
-					</a-space>
+							<PlusOutlined />
+							<span>记一笔</span>
+						</button>
+					</div>
 				</template>
 			</finance-manager-table>
 		</div>
@@ -138,18 +153,16 @@
 
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
-import {
-	formatDate,
-	getMonthRangeDayjs,
-} from '@/utils/dayjs';
+import { formatDate, getMonthRangeDayjs } from '@/utils/dayjs';
 import type { ModelInfo } from '@/types/modal';
 import FinanceOverviewCard from '@/views/selfFinance/financeManager/components/FinanceOverviewCard.vue';
-import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
-import { useFinanceSummary } from './composables/useFinanceSummary';
 import {
+	type FinanceManagerData,
+	type UniversalFinanceAiParseVo,
 	columns,
 	fromSourceTransferList,
 } from '@/views/selfFinance/financeManager/config';
+import { useFinanceSummary } from './composables/useFinanceSummary';
 import { formatAmount } from '@/utils/amountInfo';
 import {
 	getFinanceMangerPage,
@@ -163,7 +176,6 @@ import {
 	ThunderboltOutlined,
 } from '@ant-design/icons-vue';
 import FinanceAiParseModal from '@/views/selfFinance/financeManager/components/FinanceAiParseModal.vue';
-import type { UniversalFinanceAiParseVo } from '@/views/selfFinance/financeManager/config';
 import {
 	usePagination,
 	useRowSelection,
@@ -252,7 +264,11 @@ const onFooterSizeChange = (_: number, size: number) => {
 
 const route = useRoute();
 
-const searchInfo = ref<FinanceManagerData>({});
+const [defaultMonthStart, defaultMonthEnd] = getMonthRangeDayjs();
+const searchInfo = ref<FinanceManagerData>({
+	infoDateStart: defaultMonthStart,
+	infoDateEnd: defaultMonthEnd,
+});
 const loading = ref<boolean>(false);
 const dataSource = ref<FinanceManagerData[]>([]);
 const modelInfo = ref<ModelInfo>({});
@@ -337,28 +353,46 @@ const fetchSummary = async (queryParam: FinanceManagerData) => {
 	}
 };
 
+const formatUtilityName = (baseName: string, suffix: string): string => {
+	if (!suffix) {
+		return baseName;
+	}
+	const suffixMap: Record<string, string> = {
+		w: '我',
+		m: '妈',
+	};
+	const target = suffixMap[suffix] || suffix;
+	return `${baseName} (${target})`;
+};
+
+const COMMON_SOURCE_PREFIXES: Record<string, string> = {
+	sf: '水费',
+	rqf: '燃气费',
+	wx: '微信支付',
+	zfb: '支付宝',
+	yhk: '银行卡',
+	hb: '花呗',
+	bt: '京东白条',
+};
+
 // 获取支付方式展示名称（支持后端动态字典、静态映射与智能前缀降级）
-const getFromSourceName = (source?: string) => {
+const getFromSourceName = (source?: string): string => {
 	if (!source) return '-';
 	const matched = fromSourceTransferList.find((item) => item.value === source);
 	if (matched) return matched.name;
 
-	// 常见公共事业与渠道前缀智能降级
 	if (source.startsWith('hf')) {
-		const suffix = source.replace('hf', '');
-		return suffix ? `话费 (${suffix === 'w' ? '我' : suffix === 'm' ? '妈' : suffix})` : '话费';
+		return formatUtilityName('话费', source.replace('hf', ''));
 	}
 	if (source.startsWith('df')) {
-		const suffix = source.replace('df', '');
-		return suffix ? `电费 (${suffix === 'w' ? '我' : suffix === 'm' ? '妈' : suffix})` : '电费';
+		return formatUtilityName('电费', source.replace('df', ''));
 	}
-	if (source.startsWith('sf')) return '水费';
-	if (source.startsWith('rqf')) return '燃气费';
-	if (source.startsWith('wx')) return '微信支付';
-	if (source.startsWith('zfb')) return '支付宝';
-	if (source.startsWith('yhk')) return '银行卡';
-	if (source.startsWith('hb')) return '花呗';
-	if (source.startsWith('bt')) return '京东白条';
+
+	for (const [prefix, name] of Object.entries(COMMON_SOURCE_PREFIXES)) {
+		if (source.startsWith(prefix)) {
+			return name;
+		}
+	}
 
 	return source;
 };
@@ -370,16 +404,16 @@ const activeLinkageFilter = ref<{
 	label: string;
 } | null>(null);
 
-// 语义化标签配色调色板
+// Tailwind Soft UI 10% 透明底无边框配色调色板（对齐 ftc-web 风格）
 const pillColorPalette = [
-	{ bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' },
-	{ bg: '#ecfdf5', text: '#047857', border: '#a7f3d0' },
-	{ bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
-	{ bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe' },
-	{ bg: '#ecfeff', text: '#0e7490', border: '#a5f3fc' },
-	{ bg: '#fff1f2', text: '#be123c', border: '#fecdd3' },
-	{ bg: '#eef2ff', text: '#4338ca', border: '#c7d2fe' },
-	{ bg: '#fdf4ff', text: '#a21caf', border: '#f5d0fe' },
+	{ bg: 'rgba(79, 106, 246, 0.1)', text: '#4F6AF6' },
+	{ bg: 'rgba(16, 185, 129, 0.1)', text: '#059669' },
+	{ bg: 'rgba(245, 158, 11, 0.12)', text: '#d97706' },
+	{ bg: 'rgba(139, 92, 246, 0.1)', text: '#7c3aed' },
+	{ bg: 'rgba(6, 182, 212, 0.1)', text: '#0891b2' },
+	{ bg: 'rgba(244, 63, 94, 0.1)', text: '#e11d48' },
+	{ bg: 'rgba(59, 130, 246, 0.1)', text: '#2563eb' },
+	{ bg: 'rgba(217, 70, 239, 0.1)', text: '#c026d3' },
 ];
 
 const getCategoryPillStyle = (name?: string) => {
@@ -387,29 +421,33 @@ const getCategoryPillStyle = (name?: string) => {
 	let hash = 0;
 	for (let i = 0; i < name.length; i++) {
 		hash = (hash << 5) - hash + (name.codePointAt(i) ?? 0);
-		hash |= 0;
+		hash = Math.trunc(hash);
 	}
 	const idx = Math.abs(hash) % pillColorPalette.length;
 	const color = pillColorPalette[idx];
 	return {
 		backgroundColor: color.bg,
 		color: color.text,
-		border: `1px solid ${color.border}`,
-		borderRadius: '12px',
-		padding: '2px 9px',
+		border: 'none',
+		borderRadius: '9999px',
+		padding: '2px 10px',
 		fontSize: '12px',
 		fontWeight: '500',
-		display: 'inline-block',
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
 		lineHeight: '1.4',
 		cursor: 'pointer',
 		transition: 'all 0.15s ease',
 	};
 };
 
-
 const scrollToTable = () => {
 	nextTick(() => {
-		tableContainerRef.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		tableContainerRef.value?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'nearest',
+		});
 	});
 };
 
@@ -473,7 +511,11 @@ const clearLinkageFilter = () => {
 
 const cancelQuery = () => {
 	activeLinkageFilter.value = null;
-	searchInfo.value = {};
+	const [start, end] = getMonthRangeDayjs();
+	searchInfo.value = {
+		infoDateStart: start,
+		infoDateEnd: end,
+	};
 	query(true);
 };
 
@@ -537,7 +579,13 @@ const getFinancePage = async (
 const editFinance = (type: string, id?: string) => {
 	const isAdd = type === 'add';
 	const isView = type === 'view';
-	modelInfo.value.title = isAdd ? '记一笔账' : isView ? '账单明细' : '修改账单明细';
+	if (isAdd) {
+		modelInfo.value.title = '记一笔账';
+	} else if (isView) {
+		modelInfo.value.title = '账单明细';
+	} else {
+		modelInfo.value.title = '修改账单明细';
+	}
 	modelInfo.value.id = isAdd ? null : (id ?? null);
 	modelInfo.value.readonly = isView;
 	modelInfo.value.confirmLoading = true;
@@ -619,127 +667,3 @@ onUnmounted(() => {
 	window.removeEventListener('resize', updateTableScrollY);
 });
 </script>
-
-<style lang="scss" scoped>
-.finance-manager-page {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	padding: 12px;
-	background: #f8fafc;
-	box-sizing: border-box;
-	overflow: hidden;
-}
-
-.table-card-shell {
-	flex: 1;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-}
-
-.primary-record-btn {
-	height: 32px;
-	padding: 0 14px;
-	border-radius: 8px;
-	font-weight: 600;
-	box-shadow: 0 1px 2px rgba(22, 119, 255, 0.2);
-}
-
-.header-batch-del-btn {
-	height: 32px;
-	border-radius: 8px;
-}
-
-:deep(.search) {
-	flex-shrink: 0;
-	margin: 0 0 8px;
-}
-
-.text-income {
-	color: #059669 !important;
-}
-
-.text-expense {
-	color: #e11d48 !important;
-}
-
-.linkage-active-banner {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
-	padding: 5px 14px;
-	border-radius: 8px;
-	margin-bottom: 8px;
-	font-size: 12px;
-	color: #1e40af;
-
-	.banner-content {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.banner-dot {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: #3b82f6;
-		display: inline-block;
-		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-	}
-
-	.banner-close-btn {
-		padding: 0;
-		height: auto;
-		font-size: 12px;
-		color: #2563eb;
-		&:hover {
-			color: #1d4ed8;
-		}
-	}
-}
-
-.clickable-sub-stat {
-	cursor: pointer;
-	transition: color 0.15s ease;
-	&:hover {
-		color: #1677ff !important;
-		text-decoration: underline;
-	}
-	.drill-icon {
-		font-size: 10px;
-		margin-left: 2px;
-		opacity: 0.7;
-	}
-}
-
-.clickable-cat-pill {
-	cursor: pointer;
-	transition: all 0.15s ease;
-	&:hover {
-		border-color: #1677ff;
-		color: #1677ff;
-		transform: translateY(-1px);
-	}
-}
-
-.clickable-cat-more {
-	cursor: pointer;
-	&:hover {
-		color: #1677ff;
-	}
-}
-
-.category-pill {
-	transition: all 0.15s ease;
-	&:hover {
-		opacity: 0.85;
-		transform: translateY(-1px);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-	}
-}
-</style>

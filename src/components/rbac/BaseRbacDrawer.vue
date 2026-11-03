@@ -51,7 +51,7 @@
 			</a-spin>
 		</div>
 
-		<template #footer>
+		<template v-if="showFooter" #footer>
 			<div class="rbac-drawer__footer">
 				<slot name="footer">
 					<a-button :disabled="loading" @click="handleCancel">
@@ -85,6 +85,7 @@ interface Props {
 	saveText?: string;
 	cancelText?: string;
 	destroyOnClose?: boolean;
+	showFooter?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -96,6 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
 	saveText: '保存',
 	cancelText: '取消',
 	destroyOnClose: false,
+	showFooter: true,
 });
 
 const emit = defineEmits<{

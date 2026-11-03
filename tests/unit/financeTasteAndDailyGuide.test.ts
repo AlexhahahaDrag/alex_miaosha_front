@@ -1,7 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
 import { useFinanceSummary } from '@/views/selfFinance/financeManager/composables/useFinanceSummary';
-import type { FinanceManagerData } from '@/views/selfFinance/financeManager/config';
+import {
+	columns,
+	getCategoryEmoji,
+	getCategoryPillStyle,
+	type FinanceManagerData,
+} from '@/views/selfFinance/financeManager/config';
 
 vi.mock('@/router', () => ({
 	default: {
@@ -106,7 +111,8 @@ describe('Finance Taste-Skill & BudgetDailyGuide Contract Test', () => {
 			expect(guide.label).toContain('已超支');
 		}
 	});
-it('主要支出 topExpenseCategories 应默认剔除转账流水，仅汇总纯日常消费分类', () => {
+
+	it('主要支出 topExpenseCategories 应默认剔除转账流水，仅汇总纯日常消费分类', () => {
 		const searchInfo = ref<FinanceManagerData>({});
 		const dataSource = ref<FinanceManagerData[]>([
 			{ typeCode: '转账', amount: 188.63, incomeAndExpenses: 'expense' },
@@ -152,5 +158,72 @@ it('主要支出 topExpenseCategories 应默认剔除转账流水，仅汇总纯
 		expect(categories.find((c) => c.name === '转账')).toBeDefined();
 		expect(categories[0].name).toBe('转账');
 		expect(categories[0].amount).toBe(500);
+	});
+
+	it('账单流水表格列配置应采用弹性主列 + 比例中间列 + 刚性固定操作列，消除宽屏空白断层并防止 colgroup 溢出', () => {
+		expect(columns).toHaveLength(5);
+		const [nameCol, typeCol, sourceCol, amountCol, opCol] = columns as any[];
+
+		// 主列不写死百分比以吸收减去勾选列与固定列后的弹性宽度
+		expect(nameCol.key).toBe('name');
+		expect(nameCol.width).toBeUndefined();
+		expect(nameCol.minWidth).toBe(240);
+
+		// 类别与支付方式按比例分配并居中对齐
+		expect(typeCol.key).toBe('typeCode');
+		expect(typeCol.width).toBe('20%');
+		expect(typeCol.align).toBe('center');
+
+		expect(sourceCol.key).toBe('fromSource');
+		expect(sourceCol.width).toBe('20%');
+		expect(sourceCol.align).toBe('center');
+
+		// 金额按比例分配且严格靠右对齐
+		expect(amountCol.key).toBe('amount');
+		expect(amountCol.width).toBe('16%');
+		expect(amountCol.align).toBe('right');
+
+		// 操作列遵循 Anti-Action-Collapse SOP 刚性下限
+		expect(opCol.key).toBe('operation');
+		expect(opCol.fixed).toBe('right');
+		expect(opCol.width).toBeGreaterThanOrEqual(185);
+		expect(opCol.minWidth).toBeGreaterThanOrEqual(185);
+	});
+
+	it('BaseRbacDrawer 应支持 showFooter 控制，且编辑加载中应保持 isEdit 为 true 并隐藏底部按钮', () => {
+		// 模拟编辑模式下的状态流转
+		const modelInfo = ref<{ id?: number | string | null; open?: boolean }>({
+			id: '123456789',
+			open: true,
+		});
+		const formState = ref<{ id?: string }>({});
+		const detailLoading = ref<boolean>(true);
+
+		// 计算属性契约校验
+		const isEdit = () => Boolean(modelInfo.value?.id || formState.value?.id);
+		const showFooter = () => !detailLoading.value;
+
+		// 1. 在详情数据尚未返回的加载阶段 (detailLoading = true, formState = {})
+		expect(isEdit()).toBe(true); // 避免闪烁成新增模式
+		expect(showFooter()).toBe(false); // 加载时隐藏底部操作按钮
+
+		// 2. 详情加载完成阶段
+		detailLoading.value = false;
+		formState.value = { id: '123456789' };
+		expect(isEdit()).toBe(true);
+		expect(showFooter()).toBe(true); // 加载完毕后平滑展示底部按钮
+	});
+
+	it('分类 Emoji 词典与无框柔光胶囊样式应由列表与详情抽屉共享并覆盖高频生活场景', () => {
+		expect(getCategoryEmoji('转账')).toBe('🔄');
+		expect(getCategoryEmoji('公司')).toBe('🏢');
+		expect(getCategoryEmoji('出行')).toBe('🚕');
+		expect(getCategoryEmoji('剪发')).toBe('💇');
+		expect(getCategoryEmoji('生活缴费')).toBe('🧾');
+
+		const pillStyle = getCategoryPillStyle('餐饮') as Record<string, string>;
+		expect(pillStyle.border).toBe('none');
+		expect(pillStyle.borderRadius).toBe('9999px');
+		expect(pillStyle.display).toBe('inline-flex');
 	});
 });

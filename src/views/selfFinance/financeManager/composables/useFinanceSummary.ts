@@ -55,12 +55,12 @@ export function useFinanceSummary(
 	});
 
 	const getBudgetProgressColor = (percent: number): string => {
-		if (percent < 0) return '#52c41a';
-		if (percent >= 150) return '#cf1322';
-		if (percent >= 100) return '#ff4d4f';
-		if (percent >= 90) return '#fa541c';
-		if (percent >= 75) return '#faad14';
-		return '#1677ff';
+		if (percent < 0) return '#059669';
+		if (percent >= 150) return '#be123c';
+		if (percent >= 100) return '#e11d48';
+		if (percent >= 90) return '#ea580c';
+		if (percent >= 75) return '#d97706';
+		return '#4f46e5';
 	};
 
 	const progressStrokeColor = computed(() => {
@@ -96,7 +96,7 @@ export function useFinanceSummary(
 	watch(
 		() => searchInfo.value.belongTo,
 		() => {
-			loadBudgetStatus();
+			void loadBudgetStatus();
 		},
 	);
 
@@ -226,7 +226,7 @@ export function useFinanceSummary(
 	// 本月剩余天数与建议日均支出控制线
 	const budgetDailyGuide = computed(() => {
 		const status = budgetStatus.value;
-		if (!status || !status.budgetAmount || Number(status.budgetAmount) <= 0) {
+		if (!status?.budgetAmount || Number(status.budgetAmount) <= 0) {
 			return null;
 		}
 		const today = nowDayjs().startOf('day');

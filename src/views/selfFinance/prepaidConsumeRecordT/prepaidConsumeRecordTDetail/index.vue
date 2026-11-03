@@ -4,13 +4,22 @@
 		:title="props.modelInfo?.title || '消费卡交易流水明细'"
 		subtitle="维护储值卡交易流水记录、变动金额与交易后余额快照"
 		width="560px"
-		:confirm-loading="loading"
+		:loading="detailLoading || loading"
+		:show-footer="!detailLoading"
 		:readonly="Boolean(props.modelInfo?.readonly)"
 		ok-text="保存"
 		@ok="handleOk"
 		@cancel="handleCancel"
 	>
+		<!-- 数据加载中骨架屏状态 -->
+		<div v-if="detailLoading" class="detail-skeleton-view space-y-4 py-2">
+			<div class="skeleton-section-card p-5 rounded-2xl border border-slate-100 bg-white shadow-sm">
+				<a-skeleton active :paragraph="{ rows: 6 }" />
+			</div>
+		</div>
+
 		<a-form
+			v-else
 			ref="formRef"
 			name="PrepaidConsumeRecordTForm"
 			layout="vertical"
@@ -136,6 +145,7 @@ import { formatDayjs } from '@/utils/dayjs';
 import type { ModelInfo } from '@/types/modal';
 
 const loading = ref<boolean>(false);
+const detailLoading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 
 const labelMap = ref<Record<string, { name: string; label: string }>>({
@@ -205,20 +215,30 @@ const savePrepaidConsumeRecordTManager = async (): Promise<void> => {
 
 const init = async (): Promise<void> => {
 	if (props.modelInfo?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getPrepaidConsumeRecordTDetail(String(props.modelInfo.id));
-		if (code === '200') {
-			formState.value = {
-				...(data || {}),
-				consumeTime: data?.consumeTime ? formatDayjs(data.consumeTime) : undefined,
-			};
-		} else {
-			message.error(messageInfo || '查询失败！');
+		detailLoading.value = true;
+		formState.value = {};
+		try {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getPrepaidConsumeRecordTDetail(String(props.modelInfo.id));
+			if (code === '200') {
+				formState.value = {
+					...(data || {}),
+					consumeTime: data?.consumeTime ? formatDayjs(data.consumeTime) : undefined,
+				};
+			} else {
+				message.error(messageInfo || '查询失败！');
+			}
+		} catch (e) {
+			console.warn('获取储值卡流水详情失败:', e);
+			message.error('获取储值卡流水详情失败！');
+		} finally {
+			detailLoading.value = false;
 		}
 	} else {
+		detailLoading.value = false;
 		formState.value = {};
 	}
 };

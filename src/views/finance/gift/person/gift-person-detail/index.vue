@@ -126,7 +126,7 @@
 				</a-form-item>
 			</a-form>
 		</a-spin>
-		<template #footer>
+		<template v-if="!pageLoading" #footer>
 			<template v-if="isProfileMode">
 				<div style="display: flex; gap: 8px; justify-content: flex-end">
 					<a-button
