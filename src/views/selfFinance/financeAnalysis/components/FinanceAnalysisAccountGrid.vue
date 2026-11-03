@@ -1,8 +1,259 @@
 <template>
-	<div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 mb-3.5">
-		<!-- 03 · 当月支出与收入结构排行 (占 7/12，横向条形图替代传统环形图) -->
+	<div>
+		<!-- 03 · 账户资产分布 (P0 全宽平铺直出，不藏 Tab，现金/银行卡/微信/支付宝/京东/花呗/白条/水电话费一眼全览) -->
 		<div
-			class="lg:col-span-7 bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 flex flex-col justify-between"
+			class="bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 mb-3.5"
+		>
+			<div class="flex items-center justify-between gap-2 mb-3.5 flex-wrap">
+				<div class="flex items-center gap-2">
+					<span
+						class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center shrink-0"
+					>
+						<CreditCardOutlined class="text-xs" />
+					</span>
+					<span class="text-sm font-bold text-slate-800">账户资产分布</span>
+					<span class="text-[11px] text-slate-400 hidden sm:inline">
+						平铺展示全部资金账户、信用负债与专户预存明细，点击任意账户可穿透查看流水
+					</span>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+				<!-- 栏 1：流动资金账户 (占 5/12，展示现金、银行卡、微信、支付宝、京东) -->
+				<div class="lg:col-span-5 bg-slate-50/80 rounded-2xl p-3.5 flex flex-col">
+					<div class="flex items-center justify-between gap-2 mb-3">
+						<div class="flex items-center gap-2 min-w-0">
+							<span class="text-sm leading-none">💰</span>
+							<span class="text-xs font-bold text-slate-800 truncate">
+								{{ liquidConfig.title }}
+							</span>
+							<span
+								class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-600 shrink-0"
+							>
+								{{ liquidItems.length }} 个账户
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1 font-mono tabular-nums shrink-0">
+							<span class="text-[11px] text-slate-400">小计</span>
+							<span class="text-xs font-bold text-indigo-600">
+								¥{{ formatAmount(liquidConfig.subtotal) }}
+							</span>
+						</div>
+					</div>
+
+					<div v-if="liquidItems.length > 0" class="space-y-2 flex-1">
+						<div
+							v-for="(item, idx) in liquidItems"
+							:key="item.typeCode || idx"
+							class="group flex flex-col gap-1 px-3 py-2 rounded-xl bg-white/90 hover:bg-white shadow-2xs hover:ring-1 hover:ring-indigo-500/30 cursor-pointer transition-all"
+							:title="`点击查看【${item.typeName}】相关流水`"
+							@click="item.typeCode && $emit('select-account', item.typeCode)"
+						>
+							<div class="flex items-center justify-between text-xs gap-2">
+								<div class="flex items-center gap-2 min-w-0">
+									<component
+										v-if="getFinanceIconComponent(item.typeCode)"
+										:is="getFinanceIconComponent(item.typeCode)"
+										class="w-4 h-4 shrink-0"
+									/>
+									<CreditCardOutlined
+										v-else
+										class="text-xs text-slate-400 shrink-0"
+									/>
+									<span
+										class="font-medium text-slate-700 group-hover:text-indigo-600 truncate transition-colors"
+									>
+										{{ item.typeName }}
+									</span>
+								</div>
+								<div
+									class="flex items-baseline gap-2 shrink-0 font-mono tabular-nums"
+								>
+									<span class="font-bold text-slate-800">
+										¥{{ formatAmount(item.amount) }}
+									</span>
+									<span class="text-[11px] text-slate-400 w-10 text-right">
+										{{ item.sharePercent }}%
+									</span>
+								</div>
+							</div>
+							<div class="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+								<div
+									class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+									:style="{ width: `${Math.max(item.sharePercent, 2)}%` }"
+								></div>
+							</div>
+						</div>
+					</div>
+					<div
+						v-else
+						class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
+					>
+						暂无流动资金账户数据
+					</div>
+				</div>
+
+				<!-- 栏 2：信用与负债 (占 3/12，展示花呗、白条) -->
+				<div class="lg:col-span-3 bg-slate-50/80 rounded-2xl p-3.5 flex flex-col">
+					<div class="flex items-center justify-between gap-2 mb-3">
+						<div class="flex items-center gap-2 min-w-0">
+							<span class="text-sm leading-none">💳</span>
+							<span class="text-xs font-bold text-slate-800 truncate">
+								{{ creditConfig.title }}
+							</span>
+							<span
+								class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-600 shrink-0"
+							>
+								{{ creditItems.length }} 个账户
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1 font-mono tabular-nums shrink-0">
+							<span class="text-[11px] text-slate-400">小计</span>
+							<span
+								:class="[
+									'text-xs font-bold',
+									Number(creditConfig.subtotal || 0) < 0 ?
+										'text-rose-600'
+									:	'text-slate-800',
+								]"
+							>
+								{{ Number(creditConfig.subtotal || 0) < 0 ? '-' : '' }}¥{{
+									formatAmount(Math.abs(Number(creditConfig.subtotal || 0)))
+								}}
+							</span>
+						</div>
+					</div>
+
+					<div v-if="creditItems.length > 0" class="space-y-2 flex-1">
+						<div
+							v-for="(item, idx) in creditItems"
+							:key="item.typeCode || idx"
+							class="group flex flex-col gap-1 px-3 py-2.5 rounded-xl bg-white/90 hover:bg-white shadow-2xs hover:ring-1 hover:ring-rose-500/30 cursor-pointer transition-all"
+							:title="`点击查看【${item.typeName}】相关流水`"
+							@click="item.typeCode && $emit('select-account', item.typeCode)"
+						>
+							<div class="flex items-center justify-between text-xs gap-2">
+								<div class="flex items-center gap-2 min-w-0">
+									<component
+										v-if="getFinanceIconComponent(item.typeCode)"
+										:is="getFinanceIconComponent(item.typeCode)"
+										class="w-4 h-4 shrink-0"
+									/>
+									<CreditCardOutlined
+										v-else
+										class="text-xs text-slate-400 shrink-0"
+									/>
+									<span
+										class="font-medium text-slate-700 group-hover:text-rose-600 truncate transition-colors"
+									>
+										{{ item.typeName }}
+									</span>
+								</div>
+								<div
+									class="flex items-baseline gap-1.5 shrink-0 font-mono tabular-nums"
+								>
+									<span
+										:class="[
+											'font-bold',
+											Number(item.amount || 0) < 0 ?
+												'text-rose-600'
+											:	'text-slate-800',
+										]"
+									>
+										{{ Number(item.amount || 0) < 0 ? '-' : '' }}¥{{
+											formatAmount(Math.abs(Number(item.amount || 0)))
+										}}
+									</span>
+									<span class="text-[11px] text-slate-400 w-10 text-right">
+										{{ item.sharePercent }}%
+									</span>
+								</div>
+							</div>
+							<div class="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+								<div
+									class="h-full bg-rose-500 rounded-full transition-all duration-300"
+									:style="{ width: `${Math.max(item.sharePercent, 2)}%` }"
+								></div>
+							</div>
+						</div>
+					</div>
+					<div
+						v-else
+						class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
+					>
+						暂无信用负债数据
+					</div>
+				</div>
+
+				<!-- 栏 3：水电话费专户预存 (占 4/12，双列网格平铺电费/水费/燃气费/话费) -->
+				<div class="lg:col-span-4 bg-slate-50/80 rounded-2xl p-3.5 flex flex-col">
+					<div class="flex items-center justify-between gap-2 mb-3">
+						<div class="flex items-center gap-2 min-w-0">
+							<span class="text-sm leading-none">⚡</span>
+							<span class="text-xs font-bold text-slate-800 truncate">
+								{{ prepaidConfig.title }}
+							</span>
+							<span
+								class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 shrink-0"
+							>
+								{{ prepaidItems.length }} 个专户
+							</span>
+						</div>
+						<div class="flex items-baseline gap-1 font-mono tabular-nums shrink-0">
+							<span class="text-[11px] text-slate-400">小计</span>
+							<span class="text-xs font-bold text-slate-800">
+								¥{{ formatAmount(prepaidConfig.subtotal) }}
+							</span>
+						</div>
+					</div>
+
+					<div
+						v-if="prepaidItems.length > 0"
+						class="grid grid-cols-2 gap-2 flex-1 content-start"
+					>
+						<div
+							v-for="(item, idx) in prepaidItems"
+							:key="item.typeCode || idx"
+							class="group flex items-center justify-between gap-1.5 px-2.5 py-2 rounded-xl bg-white/90 hover:bg-white shadow-2xs hover:ring-1 hover:ring-indigo-500/30 cursor-pointer transition-all"
+							:title="`点击查看【${item.typeName}】相关流水`"
+							@click="item.typeCode && $emit('select-account', item.typeCode)"
+						>
+							<div class="flex items-center gap-1.5 min-w-0">
+								<component
+									v-if="getFinanceIconComponent(item.typeCode)"
+									:is="getFinanceIconComponent(item.typeCode)"
+									class="w-3.5 h-3.5 shrink-0"
+								/>
+								<CreditCardOutlined
+									v-else
+									class="text-xs text-slate-400 shrink-0"
+								/>
+								<span
+									class="text-xs font-medium text-slate-700 group-hover:text-indigo-600 truncate transition-colors"
+								>
+									{{ item.typeName }}
+								</span>
+							</div>
+							<span
+								class="text-xs font-bold font-mono tabular-nums text-slate-800 shrink-0"
+							>
+								¥{{ formatAmount(item.amount) }}
+							</span>
+						</div>
+					</div>
+					<div
+						v-else
+						class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
+					>
+						暂无专户预存数据
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 04 · 当月收入与支出结构排行 (P1 对称双栏横向条形图) -->
+		<div
+			class="bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 mb-3.5"
 		>
 			<div class="flex items-center justify-between gap-2 mb-3.5">
 				<div class="flex items-center gap-2">
@@ -15,12 +266,12 @@
 						当月收入与支出结构
 					</span>
 					<span class="text-[11px] text-slate-400 hidden sm:inline">
-						点击分类可穿透查看对应流水明细
+						点击任意分类可穿透查看对应流水明细
 					</span>
 				</div>
 			</div>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<!-- 左栏：当月支出结构 (Top 5 + 其他) -->
 				<div class="bg-slate-50/80 rounded-2xl p-3.5 flex flex-col">
 					<div class="flex items-center justify-between mb-3">
@@ -166,135 +417,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- 04 · 账户资产与负债分布 (占 5/12，Segmented 分组收纳 + 品牌 SVG 图标) -->
-		<div
-			class="lg:col-span-5 bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 flex flex-col"
-		>
-			<div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
-				<div class="flex items-center gap-2">
-					<span
-						class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center shrink-0"
-					>
-						<CreditCardOutlined class="text-xs" />
-					</span>
-					<span class="text-sm font-bold text-slate-800">账户资产分布</span>
-				</div>
-
-				<!-- 三段式 Segmented 切换：流动资金 / 信用负债 / 专户预存 -->
-				<div
-					class="inline-flex items-center bg-slate-100/90 p-0.5 rounded-xl border-0 gap-0.5"
-				>
-					<button
-						v-for="tab in accountTabs"
-						:key="tab.key"
-						type="button"
-						:class="[
-							'border-0 text-xs px-2.5 py-1 rounded-lg cursor-pointer transition-all duration-150 flex items-center gap-1',
-							activeAccountTab === tab.key ?
-								'bg-white text-indigo-600 font-semibold shadow-2xs'
-							:	'bg-transparent text-slate-500 hover:text-slate-900',
-						]"
-						@click="activeAccountTab = tab.key"
-					>
-						<span>{{ tab.label }}</span>
-						<span
-							class="text-[10px] font-mono opacity-75"
-							>({{ tab.count }})</span
-						>
-					</button>
-				</div>
-			</div>
-
-			<!-- 当前分组小计条 -->
-			<div
-				class="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50/90 mb-2.5 text-xs"
-			>
-				<span class="text-slate-500 font-medium">
-					{{ currentGroupConfig.desc }}
-				</span>
-				<div class="flex items-baseline gap-1 font-mono tabular-nums">
-					<span class="text-slate-400 text-[11px]">本组小计:</span>
-					<span
-						:class="[
-							'font-bold text-sm',
-							Number(currentGroupConfig.subtotal || 0) < 0 ?
-								'text-rose-600'
-							:	'text-indigo-600',
-						]"
-					>
-						{{ Number(currentGroupConfig.subtotal || 0) < 0 ? '-' : '' }}¥{{
-							formatAmount(Math.abs(Number(currentGroupConfig.subtotal || 0)))
-						}}
-					</span>
-				</div>
-			</div>
-
-			<!-- 账户余额明细列表 (点击可跳转账单流水) -->
-			<div
-				class="flex-1 flex flex-col gap-1.5 max-h-[250px] overflow-y-auto pr-0.5"
-			>
-				<div
-					v-for="(item, idx) in currentGroupList"
-					:key="idx"
-					class="group flex flex-col gap-1 p-2.5 rounded-xl bg-slate-50/60 hover:bg-indigo-500/[0.06] cursor-pointer transition-all"
-					:title="`点击查看【${item.typeName}】相关流水`"
-					@click="item.typeCode && $emit('select-account', item.typeCode)"
-				>
-					<div class="flex items-center justify-between text-xs gap-2">
-						<div class="flex items-center gap-2 min-w-0">
-							<component
-								v-if="getFinanceIconComponent(item.typeCode)"
-								:is="getFinanceIconComponent(item.typeCode)"
-								class="w-4 h-4 shrink-0"
-							/>
-							<CreditCardOutlined
-								v-else
-								class="text-xs text-slate-400 shrink-0"
-							/>
-							<span
-								class="font-medium text-slate-700 group-hover:text-indigo-600 truncate transition-colors"
-							>
-								{{ item.typeName }}
-							</span>
-						</div>
-						<div class="flex items-baseline gap-2 shrink-0 font-mono tabular-nums">
-							<span
-								:class="[
-									'font-bold',
-									Number(item.amount || 0) < 0 ?
-										'text-rose-600'
-									:	'text-slate-800',
-								]"
-							>
-								{{ Number(item.amount || 0) < 0 ? '-' : '' }}¥{{
-									formatAmount(Math.abs(Number(item.amount || 0)))
-								}}
-							</span>
-							<span class="text-[11px] text-slate-400 w-10 text-right">
-								{{ item.sharePercent }}%
-							</span>
-						</div>
-					</div>
-					<div class="w-full h-1 bg-slate-200/70 rounded-full overflow-hidden">
-						<div
-							:class="[
-								'h-full rounded-full transition-all duration-300',
-								Number(item.amount || 0) < 0 ? 'bg-rose-500' : 'bg-indigo-500',
-							]"
-							:style="{ width: `${Math.max(item.sharePercent, 2)}%` }"
-						></div>
-					</div>
-				</div>
-
-				<div
-					v-if="currentGroupList.length === 0"
-					class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
-				>
-					暂无该类别账户数据
-				</div>
-			</div>
-		</div>
 	</div>
 </template>
 
@@ -345,6 +467,53 @@ const getFinanceIconComponent = (source?: string) => {
 		: source);
 	return iconComponentMap[`finance-${iconKey}`] || null;
 };
+
+const enrichGroupItems = (rawList: FinanceManagerData[] = []) => {
+	const absTotal = rawList.reduce(
+		(sum, item) => sum + Math.abs(Number(item.amount) || 0),
+		0,
+	);
+	return rawList.map((item) => {
+		const absVal = Math.abs(Number(item.amount) || 0);
+		const sharePercent =
+			absTotal > 0 ? Number(((absVal / absTotal) * 100).toFixed(1)) : 0;
+		return {
+			...item,
+			sharePercent,
+		};
+	});
+};
+
+const liquidConfig = computed(
+	() =>
+		props.listConfigs[0] || {
+			title: '流动资金账户',
+			subtotal: 0,
+			list: [],
+		},
+);
+
+const creditConfig = computed(
+	() =>
+		props.listConfigs[1] || {
+			title: '信用与负债',
+			subtotal: 0,
+			list: [],
+		},
+);
+
+const prepaidConfig = computed(
+	() =>
+		props.listConfigs[2] || {
+			title: '水电话费专户预存',
+			subtotal: 0,
+			list: [],
+		},
+);
+
+const liquidItems = computed(() => enrichGroupItems(liquidConfig.value.list));
+const creditItems = computed(() => enrichGroupItems(creditConfig.value.list));
+const prepaidItems = computed(() => enrichGroupItems(prepaidConfig.value.list));
 
 interface RankedStructureItem {
 	name: string;
@@ -406,51 +575,4 @@ const rankedExpenseList = computed(() =>
 const rankedIncomeList = computed(() =>
 	buildRankedList(props.pieIncomeData, 5),
 );
-
-const activeAccountTab = ref<'liquid' | 'credit' | 'prepaid'>('liquid');
-
-const accountTabs = computed(() => {
-	const liquid = props.listConfigs[0]?.list || [];
-	const credit = props.listConfigs[1]?.list || [];
-	const prepaid = props.listConfigs[2]?.list || [];
-	return [
-		{ key: 'liquid' as const, label: '流动资金', count: liquid.length },
-		{ key: 'credit' as const, label: '信用负债', count: credit.length },
-		{ key: 'prepaid' as const, label: '专户预存', count: prepaid.length },
-	];
-});
-
-const currentGroupConfig = computed(() => {
-	const idx =
-		activeAccountTab.value === 'liquid' ? 0
-		: activeAccountTab.value === 'credit' ? 1
-		: 2;
-	return (
-		props.listConfigs[idx] || {
-			title: '账户明细',
-			desc: '当前资产账户余额明细',
-			subtotal: 0,
-			list: [],
-		}
-	);
-});
-
-const currentGroupList = computed(() => {
-	const rawList = currentGroupConfig.value.list || [];
-	const absTotal = rawList.reduce(
-		(sum, item) => sum + Math.abs(Number(item.amount) || 0),
-		0,
-	);
-	return [...rawList]
-		.sort((a, b) => Math.abs(Number(b.amount) || 0) - Math.abs(Number(a.amount) || 0))
-		.map((item) => {
-			const absVal = Math.abs(Number(item.amount) || 0);
-			const sharePercent =
-				absTotal > 0 ? Number(((absVal / absTotal) * 100).toFixed(1)) : 0;
-			return {
-				...item,
-				sharePercent,
-			};
-		});
-});
 </script>
