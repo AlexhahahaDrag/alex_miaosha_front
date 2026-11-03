@@ -1,4 +1,4 @@
-import { deleteData, getDataOne, postData, putData, baseService } from '@/utils/request';
+import { deleteData, getData, postData, putData, baseService } from '@/utils/request';
 import type { CommonPageResult, ResponseBody } from '@/types/api';
 import {
 	normalizeMessageIds,
@@ -32,7 +32,7 @@ export const getSysMessagePage = (
 	);
 
 export const getSysMessageSummary = (): Promise<ResponseBody<SysMessageSummaryData>> =>
-	getDataOne<SysMessageSummaryData>(`${baseUrl()}/summary`);
+	getData<SysMessageSummaryData>(`${baseUrl()}/summary`);
 
 export const markSysMessageRead = (id: string): Promise<ResponseBody<boolean>> =>
 	putData<boolean>(`${baseUrl()}/read`, {}, { id });
@@ -55,7 +55,7 @@ export const deleteSysMessages = (ids: string): Promise<ResponseBody<boolean>> =
 const noticeConfigBaseUrl = () => `${baseService.finance}/user-notice-config`;
 
 export const getMyNoticeConfigs = (): Promise<ResponseBody<UserNoticeConfigData[]>> =>
-	wrapNormalize(getDataOne<UserNoticeConfigData[]>(`${noticeConfigBaseUrl()}/my-configs`));
+	wrapNormalize(getData<UserNoticeConfigData[]>(`${noticeConfigBaseUrl()}/my-configs`));
 
 export const saveMyNoticeConfig = (
 	data: Partial<UserNoticeConfigData>,

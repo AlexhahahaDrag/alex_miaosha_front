@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -45,7 +45,7 @@ export function getNewestPmsShopProductPage(
 export function getPmsShopProductDetail(
 	id: string,
 ): Promise<ResponseBody<PmsShopProductData>> {
-	return getDataOne(
+	return getData(
 		baseService.product + basePmsShopProduct + PmsShopProductUrl.url,
 		{
 			id,
@@ -68,7 +68,7 @@ export function getProductHisInfo(
 	skuId: string,
 	startTime: string | null,
 ): Promise<ResponseBody<PmsShopProductData[]>> {
-	return getDataOne(
+	return getData(
 		baseService.product + basePmsShopProduct + PmsShopProductUrl.hisInfo,
 		{
 			skuId,

@@ -1,29 +1,22 @@
 import Layout from '@/layout/index.vue';
-import type { RouteRecordRaw } from 'vue-router';
-import { createRouter, createWebHashHistory, RouterView } from 'vue-router';
-import { h, defineComponent, reactive, markRaw } from 'vue';
+import type { RouteRecordRaw, RouteLocationNormalized } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
+import { reactive, markRaw, toRaw } from 'vue';
 import type { MenuDataItem } from './config';
 import NProgress from 'nprogress';
 import { useUserStore } from '@/store/modules/user/user';
 import type { MenuInfoData } from '@/views/user/menuInfo/config';
 import {
 	buildPermissionSet,
-	canAccessPermission,
 	isSuperAdmin,
 } from '@/utils/permission';
 import { getUserMenusApi } from '@/views/login/api';
 import { message } from 'ant-design-vue';
-
-const ParentLayout = markRaw(
-	defineComponent({
-		name: 'ParentLayout',
-		render() {
-			return h(RouterView);
-		},
-	}),
-);
-
-const modules = import.meta.glob('/src/views/**/**.vue');
+import {
+	modules,
+	judgeMenuPermission,
+	buildRouteRecord,
+} from './helper';
 
 export const routes: MenuDataItem[] = reactive([
 	{
@@ -33,6 +26,7 @@ export const routes: MenuDataItem[] = reactive([
 		component: markRaw(Layout),
 		meta: {
 			title: '首页',
+			icon: 'home',
 			hideInMenu: false,
 		},
 		children: [
@@ -79,97 +73,9 @@ const router = createRouter({
 
 let dynamicRouter: RouteRecordRaw[] = [];
 
-// ─── 工具函数（定义在使用之前）─────────────────────────────────────────────────
-
-/** 根据 permissionCode 判断是否有权限，无 permissionCode 则默认由后端菜单树控制放行 */
-const judgePermission = (
-	permissionSet: Set<string>,
-	permissionCode: string | undefined,
-	superAdmin: boolean,
-): boolean => {
-	if (superAdmin || !permissionCode) return true;
-	return canAccessPermission(permissionSet, permissionCode, superAdmin);
-};
-
-const judgeMenuPermission = (
-	item: MenuInfoData,
-	permissionSet: Set<string>,
-	superAdmin: boolean,
-): boolean =>
-	judgePermission(permissionSet, item.permissionCode, superAdmin) ||
-	!!item.children?.some((child) =>
-		judgeMenuPermission(child, permissionSet, superAdmin),
-	);
-
-/** 根据 MenuInfo 解析对应的 Vue 组件 */
-const getComponent = (item: MenuInfoData) => {
-	if (!item.component) {
-		return markRaw(modules['/src/views/error-404/index.vue']);
-	}
-	if (item.component === 'Layout') {
-		return ParentLayout;
-	}
-	const rawPath = item.component.startsWith('/src/')
-		? item.component
-		: item.component.startsWith('/')
-		? `/src${item.component}`
-		: `/src/views/${item.component}`;
-
-	// Ponytail 向后兼容归一化：将正式环境老数据库中的 /src/views/finance/ 路径无缝映射到现有的 /src/views/selfFinance/，彻底杜绝 404
-	const path = rawPath
-		.replace('/src/views/finance/financeManager', '/src/views/selfFinance/financeManager')
-		.replace('/src/views/finance/financeAnalysis', '/src/views/selfFinance/financeAnalysis')
-		.replace('/src/views/finance/accountRecordInfo', '/src/views/selfFinance/accountRecordInfo');
-
-	const comp =
-		modules[path] ||
-		modules[rawPath] ||
-		modules[item.component] ||
-		modules['/src/views/error-404/index.vue'];
-
-	return typeof comp === 'object' && comp !== null ? markRaw(comp) : comp;
-};
-
-/** 递归将 MenuInfo 转换为 RouteRecordRaw */
-const buildRouteRecord = (
-	item: MenuInfoData,
-	permissionSet: Set<string>,
-	superAdmin: boolean,
-): RouteRecordRaw => {
-	const routeInfo: RouteRecordRaw = {
-		path: item.path ?? '',
-		component: getComponent(item),
-		redirect: item.redirect,
-		name: item.name,
-		meta: {
-			title: item.title,
-			icon: item.icon,
-			hideInMenu: item.hideInMenu !== '0',
-			showInHome: item.showInHome === '1',
-			permissionCode: item.permissionCode,
-		},
-		children: [],
-	};
-
-	if (item.children?.length) {
-		item.children.forEach((childItem: MenuInfoData) => {
-			if (judgeMenuPermission(childItem, permissionSet, superAdmin)) {
-				const childRoute = buildRouteRecord(childItem, permissionSet, superAdmin);
-				routeInfo.children!.push(childRoute);
-				if (childItem.component !== 'Layout' && childRoute.children?.length) {
-					const nestedRoutes = childRoute.children.splice(0);
-					routeInfo.children!.push(...nestedRoutes);
-				}
-			}
-		});
-	}
-
-	return routeInfo;
-};
-
 // ─── 动态路由注册 ──────────────────────────────────────────────────────────────
 
-const addRouter = async () => {
+const addRouter = () => {
 	const userStore = useUserStore();
 	try {
 		routes.splice(BASE_ROUTE_COUNT);
@@ -206,58 +112,61 @@ const addRouter = async () => {
 	}
 };
 
+// ─── 导航守卫辅助 ──────────────────────────────────────────────────────────────
+
+const toLogin = (to: RouteLocationNormalized) => ({
+	name: 'login',
+	query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
+});
+
+const loadUserMenus = async (userStore: ReturnType<typeof useUserStore>) => {
+	try {
+		const { code, data, message: msg } = await getUserMenusApi();
+		if (code === '200' && data?.length) {
+			userStore.setMenuInfo(data);
+			return true;
+		}
+		message.error(msg || '加载菜单失败，请重新登录');
+	} catch (error) {
+		console.error('加载用户菜单失败：', error);
+		message.error('加载菜单失败，请重新登录');
+	}
+	userStore.resetAuth();
+	return false;
+};
+
 // ─── 导航守卫 ──────────────────────────────────────────────────────────────────
 
-router.beforeEach(async (to: any, _from, next) => {
+router.beforeEach(async (to: RouteLocationNormalized, _from, next) => {
 	const userStore = useUserStore();
 	NProgress.start();
 
+	// ① 白名单直接放行
 	if (to.path === '/login') {
-		next();
-	} else if (userStore.getToken) {
-		if (!userStore.getRouteStatus || routes.length <= BASE_ROUTE_COUNT) {
-			dynamicRouter = [];
-			if (!userStore.getMenuInfo?.length) {
-				try {
-					const {
-						code,
-						data,
-						message: messageInfo,
-					} = await getUserMenusApi();
-					if (code == '200' && data?.length) {
-						userStore.setMenuInfo(data);
-					} else {
-						message.error(messageInfo || '加载菜单失败，请重新登录');
-						userStore.resetAuth();
-						next({
-							name: 'login',
-							query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
-						});
-						return;
-					}
-				} catch (error: unknown) {
-					console.error('加载用户菜单失败：', error);
-					message.error('加载菜单失败，请重新登录');
-					userStore.resetAuth();
-					next({
-						name: 'login',
-						query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
-					});
-					return;
-				}
-			}
-			await addRouter();
-			// 必须通过 path 重新解析，不能携带未匹配时固化的 name: '404'
-			next({ path: to.fullPath || to.path, query: to.query, hash: to.hash, replace: true });
-		} else {
-			next();
-		}
-	} else {
-		next({
-			name: 'login',
-			query: to.fullPath && to.fullPath !== '/' ? { redirect: to.fullPath } : undefined,
-		});
+		return next();
 	}
+
+	// ② 无 Token 直接去登录
+	if (!userStore.getToken) {
+		return next(toLogin(to));
+	}
+
+	// ③ 动态路由已就绪直接放行
+	if (userStore.getRouteStatus && routes.length > BASE_ROUTE_COUNT) {
+		return next();
+	}
+
+	// ④ 按需获取菜单并装配动态路由
+	dynamicRouter = [];
+	if (!userStore.getMenuInfo?.length) {
+		const success = await loadUserMenus(userStore);
+		if (!success) {
+			return next(toLogin(to));
+		}
+	}
+
+	addRouter();
+	next({ path: to.fullPath || to.path, query: to.query, hash: to.hash, replace: true });
 });
 
 router.afterEach(() => {

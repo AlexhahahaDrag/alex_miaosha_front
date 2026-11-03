@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -30,7 +30,7 @@ export function getPmsAttrPage(
 export function getPmsAttrDetail(
 	id: string,
 ): Promise<ResponseBody<PmsAttrData>> {
-	return getDataOne(baseService.product + basePmsAttr + PmsAttrUrl.url, {
+	return getData(baseService.product + basePmsAttr + PmsAttrUrl.url, {
 		id,
 	});
 }

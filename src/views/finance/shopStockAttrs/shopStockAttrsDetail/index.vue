@@ -3,14 +3,22 @@
 		v-model:open="drawerOpen"
 		:title="modelInfo?.title || (isReadonly ? '库存商品规格属性详情' : '配置库存商品规格属性')"
 		:width="540"
-		:confirm-loading="loading"
-		:show-footer="!isReadonly"
+		:loading="detailLoading || loading"
+		:show-footer="!isReadonly && !detailLoading"
 		ok-text="保存属性"
 		@ok="handleOk"
 		@cancel="handleCancel"
 	>
 		<!-- 只读模式：库存属性规格档案卡 -->
-		<div v-if="isReadonly" class="stock-attr-voucher">
+				<!-- 数据加载中骨架屏状态 -->
+		<div v-if="detailLoading" class="detail-skeleton-view space-y-4 py-2">
+			<div class="skeleton-section-card p-5 rounded-2xl border border-slate-100 bg-white shadow-sm">
+				<a-skeleton active :paragraph="{ rows: 5 }" />
+			</div>
+		</div>
+
+		<!-- 只读模式：电子凭证卡片 -->
+		<div v-else-if="isReadonly" class="stock-attr-voucher">
 			<div class="attr-hero">
 				<div class="attr-top">
 					<span class="code-pill">#{{ formState.attrCode || '--' }}</span>
@@ -196,6 +204,7 @@ const drawerOpen = computed({
 const emit = defineEmits(['success']);
 
 const loading = ref<boolean>(false);
+const detailLoading = ref<boolean>(false);
 const formRef = ref<FormInstance>();
 const formState = ref<ShopStockAttrsDetail>({});
 
@@ -261,21 +270,31 @@ const saveShopStockAttrsManager = async (): Promise<void> => {
 
 const init = async () => {
 	if (modelInfo.value?.id) {
-		const {
-			code,
-			data,
-			message: messageInfo,
-		} = await getShopStockAttrsDetail(String(modelInfo.value.id));
-		if (code === '200' && data) {
-			formState.value = {
-				...data,
-				id: data.id !== undefined ? String(data.id) : undefined,
-				stockId: data.stockId !== undefined ? String(data.stockId) : undefined,
-			};
-		} else {
-			message.error(messageInfo || '查询属性详情失败！');
+		detailLoading.value = true;
+		formState.value = {};
+		try {
+			const {
+				code,
+				data,
+				message: messageInfo,
+			} = await getShopStockAttrsDetail(String(modelInfo.value.id));
+			if (code === '200' && data) {
+				formState.value = {
+					...data,
+					id: data.id !== undefined ? String(data.id) : undefined,
+					stockId: data.stockId !== undefined ? String(data.stockId) : undefined,
+				};
+			} else {
+				message.error(messageInfo || '查询属性详情失败！');
+			}
+		} catch (e) {
+			console.warn('查询属性详情失败:', e);
+			message.error('查询属性详情失败！');
+		} finally {
+			detailLoading.value = false;
 		}
 	} else {
+		detailLoading.value = false;
 		formState.value = {
 			isValid: '1',
 		};

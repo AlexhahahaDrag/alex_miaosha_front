@@ -1,10 +1,10 @@
 <template>
-	<!-- 调整零花钱预算右侧抽屉 (Tailwind Soft UI 高质感风格) -->
+	<!-- 调整零花钱预算右侧抽屉 (Tailwind Soft UI 高质感风格，对标记账流水抽屉) -->
 	<BaseRbacDrawer
 		v-model:open="open"
 		title="设置 / 调整零花钱预算"
 		subtitle="独立设定每月预算额度，支持快捷档位填充与全量/自选分类统计"
-		width="640px"
+		width="600px"
 		:loading="budgetSaving"
 		:destroy-on-close="true"
 		@save="handleSaveBudget"
@@ -40,61 +40,66 @@
 				@apply-parsed-command="handleApplyParsedCommand"
 			/>
 
-			<!-- 1. 预算额度与快捷填充卡片 -->
+			<!-- 卡片 1：月度预算额度与快捷填充 (紧凑融合布局) -->
 			<div class="bg-slate-50/80 rounded-2xl p-4 space-y-3">
-				<div class="flex items-center justify-between">
-					<span class="text-xs font-semibold text-slate-600">预算月份</span>
-					<div class="flex items-center gap-2">
-						<span
-							class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 font-mono"
-						>
-							{{ currentMonth }}
-						</span>
-						<span class="text-xs text-slate-400">
-							每月独立保存，次月自动继承
-						</span>
-					</div>
-				</div>
-
 				<a-form-item name="budgetAmount" class="!mb-0">
 					<template #label>
-						<div class="flex items-baseline gap-2">
-							<span class="text-xs font-semibold text-slate-600">
-								月度预算额度
-							</span>
-							<span class="text-[11px] text-slate-400 font-normal">
-								设为 0 表示不设置限额
-							</span>
+						<div class="flex items-center justify-between w-full gap-2">
+							<div class="flex items-baseline gap-2">
+								<span class="text-xs font-semibold text-slate-600">
+									月度预算额度
+								</span>
+								<span class="text-[11px] text-slate-400 font-normal">
+									设为 0 表示不设限额
+								</span>
+							</div>
+							<div class="flex items-center gap-1.5">
+								<span
+									class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-600 font-mono"
+								>
+									{{ currentMonth }}
+								</span>
+								<span class="text-[11px] text-slate-400 hidden sm:inline">
+									次月自动继承
+								</span>
+							</div>
 						</div>
 					</template>
-					<a-input-number
+					<a-input
 						v-model:value="budgetEditForm.budgetAmount"
+						type="number"
 						:min="0"
-						:precision="2"
 						:disabled="!canEditBudget"
-						prefix="¥"
 						placeholder="0.00"
 						data-testid="budget-amount-input"
 						:class="[
-							'w-full !rounded-xl font-mono font-semibold transition-all duration-500',
+							'w-full !rounded-xl font-mono font-bold text-sm transition-all duration-500',
 							isBudgetHighlighted ?
 								'!ring-2 !ring-indigo-400/90 !ring-offset-1 !border-indigo-500 shadow-xs'
 							:	'',
 						]"
-					/>
+					>
+						<template #prefix>
+							<span class="font-mono font-bold text-indigo-600">¥</span>
+						</template>
+						<template #suffix>
+							<span class="text-[11px] font-mono text-slate-400">RMB / 月</span>
+						</template>
+					</a-input>
 				</a-form-item>
 
-				<!-- 快捷档位无边框胶囊，融入输入卡片 -->
-				<div class="flex items-center justify-between pt-0.5 gap-2 flex-wrap">
-					<span class="text-xs text-slate-400">快捷填充</span>
+				<!-- 快捷档位无边框胶囊，左对齐紧凑流，消除中间空白断层 -->
+				<div class="flex items-center gap-2 pt-0.5 flex-wrap">
+					<span class="text-[11px] text-slate-400 shrink-0">快捷填充:</span>
 					<div class="flex items-center gap-1.5 flex-wrap">
 						<!-- 融入 AI 适度推荐档位 (若就绪) -->
 						<button
 							v-if="aiRecommendData?.moderateAmount"
 							type="button"
 							:class="[
-								'cursor-pointer px-2.5 py-1 rounded-full text-xs font-medium transition-all select-none border-0 flex items-center gap-1',
-								budgetEditForm.budgetAmount === aiRecommendData.moderateAmount ?
+								'cursor-pointer px-2.5 py-1 rounded-full text-xs font-medium transition-all select-none border-0 inline-flex items-center gap-1',
+								Number(budgetEditForm.budgetAmount) ===
+								Number(aiRecommendData.moderateAmount) ?
 									'bg-indigo-500 text-white shadow-sm shadow-indigo-500/25'
 								:	'bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/15',
 							]"
@@ -116,9 +121,9 @@
 							type="button"
 							:class="[
 								'cursor-pointer px-3 py-1 rounded-full text-xs font-medium font-mono transition-all select-none border-0',
-								budgetEditForm.budgetAmount === preset ?
-									'bg-indigo-500 text-white shadow-sm shadow-indigo-500/25'
-								:	'bg-white text-slate-600 shadow-2xs hover:bg-indigo-500/10 hover:text-indigo-600',
+								Number(budgetEditForm.budgetAmount) === preset ?
+									'bg-indigo-500 text-white shadow-sm shadow-indigo-500/25 -translate-y-0.5'
+								:	'bg-white text-slate-600 shadow-2xs hover:bg-indigo-500/10 hover:text-indigo-600 hover:-translate-y-0.5',
 							]"
 							@click="applyQuickPreset(preset)"
 						>
@@ -128,7 +133,7 @@
 							type="button"
 							:class="[
 								'cursor-pointer px-3 py-1 rounded-full text-xs font-medium transition-all select-none border-0',
-								budgetEditForm.budgetAmount === 0 ?
+								Number(budgetEditForm.budgetAmount) === 0 ?
 									'bg-slate-800 text-white shadow-xs'
 								:	'bg-white text-slate-500 shadow-2xs hover:bg-slate-200/70 hover:text-slate-700',
 							]"
@@ -140,102 +145,114 @@
 				</div>
 			</div>
 
-			<!-- 2. 统计范围与收支方向卡片 (自然心智流 + 无分割线容器化) -->
+			<!-- 卡片 2：收支方向与统计范畴 (双列对称 Segmented + 全彩 Emoji 分类池) -->
 			<div class="bg-slate-50/80 rounded-2xl p-4 space-y-3.5">
-				<!-- 收支方向全局前置 -->
-				<a-form-item name="selectedDirections" class="!mb-0">
-					<template #label>
-						<div class="flex items-center justify-between w-full gap-2">
-							<span class="text-xs font-semibold text-slate-600">
-								收支方向
-							</span>
-							<span
-								class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/70 text-slate-600"
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- 左列：收支方向 (支持单选/多选) -->
+					<a-form-item name="selectedDirections" class="!mb-0">
+						<template #label>
+							<div class="flex items-center justify-between w-full gap-1.5">
+								<span class="text-xs font-semibold text-slate-600">
+									收支方向
+								</span>
+								<span
+									class="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-medium bg-slate-200/70 text-slate-600"
+								>
+									{{
+										budgetEditForm.selectedDirections.length === 2 ? '双向统计'
+										: isDirectionSelected('income') ? '仅限收入'
+										: '仅限支出'
+									}}
+								</span>
+							</div>
+						</template>
+						<div
+							class="grid grid-cols-2 gap-1 p-1 bg-slate-200/60 rounded-xl h-9 box-border"
+						>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									isDirectionSelected('expense') ?
+										'bg-white text-rose-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="toggleDirection('expense')"
 							>
-								{{
-									budgetEditForm.selectedDirections.length === 2 ? '双向统计'
-									: isDirectionSelected('income') ? '仅限收入'
-									: '仅限支出'
-								}}
+								<span
+									:class="[
+										'w-1.5 h-1.5 rounded-full inline-block',
+										isDirectionSelected('expense') ?
+											'bg-rose-500'
+										:	'bg-slate-400',
+									]"
+								></span>
+								<span>支出</span>
+							</button>
+							<button
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5',
+									isDirectionSelected('income') ?
+										'bg-white text-emerald-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="toggleDirection('income')"
+							>
+								<span
+									:class="[
+										'w-1.5 h-1.5 rounded-full inline-block',
+										isDirectionSelected('income') ?
+											'bg-emerald-500'
+										:	'bg-slate-400',
+									]"
+								></span>
+								<span>收入</span>
+							</button>
+						</div>
+					</a-form-item>
+
+					<!-- 右列：统计范畴 (零下拉 Segmented 切换) -->
+					<div class="flex flex-col">
+						<div class="flex items-center justify-between pb-2">
+							<div class="flex items-center gap-1">
+								<span class="text-xs font-semibold text-slate-600">
+									统计范畴
+								</span>
+								<a-tooltip
+									title="全量日常模式自动汇总当月所有非转账类别的日常收支；自选模式可精细勾选特定消费分类"
+								>
+									<QuestionCircleOutlined
+										class="text-slate-400 hover:text-slate-600 cursor-pointer text-xs"
+									/>
+								</a-tooltip>
+							</div>
+							<span class="text-[11px] text-slate-400">
+								{{ scopeMode === 'all' ? '自动剔除转账' : '按勾选类别汇总' }}
 							</span>
 						</div>
-					</template>
-					<div class="flex items-center gap-2">
-						<button
-							type="button"
-							:class="[
-								'cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all select-none border-0 flex items-center gap-1.5',
-								isDirectionSelected('expense') ?
-									'bg-rose-500/12 text-rose-600 ring-1 ring-rose-500/25 shadow-2xs'
-								:	'bg-white text-slate-500 shadow-2xs hover:text-slate-700',
-							]"
-							@click="toggleDirection('expense')"
+						<div
+							class="grid grid-cols-2 gap-1 p-1 bg-slate-200/60 rounded-xl h-9 box-border"
 						>
-							<CheckOutlined
-								v-if="isDirectionSelected('expense')"
-								class="text-xs"
-							/>
-							<span
-								v-else
-								class="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block"
-							></span>
-							<span>支出 (消费)</span>
-						</button>
-						<button
-							type="button"
-							:class="[
-								'cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all select-none border-0 flex items-center gap-1.5',
-								isDirectionSelected('income') ?
-									'bg-emerald-500/12 text-emerald-600 ring-1 ring-emerald-500/25 shadow-2xs'
-								:	'bg-white text-slate-500 shadow-2xs hover:text-slate-700',
-							]"
-							@click="toggleDirection('income')"
-						>
-							<CheckOutlined
-								v-if="isDirectionSelected('income')"
-								class="text-xs"
-							/>
-							<span
-								v-else
-								class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"
-							></span>
-							<span>收入</span>
-						</button>
-					</div>
-				</a-form-item>
-
-				<!-- 统计范畴控制器 (Tailwind Segmented 胶囊切换) -->
-				<div class="flex items-center justify-between pt-0.5 gap-3 flex-wrap">
-					<div class="flex items-center gap-1.5">
-						<span class="text-xs font-semibold text-slate-600">统计范畴</span>
-						<a-tooltip
-							title="全量日常模式自动汇总当月所有非转账类别的日常收支；自选模式可精细勾选特定消费分类"
-						>
-							<QuestionCircleOutlined
-								class="text-slate-400 hover:text-slate-600 cursor-pointer text-xs"
-							/>
-						</a-tooltip>
-					</div>
-
-					<div class="inline-flex items-center p-1 bg-slate-200/70 rounded-xl gap-1">
-						<button
-							v-for="opt in scopeModeOptions"
-							:key="opt.value"
-							type="button"
-							:class="[
-								'px-3 py-1 rounded-lg text-xs font-medium border-0 cursor-pointer transition-all duration-150',
-								scopeMode === opt.value ?
-									'bg-white text-indigo-600 font-semibold shadow-2xs'
-								:	'bg-transparent text-slate-600 hover:text-slate-900',
-							]"
-							@click="scopeMode = opt.value as 'all' | 'custom'"
-						>
-							{{ opt.label }}
-						</button>
+							<button
+								v-for="opt in scopeModeOptions"
+								:key="opt.value"
+								type="button"
+								:class="[
+									'border-0 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-150 flex items-center justify-center',
+									scopeMode === opt.value ?
+										'bg-white text-indigo-600 shadow-2xs'
+									:	'bg-transparent text-slate-500 hover:text-slate-800',
+								]"
+								@click="scopeMode = opt.value as 'all' | 'custom'"
+							>
+								{{ opt.label }}
+							</button>
+						</div>
 					</div>
 				</div>
 
-				<!-- 自选分类列表 (紧贴控制器展开，白底微质感内嵌容器) -->
+				<!-- 自选分类列表 (白底微质感内嵌容器，保留全彩 Emoji) -->
 				<div
 					v-if="scopeMode === 'custom'"
 					:class="[
@@ -253,7 +270,7 @@
 							<span
 								class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-600 font-mono"
 							>
-								已选 {{ budgetEditForm.categoryCodes.length }} 项
+								已选 {{ selectedCategoryCount }} 项
 							</span>
 						</div>
 						<div class="flex items-center gap-2">
@@ -275,7 +292,7 @@
 						</div>
 					</div>
 
-					<!-- 现代全圆角灵动微胶囊 Pills (带 Emoji 词典支持) -->
+					<!-- 现代全圆角灵动微胶囊 Pills (始终保留彩色 Emoji 锚点) -->
 					<div
 						v-if="availableCategories.length"
 						class="flex flex-wrap gap-1.5 max-h-56 overflow-y-auto pr-1 py-0.5"
@@ -285,27 +302,23 @@
 							:key="cat"
 							type="button"
 							:class="[
-								'cursor-pointer px-2.5 py-1 rounded-full text-xs font-medium transition-all select-none inline-flex items-center gap-1 border-0 active:scale-95',
+								'cursor-pointer px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-150 select-none inline-flex items-center gap-1 border-0 active:scale-95',
 								isCategorySelected(cat) ?
 									'bg-indigo-500 text-white font-semibold shadow-sm shadow-indigo-500/25'
 								:	'bg-slate-100/90 text-slate-600 hover:bg-indigo-500/10 hover:text-indigo-600',
 							]"
 							@click="toggleCategory(cat)"
 						>
-							<CheckOutlined
-								v-if="isCategorySelected(cat)"
-								class="text-[10px]"
-							/>
-							<span v-else class="text-xs leading-none">{{
+							<span class="text-xs leading-none">{{
 								getCategoryEmoji(cat)
 							}}</span>
-							<span>{{ cat }}</span>
+							<span class="leading-tight">{{ cat }}</span>
 						</button>
 					</div>
 				</div>
 			</div>
 
-			<!-- 3. 实时试算与健康度模拟卡片 (高质感金融轻量卡片) -->
+			<!-- 卡片 3：实时试算与健康度模拟卡片 (0ms 瞬时回显) -->
 			<div class="bg-slate-50/80 rounded-2xl p-4 space-y-3">
 				<div class="flex items-center justify-between text-xs">
 					<span class="font-semibold flex items-center gap-1.5 text-slate-700">
@@ -319,7 +332,7 @@
 					<span
 						v-if="previewStats.budget > 0"
 						:class="[
-							'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold',
+							'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold font-mono',
 							previewStats.isOver ?
 								'bg-rose-500/10 text-rose-600'
 							:	'bg-indigo-500/10 text-indigo-600',
@@ -352,17 +365,9 @@
 						<div
 							class="text-sm font-bold text-slate-700 mt-1 font-mono tabular-nums"
 						>
-							<span
-								v-if="simulationLoading"
-								class="text-xs text-slate-400 font-normal"
-							>
-								计算中...
-							</span>
-							<span v-else>
-								{{ previewStats.actual < 0 ? '-' : '' }}¥{{
-									formatAmount(Math.abs(previewStats.actual))
-								}}
-							</span>
+							{{ previewStats.actual < 0 ? '-' : '' }}¥{{
+								formatAmount(Math.abs(previewStats.actual))
+							}}
 						</div>
 					</div>
 					<div class="bg-white p-3 rounded-xl shadow-2xs">
@@ -373,17 +378,9 @@
 								previewStats.isOver ? 'text-rose-600' : 'text-emerald-600',
 							]"
 						>
-							<span
-								v-if="simulationLoading"
-								class="text-xs text-slate-400 font-normal"
-							>
-								计算中...
-							</span>
-							<span v-else>
-								{{ previewStats.remaining < 0 ? '-' : '' }}¥{{
-									formatAmount(Math.abs(previewStats.remaining))
-								}}
-							</span>
+							{{ previewStats.remaining < 0 ? '-' : '' }}¥{{
+								formatAmount(Math.abs(previewStats.remaining))
+							}}
 						</div>
 					</div>
 				</div>
@@ -430,7 +427,6 @@ import type { FormInstance } from 'ant-design-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { message } from 'ant-design-vue';
 import {
-	CheckOutlined,
 	QuestionCircleOutlined,
 	BarChartOutlined,
 } from '@ant-design/icons-vue';
@@ -521,7 +517,7 @@ const QUICK_BUDGET_PRESETS = [1000, 2000, 3000, 5000];
 // 统计范围模式: 'all' 全部流水(推荐) | 'custom' 指定特定分类
 const scopeMode = ref<'all' | 'custom'>('all');
 const scopeModeOptions = [
-	{ label: '全部日常账目 (推荐)', value: 'all' },
+	{ label: '全部日常 (推荐)', value: 'all' },
 	{ label: '自选专属分类', value: 'custom' },
 ];
 
@@ -580,22 +576,33 @@ const getBudgetProgressColor = (percent: number): string => {
 const recentCategories = ref<string[]>([]);
 const categoriesLoading = ref<boolean>(false);
 
-// 可用分类集合：合并系统默认分类与近两月流水分类并去重
+const IGNORED_DIRECTION_CODES = new Set(['支出', '收入', 'expense', 'income']);
+
+// 可用分类集合：实时合并系统默认分类、已选分类与近两月流水分类，确保 0 延迟与计数一致
 const availableCategories = computed(() => {
 	const set = new Set<string>();
 	SYSTEM_DEFAULT_CATEGORIES.forEach((c) => set.add(c));
+	(props.budgetStatus?.categoryCodes || []).forEach((c) => {
+		if (c && !IGNORED_DIRECTION_CODES.has(c)) {
+			set.add(c);
+		}
+	});
+	budgetEditForm.categoryCodes.forEach((c) => {
+		if (c && !IGNORED_DIRECTION_CODES.has(c)) {
+			set.add(c);
+		}
+	});
 	recentCategories.value.forEach((c) => {
-		if (
-			c &&
-			c !== '支出' &&
-			c !== '收入' &&
-			c !== 'expense' &&
-			c !== 'income'
-		) {
+		if (c && !IGNORED_DIRECTION_CODES.has(c)) {
 			set.add(c);
 		}
 	});
 	return Array.from(set);
+});
+
+const selectedCategoryCount = computed(() => {
+	const availableSet = new Set(availableCategories.value);
+	return budgetEditForm.categoryCodes.filter((c) => availableSet.has(c)).length;
 });
 
 const simulatedActualExpense = ref<number>(0);
@@ -613,8 +620,7 @@ const getEffectiveCategoryCodes = (
 	if (mode === 'all') {
 		return [];
 	}
-	const ignored = new Set(['支出', '收入', 'expense', 'income']);
-	return codes.filter((c) => !ignored.has(c));
+	return codes.filter((c) => !IGNORED_DIRECTION_CODES.has(c));
 };
 
 const resolveSimulatedActual = (
@@ -646,7 +652,7 @@ const resolveDirectionParam = (
 const fetchPreviewSimulation = async () => {
 	simulationLoading.value = true;
 	try {
-		const [monthStart, monthEnd] = getMonthRange();
+		const [monthStart, monthEnd] = getMonthRange(props.currentMonth || 0);
 		const effectiveCategoryCodes = getEffectiveCategoryCodes(
 			scopeMode.value,
 			budgetEditForm.categoryCodes,
@@ -761,13 +767,9 @@ const fetchRecentCategories = async () => {
 			getEffectiveBelongTo(),
 		);
 		if (code === '200' && Array.isArray(data)) {
-			const cleanData = data.filter(
-				(c) =>
-					c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
-			);
+			const cleanData = data.filter((c) => c && !IGNORED_DIRECTION_CODES.has(c));
 			const existingSelected = budgetEditForm.categoryCodes.filter(
-				(c) =>
-					c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+				(c) => c && !IGNORED_DIRECTION_CODES.has(c),
 			);
 			recentCategories.value = Array.from(
 				new Set([...cleanData, ...existingSelected]),
@@ -871,7 +873,7 @@ const handleSaveBudget = async () => {
 			yearMonth: props.currentMonth,
 			belongTo: saveBelongTo,
 			incomeAndExpenses: budgetEditForm.selectedDirections.join(','),
-			budgetAmount: budgetEditForm.budgetAmount,
+			budgetAmount: Number(budgetEditForm.budgetAmount || 0),
 			categoryCodes: effectiveCategoryCodes,
 		});
 		if (code === '200') {
@@ -888,9 +890,10 @@ const handleSaveBudget = async () => {
 	}
 };
 
-// 抽屉打开时自闭环初始化
+// 抽屉打开时自闭环初始化（0ms 瞬时试算回显）
 const initBudgetModal = async () => {
 	budgetEditForm.budgetAmount = Number(props.budgetStatus?.budgetAmount || 0);
+	simulatedActualExpense.value = Number(props.budgetStatus?.actualExpense || 0);
 	const rawDir = props.budgetStatus?.incomeAndExpenses || 'expense';
 	const parsed = rawDir
 		.split(',')
@@ -900,7 +903,7 @@ const initBudgetModal = async () => {
 	budgetEditForm.incomeAndExpenses =
 		budgetEditForm.selectedDirections.join(',');
 	const existingCats = [...(props.budgetStatus?.categoryCodes || [])].filter(
-		(c) => c !== '支出' && c !== '收入' && c !== 'expense' && c !== 'income',
+		(c) => c && !IGNORED_DIRECTION_CODES.has(c),
 	);
 	budgetEditForm.categoryCodes = existingCats;
 	scopeMode.value = existingCats.length > 0 ? 'custom' : 'all';
@@ -911,7 +914,7 @@ const initBudgetModal = async () => {
 	nextTick(() => {
 		budgetFormRef.value?.clearValidate();
 	});
-	fetchPreviewSimulation();
+	void fetchPreviewSimulation();
 	await fetchRecentCategories();
 };
 
@@ -928,8 +931,15 @@ watch(
 
 <style lang="scss" scoped>
 .modern-soft-budget-form {
-	:deep(.ant-input-number),
-	:deep(.ant-input-number-affix-wrapper) {
+	:deep(.ant-form-item-label > label) {
+		width: 100%;
+		font-size: 12px;
+		font-weight: 600;
+		color: #475569;
+	}
+
+	:deep(.ant-input),
+	:deep(.ant-input-affix-wrapper) {
 		border-radius: 12px !important;
 		border-color: rgba(226, 232, 240, 0.9) !important;
 	}

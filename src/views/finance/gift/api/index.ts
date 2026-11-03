@@ -1,6 +1,6 @@
 import {
 	deleteData,
-	getDataOne,
+	getData,
 	postData,
 	postDownloadFile,
 	putData,
@@ -88,13 +88,13 @@ export function getGiftPersonBusinessPage(
 export function getGiftPersonSummary(): Promise<
 	ResponseBody<GiftPersonSummary>
 > {
-	return getDataOne(`${baseUrl(giftApi.person)}/summary`);
+	return getData(`${baseUrl(giftApi.person)}/summary`);
 }
 
 export function getGiftPersonProfile(
 	id: string,
 ): Promise<ResponseBody<GiftPersonProfile>> {
-	return getDataOne<GiftPersonProfile>(`${baseUrl(giftApi.person)}/profile`, {
+	return getData<GiftPersonProfile>(`${baseUrl(giftApi.person)}/profile`, {
 		id,
 	});
 }
@@ -111,7 +111,7 @@ export function getGiftPersonList(
 export function getGiftOrgMemberOptions(
 	keyword?: string,
 ): Promise<ResponseBody<GiftPersonInfo[]>> {
-	return getDataOne<GiftPersonInfo[]>(
+	return getData<GiftPersonInfo[]>(
 		`${baseUrl(giftApi.person)}/org-member-options`,
 		keyword ? { keyword } : {},
 	);
@@ -120,13 +120,13 @@ export function getGiftOrgMemberOptions(
 export function getGiftPersonDetail(
 	id: string,
 ): Promise<ResponseBody<GiftPersonInfo>> {
-	return getDataOne<GiftPersonInfo>(baseUrl(giftApi.person), { id });
+	return getData<GiftPersonInfo>(baseUrl(giftApi.person), { id });
 }
 
 export function getGiftPersonRelationOptions(
 	personId?: string,
 ): Promise<ResponseBody<GiftPersonRelationOptions>> {
-	return getDataOne<GiftPersonRelationOptions>(
+	return getData<GiftPersonRelationOptions>(
 		`${baseUrl(giftApi.person)}/relation-options`,
 		personId ? { personId } : {},
 	);
@@ -184,7 +184,7 @@ export function getGiftEventBusinessPage(
 export function getGiftEventTypeOptions(): Promise<
 	ResponseBody<GiftEventTypeOptions>
 > {
-	return getDataOne<GiftEventTypeOptions>(
+	return getData<GiftEventTypeOptions>(
 		`${baseUrl(giftApi.event)}/event-type-options`,
 	);
 }
@@ -194,7 +194,7 @@ export function getGiftRecordRecommendAmount(params: {
 	eventType: string;
 	direction?: string | null;
 }): Promise<ResponseBody<GiftRecordRecommendAmount>> {
-	return getDataOne<GiftRecordRecommendAmount>(
+	return getData<GiftRecordRecommendAmount>(
 		`${baseUrl(giftApi.event)}/recommend-amount`,
 		normalizeGiftIds(params),
 	).then(normalizeGiftResponse);
@@ -210,7 +210,7 @@ export function updateGiftEventTypeOption(
 }
 
 export function getGiftEventSummary(): Promise<ResponseBody<GiftEventSummary>> {
-	return getDataOne(`${baseUrl(giftApi.event)}/summary`);
+	return getData(`${baseUrl(giftApi.event)}/summary`);
 }
 
 export function getGiftEventList(
@@ -225,7 +225,7 @@ export function getGiftEventList(
 export function getGiftEventDetail(
 	id: string,
 ): Promise<ResponseBody<GiftEventInfo>> {
-	return getDataOne<GiftEventInfo>(baseUrl(giftApi.event), { id });
+	return getData<GiftEventInfo>(baseUrl(giftApi.event), { id });
 }
 
 export function addGiftEvent(
@@ -274,7 +274,7 @@ export function getGiftRecordSummary(
 export function getGiftRecordDetail(
 	id: string,
 ): Promise<ResponseBody<GiftRecordInfo>> {
-	return getDataOne<GiftRecordInfo>(baseUrl(giftApi.record), { id });
+	return getData<GiftRecordInfo>(baseUrl(giftApi.record), { id });
 }
 
 export function addGiftRecord(
@@ -312,7 +312,7 @@ export function exportGiftRecords(
 export function getPendingReturnAmount(
 	receiveRecordId: string,
 ): Promise<ResponseBody<number>> {
-	return getDataOne(`${baseUrl(giftApi.record)}/pending-return-amount`, {
+	return getData(`${baseUrl(giftApi.record)}/pending-return-amount`, {
 		receiveRecordId,
 	});
 }
@@ -347,7 +347,7 @@ export interface GiftAnalysisParams {
 export function getGiftAnalysisOverview(
 	params?: GiftAnalysisParams,
 ): Promise<ResponseBody<GiftRecordSummary>> {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/overview`, {
+	return getData(`${baseUrl(giftApi.analysis)}/overview`, {
 		direction: params?.direction,
 	});
 }
@@ -355,7 +355,7 @@ export function getGiftAnalysisOverview(
 export function getGiftAnalysisTrend(
 	params?: GiftAnalysisParams,
 ): Promise<ResponseBody<GiftAmountTrend[]>> {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/trend`, {
+	return getData(`${baseUrl(giftApi.analysis)}/trend`, {
 		period: params?.period,
 		direction: params?.direction,
 	});
@@ -364,19 +364,19 @@ export function getGiftAnalysisTrend(
 export function getGiftAnalysisRelationDistribution(): Promise<
 	ResponseBody<GiftRelationDistribution[]>
 > {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/relation-distribution`);
+	return getData(`${baseUrl(giftApi.analysis)}/relation-distribution`);
 }
 
 export function getGiftAnalysisEventRanking(): Promise<
 	ResponseBody<GiftRankingItem[]>
 > {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/event-ranking`);
+	return getData(`${baseUrl(giftApi.analysis)}/event-ranking`);
 }
 
 export function getGiftAnalysisPersonRanking(): Promise<
 	ResponseBody<GiftRankingItem[]>
 > {
-	return getDataOne(`${baseUrl(giftApi.analysis)}/person-ranking`);
+	return getData(`${baseUrl(giftApi.analysis)}/person-ranking`);
 }
 
 
@@ -384,7 +384,7 @@ export function getGiftBalanceMatrix(params?: {
 	relationType?: string;
 	searchKey?: string;
 }): Promise<ResponseBody<import('../config').GiftPersonBalance[]>> {
-	return getDataOne<import('../config').GiftPersonBalance[]>(
+	return getData<import('../config').GiftPersonBalance[]>(
 		`${baseUrl(giftApi.analysis)}/balance-matrix`,
 		params,
 	).then(normalizeGiftResponse);

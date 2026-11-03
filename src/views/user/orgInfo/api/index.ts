@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -37,7 +37,7 @@ export function getOrgInfoTree(
 export function getOrgInfoDetail(
 	id: string,
 ): Promise<ResponseBody<OrgInfoData>> {
-	return getDataOne(baseService.user + baseOrgInfo + OrgInfoUrl.url, { id });
+	return getData(baseService.user + baseOrgInfo + OrgInfoUrl.url, { id });
 }
 
 export function deleteOrgInfo(ids: string): Promise<ResponseBody<boolean>> {

@@ -113,13 +113,15 @@ onUnmounted(() => {
 		border-left: 3px solid #3b82f6;
 	}
 
-	:deep(.ant-menu-dark .ant-menu-item) {
-		margin-inline: 8px;
-		width: calc(100% - 16px);
+	:deep(.ant-menu-dark .ant-menu-item),
+	:deep(.ant-menu-dark .ant-menu-submenu-title) {
+		margin-inline: 8px !important;
+		width: calc(100% - 16px) !important;
 		border-radius: 8px;
 	}
 
-	:deep(.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover) {
+	:deep(.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover),
+	:deep(.ant-menu-dark .ant-menu-submenu-title:hover) {
 		background: rgba(255, 255, 255, 0.06) !important;
 	}
 }

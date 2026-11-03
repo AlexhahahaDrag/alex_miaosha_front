@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -33,7 +33,7 @@ export function getRoleUserInfoPage(
 export function getRoleUserInfoDetail(
 	id: string,
 ): Promise<ResponseBody<RoleUserInfoData>> {
-	return getDataOne(baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url, {
+	return getData(baseService.user + baseRoleUserInfo + RoleUserInfoUrl.url, {
 		id,
 	});
 }

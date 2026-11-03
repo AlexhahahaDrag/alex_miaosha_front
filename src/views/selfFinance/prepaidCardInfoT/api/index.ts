@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -44,7 +44,7 @@ export function getPrepaidCardInfoList(
 export function getPrepaidCardInfoTDetail(
 	id: string,
 ): Promise<ResponseBody<PrepaidCardInfoTData>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.url,
 		{ id },
 	);

@@ -58,23 +58,24 @@
 							</span>
 						</div>
 						<div
-							class="flex items-center gap-1.5 text-[11px] text-slate-400 pl-3.5"
+							class="flex items-center gap-1.5 text-[11px] text-slate-400 pl-3.5 flex-nowrap whitespace-nowrap overflow-hidden"
 						>
 							<span
 								v-if="record.belongToName"
-								class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded-md text-slate-600 font-medium leading-tight"
+								class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded-md text-slate-600 font-medium leading-tight whitespace-nowrap shrink-0 max-w-[100px]"
+								:title="record.belongToName"
 							>
-								<UserOutlined class="text-[10px] text-slate-400" />
-								{{ record.belongToName }}
+								<UserOutlined class="text-[10px] text-slate-400 shrink-0" />
+								<span class="truncate">{{ record.belongToName }}</span>
 							</span>
 							<span
 								v-if="record.belongToName && record.infoDate"
-								class="text-slate-300"
+								class="text-slate-300 shrink-0"
 								>·</span
 							>
 							<span
 								v-if="record.infoDate"
-								class="font-mono tabular-nums text-slate-400"
+								class="font-mono tabular-nums text-slate-400 whitespace-nowrap shrink-0"
 							>
 								{{ formatTime(record.infoDate) }}
 							</span>
@@ -392,6 +393,33 @@ const handleSizeChange = (current: number, size: number) => {
 	.toolbar-right {
 		:deep(.ant-pagination) {
 			margin: 0 !important;
+		}
+	}
+
+	/* 响应式媒体查询：根据屏幕变窄/变宽动态平衡表格列排版与间距，消除宽屏空白断层与窄屏挤压折叠 */
+	@media screen and (max-width: 1280px) {
+		:deep(.modern-finance-table) {
+			table {
+				/* 窄屏下将中间列从百分比压缩为紧凑像素，释放空间给主列与固定操作列 */
+				col:nth-child(3) {
+					width: 110px !important;
+					min-width: 100px !important;
+				}
+				col:nth-child(4) {
+					width: 120px !important;
+					min-width: 110px !important;
+				}
+				col:nth-child(5) {
+					width: 130px !important;
+					min-width: 120px !important;
+				}
+			}
+
+			.ant-table-thead > tr > th,
+			.ant-table-tbody > tr > td {
+				padding-left: 8px !important;
+				padding-right: 8px !important;
+			}
 		}
 	}
 }

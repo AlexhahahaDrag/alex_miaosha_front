@@ -6,8 +6,31 @@ import { message } from 'ant-design-vue';
 import router from '@/router';
 import { decrypt, decryptGcm } from '@/utils/crypto';
 
+/**
+ * 根据运行环境动态获取请求超时时间 (ms)
+ * - 开发环境 (development): 1 分钟 (60000ms)
+ * - 测试环境 (test): 45 秒 (45000ms)
+ * - 正式环境 (production): 30 秒 (30000ms)
+ */
+export const getRequestTimeout = (): number => {
+	if (import.meta.env.VITE_APP_REQUEST_TIMEOUT) {
+		const parsed = Number(import.meta.env.VITE_APP_REQUEST_TIMEOUT);
+		if (!Number.isNaN(parsed) && parsed > 0) {
+			return parsed;
+		}
+	}
+	const mode = import.meta.env.MODE || import.meta.env.VITE_MODE;
+	if (mode === 'development') {
+		return 60 * 1000;
+	}
+	if (mode === 'test') {
+		return 45 * 1000;
+	}
+	return 30 * 1000;
+};
+
 const request = axios.create({
-	timeout: 30000,
+	timeout: getRequestTimeout(),
 });
 
 axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -123,7 +146,7 @@ request.interceptors.request.use(requestHandler(''), errorHandler(''));
 request.interceptors.response.use(responseHandler(''), errorHandler(''));
 
 const requestFile = axios.create({
-	timeout: 30000,
+	timeout: getRequestTimeout(),
 });
 
 // 添加请求拦截器

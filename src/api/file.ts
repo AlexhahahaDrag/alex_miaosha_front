@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -29,7 +29,7 @@ export function getFilePage(
 
 // 获取文件详情
 export function getFileDetail(id: string): Promise<any> {
-	return getDataOne(
+	return getData(
 		baseService.file + baseFileManager + fileUrl.url + '?id=' + id,
 	);
 }

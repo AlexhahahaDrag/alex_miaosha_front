@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -33,7 +33,7 @@ export function getPermissionInfoPage(
 export function getPermissionInfoDetail(
 	id: string,
 ): Promise<ResponseBody<PermissionInfo>> {
-	return getDataOne(
+	return getData(
 		baseService.user + basePermissionInfo + PermissionInfoUrl.url,
 		{ id },
 	);

@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -31,7 +31,7 @@ export function getAccountRecordInfoPage(
 export function getAccountRecordInfoDetail(
 	id: string,
 ): Promise<ResponseBody<AccountRecordInfo>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.url,
 		{
 			id,

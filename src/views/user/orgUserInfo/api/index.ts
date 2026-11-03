@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -30,7 +30,7 @@ export function getOrgUserInfoPage(
 export function getOrgUserInfoDetail(
 	id: string,
 ): Promise<ResponseBody<OrgUserInfoData>> {
-	return getDataOne(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, {
+	return getData(baseService.user + baseOrgUserInfo + OrgUserInfoUrl.url, {
 		id,
 	});
 }

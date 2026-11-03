@@ -21,15 +21,6 @@ export function getData<T = unknown>(
 	});
 }
 
-export function getDataOne<T = unknown>(
-	url: string,
-	config?: Record<string, unknown>,
-): Promise<ResponseBody<T>> {
-	return request.get<Params, ResponseBody<T>>(formatUrl(url), {
-		params: config,
-	});
-}
-
 export function postData<T = unknown>(
 	url: string,
 	params: unknown,

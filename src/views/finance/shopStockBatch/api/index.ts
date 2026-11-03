@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -30,7 +30,7 @@ export function getShopStockBatchPage(
 export function getShopStockBatchDetail(
 	id: string,
 ): Promise<ResponseBody<ShopStockBatchData>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + baseShopStockBatch + ShopStockBatchUrl.url,
 		{
 			id,

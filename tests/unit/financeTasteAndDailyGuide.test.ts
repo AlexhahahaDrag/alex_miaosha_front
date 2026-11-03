@@ -183,11 +183,11 @@ describe('Finance Taste-Skill & BudgetDailyGuide Contract Test', () => {
 		expect(amountCol.width).toBe('16%');
 		expect(amountCol.align).toBe('right');
 
-		// 操作列遵循 Anti-Action-Collapse SOP 刚性下限
+		// 操作列遵循刚性下限
 		expect(opCol.key).toBe('operation');
 		expect(opCol.fixed).toBe('right');
-		expect(opCol.width).toBeGreaterThanOrEqual(185);
-		expect(opCol.minWidth).toBeGreaterThanOrEqual(185);
+		expect(opCol.width).toBe(230);
+		expect(opCol.minWidth).toBe(220);
 	});
 
 	it('BaseRbacDrawer 应支持 showFooter 控制，且编辑加载中应保持 isEdit 为 true 并隐藏底部按钮', () => {

@@ -14,7 +14,7 @@ export const columns: TableColumnsType = [
 		dataIndex: 'typeCode',
 		key: 'typeCode',
 		width: '20%',
-		minWidth: 130,
+		minWidth: 120,
 		align: 'center',
 	},
 	{
@@ -22,7 +22,7 @@ export const columns: TableColumnsType = [
 		dataIndex: 'fromSource',
 		key: 'fromSource',
 		width: '20%',
-		minWidth: 140,
+		minWidth: 130,
 		align: 'center',
 	},
 	{
@@ -31,7 +31,7 @@ export const columns: TableColumnsType = [
 		key: 'amount',
 		align: 'right',
 		width: '16%',
-		minWidth: 150,
+		minWidth: 140,
 	},
 	{
 		title: '操作',

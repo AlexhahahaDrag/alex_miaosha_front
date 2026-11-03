@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -30,7 +30,7 @@ export function getShopFinancePage(
 export function getShopFinanceDetail(
 	id: string,
 ): Promise<ResponseBody<ShopFinanceData>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + baseShopFinance + ShopFinanceUrl.url,
 		{
 			id,

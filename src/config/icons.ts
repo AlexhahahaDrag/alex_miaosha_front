@@ -83,3 +83,95 @@ export const iconComponentMap: Record<string, any> = {
 	'finance-dfm': IconDf,
 	'finance-jd': IconJingdong,
 };
+
+/**
+ * 常用菜单 icon 与 route.name 的别名规范映射表
+ */
+const MENU_ICON_ALIAS: Record<string, any> = {
+	home: IconHome,
+	dashboard: IconHome,
+	homeDashboard: IconHome,
+	user: IconUser,
+	userManager: IconUserManager,
+	userManagerIcon: IconUserManager,
+	org: IconUser,
+	orgManager: IconUser,
+	orgInfo: IconUser,
+	role: IconUser,
+	roleInfo: IconUser,
+	menuInfo: IconDict,
+	finance: IconFinance,
+	financeManager: IconFinanceManager,
+	financeAnalysis: IconFinanceAnalysis,
+	accountRecordInfo: IconAccountRecordInfo,
+	selfFinance: IconFinanceManager,
+	gift: IconRedPacket,
+	giftManager: IconRedPacket,
+	giftDashboard: IconFinanceAnalysis,
+	giftPerson: IconUser,
+	giftEvent: IconDict,
+	giftRecord: IconRedPacket,
+	giftAnalysis: IconFinanceAnalysis,
+	cpnCoupon: IconPromotion,
+	cpnCouponManager: IconPromotion,
+	promotion: IconPromotion,
+	goodsManager: IconGoodsManager,
+	product: IconProduct,
+	order: IconOrder,
+	orderManager: IconOrderManager,
+	dict: IconDict,
+	dictInfo: IconDict,
+	system: IconDict,
+	message: IconHomepage,
+	messageManager: IconHomepage,
+	shopFinance: IconShopFinance,
+	shopFinanceAnalysis: IconShopFinanceAnalysis,
+	prepaidCardInfoT: IconAccountRecordInfo,
+	prepaidCardInfo: IconAccountRecordInfo,
+	prepaidConsumeRecordT: IconFinanceManager,
+	prepaidConsumeRecord: IconFinanceManager,
+};
+
+/**
+ * 根据菜单项的 icon 或 name/key 智能解析对应的图标组件
+ */
+export const resolveMenuIcon = (
+	iconName?: string,
+	menuKeyOrName?: string,
+): any => {
+	// 1. 若提供了 iconName，先从别名表查找
+	if (iconName) {
+		const cleanIcon = iconName.trim();
+		if (MENU_ICON_ALIAS[cleanIcon]) {
+			return MENU_ICON_ALIAS[cleanIcon];
+		}
+		if (iconComponentMap[cleanIcon]) {
+			return iconComponentMap[cleanIcon];
+		}
+		if (iconComponentMap[`menu-${cleanIcon}`]) {
+			return iconComponentMap[`menu-${cleanIcon}`];
+		}
+		if (iconComponentMap[`soft-${cleanIcon}`]) {
+			return iconComponentMap[`soft-${cleanIcon}`];
+		}
+		if (iconComponentMap[`finance-${cleanIcon}`]) {
+			return iconComponentMap[`finance-${cleanIcon}`];
+		}
+	}
+
+	// 2. 尝试从 menuKeyOrName 查找
+	if (menuKeyOrName) {
+		const cleanKey = menuKeyOrName.trim();
+		if (MENU_ICON_ALIAS[cleanKey]) {
+			return MENU_ICON_ALIAS[cleanKey];
+		}
+		if (iconComponentMap[cleanKey]) {
+			return iconComponentMap[cleanKey];
+		}
+		if (iconComponentMap[`menu-${cleanKey}`]) {
+			return iconComponentMap[`menu-${cleanKey}`];
+		}
+	}
+
+	return null;
+};

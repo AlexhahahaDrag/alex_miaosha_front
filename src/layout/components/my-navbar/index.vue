@@ -14,6 +14,15 @@
 					v-if="item.children && item.children.length"
 					:key="item.key"
 				>
+					<template #icon>
+						<span class="ant-menu-item-icon menu-icon-box">
+							<component
+								:is="getMenuIcon(item)"
+								v-if="getMenuIcon(item)"
+								class="my-svg"
+							/>
+						</span>
+					</template>
 					<template #title>
 						<span>{{ item.label }}</span>
 					</template>
@@ -24,6 +33,16 @@
 							v-if="sub.children && sub.children.length"
 							:key="sub.key"
 						>
+							<template #icon>
+								<span class="ant-menu-item-icon menu-icon-box">
+									<component
+										:is="getMenuIcon(sub)"
+										v-if="getMenuIcon(sub)"
+										class="my-svg"
+									/>
+									<span v-else class="menu-sub-dot" />
+								</span>
+							</template>
 							<template #title>
 								<span>{{ sub.label }}</span>
 							</template>
@@ -31,20 +50,49 @@
 								v-for="leaf in sub.children"
 								:key="leaf.key"
 							>
-								{{ leaf.label }}
+								<template #icon>
+									<span class="ant-menu-item-icon menu-icon-box">
+										<component
+											:is="getMenuIcon(leaf)"
+											v-if="getMenuIcon(leaf)"
+											class="my-svg"
+										/>
+										<span v-else class="menu-sub-dot" />
+									</span>
+								</template>
+								<span>{{ leaf.label }}</span>
 							</a-menu-item>
 						</a-sub-menu>
 
 						<!-- 二级叶子菜单项 -->
 						<a-menu-item v-else :key="sub.key">
-							{{ sub.label }}
+							<template #icon>
+								<span class="ant-menu-item-icon menu-icon-box">
+									<component
+										:is="getMenuIcon(sub)"
+										v-if="getMenuIcon(sub)"
+										class="my-svg"
+									/>
+									<span v-else class="menu-sub-dot" />
+								</span>
+							</template>
+							<span>{{ sub.label }}</span>
 						</a-menu-item>
 					</template>
 				</a-sub-menu>
 
-				<!-- 一级单菜单项（如首页） -->
+				<!-- 一级单菜单项（如首页、独立流水信息） -->
 				<a-menu-item v-else :key="item.key">
-					{{ item.label }}
+					<template #icon>
+						<span class="ant-menu-item-icon menu-icon-box">
+							<component
+								:is="getMenuIcon(item)"
+								v-if="getMenuIcon(item)"
+								class="my-svg"
+							/>
+						</span>
+					</template>
+					<span>{{ item.label }}</span>
 				</a-menu-item>
 			</template>
 		</a-menu>
@@ -53,6 +101,7 @@
 
 <script setup lang="ts">
 import type { MenuDataItem } from '@/router/config';
+import { resolveMenuIcon } from '@/config/icons';
 
 interface Props {
 	routes: MenuDataItem[];
@@ -63,6 +112,7 @@ export interface CustomNavbarMenuItem {
 	key: string;
 	label: string;
 	path?: string;
+	icon?: string;
 	children?: CustomNavbarMenuItem[];
 }
 
@@ -74,7 +124,11 @@ const props = withDefaults(defineProps<Props>(), {
 	routes: () => [],
 });
 
-type MenuMetaWithHide = { hideInMenu?: boolean };
+type MenuMetaWithHide = {
+	hideInMenu?: boolean;
+	icon?: string;
+	title?: string;
+};
 
 const shouldHideInMenu = (meta?: MenuMetaWithHide) => {
 	return meta?.hideInMenu === true;
@@ -112,10 +166,15 @@ const buildMenuItem = (
 
 	return {
 		key: preferredKey,
-		label: item.meta?.title || preferredKey,
+		label: meta?.title || preferredKey,
 		path: pathStr,
+		icon: meta?.icon || (nameStr === 'home' ? 'home' : undefined),
 		...(children && children.length ? { children } : {}),
 	};
+};
+
+const getMenuIcon = (item: CustomNavbarMenuItem) => {
+	return resolveMenuIcon(item.icon, item.key);
 };
 
 const menuItems = computed<CustomNavbarMenuItem[]>(() => {
@@ -258,6 +317,68 @@ watch(
 .navbar-info {
 	max-height: calc(100vh - 50px);
 	overflow-y: auto;
+
+	:deep(.ant-menu-title-content) {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* 统一固定宽度的图标居中网格盒，保证所有图标中心绝对共线 */
+	:deep(.menu-icon-box) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		min-width: 20px;
+		height: 20px;
+		margin-right: 8px;
+		flex-shrink: 0;
+		line-height: 1;
+	}
+
+	:deep(.my-svg) {
+		width: 18px;
+		height: 18px;
+		font-size: 18px;
+		display: block;
+		transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+		flex-shrink: 0;
+	}
+
+	/* 二级菜单无图标项居中微圆点占位，保证二级菜单文字起点完美对齐 */
+	:deep(.menu-sub-dot) {
+		display: inline-block;
+		width: 5px;
+		height: 5px;
+		border-radius: 50%;
+		background-color: currentColor;
+		opacity: 0.4;
+		transition: all 0.2s ease;
+	}
+
+	/* 现代微质感交互：悬浮时图标轻微弹性位移，激活时呈现品牌柔光微阴影 */
+	:deep(.ant-menu-item:hover .my-svg),
+	:deep(.ant-menu-submenu-title:hover .my-svg) {
+		transform: scale(1.08) translateY(-0.5px);
+		filter: drop-shadow(0 2px 5px rgba(79, 106, 246, 0.25));
+	}
+
+	:deep(.ant-menu-item:hover .menu-sub-dot) {
+		opacity: 0.85;
+		transform: scale(1.3);
+	}
+
+	:deep(.ant-menu-item-selected .my-svg) {
+		transform: scale(1.06);
+		filter: drop-shadow(0 2px 6px rgba(79, 106, 246, 0.35));
+	}
+
+	:deep(.ant-menu-item-selected .menu-sub-dot) {
+		opacity: 1;
+		transform: scale(1.4);
+		background-color: #3b82f6;
+	}
 }
 
 /* 自定义滚动条样式 */

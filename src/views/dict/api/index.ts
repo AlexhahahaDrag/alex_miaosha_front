@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -34,7 +34,7 @@ export function getDictManagerPage(
 export function getDictList(
 	belongTo?: string,
 ): Promise<ResponseBody<DictInfo[]>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + baseDictManager + dictUrl.listByBelong,
 		{ belongTo },
 	);
@@ -43,7 +43,7 @@ export function getDictList(
 export function getDictManagerDetail(
 	id: string | undefined,
 ): Promise<ResponseBody<DictInfo>> {
-	return getDataOne(baseService.finance + baseDictManager + dictUrl.url, {
+	return getData(baseService.finance + baseDictManager + dictUrl.url, {
 		id,
 	});
 }

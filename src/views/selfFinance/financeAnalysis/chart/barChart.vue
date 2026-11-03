@@ -1,10 +1,20 @@
 <template>
-	<div class="bar-chart-wrapper" :style="{ width: props.width, height: props.height }">
-		<div v-if="!hasData" class="empty-container">
-			<div class="chart-header-title">{{ props.title }}</div>
+	<div
+		class="relative w-full h-full"
+		:style="{ width: props.width, height: props.height }"
+	>
+		<div
+			v-if="!hasData"
+			class="relative w-full h-full flex flex-col items-center justify-center"
+		>
 			<a-empty :description="`${props.title}暂无数据`" :image="simpleImage" />
 		</div>
-		<chart v-else :options="options" :width="props.width" :height="props.height" />
+		<chart
+			v-else
+			:options="options"
+			:width="props.width"
+			:height="props.height"
+		/>
 	</div>
 </template>
 
@@ -42,34 +52,25 @@ const props = defineProps({
 });
 
 const hasData = computed(() => {
-	const hasIncome = props.incomeData && props.incomeData.some((v) => Number(v) > 0);
-	const hasExpense = props.expenseData && props.expenseData.some((v) => Number(v) > 0);
+	const hasIncome =
+		props.incomeData && props.incomeData.some((v) => Number(v) > 0);
+	const hasExpense =
+		props.expenseData && props.expenseData.some((v) => Number(v) > 0);
 	return Boolean(hasIncome || hasExpense);
 });
 
 const options = computed(() => {
 	const { xAxis } = props.config || {};
-	const incomeColor = '#10b981'; // 翡翠绿（收入流入）
-	const expenseColor = '#f97316'; // 珊瑚橙（消费流出）
+	const incomeColor = '#10b981'; // Emerald-500（收入流入）
+	const expenseColor = '#f43f5e'; // Rose-500（消费流出）
 
 	return {
-		title: {
-			text: props.title,
-			left: 16,
-			top: 12,
-			textStyle: {
-				fontSize: 15,
-				fontWeight: 600,
-				color: '#1f2937',
-			},
-		},
 		legend: {
 			data: ['收入', '支出'],
-			right: 16,
-			top: 14,
-			itemWidth: 10,
-			itemHeight: 10,
-			borderRadius: 2,
+			right: 8,
+			top: 0,
+			itemWidth: 12,
+			itemHeight: 8,
 			textStyle: {
 				color: '#64748b',
 				fontSize: 12,
@@ -78,12 +79,16 @@ const options = computed(() => {
 		tooltip: {
 			trigger: 'axis',
 			axisPointer: {
-				type: 'shadow',
+				type: 'line',
+				lineStyle: {
+					color: '#cbd5e1',
+					type: 'dashed',
+				},
 			},
 			formatter: (params: any[]) => {
 				if (!params?.length) return '';
 				const title = params[0]?.axisValue || '';
-				let res = `<div style="font-weight:600;margin-bottom:6px;color:#1e293b;">${title}</div>`;
+				let res = `<div style="font-weight:600;margin-bottom:6px;color:#0f172a;">${title}</div>`;
 				let inc = 0;
 				let exp = 0;
 				params.forEach((p) => {
@@ -92,7 +97,7 @@ const options = computed(() => {
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 2,
 					});
-					res += `<div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:3px;font-size:12px;">
+					res += `<div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:3px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
 						<span>${p.marker} ${p.seriesName}:</span>
 						<b>¥${formatted}</b>
 					</div>`;
@@ -104,24 +109,24 @@ const options = computed(() => {
 					minimumFractionDigits: 2,
 					maximumFractionDigits: 2,
 				});
-				const netColor = net >= 0 ? '#10b981' : '#ea580c';
-				res += `<div style="margin-top:6px;padding-top:4px;border-top:1px dashed #e2e8f0;display:flex;justify-content:space-between;font-size:12px;">
-					<span style="color:#64748b;">当期结余:</span>
+				const netColor = net >= 0 ? '#059669' : '#e11d48';
+				res += `<div style="margin-top:6px;padding-top:4px;border-top:1px dashed #e2e8f0;display:flex;justify-content:space-between;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
+					<span style="color:#64748b;">当期净结余:</span>
 					<b style="color:${netColor};">${net >= 0 ? '+' : '-'}¥${netFormatted}</b>
 				</div>`;
 				return res;
 			},
 		},
 		grid: {
-			left: '3%',
-			right: '4%',
-			top: 55,
-			bottom: '8%',
+			left: '2%',
+			right: '3%',
+			top: 32,
+			bottom: '6%',
 			outerBoundsMode: 'same',
 		},
 		xAxis: {
 			type: 'category',
-			boundaryGap: true,
+			boundaryGap: false,
 			data: xAxis || [],
 			axisLine: {
 				lineStyle: { color: '#e2e8f0' },
@@ -139,17 +144,10 @@ const options = computed(() => {
 		yAxis: {
 			type: 'value',
 			min: 0,
-			name: '金额 (元)',
-			nameTextStyle: {
-				color: '#9ca3af',
-				fontSize: 11,
-				align: 'left',
-				padding: [0, 0, 0, -20],
-			},
 			axisLine: { show: false },
 			axisTick: { show: false },
 			axisLabel: {
-				color: '#9ca3af',
+				color: '#94a3b8',
 				fontSize: 11,
 				formatter: (v: number) => {
 					if (Math.abs(v) >= 10000) {
@@ -168,11 +166,19 @@ const options = computed(() => {
 		series: [
 			{
 				name: '收入',
-				type: 'bar',
+				type: 'line',
+				smooth: true,
+				symbol: 'circle',
+				symbolSize: 6,
 				data: props.incomeData || [],
-				barMaxWidth: 14,
 				itemStyle: {
-					borderRadius: [3, 3, 0, 0],
+					color: incomeColor,
+				},
+				lineStyle: {
+					width: 2.5,
+					color: incomeColor,
+				},
+				areaStyle: {
 					color: {
 						type: 'linear',
 						x: 0,
@@ -180,19 +186,27 @@ const options = computed(() => {
 						x2: 0,
 						y2: 1,
 						colorStops: [
-							{ offset: 0, color: incomeColor },
-							{ offset: 1, color: `${incomeColor}88` },
+							{ offset: 0, color: 'rgba(16, 185, 129, 0.22)' },
+							{ offset: 1, color: 'rgba(16, 185, 129, 0.01)' },
 						],
 					},
 				},
 			},
 			{
 				name: '支出',
-				type: 'bar',
+				type: 'line',
+				smooth: true,
+				symbol: 'circle',
+				symbolSize: 6,
 				data: props.expenseData || [],
-				barMaxWidth: 14,
 				itemStyle: {
-					borderRadius: [3, 3, 0, 0],
+					color: expenseColor,
+				},
+				lineStyle: {
+					width: 2.5,
+					color: expenseColor,
+				},
+				areaStyle: {
 					color: {
 						type: 'linear',
 						x: 0,
@@ -200,8 +214,8 @@ const options = computed(() => {
 						x2: 0,
 						y2: 1,
 						colorStops: [
-							{ offset: 0, color: expenseColor },
-							{ offset: 1, color: `${expenseColor}88` },
+							{ offset: 0, color: 'rgba(244, 63, 94, 0.20)' },
+							{ offset: 1, color: 'rgba(244, 63, 94, 0.01)' },
 						],
 					},
 				},
@@ -210,30 +224,3 @@ const options = computed(() => {
 	};
 });
 </script>
-
-<style lang="less" scoped>
-.bar-chart-wrapper {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.empty-container {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	position: relative;
-
-	.chart-header-title {
-		position: absolute;
-		top: 12px;
-		left: 16px;
-		font-size: 15px;
-		font-weight: 600;
-		color: #1f2937;
-	}
-}
-</style>

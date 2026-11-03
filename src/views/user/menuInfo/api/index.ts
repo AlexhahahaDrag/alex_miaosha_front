@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -29,7 +29,7 @@ export function getMenuInfoPage(
 export function getMenuInfoDetail(
 	id: string,
 ): Promise<ResponseBody<MenuInfoData>> {
-	return getDataOne(baseService.user + baseMenuInfo + MenuInfoUrl.url, { id });
+	return getData(baseService.user + baseMenuInfo + MenuInfoUrl.url, { id });
 }
 
 export function deleteMenuInfo(ids: string): Promise<ResponseBody<boolean>> {

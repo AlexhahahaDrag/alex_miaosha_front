@@ -1,5 +1,5 @@
 import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -34,7 +34,7 @@ export function getFinanceMangerPage(
 export function getFinanceMangerDetail(
 	id: string,
 ): Promise<ResponseBody<FinanceManagerData>> {
-	return getDataOne(
+	return getData(
 		baseService.finance + baseFinanceManager + financeMangerUrl.url,
 		{ id },
 	);
@@ -89,7 +89,7 @@ export function getBudgetStatus(
 	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<FinanceBudgetStatusVo>> {
-	return getDataOne(baseService.finance + baseBudgetManager + '/status', {
+	return getData(baseService.finance + baseBudgetManager + '/status', {
 		budgetMonth,
 		yearMonth: budgetMonth,
 		belongTo,
@@ -111,7 +111,7 @@ export function getBudgetCategories(
 	budgetMonth: string,
 	belongTo?: string,
 ): Promise<ResponseBody<string[]>> {
-	return getDataOne(baseService.finance + baseBudgetManager + '/categories', {
+	return getData(baseService.finance + baseBudgetManager + '/categories', {
 		budgetMonth,
 		yearMonth: budgetMonth,
 		belongTo,

@@ -34,7 +34,7 @@ describe('PC 端 Dashboard 全景真数据与微服务探针契约测试', () =>
 			trendOrders: [120, 150, 180, 210, 190, 260, 310],
 		};
 
-		vi.spyOn(requestModule, 'getDataOne').mockResolvedValue({
+		vi.spyOn(requestModule, 'getData').mockResolvedValue({
 			code: '200',
 			data: mockData,
 			message: 'success',
@@ -59,7 +59,7 @@ describe('PC 端 Dashboard 全景真数据与微服务探针契约测试', () =>
 			monthIncome: 45000,
 		};
 
-		vi.spyOn(requestModule, 'getDataOne').mockResolvedValue({
+		vi.spyOn(requestModule, 'getData').mockResolvedValue({
 			code: '200',
 			data: mockOrg,
 			message: 'success',
@@ -95,7 +95,7 @@ describe('PC 端 Dashboard 全景真数据与微服务探针契约测试', () =>
 			},
 		];
 
-		vi.spyOn(requestModule, 'getDataOne').mockResolvedValue({
+		vi.spyOn(requestModule, 'getData').mockResolvedValue({
 			code: '200',
 			data: mockNodes,
 			message: 'success',
@@ -122,7 +122,7 @@ describe('PC 端 Dashboard 全景真数据与微服务探针契约测试', () =>
 			},
 		];
 
-		vi.spyOn(requestModule, 'getDataOne').mockResolvedValue({
+		vi.spyOn(requestModule, 'getData').mockResolvedValue({
 			code: '200',
 			data: mockLogs,
 			message: 'success',

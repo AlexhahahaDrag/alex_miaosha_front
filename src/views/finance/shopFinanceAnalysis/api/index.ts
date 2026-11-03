@@ -1,4 +1,4 @@
-﻿import { getDataOne, baseService } from '@/utils/request';
+﻿import { getData, baseService } from '@/utils/request';
 import type { ResponseBody } from '@/types/api';
 
 const baseFinanceAnalysis = '/shop-finance-analysis';
@@ -20,7 +20,7 @@ export function getDayShopFinanceInfo(
 		financeAnalysisUrl.getDayShopFinanceInfo +
 		'?searchDate=' +
 		searchDate;
-	return getDataOne(url);
+	return getData(url);
 }
 
 export function getMonthShopFinanceInfo(
@@ -32,7 +32,7 @@ export function getMonthShopFinanceInfo(
 		financeAnalysisUrl.getMonthShopFinanceInfo +
 		'?searchDate=' +
 		searchDate;
-	return getDataOne(url);
+	return getData(url);
 }
 
 export function getShopNameInfo(searchDate?: string): Promise<ResponseBody> {
@@ -42,7 +42,7 @@ export function getShopNameInfo(searchDate?: string): Promise<ResponseBody> {
 		financeAnalysisUrl.getShopNameInfo +
 		'?searchDate=' +
 		searchDate;
-	return getDataOne(url);
+	return getData(url);
 }
 
 export function getPayWayInfo(searchDate?: string): Promise<ResponseBody> {
@@ -52,7 +52,7 @@ export function getPayWayInfo(searchDate?: string): Promise<ResponseBody> {
 		financeAnalysisUrl.getPayWayInfo +
 		'?searchDate=' +
 		searchDate;
-	return getDataOne(url);
+	return getData(url);
 }
 
 export function getChainAndYear(searchDate?: string): Promise<ResponseBody> {
@@ -62,5 +62,5 @@ export function getChainAndYear(searchDate?: string): Promise<ResponseBody> {
 		financeAnalysisUrl.getChainAndYear +
 		'?searchDate=' +
 		searchDate;
-	return getDataOne(url);
+	return getData(url);
 }

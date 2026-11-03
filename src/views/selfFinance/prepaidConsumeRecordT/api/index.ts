@@ -1,5 +1,5 @@
 ﻿import {
-	getDataOne,
+	getData,
 	postData,
 	putData,
 	deleteData,
@@ -33,7 +33,7 @@ export function getPrepaidConsumeRecordTPage(
 export function getPrepaidConsumeRecordTDetail(
 	id: string,
 ): Promise<ResponseBody<PrepaidConsumeRecordTData>> {
-	return getDataOne(
+	return getData(
 		baseService.finance +
 			basePrepaidConsumeRecordT +
 			PrepaidConsumeRecordTUrl.url,
