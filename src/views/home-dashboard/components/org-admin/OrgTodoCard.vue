@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { RightOutlined } from '@ant-design/icons-vue';
-import { getGiftEventBusinessPage } from '@/views/finance/gift/api';
+import { getGiftEventBusinessPage } from '@/views/gift/api';
 
 const props = withDefaults(
 	defineProps<{
@@ -254,11 +254,11 @@ const loadData = async () => {
 const itemCount = computed(() => (props.isFamilyContext ? eventList.value.length : todoList.value.length));
 
 const viewEventDetail = async (_item: FamilyEventItem) => {
-	await router.push('/finance/gift/event');
+	await router.push('/gift/event');
 };
 
 const goToEventManagement = async () => {
-	await router.push('/finance/gift/event');
+	await router.push('/gift/event');
 };
 
 const handleAction = async (item: OrgTodoItem) => {

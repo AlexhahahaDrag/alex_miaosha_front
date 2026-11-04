@@ -59,7 +59,7 @@ import {
 	getGiftEventPage,
 	getGiftRecordSummary,
 	getGiftAnalysisTrend,
-} from '@/views/finance/gift/api';
+} from '@/views/gift/api';
 import { getFinanceSummary } from '@/views/selfFinance/financeManager/api';
 import {
 	getIncomeAndExpense,

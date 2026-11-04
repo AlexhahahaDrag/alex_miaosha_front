@@ -4,7 +4,7 @@ import {
 	normalizeGiftIds,
 	normalizeGiftResponse,
 	shouldNormalizeGiftId,
-} from '../../src/views/finance/gift/api/normalize.ts';
+} from '../../src/views/gift/api/normalize.ts';
 
 /**
  * Gift 模块"ID 安全"契约锁（Node 22 内置 test runner，原生 TS 类型剥离，零依赖）：

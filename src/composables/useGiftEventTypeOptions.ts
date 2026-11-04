@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue';
-import { getGiftEventTypeOptions } from '@/views/finance/gift/api';
+import { getGiftEventTypeOptions } from '@/views/gift/api';
 import {
 	FALLBACK_GIFT_EVENT_OPTIONS,
 	buildGiftEventTypeSelectOptions,
@@ -13,7 +13,7 @@ import {
 	type GiftEventInfo,
 	type GiftEventTypeOptionItem,
 	type GiftRelationSelectGroup,
-} from '@/views/finance/gift/config';
+} from '@/views/gift/config';
 
 const presetOptions = ref<GiftEventTypeOptionItem[]>([
 	...FALLBACK_GIFT_EVENT_OPTIONS,

@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue';
-import { getGiftPersonRelationOptions } from '@/views/finance/gift/api';
+import { getGiftPersonRelationOptions } from '@/views/gift/api';
 import {
 	FALLBACK_GIFT_RELATION_OPTIONS,
 	buildGiftRelationSelectOptions,
@@ -12,7 +12,7 @@ import {
 	type GiftPersonInfo,
 	type GiftRelationOptionItem,
 	type GiftRelationSelectGroup,
-} from '@/views/finance/gift/config';
+} from '@/views/gift/config';
 
 const presetOptions = ref<GiftRelationOptionItem[]>([
 	...FALLBACK_GIFT_RELATION_OPTIONS,

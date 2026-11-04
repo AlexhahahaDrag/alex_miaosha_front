@@ -1,10 +1,10 @@
 <template>
 	<div
-		class="finance-analysis-page w-full p-3.5 bg-slate-50 min-h-[calc(100vh-110px)] box-border"
+		class="finance-analysis-page w-full p-4 bg-slate-100/70 min-h-[calc(100vh-110px)] box-border"
 	>
 		<!-- 00 · 顶部单行检索工具栏 (P0) -->
 		<div
-			class="search-card bg-white px-4 py-2.5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 mb-3.5"
+			class="search-card bg-white px-5 py-3 rounded-2xl border-0 shadow-sm shadow-slate-200/60 mb-4"
 		>
 			<div class="flex items-center justify-between flex-wrap gap-3">
 				<div class="flex items-center flex-wrap gap-2.5">
@@ -65,18 +65,19 @@
 					<button
 						type="button"
 						:disabled="loading"
-						class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border-0 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500 hover:text-white disabled:opacity-60 text-xs font-medium cursor-pointer transition-all duration-200"
+						class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border-0 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500 hover:text-white disabled:opacity-60 text-xs font-semibold cursor-pointer transition-all duration-200"
 						@click="getInfo"
 					>
 						<ReloadOutlined :spin="loading" class="text-xs" />
-						<span>刷新分析</span>
+						<span>{{ loading ? '分析中...' : '刷新分析' }}</span>
 					</button>
 				</div>
 			</div>
 		</div>
 
-		<!-- 第一层 (P0 第一视觉重点)：01 当月核心财务指标 (左 7) + 02 资产净值概览 (右 5) -->
+		<!-- 第一层 (P0 第一视觉重点)：01 本月财务状况 (左 7) + 02 资产净值概览 (右 5) -->
 		<finance-analysis-kpi-row
+			:loading="loading"
 			:sum-amount="sumAmount"
 			:yoy-trend="yoyTrend"
 			:mom-trend="momTrend"
@@ -98,8 +99,9 @@
 			:get-trend-class="getTrendClass"
 		/>
 
-		<!-- 第二层 (P0/P1 核心结构与分布)：03 当月收支结构横向排行 (左 7) + 04 账户资产分布 (右 5) -->
+		<!-- 第二层 & 第三层：03 账户资产分布 (业务色彩分区) + 04 收入与支出结构 (独立白卡横向条形图) -->
 		<finance-analysis-account-grid
+			:loading="loading"
 			:list-configs="listConfigs"
 			:pie-income-data="pieIncomeData"
 			:pie-expense-data="pieExpenseData"
@@ -108,23 +110,18 @@
 			@select-account="handleDrillDownAccount"
 		/>
 
-		<!-- 第三层 (P1/P2 趋势与近期变动)：05 收支变化趋势 (左 7) + 06 最近财务流水 (右 5) -->
-		<div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+		<!-- 第四层 (趋势与近期变动)：05 收支变化趋势 (左 7) + 06 最近财务流水 (右 5) -->
+		<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
 			<!-- 05 · 收支变化趋势 (占 7/12，平滑双折线图 + 月度/日度切换) -->
 			<div
 				class="lg:col-span-7 bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 flex flex-col h-[340px]"
 			>
 				<div class="flex items-center justify-between gap-2 mb-2 shrink-0 flex-wrap">
-					<div class="flex items-center gap-2">
-						<span
-							class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center shrink-0"
-						>
-							<LineChartOutlined class="text-xs" />
-						</span>
+					<div class="flex items-baseline gap-2">
 						<span class="text-sm font-bold text-slate-800">
 							{{ trendMode === 'month' ? '月度收支趋势' : '当月日度收支趋势' }}
 						</span>
-						<span class="text-[11px] text-slate-400 hidden sm:inline">
+						<span class="text-xs text-slate-400 hidden sm:inline">
 							悬浮查看当期收入、支出与净结余
 						</span>
 					</div>
@@ -160,8 +157,40 @@
 					</div>
 				</div>
 
-				<div class="flex-1 min-h-0">
+				<div class="flex-1 min-h-0 relative">
+					<!-- 加载中仿真图表骨架 -->
+					<div
+						v-if="loading"
+						class="w-full h-full flex flex-col justify-end p-4 box-border"
+					>
+						<div
+							class="flex items-end justify-between gap-2 sm:gap-3 h-48 w-full pb-3 border-0 border-b border-solid border-slate-200/80"
+						>
+							<div
+								v-for="h in [40, 70, 55, 90, 65, 80, 45, 85, 60, 95, 50, 75]"
+								:key="h"
+								class="flex-1 flex items-end justify-center gap-1 h-full"
+							>
+								<div
+									class="w-full max-w-[10px] bg-emerald-500/20 rounded-t-sm animate-pulse"
+									:style="{ height: `${Math.round(h * 0.7)}%` }"
+								></div>
+								<div
+									class="w-full max-w-[10px] bg-rose-500/20 rounded-t-sm animate-pulse"
+									:style="{ height: `${h}%` }"
+								></div>
+							</div>
+						</div>
+						<div class="flex justify-between items-center pt-2.5">
+							<span
+								v-for="i in 6"
+								:key="i"
+								class="h-3 w-8 bg-slate-200/60 rounded animate-pulse"
+							></span>
+						</div>
+					</div>
 					<bar-chart
+						v-else
 						height="100%"
 						width="100%"
 						:title="trendMode === 'month' ? '月度收支趋势' : '当月日度收支趋势'"
@@ -176,19 +205,16 @@
 				</div>
 			</div>
 
-			<!-- 06 · 当月最近财务流水 (占 5/12，真实拉取最新 6 条 + 穿透账单流水页) -->
+			<!-- 06 · 当月最近财务流水 (占 5/12，干净白卡分隔线列表 + 穿透账单流水页) -->
 			<div
 				class="lg:col-span-5 bg-white p-5 rounded-2xl border-0 shadow-sm shadow-slate-200/60 flex flex-col h-[340px]"
 			>
-				<div class="flex items-center justify-between gap-2 mb-3 shrink-0">
-					<div class="flex items-center gap-2">
-						<span
-							class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 inline-flex items-center justify-center shrink-0"
-						>
-							<UnorderedListOutlined class="text-xs" />
-						</span>
+				<div
+					class="flex items-center justify-between gap-2 pb-3 mb-2 border-0 border-b border-solid border-slate-100 shrink-0"
+				>
+					<div class="flex items-baseline gap-2">
 						<span class="text-sm font-bold text-slate-800">最近财务流水</span>
-						<span class="text-[11px] text-slate-400 font-mono">
+						<span class="text-xs text-slate-400 font-mono">
 							({{ currentMonthLabel }})
 						</span>
 					</div>
@@ -203,19 +229,46 @@
 				</div>
 
 				<div
-					v-if="recentRecords.length > 0"
-					class="flex-1 flex flex-col gap-1.5 overflow-y-auto pr-0.5"
+					v-if="loading"
+					class="flex-1 flex flex-col divide-y divide-slate-100 overflow-hidden pr-0.5"
+				>
+					<div
+						v-for="i in 5"
+						:key="i"
+						class="flex items-center justify-between gap-2 py-2.5 px-2 -mx-2"
+					>
+						<div class="flex items-center gap-2.5 min-w-0">
+							<span
+								class="w-7 h-7 rounded-xl bg-slate-100 animate-pulse shrink-0"
+							></span>
+							<div class="flex flex-col gap-1.5 min-w-0">
+								<span
+									class="w-24 h-3.5 rounded bg-slate-200/70 animate-pulse"
+								></span>
+								<span
+									class="w-16 h-2.5 rounded bg-slate-200/50 animate-pulse"
+								></span>
+							</div>
+						</div>
+						<span
+							class="w-16 h-4 rounded bg-slate-200/70 animate-pulse shrink-0"
+						></span>
+					</div>
+				</div>
+				<div
+					v-else-if="recentRecords.length > 0"
+					class="flex-1 flex flex-col divide-y divide-slate-100 overflow-y-auto pr-0.5"
 				>
 					<div
 						v-for="item in recentRecords"
 						:key="item.id"
-						class="group flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50/70 hover:bg-indigo-500/[0.06] cursor-pointer transition-all"
+						class="group flex items-center justify-between gap-2 py-2.5 px-2 -mx-2 rounded-xl hover:bg-indigo-500/[0.05] cursor-pointer transition-colors"
 						title="点击前往账单流水页查看"
 						@click="goToFinanceManager({ typeCode: item.typeCode })"
 					>
 						<div class="flex items-center gap-2.5 min-w-0">
 							<span
-								class="w-7 h-7 rounded-xl bg-white shadow-2xs inline-flex items-center justify-center text-xs shrink-0"
+								class="w-7 h-7 rounded-xl bg-slate-100/80 inline-flex items-center justify-center text-xs shrink-0"
 							>
 								{{ getCategoryEmoji(item.typeCode) }}
 							</span>
@@ -228,9 +281,9 @@
 									</span>
 									<span
 										v-if="item.typeCode && item.typeCode !== item.name"
-										class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-medium bg-slate-200/70 text-slate-600 shrink-0"
+										class="text-[11px] text-slate-400 shrink-0"
 									>
-										{{ item.typeCode }}
+										· {{ item.typeCode }}
 									</span>
 								</div>
 								<div class="flex items-center gap-1.5 text-[11px] text-slate-400">
@@ -274,8 +327,6 @@
 import { message } from 'ant-design-vue';
 import {
 	ReloadOutlined,
-	LineChartOutlined,
-	UnorderedListOutlined,
 	ArrowRightOutlined,
 } from '@ant-design/icons-vue';
 import {
@@ -429,12 +480,12 @@ const monthBalanceNumber = computed(() => {
 	return (monthBalance.value || new BigNumber(0)).toNumber();
 });
 
-// 当月储蓄率
+// 当月储蓄率（收入为 0 时统一展示 —，不展示无意义的 -100% 或 0.0%）
 const savingsRateText = computed(() => {
 	const income = (monthIncomeSum.value || new BigNumber(0)).toNumber();
 	const expense = (monthExpenseSum.value || new BigNumber(0)).toNumber();
 	if (income <= 0) {
-		return expense > 0 ? '超支赤字' : '0.0%';
+		return '—';
 	}
 	const rate = ((income - expense) / income) * 100;
 	return `${rate.toFixed(1)}%`;
@@ -539,7 +590,7 @@ const listConfigs = computed(() => {
 		},
 		{
 			key: 'prepaid',
-			title: '水电话费专户预存',
+			title: '水电话费预存',
 			desc: '水电燃气卡及家庭成员手机话费预存余额',
 			icon: '⚡',
 			list: prepaidList,

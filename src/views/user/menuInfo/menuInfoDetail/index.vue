@@ -207,7 +207,7 @@
 							id="form_path"
 							v-model:value="formState.path"
 							name="path"
-							placeholder="如：/finance/gift/record"
+							placeholder="如：/gift/record"
 							allow-clear
 							class="rounded-lg font-mono"
 							data-testid="rbac-menu-field-path"
@@ -334,7 +334,7 @@
 							id="form_redirect"
 							v-model:value="formState.redirect"
 							name="redirect"
-							placeholder="如：/finance/gift/record"
+							placeholder="如：/gift/record"
 							allow-clear
 							class="rounded-lg font-mono"
 						/>

@@ -123,8 +123,8 @@ import { getDashboardCache, setDashboardCache } from '@/views/home-dashboard/con
 import {
 	getGiftAnalysisOverview,
 	getGiftAnalysisTrend,
-} from '@/views/finance/gift/api';
-import type { GiftAmountTrend } from '@/views/finance/gift/config';
+} from '@/views/gift/api';
+import type { GiftAmountTrend } from '@/views/gift/config';
 import { loadEcharts, type EChartsType } from '@/utils/echarts/loadEcharts';
 import {
 	ProfileOutlined,

@@ -4,7 +4,7 @@ import {
 	formatRegistryMoney,
 	isLargeAmountRegistry,
 	calculateRegistryMetrics,
-} from '@/views/finance/gift/event/utils/registryPrint';
+} from '@/views/gift/event/utils/registryPrint';
 
 describe('礼簿台账打印与排版工具测试 (registryPrint.ts)', () => {
 	describe('人民币数字转中文大写汉字算法 (toChineseCurrency)', () => {

@@ -35,8 +35,12 @@
 						<BookOutlined />
 					</div>
 					<div class="flex items-baseline gap-1.5">
-						<span class="text-xs text-slate-400 dark:text-slate-500 font-medium">字典总数</span>
-						<span class="text-sm font-extrabold text-slate-800 dark:text-slate-100 font-mono">
+						<span class="text-xs text-slate-400 dark:text-slate-500 font-medium"
+							>字典总数</span
+						>
+						<span
+							class="text-sm font-extrabold text-slate-800 dark:text-slate-100 font-mono"
+						>
 							{{ pagination?.total ?? dataSource.length }}
 						</span>
 					</div>
@@ -148,7 +152,9 @@
 					</a-popconfirm>
 				</div>
 
-				<div class="text-xs text-slate-400 dark:text-slate-500 hidden md:flex items-center gap-1.5">
+				<div
+					class="text-xs text-slate-400 dark:text-slate-500 hidden md:flex items-center gap-1.5"
+				>
 					<InfoCircleOutlined class="text-blue-500" />
 					<span>提示：点击「类别编码」或「分类编码」药丸可一键复制编码值</span>
 				</div>
@@ -175,7 +181,9 @@
 					<template #bodyCell="{ column, record }">
 						<!-- 1. 类别名称 -->
 						<template v-if="column.key === 'typeName'">
-							<span class="font-semibold text-slate-900 dark:text-slate-100 text-[13px]">
+							<span
+								class="font-semibold text-slate-900 dark:text-slate-100 text-[13px]"
+							>
 								{{ record.typeName || '-' }}
 							</span>
 						</template>
@@ -184,7 +192,11 @@
 						<template v-else-if="column.key === 'typeCode'">
 							<a-tooltip title="点击复制类别编码">
 								<span
-									v-if="record.typeCode !== undefined && record.typeCode !== null && record.typeCode !== ''"
+									v-if="
+										record.typeCode !== undefined &&
+										record.typeCode !== null &&
+										record.typeCode !== ''
+									"
 									class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-mono text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/70 dark:text-blue-300 dark:hover:bg-blue-900/70 border border-blue-200/70 dark:border-blue-800/80 cursor-pointer transition-colors select-all"
 									@click="copyCode('类别编码', String(record.typeCode))"
 								>
@@ -210,7 +222,11 @@
 						<template v-else-if="column.key === 'belongTo'">
 							<a-tooltip title="点击复制分类编码">
 								<span
-									v-if="record.belongTo !== undefined && record.belongTo !== null && record.belongTo !== ''"
+									v-if="
+										record.belongTo !== undefined &&
+										record.belongTo !== null &&
+										record.belongTo !== ''
+									"
 									class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-mono text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:text-indigo-300 dark:hover:bg-indigo-900/70 border border-indigo-200/70 dark:border-indigo-800/80 cursor-pointer transition-colors select-all"
 									@click="copyCode('分类编码', String(record.belongTo))"
 								>
@@ -223,7 +239,9 @@
 
 						<!-- 5. 排序 -->
 						<template v-else-if="column.key === 'orderBy'">
-							<span class="font-mono text-xs font-semibold text-slate-600 dark:text-slate-300">
+							<span
+								class="font-mono text-xs font-semibold text-slate-600 dark:text-slate-300"
+							>
 								{{ record.orderBy ?? '-' }}
 							</span>
 						</template>
@@ -234,7 +252,9 @@
 								v-if="String(record.isValid) === '1'"
 								class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/70"
 							>
-								<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+								<span
+									class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"
+								></span>
 								有效
 							</span>
 							<span
@@ -248,7 +268,9 @@
 
 						<!-- 7. 业务时间 -->
 						<template v-else-if="column.key === 'operateTime'">
-							<span class="text-xs font-mono text-slate-500 dark:text-slate-400">
+							<span
+								class="text-xs font-mono text-slate-500 dark:text-slate-400"
+							>
 								{{ record.operateTime || '-' }}
 							</span>
 						</template>
@@ -383,7 +405,7 @@ function batchDelDictManager() {
 		message.warning('请先选择数据！', 3);
 		return;
 	}
-	delDict(selectedRowKeys.value.map((id) => String(id)).join(','));
+	delDict(selectedRowKeys.value.map((id: string) => String(id)).join(','));
 }
 
 const getDictPage = async (param: DictInfo, cur: PageInfo) => {
@@ -397,7 +419,10 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 		if (code === '200') {
 			dataSource.value = (data?.records || []).map((item) => ({
 				...item,
-				id: item.id !== undefined && item.id !== null ? String(item.id) : undefined,
+				id:
+					item.id !== undefined && item.id !== null ?
+						String(item.id)
+					:	undefined,
 			}));
 			setTotal(data?.total || 0);
 		} else {
@@ -408,16 +433,18 @@ const getDictPage = async (param: DictInfo, cur: PageInfo) => {
 	}
 };
 
-function openDictDrawer(
-	type: 'add' | 'update' | 'view',
-	id?: string | number,
-) {
+const DICT_DRAWER_TITLE: Record<'add' | 'update' | 'view', string> = {
+	add: '新增字典明细',
+	view: '查看字典明细',
+	update: '编辑字典明细',
+};
+
+function openDictDrawer(type: 'add' | 'update' | 'view', id?: string | number) {
 	const isAdd = type === 'add';
-	const isView = type === 'view';
 	modelInfo.value = {
 		open: true,
-		readonly: isView,
-		title: isAdd ? '新增字典明细' : isView ? '查看字典明细' : '编辑字典明细',
+		readonly: type === 'view',
+		title: DICT_DRAWER_TITLE[type],
 		id: !isAdd && id !== undefined && id !== null ? String(id) : undefined,
 		confirmLoading: false,
 	};
@@ -435,11 +462,11 @@ onMounted(() => {
 <style lang="scss" scoped>
 .modern-dict-table {
 	:deep(.ant-table) {
-		background: transparent;
+		background-color: transparent;
 	}
 
 	:deep(.ant-table-thead > tr > th) {
-		background: #f1f5f9;
+		background-color: #f1f5f9;
 		color: #334155;
 		font-weight: 700;
 		font-size: 13px;
@@ -454,15 +481,17 @@ onMounted(() => {
 		transition: background-color 0.2s ease;
 	}
 
-	:deep(.ant-table-tbody > tr:hover > td) {
-		background: #f8fafc !important;
+	:deep(.ant-table-tbody > tr:hover > td),
+	:deep(.ant-table-tbody > tr.ant-table-row:hover > td),
+	:deep(.ant-table-tbody > tr > td.ant-table-cell-row-hover) {
+		background-color: #f8fafc;
 	}
 }
 
 :global(html.dark) {
 	.modern-dict-table {
 		:deep(.ant-table-thead > tr > th) {
-			background: #0f172a;
+			background-color: #0f172a;
 			color: #94a3b8;
 			border-bottom: 1px solid #1e293b;
 		}
@@ -471,8 +500,10 @@ onMounted(() => {
 			border-bottom: 1px solid #1e293b;
 		}
 
-		:deep(.ant-table-tbody > tr:hover > td) {
-			background: #1e293b !important;
+		:deep(.ant-table-tbody > tr:hover > td),
+		:deep(.ant-table-tbody > tr.ant-table-row:hover > td),
+		:deep(.ant-table-tbody > tr > td.ant-table-cell-row-hover) {
+			background-color: #1e293b;
 		}
 	}
 }

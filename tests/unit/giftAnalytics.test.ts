@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeGiftIds } from '@/views/finance/gift/api/normalize';
+import { normalizeGiftIds } from '@/views/gift/api/normalize';
 import type {
 	GiftPersonBalance,
 	GiftReturnRecommendationReq,
 	GiftReturnRecommendationVo,
-} from '@/views/finance/gift/config';
+} from '@/views/gift/config';
 
 /**
  * 客户端人情互赠平衡与失衡预警推算函数

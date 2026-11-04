@@ -228,7 +228,7 @@
 					class="kpi-card"
 					:class="{ 'clickable-card': isFamilyContext }"
 					data-testid="dash-org-kpi-scale"
-					@click="isFamilyContext && navigateTo('/finance/gift/person')"
+					@click="isFamilyContext && navigateTo('/gift/person')"
 				>
 					<div class="kpi-top-row">
 						<div class="kpi-title">

@@ -61,8 +61,8 @@ const hasData = computed(() => {
 
 const options = computed(() => {
 	const { xAxis } = props.config || {};
-	const incomeColor = '#10b981'; // Emerald-500（收入流入）
-	const expenseColor = '#f43f5e'; // Rose-500（消费流出）
+	const incomeColor = '#10b981'; // Tailwind emerald-500
+	const expenseColor = '#f43f5e'; // Tailwind rose-500
 
 	return {
 		legend: {

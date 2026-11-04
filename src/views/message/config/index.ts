@@ -115,7 +115,7 @@ export const resolvePcMessageJumpRoute = (item: SysMessageInfoData): string => {
 		return '/finance/financeManager';
 	}
 	if (item.bizType === 'GIFT_RETURN' || item.msgType === 'GIFT_RETURN') {
-		return '/finance/gift/analysis';
+		return '/gift/analysis';
 	}
 	if (item.bizType === 'ACCOUNT_RECORD') {
 		return '/selfFinance/accountRecordInfo';
@@ -124,7 +124,7 @@ export const resolvePcMessageJumpRoute = (item: SysMessageInfoData): string => {
 		return '/selfFinance/prepaidCardInfoT';
 	}
 	if (item.bizType === 'GIFT_EVENT' || item.msgType === 'GIFT_EVENT') {
-		return '/finance/gift/event';
+		return '/gift/event';
 	}
 	if (item.bizType === 'COUPON' || item.msgType === 'COUPON_EXPIRE') {
 		return '/cpn-coupon/cpn-coupon-info';

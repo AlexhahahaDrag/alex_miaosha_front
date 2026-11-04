@@ -130,7 +130,7 @@ export const ORG_ADMIN_ACTIONS: QuickActionItem[] = [
 	{
 		title: '礼尚往来大盘',
 		icon: 'AccountBookOutlined',
-		path: '/finance/gift/event',
+		path: '/gift/event',
 		color: '#eb2f96',
 		desc: '部门人情往来与重大事件簿',
 		testId: 'dash-org-action-gift',
@@ -150,7 +150,7 @@ export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
 	{
 		title: '随礼/收礼登记',
 		icon: 'AccountBookOutlined',
-		path: '/finance/gift/record',
+		path: '/gift/record',
 		color: '#eb2f96',
 		desc: '登记亲友人情往来礼金流水',
 		testId: 'dash-family-action-add-gift',
@@ -158,7 +158,7 @@ export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
 	{
 		title: '人情事由大盘',
 		icon: 'CalendarOutlined',
-		path: '/finance/gift/event',
+		path: '/gift/event',
 		color: '#52c41a',
 		desc: '家庭重大宴席与事由簿统揽',
 		testId: 'dash-family-action-event',
@@ -174,7 +174,7 @@ export const FAMILY_ADMIN_ACTIONS: QuickActionItem[] = [
 	{
 		title: '家庭成员档案',
 		icon: 'TeamOutlined',
-		path: '/finance/gift/person',
+		path: '/gift/person',
 		color: '#fa8c16',
 		desc: '维护家庭成员与亲友往来档案',
 		testId: 'dash-family-action-person',
@@ -194,7 +194,7 @@ export const USER_ACTIONS: QuickActionItem[] = [
 	{
 		title: '随礼记一笔',
 		icon: 'PlusCircleOutlined',
-		path: '/finance/gift/record',
+		path: '/gift/record',
 		color: '#1890ff',
 		desc: '快速登记送礼或收礼流水',
 		testId: 'dash-user-action-add-gift',
@@ -202,7 +202,7 @@ export const USER_ACTIONS: QuickActionItem[] = [
 	{
 		title: '我的人情档案',
 		icon: 'ContactsOutlined',
-		path: '/finance/gift/person',
+		path: '/gift/person',
 		color: '#52c41a',
 		desc: '查看往来亲友与收支结余',
 		testId: 'dash-user-action-person',

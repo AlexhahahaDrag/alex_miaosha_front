@@ -78,7 +78,7 @@ describe('PC 端 Pinia 消费规范与深拷贝防污染契约测试 (vuejs-skil
 							id: '1002',
 							name: 'gift',
 							title: '礼尚往来',
-							path: '/finance/gift',
+							path: '/gift',
 							children: [],
 						},
 					],

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ref } from 'vue';
 
-vi.mock('@/views/finance/gift/api', () => ({
+vi.mock('@/views/gift/api', () => ({
 	getGiftEventTypeOptions: vi.fn().mockResolvedValue({ code: '200', data: { presets: [], customs: [] } }),
 	getGiftPersonRelationOptions: vi.fn().mockResolvedValue({ code: '200', data: { presets: [], customs: [] } }),
 }));

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { GiftPersonBalance, GiftAmountTrend } from '@/views/finance/gift/config';
+import type { GiftPersonBalance, GiftAmountTrend } from '@/views/gift/config';
 
 describe('Gift Calendar Heatmap & Relationship Graph Tests', () => {
 	describe('日历热力图数据派生算法 (Calendar Heatmap Algorithm)', () => {

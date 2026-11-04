@@ -43,13 +43,13 @@ describe('PC Message Center Config & ID Safety', () => {
 
 	it('resolvePcMessageJumpRoute 应准确解析 PC 端业务跳转路由', () => {
 		expect(resolvePcMessageJumpRoute({ msgType: 'GIFT_EVENT', bizType: 'GIFT_EVENT' })).toBe(
-			'/finance/gift/event',
+			'/gift/event',
 		);
 		expect(resolvePcMessageJumpRoute({ msgType: 'COUPON_EXPIRE', bizType: 'COUPON' })).toBe(
 			'/cpn-coupon/cpn-coupon-info',
 		);
 		expect(resolvePcMessageJumpRoute({ msgType: 'GIFT_RETURN', bizType: 'GIFT_RETURN' })).toBe(
-			'/finance/gift/analysis',
+			'/gift/analysis',
 		);
 		expect(resolvePcMessageJumpRoute({ msgType: 'CARD_EXPIRE', bizType: 'ACCOUNT_RECORD' })).toBe(
 			'/selfFinance/accountRecordInfo',

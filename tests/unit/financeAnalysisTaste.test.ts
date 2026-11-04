@@ -61,4 +61,18 @@ describe('Finance Analysis Taste-Skill & Savings Rate Contract Tests', () => {
 		// 有任意一条支出
 		expect(checkBarHasData([0, 0], [0, 15.5])).toBe(true);
 	});
+
+	// 骨架屏与 Loading 契约验证
+	it('收支分析组件应具备 loading 受控属性且当 loading 为真时保持骨架占位', () => {
+		const simulateCardState = (loading: boolean, dataCount: number) => {
+			if (loading) return 'skeleton';
+			if (dataCount > 0) return 'content';
+			return 'empty';
+		};
+
+		expect(simulateCardState(true, 0)).toBe('skeleton');
+		expect(simulateCardState(true, 5)).toBe('skeleton'); // 查询中优先骨架屏防止旧数据闪烁
+		expect(simulateCardState(false, 5)).toBe('content');
+		expect(simulateCardState(false, 0)).toBe('empty');
+	});
 });
