@@ -320,6 +320,26 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- 第五层：07 · 当月零钱消费与预算分析 (全宽独立白卡) -->
+		<finance-analysis-budget-card
+			:loading="loading"
+			:budget-status="budgetStatus"
+			:current-month="searchDateTime?.format(dateFormatYYYYMM) || ''"
+			:format-amount="formatAmount"
+			@open-budget="budgetModalVisible = true"
+			@view-records="goToFinanceManager()"
+			@select-category="(cat) => goToFinanceManager({ typeCode: cat })"
+		/>
+
+		<!-- 调整零花钱预算弹窗 (复用 finance-budget-modal) -->
+		<finance-budget-modal
+			v-model:open="budgetModalVisible"
+			:current-month="searchDateTime?.format(dateFormatYYYYMM) || ''"
+			:budget-status="budgetStatus"
+			:belong-to="searchUser && searchUser !== '0' ? String(searchUser) : undefined"
+			@success="() => getInfo()"
+		/>
 	</div>
 </template>
 
@@ -332,8 +352,12 @@ import {
 import {
 	getCategoryEmoji,
 	type FinanceManagerData,
+	type FinanceBudgetStatusVo,
 } from '@/views/selfFinance/financeManager/config';
-import { getFinanceMangerPage } from '@/views/selfFinance/financeManager/api';
+import {
+	getFinanceMangerPage,
+	getBudgetStatus,
+} from '@/views/selfFinance/financeManager/api';
 import {
 	type AnalysisData,
 	type ItemInfo,
@@ -357,11 +381,15 @@ import {
 import { useUserStore } from '@/store/modules/user/user';
 import { useUserInfo } from '@/composables/useUserInfo';
 import BarChart from '@/views/selfFinance/financeAnalysis/chart/barChart.vue';
+import FinanceAnalysisBudgetCard from '@/views/selfFinance/financeAnalysis/components/FinanceAnalysisBudgetCard.vue';
+import FinanceBudgetModal from '@/views/selfFinance/financeManager/finance-budget-modal/index.vue';
 
 const router = useRouter();
 const loading = ref<boolean>(false);
 const trendMode = ref<'month' | 'day'>('month');
 const recentRecords = ref<FinanceManagerData[]>([]);
+const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
+const budgetModalVisible = ref<boolean>(false);
 
 // 用户信息
 const userInfo = useUserStore()?.getUserInfo;
