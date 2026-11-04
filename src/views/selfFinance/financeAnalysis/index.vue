@@ -850,6 +850,25 @@ const getRecentFinanceRecords = async (
 	}
 };
 
+// 获取当月零钱预算及消费状态
+const getBudgetStatusInfo = async (
+	userid: string | null | undefined,
+	dateStr: string,
+) => {
+	try {
+		const belongTo = !userid || userid === '0' ? undefined : String(userid);
+		const { code, data } = await getBudgetStatus(dateStr, belongTo);
+		if (code === '200' && data) {
+			budgetStatus.value = data;
+		} else {
+			budgetStatus.value = null;
+		}
+	} catch (e) {
+		console.warn('获取零钱预算状态失败:', e);
+		budgetStatus.value = null;
+	}
+};
+
 // 穿透跳转至账单流水页面
 const goToFinanceManager = (extraQuery?: Record<string, string | undefined>) => {
 	const query: Record<string, string> = {};
@@ -890,6 +909,7 @@ async function getInfo() {
 			getDayExpenseInfo(userParam, dateStr),
 			getMonthExpenseInfo(userParam, dateStr),
 			getRecentFinanceRecords(userParam, dateStr),
+			getBudgetStatusInfo(userParam, dateStr),
 		]);
 	} finally {
 		loading.value = false;

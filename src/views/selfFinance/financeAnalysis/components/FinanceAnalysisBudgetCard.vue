@@ -182,21 +182,89 @@
 			<div
 				class="lg:col-span-7 bg-[#F8FAFC] rounded-2xl p-4 border border-solid border-slate-100 flex flex-col justify-between"
 			>
-				<!-- 进度条 -->
+				<!-- 子弹图：带预算上限标线与时间参考线 -->
 				<div>
-					<div class="flex items-center justify-between text-xs mb-2">
-						<span class="text-slate-600 font-semibold">预算使用进度</span>
-						<span class="font-mono font-bold text-slate-700">
-							{{ budgetStatus?.usagePercent ?? 0 }}% 已用
-						</span>
+					<div class="flex items-center justify-between text-xs mb-2 flex-wrap gap-1">
+						<div class="flex items-center gap-1.5">
+							<span class="text-slate-700 font-bold">预算使用进度 (子弹对比图)</span>
+							<span
+								:class="[
+									'text-[10px] font-semibold px-2 py-0.5 rounded-full',
+									pacingStatus.bg,
+									pacingStatus.color,
+								]"
+							>
+								{{ pacingStatus.label }}
+							</span>
+						</div>
+						<div class="flex items-baseline gap-2 font-mono">
+							<span class="text-slate-400 text-[11px]">
+								已消耗 {{ budgetStatus?.usagePercent ?? 0 }}%
+							</span>
+							<span
+								v-if="!budgetStatus?.isOverBudget && (budgetStatus?.budgetAmount || 0) > 0"
+								class="text-[#16A36A] font-bold text-xs"
+							>
+								余 ¥{{ formatAmount(budgetStatus?.remainingAmount) }}
+							</span>
+						</div>
 					</div>
-					<div class="w-full">
-						<a-progress
-							:percent="progressPercent"
-							:stroke-color="progressStrokeColor"
-							:show-info="false"
-							size="small"
-						/>
+
+					<!-- 子弹图主体轨道 (Bullet Track) -->
+					<div class="relative w-full pt-1 pb-1">
+						<div
+							class="relative w-full h-5 bg-slate-200/60 rounded-xl overflow-hidden border border-solid border-slate-200/80"
+						>
+							<!-- 主消费进度条 -->
+							<div
+								:class="[
+									'h-full rounded-l-xl transition-all duration-500 relative flex items-center justify-end pr-2 text-[10px] font-mono font-bold text-white',
+									barGradientClass,
+								]"
+								:style="{ width: `${progressPercent}%` }"
+							>
+								<span v-if="progressPercent >= 22" class="drop-shadow-xs">
+									¥{{ formatAmount(budgetStatus?.actualExpense || 0) }}
+								</span>
+							</div>
+
+							<!-- 时间流逝参考虚线 -->
+							<div
+								v-if="monthTimeProgress > 0 && monthTimeProgress < 100"
+								class="absolute top-0 bottom-0 pointer-events-none -translate-x-1/2 flex flex-col items-center z-10"
+								:style="{ left: `${monthTimeProgress}%` }"
+								:title="`今日时间线: 当月第 ${todayDay} 天 (${monthTimeProgress}%)`"
+							>
+								<div
+									class="w-px h-full border-r border-dashed border-slate-600/70"
+								></div>
+							</div>
+						</div>
+
+						<!-- 100% 预算上限强标线 (右侧垂线标线) -->
+						<div
+							class="absolute top-0 bottom-0 right-0 w-1 bg-[#1E293B] rounded-full z-20 shadow-xs pointer-events-none"
+							title="预算上限 100% 标线"
+						></div>
+					</div>
+
+					<!-- 底部刻度与标线图例 -->
+					<div
+						class="flex items-center justify-between text-[11px] text-slate-400 font-mono mt-1 px-0.5"
+					>
+						<span>¥0</span>
+						<span
+							v-if="monthTimeProgress > 0 && monthTimeProgress < 100"
+							class="inline-flex items-center gap-1 text-slate-500 font-sans"
+							:title="`若按时间均匀消费，当前预算建议进度应 ≤ ${monthTimeProgress}%`"
+						>
+							<span class="w-1.5 h-1.5 rounded-full bg-slate-500 inline-block"></span>
+							<span>时间参考线 ({{ monthTimeProgress }}%)</span>
+						</span>
+						<span class="text-[#1E293B] font-semibold flex items-center gap-1">
+							<span class="w-1 h-2.5 rounded-xs bg-[#1E293B] inline-block"></span>
+							<span>上限标线 ¥{{ formatAmount(budgetStatus?.budgetAmount || 0) }}</span>
+						</span>
 					</div>
 				</div>
 
@@ -267,16 +335,53 @@ const progressPercent = computed(() => {
 	return Math.max(0, Math.min(Number(raw) || 0, 100));
 });
 
-// 进度条颜色：超支标红，超过 80% 琥珀警告，其余靛蓝
-const progressStrokeColor = computed(() => {
+// 当月时间流逝进度 (1号 ~ 月末，对应时间参考线)
+const todayDay = computed(() => nowDayjs().date());
+
+const monthTimeProgress = computed(() => {
+	const today = nowDayjs().startOf('day');
+	const currentRealMonth = today.format(dateFormatYYYYMM);
+	if (props.currentMonth < currentRealMonth) {
+		return 100;
+	}
+	if (props.currentMonth > currentRealMonth) {
+		return 0;
+	}
+	const dayOfMonth = today.date();
+	const totalDays = today.daysInMonth();
+	return Math.min(100, Math.max(0, Number(((dayOfMonth / totalDays) * 100).toFixed(1))));
+});
+
+// 消费节奏判定状态
+const pacingStatus = computed(() => {
 	if (props.budgetStatus?.isOverBudget) {
-		return '#E94B68';
+		return { label: '已超支', color: 'text-[#E94B68]', bg: 'bg-[#E94B68]/10' };
 	}
-	const val = Number(props.budgetStatus?.usagePercent || 0);
-	if (val >= 80) {
-		return '#E99A32';
+	const budgetAmount = Number(props.budgetStatus?.budgetAmount || 0);
+	if (budgetAmount <= 0) {
+		return { label: '不设限额', color: 'text-slate-500', bg: 'bg-slate-100' };
 	}
-	return '#526CF5';
+	const usage = Number(props.budgetStatus?.usagePercent || 0);
+	const timeProgress = monthTimeProgress.value;
+
+	// 如果开销进度比时间流逝进度多出 20% 以上，且使用率达到 50%
+	if (usage > timeProgress + 20 && usage >= 50) {
+		return { label: '消费偏快', color: 'text-[#E99A32]', bg: 'bg-[#E99A32]/10' };
+	}
+	return { label: '节奏平稳', color: 'text-[#16A36A]', bg: 'bg-[#16A36A]/10' };
+});
+
+// 进度条渐变样式：超支红、偏快橙、安全靛蓝
+const barGradientClass = computed(() => {
+	if (props.budgetStatus?.isOverBudget) {
+		return 'bg-gradient-to-r from-[#E94B68]/80 to-[#E94B68] animate-pulse';
+	}
+	const usage = Number(props.budgetStatus?.usagePercent || 0);
+	const timeProgress = monthTimeProgress.value;
+	if (usage > timeProgress + 20 && usage >= 50) {
+		return 'bg-gradient-to-r from-[#E99A32]/85 to-[#E99A32]';
+	}
+	return 'bg-gradient-to-r from-[#526CF5] to-[#7B91FF]';
 });
 
 // 日均消费建议

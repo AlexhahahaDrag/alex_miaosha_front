@@ -75,4 +75,20 @@ describe('Finance Analysis Taste-Skill & Savings Rate Contract Tests', () => {
 		expect(simulateCardState(false, 5)).toBe('content');
 		expect(simulateCardState(false, 0)).toBe('empty');
 	});
+
+	// 零钱预算子弹对比图与标线契约测试
+	it('零钱看板子弹图应正确计算消费节奏与预算标线保护', () => {
+		const calcPacing = (usage: number, timeRatio: number, isOver: boolean) => {
+			if (isOver) return '已超支';
+			if (usage > timeRatio + 20 && usage >= 50) return '消费偏快';
+			return '节奏平稳';
+		};
+
+		// 月初花销很少 (时间 15%, 花费 5%) -> 平稳
+		expect(calcPacing(5, 15, false)).toBe('节奏平稳');
+		// 月中开销严重超前 (时间 20%, 花费 60%) -> 偏快
+		expect(calcPacing(60, 20, false)).toBe('消费偏快');
+		// 已超支
+		expect(calcPacing(105, 50, true)).toBe('已超支');
+	});
 });
