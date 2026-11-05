@@ -19,6 +19,11 @@
 					</span>
 				</div>
 				<span
+					v-if="loading"
+					class="inline-block w-16 h-5 rounded-full bg-slate-200/70 animate-pulse"
+				></span>
+				<span
+					v-else
 					:class="[
 						'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold',
 						(monthBalanceNumber ?? 0) < 0 ?
@@ -52,6 +57,11 @@
 							</span>
 						</div>
 						<div
+							v-if="loading"
+							class="h-8 w-32 bg-slate-200/80 rounded-lg animate-pulse my-3"
+						></div>
+						<div
+							v-else
 							:class="[
 								'text-3xl font-extrabold font-mono tabular-nums tracking-tight leading-none my-3',
 								(monthBalanceNumber ?? 0) < 0 ?
@@ -74,7 +84,11 @@
 						class="pt-2.5 border-0 border-t border-solid border-slate-100 flex items-center justify-between text-xs"
 					>
 						<span class="text-slate-400">当月储蓄率</span>
-						<div class="flex items-center gap-1.5">
+						<div
+							v-if="loading"
+							class="h-4 w-14 bg-slate-200/70 rounded animate-pulse"
+						></div>
+						<div v-else class="flex items-center gap-1.5">
 							<span class="font-mono font-bold text-slate-800">
 								{{ savingsRateDisplay }}
 							</span>
@@ -105,11 +119,21 @@
 							</span>
 						</div>
 						<div
+							v-if="loading"
+							class="h-7 w-28 bg-emerald-500/20 rounded-lg animate-pulse my-2"
+						></div>
+						<div
+							v-else
 							class="text-2xl font-extrabold font-mono tabular-nums tracking-tight text-emerald-600 my-2"
 						>
 							¥{{ formatAmount(monthIncomeSum) }}
 						</div>
 						<div
+							v-if="loading"
+							class="h-3.5 w-24 bg-slate-200/60 rounded animate-pulse"
+						></div>
+						<div
+							v-else
 							class="flex items-center gap-2 text-[11px] text-slate-500 font-mono flex-wrap"
 						>
 							<span>{{ formatTrend(incomeYoyTrend, '同比') }}</span>
@@ -133,11 +157,21 @@
 							</span>
 						</div>
 						<div
+							v-if="loading"
+							class="h-7 w-28 bg-rose-500/20 rounded-lg animate-pulse my-2"
+						></div>
+						<div
+							v-else
 							class="text-2xl font-extrabold font-mono tabular-nums tracking-tight text-rose-600 my-2"
 						>
 							¥{{ formatAmount(monthExpenseSum) }}
 						</div>
 						<div
+							v-if="loading"
+							class="h-3.5 w-24 bg-slate-200/60 rounded animate-pulse"
+						></div>
+						<div
+							v-else
 							class="flex items-center gap-2 text-[11px] text-slate-500 font-mono flex-wrap"
 						>
 							<span>{{ formatTrend(expenseYoyTrend, '同比') }}</span>
@@ -178,6 +212,11 @@
 				<!-- 总资产净值核心大数字 + 同环比胶囊 -->
 				<div class="flex items-baseline justify-between gap-3 flex-wrap my-1">
 					<div
+						v-if="loading"
+						class="h-8 w-36 bg-slate-200/80 rounded-lg animate-pulse my-1"
+					></div>
+					<div
+						v-else
 						class="text-3xl font-extrabold font-mono tabular-nums tracking-tight text-slate-900 leading-none"
 					>
 						<span class="text-lg font-bold text-indigo-600 mr-0.5">¥</span>{{
@@ -185,6 +224,11 @@
 						}}
 					</div>
 					<div
+						v-if="loading"
+						class="h-5 w-24 bg-white/70 rounded-full animate-pulse"
+					></div>
+					<div
+						v-else
 						class="flex items-center gap-2 text-[11px] text-slate-500 font-mono bg-white/90 shadow-2xs px-2.5 py-1 rounded-full"
 					>
 						<span>{{ formatTrend(yoyTrend, '同比') }}</span>
@@ -206,6 +250,11 @@
 						<span class="truncate">流动资金</span>
 					</div>
 					<div
+						v-if="loading"
+						class="h-4 w-16 bg-indigo-500/20 rounded animate-pulse mt-1.5"
+					></div>
+					<div
+						v-else
 						class="text-sm font-extrabold font-mono tabular-nums text-indigo-600 mt-1.5 truncate"
 					>
 						¥{{ formatAmount(liquidSubtotal) }}
@@ -222,6 +271,11 @@
 						<span class="truncate">信用负债</span>
 					</div>
 					<div
+						v-if="loading"
+						class="h-4 w-16 bg-rose-500/20 rounded animate-pulse mt-1.5"
+					></div>
+					<div
+						v-else
 						:class="[
 							'text-sm font-extrabold font-mono tabular-nums mt-1.5 truncate',
 							(creditSubtotal ?? 0) < 0 ? 'text-rose-600' : 'text-slate-800',
@@ -244,6 +298,11 @@
 						<span class="truncate">预存资产</span>
 					</div>
 					<div
+						v-if="loading"
+						class="h-4 w-16 bg-amber-500/20 rounded animate-pulse mt-1.5"
+					></div>
+					<div
+						v-else
 						class="text-sm font-extrabold font-mono tabular-nums text-amber-600 mt-1.5 truncate"
 					>
 						¥{{ formatAmount(prepaidSubtotal) }}
@@ -258,6 +317,7 @@
 import { WalletOutlined, AccountBookOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps<{
+	loading?: boolean;
 	sumAmount?: any;
 	yoyTrend?: string;
 	momTrend?: string;

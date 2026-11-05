@@ -45,7 +45,35 @@
 						</div>
 					</div>
 
-					<div v-if="liquidItems.length > 0" class="space-y-2 flex-1">
+					<!-- 查询中骨架屏 -->
+					<div v-if="accountLoading" class="space-y-2 flex-1 animate-pulse">
+						<div
+							v-for="i in 2"
+							:key="i"
+							class="bg-white/80 rounded-xl px-3.5 py-2.5 border-0 shadow-2xs"
+						>
+							<div class="flex items-center justify-between mb-2 gap-2">
+								<div class="flex items-center gap-2">
+									<div class="w-4 h-4 rounded bg-indigo-500/20 shrink-0"></div>
+									<div class="w-20 h-3.5 bg-slate-200/90 rounded"></div>
+								</div>
+								<div class="flex items-baseline gap-2.5">
+									<div class="w-16 h-3.5 bg-slate-200/90 rounded"></div>
+									<div class="w-8 h-3 bg-slate-200/70 rounded"></div>
+								</div>
+							</div>
+							<div
+								class="w-full h-1.5 bg-indigo-500/10 rounded-full overflow-hidden"
+							>
+								<div
+									class="h-full bg-indigo-500/30 rounded-full"
+									:style="{ width: i === 1 ? '65%' : '40%' }"
+								></div>
+							</div>
+						</div>
+					</div>
+
+					<div v-else-if="liquidItems.length > 0" class="space-y-2 flex-1">
 						<div
 							v-for="(item, idx) in liquidItems"
 							:key="item.typeCode || idx"
@@ -131,7 +159,35 @@
 						</div>
 					</div>
 
-					<div v-if="creditItems.length > 0" class="space-y-2.5 flex-1">
+					<!-- 查询中骨架屏 -->
+					<div v-if="accountLoading" class="space-y-2.5 flex-1 animate-pulse">
+						<div
+							v-for="i in 2"
+							:key="i"
+							class="bg-white/80 rounded-xl px-3.5 py-3 border-0 shadow-2xs"
+						>
+							<div class="flex items-center justify-between mb-2 gap-2">
+								<div class="flex items-center gap-2">
+									<div class="w-4 h-4 rounded bg-rose-500/20 shrink-0"></div>
+									<div class="w-20 h-3.5 bg-slate-200/90 rounded"></div>
+								</div>
+								<div class="flex items-baseline gap-2.5">
+									<div class="w-16 h-3.5 bg-slate-200/90 rounded"></div>
+									<div class="w-8 h-3 bg-slate-200/70 rounded"></div>
+								</div>
+							</div>
+							<div
+								class="w-full h-1.5 bg-rose-500/10 rounded-full overflow-hidden"
+							>
+								<div
+									class="h-full bg-rose-500/30 rounded-full"
+									:style="{ width: i === 1 ? '55%' : '30%' }"
+								></div>
+							</div>
+						</div>
+					</div>
+
+					<div v-else-if="creditItems.length > 0" class="space-y-2.5 flex-1">
 						<div
 							v-for="(item, idx) in creditItems"
 							:key="item.typeCode || idx"
@@ -218,8 +274,39 @@
 					</div>
 				</div>
 
+				<!-- 查询中骨架屏 -->
 				<div
-					v-if="prepaidItems.length > 0"
+					v-if="accountLoading"
+					class="grid grid-cols-1 md:grid-cols-2 gap-2.5 animate-pulse"
+				>
+					<div
+						v-for="i in 2"
+						:key="i"
+						class="bg-white/80 rounded-xl px-3.5 py-2.5 border-0 shadow-2xs"
+					>
+						<div class="flex items-center justify-between mb-2 gap-2">
+							<div class="flex items-center gap-2">
+								<div class="w-4 h-4 rounded bg-amber-500/20 shrink-0"></div>
+								<div class="w-20 h-3.5 bg-slate-200/90 rounded"></div>
+							</div>
+							<div class="flex items-baseline gap-2.5">
+								<div class="w-16 h-3.5 bg-slate-200/90 rounded"></div>
+								<div class="w-8 h-3 bg-slate-200/70 rounded"></div>
+							</div>
+						</div>
+						<div
+							class="w-full h-1.5 bg-amber-500/15 rounded-full overflow-hidden"
+						>
+							<div
+								class="h-full bg-amber-500/30 rounded-full"
+								:style="{ width: i === 1 ? '50%' : '35%' }"
+							></div>
+						</div>
+					</div>
+				</div>
+
+				<div
+					v-else-if="prepaidItems.length > 0"
 					class="grid grid-cols-1 md:grid-cols-2 gap-2.5"
 				>
 					<div
@@ -304,8 +391,53 @@
 						</span>
 					</div>
 
+					<!-- 查询中骨架屏 -->
+					<div v-if="categoryLoading" class="space-y-3 animate-pulse">
+						<!-- 顶部复合色条骨架 -->
+						<div
+							class="w-full h-2 bg-emerald-500/15 rounded-full overflow-hidden"
+						></div>
+
+						<!-- 分类横向条形明细骨架 -->
+						<div class="space-y-2.5 pt-1">
+							<div
+								v-for="i in 3"
+								:key="i"
+								class="py-1.5 px-2 -mx-2 rounded-xl"
+							>
+								<div class="flex items-center justify-between mb-2 gap-2">
+									<div class="flex items-center gap-2">
+										<div
+											class="w-2 h-2 rounded-full bg-emerald-500/30 shrink-0"
+										></div>
+										<div
+											class="w-3.5 h-3.5 rounded bg-slate-200/90 shrink-0"
+										></div>
+										<div class="w-16 h-3.5 bg-slate-200/90 rounded"></div>
+									</div>
+									<div class="flex items-baseline gap-2.5">
+										<div class="w-14 h-3.5 bg-slate-200/90 rounded"></div>
+										<div
+											class="w-8 h-3 bg-emerald-500/30 rounded"
+										></div>
+									</div>
+								</div>
+								<div
+									class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"
+								>
+									<div
+										class="h-full bg-emerald-500/30 rounded-full"
+										:style="{
+											width: getSkeletonBarWidth(i),
+										}"
+									></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
 					<!-- 有收入数据时：Emerald 绿色系横向条形图 -->
-					<div v-if="rankedIncomeList.length > 0" class="space-y-3">
+					<div v-else-if="rankedIncomeList.length > 0" class="space-y-3">
 						<!-- 顶部构成复合色条 -->
 						<div
 							class="w-full h-2 bg-emerald-500/10 rounded-full overflow-hidden flex gap-0.5"
@@ -427,8 +559,51 @@
 						</span>
 					</div>
 
+					<!-- 查询中骨架屏 -->
+					<div v-if="categoryLoading" class="space-y-3 animate-pulse">
+						<!-- 顶部多色构成条骨架 -->
+						<div
+							class="w-full h-2 bg-rose-500/15 rounded-full overflow-hidden"
+						></div>
+
+						<!-- 分类横向条形明细骨架 -->
+						<div class="space-y-2.5 pt-1">
+							<div
+								v-for="i in 3"
+								:key="i"
+								class="py-1.5 px-2 -mx-2 rounded-xl"
+							>
+								<div class="flex items-center justify-between mb-2 gap-2">
+									<div class="flex items-center gap-2">
+										<div
+											class="w-2 h-2 rounded-full bg-rose-500/30 shrink-0"
+										></div>
+										<div
+											class="w-3.5 h-3.5 rounded bg-slate-200/90 shrink-0"
+										></div>
+										<div class="w-16 h-3.5 bg-slate-200/90 rounded"></div>
+									</div>
+									<div class="flex items-baseline gap-2.5">
+										<div class="w-14 h-3.5 bg-slate-200/90 rounded"></div>
+										<div class="w-8 h-3 bg-rose-500/30 rounded"></div>
+									</div>
+								</div>
+								<div
+									class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"
+								>
+									<div
+										class="h-full bg-rose-500/30 rounded-full"
+										:style="{
+											width: getExpenseSkeletonWidth(i),
+										}"
+									></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
 					<!-- 有支出数据时：多色分类复合构成条 + 横向条形图 -->
-					<div v-if="rankedExpenseList.length > 0" class="space-y-3">
+					<div v-else-if="rankedExpenseList.length > 0" class="space-y-3">
 						<!-- 顶部多色支出构成比例条 -->
 						<div
 							class="w-full h-2 bg-rose-500/10 rounded-full overflow-hidden flex gap-0.5"
@@ -539,6 +714,8 @@ import {
 import type { ItemInfo } from '@/views/selfFinance/financeAnalysis/analysis';
 
 const props = defineProps<{
+	accountLoading?: boolean;
+	categoryLoading?: boolean;
 	listConfigs: Array<{
 		key?: string;
 		icon: string;
@@ -571,13 +748,28 @@ const financeSourceIconMap: Record<string, string> = {
 	dfm: 'df',
 };
 
+const SKELETON_BAR_WIDTHS: Record<number, string> = {
+	1: '70%',
+	2: '45%',
+};
+const getSkeletonBarWidth = (index: number) => SKELETON_BAR_WIDTHS[index] || '20%';
+
+const EXPENSE_SKELETON_WIDTHS: Record<number, string> = {
+	1: '60%',
+	2: '35%',
+};
+const getExpenseSkeletonWidth = (index: number) => EXPENSE_SKELETON_WIDTHS[index] || '15%';
+
+const resolveFinanceIconKey = (source: string): string => {
+	if (financeSourceIconMap[source]) return financeSourceIconMap[source];
+	if (source.startsWith('hf')) return 'hf';
+	if (source.startsWith('df')) return 'df';
+	return source;
+};
+
 const getFinanceIconComponent = (source?: string) => {
 	if (!source) return null;
-	const iconKey =
-		financeSourceIconMap[source] ||
-		(source.startsWith('hf') ? 'hf'
-		: source.startsWith('df') ? 'df'
-		: source);
+	const iconKey = resolveFinanceIconKey(source);
 	return iconComponentMap[`finance-${iconKey}`] || null;
 };
 

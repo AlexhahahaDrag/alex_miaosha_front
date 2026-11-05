@@ -76,6 +76,87 @@ describe('Finance Analysis Taste-Skill & Savings Rate Contract Tests', () => {
 		expect(simulateCardState(false, 0)).toBe('empty');
 	});
 
+	it('账户资产分布与收支结构五大区域均应遵循三态渲染顺序 (skeleton -> content -> empty)', () => {
+		const resolveSectionState = (
+			loading: boolean | undefined,
+			itemsCount: number,
+		): 'skeleton' | 'content' | 'empty' => {
+			if (loading) return 'skeleton';
+			if (itemsCount > 0) return 'content';
+			return 'empty';
+		};
+
+		// 1. 流动资金账户
+		expect(resolveSectionState(true, 0)).toBe('skeleton');
+		expect(resolveSectionState(false, 0)).toBe('empty');
+		expect(resolveSectionState(false, 2)).toBe('content');
+
+		// 2. 信用与负债
+		expect(resolveSectionState(true, 0)).toBe('skeleton');
+		expect(resolveSectionState(false, 0)).toBe('empty');
+		expect(resolveSectionState(false, 1)).toBe('content');
+
+		// 3. 水电话费预存
+		expect(resolveSectionState(true, 0)).toBe('skeleton');
+		expect(resolveSectionState(false, 0)).toBe('empty');
+		expect(resolveSectionState(false, 3)).toBe('content');
+
+		// 4. 收入结构
+		expect(resolveSectionState(true, 0)).toBe('skeleton');
+		expect(resolveSectionState(false, 0)).toBe('empty');
+		expect(resolveSectionState(false, 4)).toBe('content');
+
+		// 5. 支出结构
+		expect(resolveSectionState(true, 0)).toBe('skeleton');
+		expect(resolveSectionState(false, 0)).toBe('empty');
+		expect(resolveSectionState(false, 5)).toBe('content');
+	});
+
+	it('第一层核心指标卡 FinanceAnalysisKpiRow 在 loading 为真时应呈现骨架条防假零闪烁', () => {
+		const resolveKpiDisplay = (loading: boolean, value: string | number) => {
+			return loading ? 'skeleton' : String(value);
+		};
+
+		// 净结余大字
+		expect(resolveKpiDisplay(true, 0)).toBe('skeleton');
+		expect(resolveKpiDisplay(false, 3500)).toBe('3500');
+
+		// 总资产大字
+		expect(resolveKpiDisplay(true, '¥0.00')).toBe('skeleton');
+		expect(resolveKpiDisplay(false, '¥28,500.00')).toBe('¥28,500.00');
+
+		// 储蓄率
+		expect(resolveKpiDisplay(true, '—')).toBe('skeleton');
+		expect(resolveKpiDisplay(false, '65.2%')).toBe('65.2%');
+	});
+
+	// 细粒度 loadingMap 聚合与解耦契约测试
+	it('细粒度 loadingMap 聚合对象应支持单模块独立解耦与 isAnyLoading 计算属性', () => {
+		const loadingMap = {
+			balance: false,
+			category: false,
+			trend: false,
+			records: false,
+			budget: false,
+		};
+
+		const computeIsAnyLoading = (map: typeof loadingMap) =>
+			Object.values(map).some(Boolean);
+
+		// 全空状态
+		expect(computeIsAnyLoading(loadingMap)).toBe(false);
+
+		// 单独某一请求在加载中（如走势图慢查询），其他模块互不受阻
+		loadingMap.trend = true;
+		expect(computeIsAnyLoading(loadingMap)).toBe(true);
+		expect(loadingMap.balance).toBe(false); // 余额卡片可先行渲染完毕
+		expect(loadingMap.records).toBe(false); // 最近流水可先行渲染完毕
+
+		// 全解除
+		loadingMap.trend = false;
+		expect(computeIsAnyLoading(loadingMap)).toBe(false);
+	});
+
 	// 零钱预算子弹对比图与标线契约测试
 	it('零钱看板子弹图应正确计算消费节奏与预算标线保护', () => {
 		const calcPacing = (usage: number, timeRatio: number, isOver: boolean) => {

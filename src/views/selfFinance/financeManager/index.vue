@@ -11,6 +11,8 @@
 
 		<!-- 2. 一体化概览面板（子组件） -->
 		<finance-overview-card
+			:summary-loading="summaryLoading"
+			:budget-loading="budgetLoading"
 			:is-first-summary-loaded="isFirstSummaryLoaded"
 			:is-first-budget-loaded="isFirstBudgetLoaded"
 			:summary-title="summaryTitle"
@@ -304,6 +306,7 @@ const onApplyAiFromList = (parsed: UniversalFinanceAiParseVo) => {
 const {
 	currentMonthStr,
 	budgetStatus,
+	budgetLoading,
 	isFirstBudgetLoaded,
 	budgetSpentLabel,
 	budgetDirectionLabel,
@@ -336,7 +339,7 @@ const buildQueryParams = (param: FinanceManagerData): FinanceManagerData => {
 const fetchSummary = async (queryParam: FinanceManagerData) => {
 	summaryLoading.value = true;
 	try {
-		const { code, data } = await getFinanceSummary(queryParam);
+		const { code, data } = (await getFinanceSummary(queryParam)) || {};
 		if (code === '200' && data) {
 			summaryData.value = {
 				totalExpense: Number(data.totalExpense) || 0,
@@ -563,7 +566,7 @@ const getFinancePage = async (
 			code,
 			data,
 			message: messageInfo,
-		} = await getFinanceMangerPage(queryParam, cur.current, cur.pageSize);
+		} = (await getFinanceMangerPage(queryParam, cur.current, cur.pageSize)) || {};
 		if (code === '200') {
 			dataSource.value = data?.records || [];
 			setTotal(data?.total || 0);

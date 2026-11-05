@@ -124,7 +124,7 @@ const loginStore = useLoginStore();
 const loginForm: UnwrapRef<LoginParams> = reactive({
 	username: '',
 	password: '',
-	isRememberMe: false,
+	isRememberMe: true,
 });
 
 // 登录按钮加载状态
@@ -204,7 +204,7 @@ onMounted(async () => {
 		if (info) {
 			loginForm.username = info.username || '';
 			loginForm.password = info.password || '';
-			loginForm.isRememberMe = info.isRememberMe || false;
+			loginForm.isRememberMe = info.isRememberMe !== undefined ? Boolean(info.isRememberMe) : true;
 		}
 	}
 });

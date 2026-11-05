@@ -8,7 +8,7 @@
 			class="overview-section bill-stats-section flex flex-col justify-between min-w-0 bg-white px-4 py-3 rounded-2xl border-0 shadow-sm shadow-slate-200/60 hover:shadow-md hover:shadow-slate-200/70 transition-all duration-200"
 		>
 			<a-skeleton
-				:loading="!isFirstSummaryLoaded"
+				:loading="summaryLoading || !isFirstSummaryLoaded"
 				active
 				:title="{ width: '38%' }"
 				:paragraph="{ rows: 2, width: ['80%', '60%'] }"
@@ -136,7 +136,7 @@
 			class="overview-section budget-section flex flex-col justify-between min-w-0 bg-white px-4 py-3 rounded-2xl border-0 shadow-sm shadow-slate-200/60 hover:shadow-md hover:shadow-slate-200/70 transition-all duration-200"
 		>
 			<a-skeleton
-				:loading="!isFirstBudgetLoaded"
+				:loading="budgetLoading || !isFirstBudgetLoaded"
 				active
 				:title="{ width: '42%' }"
 				:paragraph="{ rows: 2, width: ['80%', '60%'] }"
@@ -305,6 +305,8 @@ import type {
 } from '@/views/selfFinance/financeManager/config';
 
 defineProps<{
+	summaryLoading?: boolean;
+	budgetLoading?: boolean;
 	isFirstSummaryLoaded: boolean;
 	isFirstBudgetLoaded: boolean;
 	summaryTitle: string;

@@ -6,6 +6,9 @@ import {
 	type BalanceData,
 } from '@/views/selfFinance/financeAnalysis/analysis';
 
+/** 归属成员入参类型（支持 ID 字符串、数字或 null 全局聚合） */
+export type BelongToParam = string | number | null;
+
 const baseFinanceAnalysis = '/finance-analysis';
 
 const financeAnalysisUrl = {
@@ -16,7 +19,7 @@ const financeAnalysisUrl = {
 };
 
 export const getBalance = (
-	belongTo?: string | number | null,
+	belongTo?: BelongToParam,
 	searchDate?: string,
 ): Promise<ResponseBody<BalanceData>> => {
 	const params: Record<string, unknown> = {
@@ -34,7 +37,7 @@ export const getBalance = (
 // 获取收入和支出信息
 // todo: 将来添加type参数，根据type查询收入和支出
 export const getIncomeAndExpense = (
-	belongTo?: string | number | null,
+	belongTo?: BelongToParam,
 	searchDate?: string,
 	type?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
@@ -54,7 +57,7 @@ export const getIncomeAndExpense = (
 };
 
 export const getDayExpense = (
-	belongTo?: string | number | null,
+	belongTo?: BelongToParam,
 	searchDate?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
 	const params: Record<string, unknown> = {
@@ -72,7 +75,7 @@ export const getDayExpense = (
 };
 
 export const getMonthExpense = (
-	belongTo?: string | number | null,
+	belongTo?: BelongToParam,
 	searchDate?: string,
 ): Promise<ResponseBody<AnalysisData[]>> => {
 	const params: Record<string, unknown> = {

@@ -64,12 +64,12 @@
 				<div class="flex items-center">
 					<button
 						type="button"
-						:disabled="loading"
+						:disabled="isAnyLoading"
 						class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border-0 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500 hover:text-white disabled:opacity-60 text-xs font-semibold cursor-pointer transition-all duration-200"
 						@click="getInfo"
 					>
-						<ReloadOutlined :spin="loading" class="text-xs" />
-						<span>{{ loading ? '分析中...' : '刷新分析' }}</span>
+						<ReloadOutlined :spin="isAnyLoading" class="text-xs" />
+						<span>{{ isAnyLoading ? '分析中...' : '刷新分析' }}</span>
 					</button>
 				</div>
 			</div>
@@ -77,7 +77,7 @@
 
 		<!-- 第一层 (P0 第一视觉重点)：01 本月财务状况 (左 7) + 02 资产净值概览 (右 5) -->
 		<finance-analysis-kpi-row
-			:loading="loading"
+			:loading="loadingMap.balance"
 			:sum-amount="sumAmount"
 			:yoy-trend="yoyTrend"
 			:mom-trend="momTrend"
@@ -101,7 +101,8 @@
 
 		<!-- 第二层 & 第三层：03 账户资产分布 (业务色彩分区) + 04 收入与支出结构 (独立白卡横向条形图) -->
 		<finance-analysis-account-grid
-			:loading="loading"
+			:account-loading="loadingMap.balance"
+			:category-loading="loadingMap.category"
 			:list-configs="listConfigs"
 			:pie-income-data="pieIncomeData"
 			:pie-expense-data="pieExpenseData"
@@ -160,7 +161,7 @@
 				<div class="flex-1 min-h-0 relative">
 					<!-- 加载中仿真图表骨架 -->
 					<div
-						v-if="loading"
+						v-if="loadingMap.trend"
 						class="w-full h-full flex flex-col justify-end p-4 box-border"
 					>
 						<div
@@ -229,7 +230,7 @@
 				</div>
 
 				<div
-					v-if="loading"
+					v-if="loadingMap.records"
 					class="flex-1 flex flex-col divide-y divide-slate-100 overflow-hidden pr-0.5"
 				>
 					<div
@@ -323,7 +324,7 @@
 
 		<!-- 第五层：07 · 当月零钱消费与预算分析 (全宽独立白卡) -->
 		<finance-analysis-budget-card
-			:loading="loading"
+			:loading="loadingMap.budget"
 			:budget-status="budgetStatus"
 			:current-month="searchDateTime?.format(dateFormatYYYYMM) || ''"
 			:format-amount="formatAmount"
@@ -385,7 +386,32 @@ import FinanceAnalysisBudgetCard from '@/views/selfFinance/financeAnalysis/compo
 import FinanceBudgetModal from '@/views/selfFinance/financeManager/finance-budget-modal/index.vue';
 
 const router = useRouter();
-const loading = ref<boolean>(false);
+
+export interface AnalysisLoadingMap {
+	balance: boolean;
+	category: boolean;
+	trend: boolean;
+	records: boolean;
+	budget: boolean;
+}
+
+const loadingMap = reactive<AnalysisLoadingMap>({
+	balance: false,
+	category: false,
+	trend: false,
+	records: false,
+	budget: false,
+});
+
+const isAnyLoading = computed(() =>
+	Boolean(
+		loadingMap.balance ||
+			loadingMap.category ||
+			loadingMap.trend ||
+			loadingMap.records ||
+			loadingMap.budget,
+	),
+);
 const trendMode = ref<'month' | 'day'>('month');
 const recentRecords = ref<FinanceManagerData[]>([]);
 const budgetStatus = ref<FinanceBudgetStatusVo | null>(null);
@@ -453,12 +479,12 @@ const formatTrend = (trend: string | undefined, defaultPrefix: string) => {
 	if (!trend || trend === '0.0%' || trend === '' || trend.includes('无')) {
 		return `${defaultPrefix} -`;
 	}
-	const isUp = trend.startsWith('+');
-	const isDown = trend.startsWith('-');
-	const arrow =
-		isUp ? '↑'
-		: isDown ? '↓'
-		: '';
+	let arrow = '';
+	if (trend.startsWith('+')) {
+		arrow = '↑';
+	} else if (trend.startsWith('-')) {
+		arrow = '↓';
+	}
 	return `${defaultPrefix} ${trend} ${arrow}`.trim();
 };
 
@@ -641,30 +667,35 @@ const getBalanceInfo = async (
 	userid: string | null | undefined,
 	dateStr: string,
 ) => {
-	const belongTo = !userid || userid === '0' ? null : String(userid);
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getBalance(belongTo, dateStr);
-	if (code === '200') {
-		balanceList.value = data?.list || [];
-		yoyTrend.value = data?.yoyTrend || '';
-		momTrend.value = data?.momTrend || '';
+	loadingMap.balance = true;
+	try {
+		const belongTo = !userid || userid === '0' ? null : String(userid);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = (await getBalance(belongTo, dateStr)) || {};
+		if (code === '200') {
+			balanceList.value = data?.list || [];
+			yoyTrend.value = data?.yoyTrend || '';
+			momTrend.value = data?.momTrend || '';
 
-		incomeYoyTrend.value = (data as any)?.incomeYoyTrend || '';
-		incomeMomTrend.value = (data as any)?.incomeMomTrend || '';
-		expenseYoyTrend.value = (data as any)?.expenseYoyTrend || '';
-		expenseMomTrend.value = (data as any)?.expenseMomTrend || '';
+			incomeYoyTrend.value = (data as any)?.incomeYoyTrend || '';
+			incomeMomTrend.value = (data as any)?.incomeMomTrend || '';
+			expenseYoyTrend.value = (data as any)?.expenseYoyTrend || '';
+			expenseMomTrend.value = (data as any)?.expenseMomTrend || '';
 
-		if ((data as any)?.monthIncomeSum !== undefined) {
-			monthIncomeSum.value = new BigNumber((data as any).monthIncomeSum || 0);
+			if ((data as any)?.monthIncomeSum !== undefined) {
+				monthIncomeSum.value = new BigNumber((data as any).monthIncomeSum || 0);
+			}
+			if ((data as any)?.monthExpenseSum !== undefined) {
+				monthExpenseSum.value = new BigNumber((data as any).monthExpenseSum || 0);
+			}
+		} else {
+			message.error(messageInfo || '查询余额失败！');
 		}
-		if ((data as any)?.monthExpenseSum !== undefined) {
-			monthExpenseSum.value = new BigNumber((data as any).monthExpenseSum || 0);
-		}
-	} else {
-		message.error(messageInfo || '查询余额失败！');
+	} finally {
+		loadingMap.balance = false;
 	}
 };
 
@@ -673,40 +704,45 @@ const getIncomeAndExpenseInfo = async (
 	userid: string | null | undefined,
 	dateStr: string,
 ) => {
-	const belongTo = !userid || userid === '0' ? null : String(userid);
-	const {
-		code,
-		data,
-		message: messageInfo,
-	} = await getIncomeAndExpense(belongTo, dateStr);
-	if (code === '200') {
-		const listData = Array.isArray(data) ? data : (data as any)?.list || [];
-		if (listData?.length) {
-			const income: ItemInfo[] = [];
-			listData
-				.filter(
-					(item: FinanceManagerData) => item.incomeAndExpenses === 'income',
-				)
-				.forEach((item: FinanceManagerData) => {
-					income.push({ name: item.typeCode || '', value: item.amount || 0 });
-				});
-			pieIncomeData.value = income;
+	loadingMap.category = true;
+	try {
+		const belongTo = !userid || userid === '0' ? null : String(userid);
+		const {
+			code,
+			data,
+			message: messageInfo,
+		} = (await getIncomeAndExpense(belongTo, dateStr)) || {};
+		if (code === '200') {
+			const listData = Array.isArray(data) ? data : (data as any)?.list || [];
+			if (listData?.length) {
+				const income: ItemInfo[] = [];
+				listData
+					.filter(
+						(item: FinanceManagerData) => item.incomeAndExpenses === 'income',
+					)
+					.forEach((item: FinanceManagerData) => {
+						income.push({ name: item.typeCode || '', value: item.amount || 0 });
+					});
+				pieIncomeData.value = income;
 
-			const expense: ItemInfo[] = [];
-			listData
-				.filter(
-					(item: FinanceManagerData) => item.incomeAndExpenses === 'expense',
-				)
-				.forEach((item: FinanceManagerData) => {
-					expense.push({ name: item.typeCode || '', value: item.amount || 0 });
-				});
-			pieExpenseData.value = expense;
+				const expense: ItemInfo[] = [];
+				listData
+					.filter(
+						(item: FinanceManagerData) => item.incomeAndExpenses === 'expense',
+					)
+					.forEach((item: FinanceManagerData) => {
+						expense.push({ name: item.typeCode || '', value: item.amount || 0 });
+					});
+				pieExpenseData.value = expense;
+			} else {
+				pieIncomeData.value = [];
+				pieExpenseData.value = [];
+			}
 		} else {
-			pieIncomeData.value = [];
-			pieExpenseData.value = [];
+			message.error(messageInfo || '查询收支失败！');
 		}
-	} else {
-		message.error(messageInfo || '查询收支失败！');
+	} finally {
+		loadingMap.category = false;
 	}
 };
 
@@ -738,7 +774,7 @@ const getExpenseSeries = async (
 		code,
 		data,
 		message: messageInfo,
-	} = await requestFn(belongTo, dateStr);
+	} = (await requestFn(belongTo, dateStr)) || {};
 	if (code === '200') {
 		return (data as AnalysisData[]) || [];
 	} else {
@@ -821,24 +857,42 @@ const getMonthExpenseInfo = async (
 	monthExpenseData.value = expenseList;
 };
 
+// 获取收支变化趋势（包含日走势与月走势）
+const getTrendInfo = async (
+	userid: string | null | undefined,
+	dateStr: string,
+) => {
+	loadingMap.trend = true;
+	try {
+		await Promise.all([
+			getDayExpenseInfo(userid, dateStr),
+			getMonthExpenseInfo(userid, dateStr),
+		]);
+	} finally {
+		loadingMap.trend = false;
+	}
+};
+
 // 获取当月最近 6 条真实财务流水
 const getRecentFinanceRecords = async (
 	userid: string | null | undefined,
 	dateStr: string,
 ) => {
+	loadingMap.records = true;
 	try {
 		const [monthStart, monthEnd] = getMonthRange(dateStr);
 		const belongTo = !userid || userid === '0' ? undefined : String(userid);
-		const { code, data } = await getFinanceMangerPage(
-			{
-				infoDateStart: monthStart,
-				infoDateEnd: monthEnd,
-				belongTo,
-				isValid: '1',
-			},
-			1,
-			6,
-		);
+		const { code, data } =
+			(await getFinanceMangerPage(
+				{
+					infoDateStart: monthStart,
+					infoDateEnd: monthEnd,
+					belongTo,
+					isValid: '1',
+				},
+				1,
+				6,
+			)) || {};
 		if (code === '200' && data?.records) {
 			recentRecords.value = data.records;
 		} else {
@@ -847,6 +901,8 @@ const getRecentFinanceRecords = async (
 	} catch (e) {
 		console.warn('获取最近财务流水失败:', e);
 		recentRecords.value = [];
+	} finally {
+		loadingMap.records = false;
 	}
 };
 
@@ -855,9 +911,10 @@ const getBudgetStatusInfo = async (
 	userid: string | null | undefined,
 	dateStr: string,
 ) => {
+	loadingMap.budget = true;
 	try {
 		const belongTo = !userid || userid === '0' ? undefined : String(userid);
-		const { code, data } = await getBudgetStatus(dateStr, belongTo);
+		const { code, data } = (await getBudgetStatus(dateStr, belongTo)) || {};
 		if (code === '200' && data) {
 			budgetStatus.value = data;
 		} else {
@@ -866,6 +923,8 @@ const getBudgetStatusInfo = async (
 	} catch (e) {
 		console.warn('获取零钱预算状态失败:', e);
 		budgetStatus.value = null;
+	} finally {
+		loadingMap.budget = false;
 	}
 };
 
@@ -898,22 +957,16 @@ const changeMonth = () => {
 	getInfo();
 };
 
-async function getInfo() {
-	loading.value = true;
-	try {
-		const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
-		const userParam = searchUser.value ? String(searchUser.value) : '0';
-		await Promise.all([
-			getBalanceInfo(userParam, dateStr),
-			getIncomeAndExpenseInfo(userParam, dateStr),
-			getDayExpenseInfo(userParam, dateStr),
-			getMonthExpenseInfo(userParam, dateStr),
-			getRecentFinanceRecords(userParam, dateStr),
-			getBudgetStatusInfo(userParam, dateStr),
-		]);
-	} finally {
-		loading.value = false;
-	}
+function getInfo() {
+	const dateStr = searchDateTime.value.format(dateFormatYYYYMM);
+	const userParam = searchUser.value ? String(searchUser.value) : '0';
+
+	// 各接口独立触发，互不阻塞，各自解除骨架屏实现渐进式极速渲染
+	getBalanceInfo(userParam, dateStr);
+	getIncomeAndExpenseInfo(userParam, dateStr);
+	getTrendInfo(userParam, dateStr);
+	getRecentFinanceRecords(userParam, dateStr);
+	getBudgetStatusInfo(userParam, dateStr);
 }
 
 onMounted(() => {
@@ -923,10 +976,10 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .search-card {
-	:deep(.ant-select-selector),
+	:deep(.ant-select:not(.ant-select-customize-input) .ant-select-selector),
 	:deep(.ant-picker) {
-		border-radius: 12px !important;
-		border-color: rgba(226, 232, 240, 0.9) !important;
+		border-radius: 12px;
+		border-color: rgba(226, 232, 240, 0.9);
 	}
 }
 </style>

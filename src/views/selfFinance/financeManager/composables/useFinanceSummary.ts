@@ -78,10 +78,11 @@ export function useFinanceSummary(
 	const loadBudgetStatus = async () => {
 		budgetLoading.value = true;
 		try {
-			const { code, data } = await getBudgetStatus(
-				currentMonthStr.value,
-				getEffectiveBudgetBelongTo(),
-			);
+			const { code, data } =
+				(await getBudgetStatus(
+					currentMonthStr.value,
+					getEffectiveBudgetBelongTo(),
+				)) || {};
 			if (code === '200' && data) {
 				budgetStatus.value = data;
 			}
