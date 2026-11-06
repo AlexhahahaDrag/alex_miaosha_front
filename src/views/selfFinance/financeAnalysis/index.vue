@@ -326,6 +326,7 @@
 		<finance-analysis-budget-card
 			:loading="loadingMap.budget"
 			:budget-status="budgetStatus"
+			:expense-categories="pieExpenseData"
 			:current-month="searchDateTime?.format(dateFormatYYYYMM) || ''"
 			:format-amount="formatAmount"
 			@open-budget="budgetModalVisible = true"

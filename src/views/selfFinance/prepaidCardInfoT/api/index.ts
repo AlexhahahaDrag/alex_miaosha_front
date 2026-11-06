@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getData,
 	postData,
 	putData,
@@ -26,8 +26,8 @@ export function getPrepaidCardInfoTPage(
 		baseService.finance + basePrepaidCardInfoT + PrepaidCardInfoTUrl.page,
 		params,
 		{
-			pageNum: pageNum ? pageNum : 1,
-			pageSize: pageSize ? pageSize : 10,
+			pageNum: pageNum ?? 1,
+			pageSize: pageSize ?? 10,
 		},
 	);
 }

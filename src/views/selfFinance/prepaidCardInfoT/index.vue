@@ -505,12 +505,20 @@ onMounted(() => {
 		border: 1px solid #e2e8f0;
 		box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
 
 		&:hover {
 			transform: translateY(-2px);
 			border-color: #93c5fd;
 			box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
+
+			@media (prefers-reduced-motion: reduce) {
+				transform: none;
+			}
 		}
 
 		&.is-active {

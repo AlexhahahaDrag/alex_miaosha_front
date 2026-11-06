@@ -22,8 +22,8 @@ export function getFilePage(
 ): Promise<any> {
 	let url = baseService.file + baseFileManager + fileUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,
-		pageSize: pageSize ? pageSize : 10,
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
 	});
 }
 

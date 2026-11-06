@@ -172,4 +172,51 @@ describe('Finance Analysis Taste-Skill & Savings Rate Contract Tests', () => {
 		// 已超支
 		expect(calcPacing(105, 50, true)).toBe('已超支');
 	});
+
+	// style-update: 零钱消费去向排行与超支责任归因契约测试
+	it('当月零钱消费去向应准确按金额降序排序并在超支时标记首要责任项', () => {
+		const rawCategories = [
+			{ name: '出行', value: 0.5 },
+			{ name: '饭', value: 100.0 },
+			{ name: '美食', value: 19.3 },
+			{ name: '零额度项', value: 0 },
+		];
+
+		const calculateRanking = (
+			categories: typeof rawCategories,
+			totalExpense: number,
+			isOver: boolean,
+		) => {
+			const filtered = categories
+				.filter((c) => c.value > 0)
+				.sort((a, b) => b.value - a.value);
+
+			return filtered.map((item, index) => ({
+				name: item.name,
+				value: item.value,
+				ratio: Math.round((item.value / totalExpense) * 100),
+				isCulprit: isOver && index === 0,
+			}));
+		};
+
+		// 正常状态 (未超支, 总支出 119.8)
+		const normalRanking = calculateRanking(rawCategories, 119.8, false);
+		expect(normalRanking.length).toBe(3);
+		expect(normalRanking[0].name).toBe('饭');
+		expect(normalRanking[0].value).toBe(100.0);
+		expect(normalRanking[0].ratio).toBe(83); // 100 / 119.8 ≈ 83%
+		expect(normalRanking[0].isCulprit).toBe(false);
+		expect(normalRanking[1].name).toBe('美食');
+		expect(normalRanking[2].name).toBe('出行');
+
+		// 超支状态 (总支出 3350, 预算 3000)
+		const overCategories = [
+			{ name: '大额聚餐', value: 2500.0 },
+			{ name: '日常日用', value: 850.0 },
+		];
+		const overRanking = calculateRanking(overCategories, 3350, true);
+		expect(overRanking[0].name).toBe('大额聚餐');
+		expect(overRanking[0].isCulprit).toBe(true); // 首要开销项被标记为超支主要责任项
+		expect(overRanking[1].isCulprit).toBe(false);
+	});
 });

@@ -26,8 +26,8 @@ export function getFinanceMangerPage(
 ): Promise<ResponseBody<CommonPageResult<FinanceManagerData>>> {
 	let url = baseService.finance + baseFinanceManager + financeMangerUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,
-		pageSize: pageSize ? pageSize : 10,
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
 	});
 }
 

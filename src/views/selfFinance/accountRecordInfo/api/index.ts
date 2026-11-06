@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getData,
 	postData,
 	putData,
@@ -23,8 +23,8 @@ export function getAccountRecordInfoPage(
 	let url =
 		baseService.finance + baseAccountRecordInfo + AccountRecordInfoUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,
-		pageSize: pageSize ? pageSize : 10,
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
 	});
 }
 

@@ -234,9 +234,10 @@ const cancelQuery = () => {
 };
 
 const openDetail = (type: 'add' | 'update', id?: string) => {
+	const detailId = type === 'update' && id ? String(id) : undefined;
 	modelInfo.value = {
 		title: type === 'add' ? '新增储值卡交易流水' : '编辑储值卡交易流水',
-		id: type === 'add' ? undefined : id ? String(id) : undefined,
+		id: detailId,
 	};
 	detailOpen.value = true;
 };

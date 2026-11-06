@@ -1,4 +1,4 @@
-﻿import {
+import {
 	getData,
 	postData,
 	putData,
@@ -25,8 +25,8 @@ export function getPrepaidConsumeRecordTPage(
 		basePrepaidConsumeRecordT +
 		PrepaidConsumeRecordTUrl.page;
 	return postData(url, params, {
-		pageNum: pageNum ? pageNum : 1,
-		pageSize: pageSize ? pageSize : 10,
+		pageNum: pageNum ?? 1,
+		pageSize: pageSize ?? 10,
 	});
 }
 
