@@ -608,13 +608,13 @@ const calculateSubtotal = (list: FinanceManagerData[]): number => {
 	return list.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 };
 
-// 三大资产账户分组：流动资金 / 信用负债 / 专户预存 (合并水电燃气与话费预存)
+// 三大资产账户分组（对齐移动端客户标准）：可动产 / 不动产 / 生活缴费
 const listConfigs = computed(() => {
-	const liquidList =
-		getBalanceDetailData(balanceList.value, ['yhk', 'wx', 'zfb', 'xj', 'jd']) ||
+	const movableList =
+		getBalanceDetailData(balanceList.value, ['yhk', 'wx', 'hb', 'bt']) ||
 		[];
-	const creditList =
-		getBalanceDetailData(balanceList.value, ['hb', 'bt']) || [];
+	const immovableList =
+		getBalanceDetailData(balanceList.value, ['xj', 'zfb', 'jd']) || [];
 	const prepaidList =
 		getBalanceDetailData(balanceList.value, [
 			'sf',
@@ -627,25 +627,25 @@ const listConfigs = computed(() => {
 	return [
 		{
 			key: 'liquid',
-			title: '流动资金账户',
-			desc: '现金、银行卡及主流电子钱包可用余额',
+			title: '可动产',
+			desc: '银行卡、微信及花呗、白条日常周转账户',
 			icon: '💰',
-			list: liquidList,
-			subtotal: calculateSubtotal(liquidList),
+			list: movableList,
+			subtotal: calculateSubtotal(movableList),
 			valueClass: 'text-dark',
 		},
 		{
 			key: 'credit',
-			title: '信用与负债',
-			desc: '花呗、白条等信用账户待还负债',
-			icon: '💳',
-			list: creditList,
-			subtotal: calculateSubtotal(creditList),
+			title: '不动产',
+			desc: '现金、支付宝及京东储备资产账户',
+			icon: '🏦',
+			list: immovableList,
+			subtotal: calculateSubtotal(immovableList),
 			valueClass: 'text-dark',
 		},
 		{
 			key: 'prepaid',
-			title: '水电话费预存',
+			title: '生活缴费',
 			desc: '水电燃气卡及家庭成员手机话费预存余额',
 			icon: '⚡',
 			list: prepaidList,

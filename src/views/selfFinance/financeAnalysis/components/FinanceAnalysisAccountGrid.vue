@@ -18,9 +18,9 @@
 				</div>
 			</div>
 
-			<!-- 上排：流动资金账户 (左 7/12 Indigo 柔和底) + 信用与负债 (右 5/12 Rose 柔和底) -->
+			<!-- 上排：可动产 (左 7/12 Indigo 柔和底) + 不动产 (右 5/12 Emerald 柔和底) -->
 			<div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
-				<!-- 流动资金账户：Indigo 柔和背景 -->
+				<!-- 可动产：Indigo 柔和背景 -->
 				<div
 					class="lg:col-span-7 bg-indigo-500/[0.05] rounded-2xl p-4 border-0 flex flex-col"
 				>
@@ -39,9 +39,16 @@
 							</span>
 						</div>
 						<div
-							class="text-base font-extrabold font-mono tabular-nums text-indigo-600"
+							:class="[
+								'text-base font-extrabold font-mono tabular-nums',
+								Number(liquidConfig.subtotal || 0) < 0 ?
+									'text-rose-600'
+								:	'text-indigo-600',
+							]"
 						>
-							¥{{ formatAmount(liquidConfig.subtotal) }}
+							{{ Number(liquidConfig.subtotal || 0) < 0 ? '-' : '' }}¥{{
+								formatAmount(Math.abs(Number(liquidConfig.subtotal || 0)))
+							}}
 						</div>
 					</div>
 
@@ -101,8 +108,17 @@
 								<div
 									class="flex items-baseline gap-2.5 shrink-0 font-mono tabular-nums"
 								>
-									<span class="font-bold text-slate-800 text-xs">
-										¥{{ formatAmount(item.amount) }}
+									<span
+										:class="[
+											'font-bold text-xs',
+											Number(item.amount || 0) < 0 ?
+												'text-rose-600'
+											:	'text-slate-800',
+										]"
+									>
+										{{ Number(item.amount || 0) < 0 ? '-' : '' }}¥{{
+											formatAmount(Math.abs(Number(item.amount || 0)))
+										}}
 									</span>
 									<span class="text-[11px] text-slate-400 w-11 text-right">
 										{{ item.sharePercent }}%
@@ -110,10 +126,20 @@
 								</div>
 							</div>
 							<div
-								class="w-full h-1.5 bg-indigo-500/10 rounded-full overflow-hidden"
+								:class="[
+									'w-full h-1.5 rounded-full overflow-hidden',
+									Number(item.amount || 0) < 0 ?
+										'bg-rose-500/10'
+									:	'bg-indigo-500/10',
+								]"
 							>
 								<div
-									class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+									:class="[
+										'h-full rounded-full transition-all duration-300',
+										Number(item.amount || 0) < 0 ?
+											'bg-rose-500'
+										:	'bg-indigo-500',
+									]"
 									:style="{ width: `${Math.max(item.sharePercent, 2)}%` }"
 								></div>
 							</div>
@@ -123,24 +149,24 @@
 						v-else
 						class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
 					>
-						暂无流动资金账户数据
+						暂无可动产账户数据
 					</div>
 				</div>
 
-				<!-- 信用与负债：Rose 柔和背景 -->
+				<!-- 不动产：Emerald 柔和背景 -->
 				<div
-					class="lg:col-span-5 bg-rose-500/[0.05] rounded-2xl p-4 border-0 flex flex-col"
+					class="lg:col-span-5 bg-emerald-500/[0.05] rounded-2xl p-4 border-0 flex flex-col"
 				>
 					<div class="flex items-center justify-between gap-2 mb-3">
 						<div class="flex items-center gap-2">
 							<span
-								class="w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0"
+								class="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0"
 							></span>
 							<span class="text-sm font-bold text-slate-800">
 								{{ creditConfig.title }}
 							</span>
 							<span
-								class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600"
+								class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600"
 							>
 								{{ creditItems.length }} 个账户
 							</span>
@@ -150,7 +176,7 @@
 								'text-base font-extrabold font-mono tabular-nums',
 								Number(creditConfig.subtotal || 0) < 0 ?
 									'text-rose-600'
-								:	'text-slate-800',
+								:	'text-emerald-600',
 							]"
 						>
 							{{ Number(creditConfig.subtotal || 0) < 0 ? '-' : '' }}¥{{
@@ -168,7 +194,7 @@
 						>
 							<div class="flex items-center justify-between mb-2 gap-2">
 								<div class="flex items-center gap-2">
-									<div class="w-4 h-4 rounded bg-rose-500/20 shrink-0"></div>
+									<div class="w-4 h-4 rounded bg-emerald-500/20 shrink-0"></div>
 									<div class="w-20 h-3.5 bg-slate-200/90 rounded"></div>
 								</div>
 								<div class="flex items-baseline gap-2.5">
@@ -177,10 +203,10 @@
 								</div>
 							</div>
 							<div
-								class="w-full h-1.5 bg-rose-500/10 rounded-full overflow-hidden"
+								class="w-full h-1.5 bg-emerald-500/10 rounded-full overflow-hidden"
 							>
 								<div
-									class="h-full bg-rose-500/30 rounded-full"
+									class="h-full bg-emerald-500/30 rounded-full"
 									:style="{ width: i === 1 ? '55%' : '30%' }"
 								></div>
 							</div>
@@ -191,7 +217,7 @@
 						<div
 							v-for="(item, idx) in creditItems"
 							:key="item.typeCode || idx"
-							class="group bg-white/95 hover:bg-white rounded-xl px-3.5 py-3 border-0 shadow-2xs hover:ring-1 hover:ring-rose-500/30 cursor-pointer transition-all"
+							class="group bg-white/95 hover:bg-white rounded-xl px-3.5 py-3 border-0 shadow-2xs hover:ring-1 hover:ring-emerald-500/30 cursor-pointer transition-all"
 							:title="`点击查看【${item.typeName}】相关流水`"
 							@click="item.typeCode && $emit('select-account', item.typeCode)"
 						>
@@ -207,7 +233,7 @@
 										class="text-xs text-slate-400 shrink-0"
 									/>
 									<span
-										class="font-semibold text-slate-700 group-hover:text-rose-600 truncate transition-colors"
+										class="font-semibold text-slate-700 group-hover:text-emerald-600 truncate transition-colors"
 									>
 										{{ item.typeName }}
 									</span>
@@ -233,10 +259,10 @@
 								</div>
 							</div>
 							<div
-								class="w-full h-1.5 bg-rose-500/10 rounded-full overflow-hidden"
+								class="w-full h-1.5 bg-emerald-500/10 rounded-full overflow-hidden"
 							>
 								<div
-									class="h-full bg-rose-500 rounded-full transition-all duration-300"
+									class="h-full bg-emerald-500 rounded-full transition-all duration-300"
 									:style="{ width: `${Math.max(item.sharePercent, 2)}%` }"
 								></div>
 							</div>
@@ -246,7 +272,7 @@
 						v-else
 						class="flex-1 flex items-center justify-center py-8 text-xs text-slate-400"
 					>
-						暂无信用负债账户数据
+						暂无不动产账户数据
 					</div>
 				</div>
 			</div>
@@ -816,7 +842,7 @@ const enrichGroupItems = (rawList: FinanceManagerData[] = []) => {
 const liquidConfig = computed(
 	() =>
 		props.listConfigs[0] || {
-			title: '流动资金账户',
+			title: '可动产',
 			subtotal: 0,
 			list: [],
 		},
@@ -825,7 +851,7 @@ const liquidConfig = computed(
 const creditConfig = computed(
 	() =>
 		props.listConfigs[1] || {
-			title: '信用与负债',
+			title: '不动产',
 			subtotal: 0,
 			list: [],
 		},
@@ -834,7 +860,7 @@ const creditConfig = computed(
 const prepaidConfig = computed(
 	() =>
 		props.listConfigs[2] || {
-			title: '水电话费预存',
+			title: '生活缴费',
 			subtotal: 0,
 			list: [],
 		},

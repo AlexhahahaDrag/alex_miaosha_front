@@ -501,19 +501,6 @@ const pacingStatus = computed(() => {
 	return { label: '节奏平稳', color: 'text-emerald-600', bg: 'bg-emerald-500/10' };
 });
 
-// 进度条渐变样式：超支烈焰红微光、偏快暖橙、安全经典靛蓝
-const barGradientClass = computed(() => {
-	if (props.budgetStatus?.isOverBudget) {
-		return 'bg-gradient-to-r from-amber-500 via-rose-500 to-rose-600 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.4)]';
-	}
-	const usage = Number(props.budgetStatus?.usagePercent || 0);
-	const timeProgress = monthTimeProgress.value;
-	if (usage > timeProgress + 20 && usage >= 50) {
-		return 'bg-gradient-to-r from-amber-500 to-amber-600';
-	}
-	return 'bg-gradient-to-r from-indigo-500 to-indigo-600';
-});
-
 // 进度条内联安全渐变样式（防止无 Tailwind base 变量时 background-image 失效）
 const barGradientStyle = computed(() => {
 	if (props.budgetStatus?.isOverBudget) {

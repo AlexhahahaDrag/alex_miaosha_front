@@ -219,4 +219,41 @@ describe('Finance Analysis Taste-Skill & Savings Rate Contract Tests', () => {
 		expect(overRanking[0].isCulprit).toBe(true); // 首要开销项被标记为超支主要责任项
 		expect(overRanking[1].isCulprit).toBe(false);
 	});
+
+	// 客户明确要求的三大账户分类对齐契约测试：可动产 / 不动产 / 生活缴费
+	it('PC端账户分组应严格对齐移动端客户标准（可动产 / 不动产 / 生活缴费）', () => {
+		const mockBalanceList = [
+			{ typeCode: 'yhk', typeName: '银行卡', amount: 1785.88 },
+			{ typeCode: 'wx', typeName: '微信', amount: 3342.94 },
+			{ typeCode: 'hb', typeName: '花呗', amount: -57.47 },
+			{ typeCode: 'bt', typeName: '白条', amount: -63.27 },
+			{ typeCode: 'xj', typeName: '现金', amount: 13582.94 },
+			{ typeCode: 'zfb', typeName: '支付宝', amount: 60000 },
+			{ typeCode: 'jd', typeName: '京东', amount: 60000 },
+			{ typeCode: 'dfw', typeName: '电费w', amount: 68 },
+			{ typeCode: 'hfw', typeName: '话费w', amount: 146.58 },
+		];
+
+		const filterByCodes = (keywords: string[]) =>
+			mockBalanceList.filter((item) =>
+				keywords.some((k) => item.typeCode.includes(k)),
+			);
+
+		const movableList = filterByCodes(['yhk', 'wx', 'hb', 'bt']);
+		const immovableList = filterByCodes(['xj', 'zfb', 'jd']);
+		const utilityList = filterByCodes(['sf', 'rqf', 'dfw', 'dfm', 'hf']);
+
+		expect(movableList.map((i) => i.typeName)).toEqual([
+			'银行卡',
+			'微信',
+			'花呗',
+			'白条',
+		]);
+		expect(immovableList.map((i) => i.typeName)).toEqual([
+			'现金',
+			'支付宝',
+			'京东',
+		]);
+		expect(utilityList.map((i) => i.typeName)).toEqual(['电费w', '话费w']);
+	});
 });

@@ -238,16 +238,17 @@
 				</div>
 			</div>
 
-			<!-- 底部三个独立纯白无框小卡片：流动资金(indigo) / 信用负债(rose) / 预存资产(amber) -->
+			<!-- 底部三个独立纯白无框小卡片：可动产(indigo) / 不动产(emerald) / 生活缴费(amber) -->
 			<div class="grid grid-cols-3 gap-2.5 mt-4">
 				<div
 					class="bg-white rounded-2xl p-3 border-0 shadow-xs shadow-indigo-500/5"
+					title="银行卡、微信、花呗、白条日常周转账户"
 				>
 					<div class="flex items-center gap-1.5 text-xs text-slate-500">
 						<span
 							class="w-2 h-2 rounded-full bg-indigo-500 inline-block shrink-0"
 						></span>
-						<span class="truncate">流动资金</span>
+						<span class="truncate">可动产</span>
 					</div>
 					<div
 						v-if="loading"
@@ -255,30 +256,36 @@
 					></div>
 					<div
 						v-else
-						class="text-sm font-extrabold font-mono tabular-nums text-indigo-600 mt-1.5 truncate"
+						:class="[
+							'text-sm font-extrabold font-mono tabular-nums mt-1.5 truncate',
+							(liquidSubtotal ?? 0) < 0 ? 'text-rose-600' : 'text-indigo-600',
+						]"
 					>
-						¥{{ formatAmount(liquidSubtotal) }}
+						{{ (liquidSubtotal ?? 0) < 0 ? '-' : '' }}¥{{
+							formatAmount(Math.abs(liquidSubtotal ?? 0))
+						}}
 					</div>
 				</div>
 
 				<div
 					class="bg-white rounded-2xl p-3 border-0 shadow-xs shadow-indigo-500/5"
+					title="现金、支付宝、京东储备资产账户"
 				>
 					<div class="flex items-center gap-1.5 text-xs text-slate-500">
 						<span
-							class="w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0"
+							class="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0"
 						></span>
-						<span class="truncate">信用负债</span>
+						<span class="truncate">不动产</span>
 					</div>
 					<div
 						v-if="loading"
-						class="h-4 w-16 bg-rose-500/20 rounded animate-pulse mt-1.5"
+						class="h-4 w-16 bg-emerald-500/20 rounded animate-pulse mt-1.5"
 					></div>
 					<div
 						v-else
 						:class="[
 							'text-sm font-extrabold font-mono tabular-nums mt-1.5 truncate',
-							(creditSubtotal ?? 0) < 0 ? 'text-rose-600' : 'text-slate-800',
+							(creditSubtotal ?? 0) < 0 ? 'text-rose-600' : 'text-emerald-600',
 						]"
 					>
 						{{ (creditSubtotal ?? 0) < 0 ? '-' : '' }}¥{{
@@ -289,13 +296,13 @@
 
 				<div
 					class="bg-white rounded-2xl p-3 border-0 shadow-xs shadow-indigo-500/5"
-					title="水电燃气及话费专户预存资产"
+					title="水电燃气及话费生活缴费账户"
 				>
 					<div class="flex items-center gap-1.5 text-xs text-slate-500">
 						<span
 							class="w-2 h-2 rounded-full bg-amber-500 inline-block shrink-0"
 						></span>
-						<span class="truncate">预存资产</span>
+						<span class="truncate">生活缴费</span>
 					</div>
 					<div
 						v-if="loading"
