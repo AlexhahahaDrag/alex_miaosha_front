@@ -267,7 +267,7 @@ const onSyncMenuByRoute = () => {
 		const allKeys = collectAllMenuKeys(menuItems.value);
 		if (!allKeys.has(name) && !allKeys.has(path)) {
 			// 如果当前路由 name/path 不直接在菜单里（如隐藏的详情页），从 matched 中倒序寻找最近的一个在菜单里的祖先
-			const hit = [...matched].reverse().find((m) => {
+			const hit = matched.findLast((m) => {
 				const hitName = m.name ? String(m.name) : '';
 				const hitPath = m.path ? String(m.path) : '';
 				return (
@@ -381,38 +381,14 @@ watch(
 	}
 }
 
-/* 自定义滚动条样式 */
-.navbar-info::-webkit-scrollbar {
-	display: none;
-	/* 设置滚动条的宽度 */
+/* 隐藏滚动条：优先使用标准 scrollbar-width，旧版内核通过 @supports 降级 */
+.navbar-info {
+	scrollbar-width: none;
 }
 
-.navbar-info::-webkit-scrollbar-track {
-	background: #f1f1f1;
-	/* 滚动条轨道的颜色 */
-	border-radius: 10px;
-	/* 圆角 */
-}
-
-.navbar-info::-webkit-scrollbar-thumb {
-	background-color: #888;
-	/* 滚动条的颜色 */
-	border-radius: 10px;
-	/* 圆角 */
-	border: 2px solid #f1f1f1;
-	/* 滚动条的边框 */
-}
-
-.navbar-info::-webkit-scrollbar-thumb:hover {
-	background: #555;
-	/* 鼠标悬停时的滚动条颜色 */
-}
-
-/* 可以设置滚动条的阴影 */
-::-webkit-scrollbar-thumb:active {
-	background: #333;
-	/* 鼠标点击时的颜色 */
-	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-	/* 滚动条的阴影效果 */
+@supports not (scrollbar-width: none) {
+	.navbar-info::-webkit-scrollbar {
+		display: none;
+	}
 }
 </style>

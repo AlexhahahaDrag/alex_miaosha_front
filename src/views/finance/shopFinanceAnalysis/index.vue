@@ -201,7 +201,7 @@ const topShopItem = computed(() => {
 	if (!pieShopData.value.length) {
 		return { name: '暂无数据', amount: '0.00' };
 	}
-	const sorted = [...pieShopData.value].sort(
+	const sorted = pieShopData.value.toSorted(
 		(a, b) => Number(b.value || 0) - Number(a.value || 0),
 	);
 	return {
@@ -214,7 +214,7 @@ const topPayWayItem = computed(() => {
 	if (!piePayWayData.value.length) {
 		return { name: '暂无数据', amount: '0.00' };
 	}
-	const sorted = [...piePayWayData.value].sort(
+	const sorted = piePayWayData.value.toSorted(
 		(a, b) => Number(b.value || 0) - Number(a.value || 0),
 	);
 	return {

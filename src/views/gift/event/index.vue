@@ -485,7 +485,7 @@ const displayTopEvents = computed(() => {
 	const activeCustoms = customOptions.value.filter((x) => x.status !== 0);
 	const all = [...activePresets, ...activeCustoms];
 
-	const sorted = [...all].sort((a, b) => {
+	const sorted = all.toSorted((a, b) => {
 		const countA = a.useCount || 0;
 		const countB = b.useCount || 0;
 		if (countB !== countA) {

@@ -278,7 +278,7 @@ const loadRecentEvents = async () => {
 		if (list.length < 3) {
 			const { code: evCode, data: evData } = await getGiftEventList({});
 			if (evCode === '200' && evData) {
-				const sortedEvents = [...evData].sort((a, b) =>
+				const sortedEvents = evData.toSorted((a, b) =>
 					String(b.id).localeCompare(String(a.id)),
 				);
 				sortedEvents.forEach((ev) => {

@@ -571,7 +571,7 @@ const rankedExpenseCategories = computed<DisplayExpenseRankItem[]>(() => {
 	});
 
 	// 按消费金额降序
-	const sorted = [...matchedList].sort(
+	const sorted = matchedList.toSorted(
 		(a, b) => (Number(b.value) || 0) - (Number(a.value) || 0),
 	);
 	if (!sorted.length) return [];
